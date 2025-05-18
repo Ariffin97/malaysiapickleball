@@ -1,0 +1,280 @@
+/* Color palette for Malaysia Pickleball Association */
+:root {
+    /* Primary colors (inspired by https://baseline.my/) */
+    --primary-blue: #1e40af; /* Deep blue for navbar, buttons */
+    --primary-blue-light: #3b82f6; /* Lighter blue for hover, accents */
+    --primary-blue-dark: #1e3a8a; /* Darker blue for gradients */
+    --secondary-gray: #f3f4f6; /* Light gray for backgrounds */
+    --text-dark: #1f2937; /* Dark gray for headings, text */
+    --text-light: #6b7280; /* Lighter gray for secondary text */
+    --white: #ffffff; /* Pure white for cards, text */
+    --accent-teal: #2dd4bf; /* Teal for highlights, buttons */
+    --shadow-color: rgba(0, 0, 0, 0.1); /* Subtle shadow */
+    --button-bg: transparent; /* Button background (transparent) */
+    --button-bg-hover: rgba(59, 130, 246, 0.2); /* Button hover background (light blue with opacity) */
+    --button-text: #ffffff; /* Button text color */
+    --zigzag-yellow: #facc15; /* Yellow for zigzag arrow */
+    --zigzag-blue: #1e40af; /* Blue tip for zigzag arrow */
+}
+
+/* General styles */
+body {
+    scroll-behavior: smooth;
+    background-color: var(--secondary-gray);
+    color: var(--text-dark);
+}
+
+/* Section animations */
+section {
+    opacity: 0;
+    transform: translateY(30px);
+    transition: opacity 0.6s ease, transform 0.6s ease;
+}
+
+section.visible {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+/* Fade-in animation for hero */
+.animate-fade-in {
+    animation: fadeIn 1s ease-in-out;
+}
+
+@keyframes fadeIn {
+    0% { opacity: 0; transform: translateY(20px); }
+    100% { opacity: 1; transform: translateY(0); }
+}
+
+/* Hero section */
+.hero-section {
+    background-image: url('/images/pickleball-bg.jpg');
+    background-size: cover;
+    background-position: center;
+    position: relative;
+}
+
+.hero-section::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(to bottom, rgba(30, 58, 138, 0.3), rgba(0, 0, 0, 0.2));
+    z-index: 1;
+}
+
+.hero-section .text-center {
+    position: relative;
+    z-index: 2;
+}
+
+.hero-section h2 {
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+}
+
+.hero-section p {
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+/* Calendar button (Explore Tournaments) */
+.calendar-btn {
+    background-color: var(--button-bg);
+    color: var(--button-text);
+    border: 2px solid var(--button-text);
+    transition: background-color 0.3s ease;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3); /* Ensure legibility over background image */
+}
+
+.calendar-btn:hover {
+    background-color: var(--button-bg-hover);
+}
+
+/* Navbar custom styles */
+nav {
+    background: linear-gradient(to right, var(--primary-blue-dark), var(--primary-blue));
+}
+
+/* Mobile menu styling */
+#mobile-menu {
+    transition: all 0.3s ease-in-out;
+    background-color: var(--primary-blue);
+}
+
+#mobile-menu a {
+    color: var(--white);
+}
+
+#mobile-menu a:hover {
+    color: var(--primary-blue-light);
+}
+
+/* Carousel styling */
+#calendar-items, #news-items, #coaches-items {
+    display: flex;
+    transition: transform 0.5s ease-in-out;
+    touch-action: pan-y; /* Prevent vertical scroll during horizontal swipe */
+}
+
+#calendar-items > div, #news-items > div, #coaches-items > div {
+    flex-shrink: 0;
+    background-color: var(--white);
+    box-shadow: 0 4px 6px var(--shadow-color);
+}
+
+#calendar-items h3, #news-items h3, #coaches-items h3 {
+    color: var(--primary-blue);
+}
+
+#calendar-items p, #news-items p, #coaches-items p {
+    color: var(--text-light);
+}
+
+/* Carousel buttons */
+.carousel-btn {
+    background-color: var(--button-bg);
+    color: var(--button-text);
+    padding: 0;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background-color 0.3s ease;
+    border: 2px solid var(--button-text); /* Add border for visibility */
+}
+
+.carousel-btn:hover {
+    background-color: var(--button-bg-hover);
+}
+
+/* Zigzag arrow design */
+.zigzag-arrow {
+    position: relative;
+    width: 24px;
+    height: 24px;
+    display: inline-block;
+}
+
+.zigzag-arrow::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 0;
+    width: 18px;
+    height: 3px;
+    background-color: var(--zigzag-yellow);
+    transform: translateY(-50%);
+    clip-path: polygon(0 0, 10% 100%, 20% 0, 30% 100%, 40% 0, 50% 100%, 60% 0, 70% 100%, 80% 0, 90% 100%, 100% 0);
+}
+
+.zigzag-arrow-left::after,
+.zigzag-arrow-right::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    width: 0;
+    height: 0;
+    border: 6px solid transparent;
+}
+
+.zigzag-arrow-left::after {
+    left: -6px;
+    border-right-color: var(--zigzag-blue);
+    transform: translateY(-50%);
+}
+
+.zigzag-arrow-right::after {
+    right: -6px;
+    border-left-color: var(--zigzag-blue);
+    transform: translateY(-50%);
+}
+
+/* Card styles (Courts, Referees, Coaches) */
+section#courts, section#referees, section#coaches {
+    background-color: var(--secondary-gray);
+}
+
+section#courts .bg-white, section#referees .bg-white, section#coaches .bg-white {
+    background-color: var(--white);
+    box-shadow: 0 4px 6px var(--shadow-color);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+section#courts .bg-white:hover, section#referees .bg-white:hover, section#coaches .bg-white:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 8px 12px var(--shadow-color);
+}
+
+section#courts h3, section#referees h3, section#coaches h3 {
+    color: var(--primary-blue);
+}
+
+section#courts p, section#referees p, section#coaches p {
+    color: var(--text-light);
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .grid-cols-3, .grid-cols-2 {
+        grid-template-columns: 1fr;
+    }
+
+    #calendar-items > div, #news-items > div, #coaches-items > div {
+        min-w-full;
+    }
+
+    .text-5xl {
+        font-size: 2.5rem;
+    }
+
+    .text-4xl {
+        font-size: 2rem;
+    }
+}
+
+@media (max-width: 640px) {
+    .h-screen {
+        height: 80vh;
+    }
+
+    .hero-section h2 {
+        font-size: 2.5rem;
+    }
+
+    .hero-section p {
+        font-size: 1.25rem;
+    }
+
+    .carousel-btn {
+        width: 32px;
+        height: 32px;
+    }
+
+    .zigzag-arrow {
+        width: 20px;
+        height: 20px;
+    }
+
+    .zigzag-arrow::before {
+        width: 14px;
+        height: 2px;
+    }
+
+    .zigzag-arrow-left::after,
+    .zigzag-arrow-right::after {
+        border: 5px solid transparent;
+    }
+
+    .calendar-btn {
+        padding: 0.5rem 1.5rem;
+        font-size: 1rem;
+    }
+
+    #coaches-items .bg-white {
+        margin: 0 auto;
+        width: 80%;
+    }
+}
