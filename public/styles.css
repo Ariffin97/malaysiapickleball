@@ -13,8 +13,11 @@
     --button-bg: transparent; /* Button background (transparent) */
     --button-bg-hover: rgba(59, 130, 246, 0.2); /* Button hover background (light blue with opacity) */
     --button-text: #ffffff; /* Button text color */
-    --zigzag-yellow: #facc15; /* Yellow for zigzag arrow */
-    --zigzag-blue: #1e40af; /* Blue tip for zigzag arrow */
+}
+
+/* text-size for MPA */
+nav h1 {
+    font-size: 1.0rem; /* 30px, equivalent to text-3xl */
 }
 
 /* General styles */
@@ -48,7 +51,7 @@ section.visible {
 
 /* Hero section */
 .hero-section {
-    background-image: url('/images/pickleball.png');
+    background-image: url('/images/pickleball-bg.jpg');
     background-size: cover;
     background-position: center;
     position: relative;
@@ -131,67 +134,6 @@ nav {
     color: var(--text-light);
 }
 
-/* Carousel buttons */
-.carousel-btn {
-    background-color: var(--button-bg);
-    color: var(--button-text);
-    padding: 0;
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: background-color 0.3s ease;
-    border: 2px solid var(--button-text); /* Add border for visibility */
-}
-
-.carousel-btn:hover {
-    background-color: var(--button-bg-hover);
-}
-
-/* Zigzag arrow design */
-.zigzag-arrow {
-    position: relative;
-    width: 24px;
-    height: 24px;
-    display: inline-block;
-}
-
-.zigzag-arrow::before {
-    content: '';
-    position: absolute;
-    top: 50%;
-    left: 0;
-    width: 18px;
-    height: 3px;
-    background-color: var(--zigzag-yellow);
-    transform: translateY(-50%);
-    clip-path: polygon(0 0, 10% 100%, 20% 0, 30% 100%, 40% 0, 50% 100%, 60% 0, 70% 100%, 80% 0, 90% 100%, 100% 0);
-}
-
-.zigzag-arrow-left::after,
-.zigzag-arrow-right::after {
-    content: '';
-    position: absolute;
-    top: 50%;
-    width: 0;
-    height: 0;
-    border: 6px solid transparent;
-}
-
-.zigzag-arrow-left::after {
-    left: -6px;
-    border-right-color: var(--zigzag-blue);
-    transform: translateY(-50%);
-}
-
-.zigzag-arrow-right::after {
-    right: -6px;
-    border-left-color: var(--zigzag-blue);
-    transform: translateY(-50%);
-}
-
 /* Card styles (Courts, Referees, Coaches) */
 section#courts, section#referees, section#coaches {
     background-color: var(--secondary-gray);
@@ -214,6 +156,12 @@ section#courts h3, section#referees h3, section#coaches h3 {
 
 section#courts p, section#referees p, section#coaches p {
     color: var(--text-light);
+}
+
+/* Coaches carousel specific styles */
+#coaches-items .bg-white {
+    max-width: 400px; /* Reduce width for desktop view */
+    margin: 0 auto;
 }
 
 /* Responsive adjustments */
@@ -248,26 +196,6 @@ section#courts p, section#referees p, section#coaches p {
         font-size: 1.25rem;
     }
 
-    .carousel-btn {
-        width: 32px;
-        height: 32px;
-    }
-
-    .zigzag-arrow {
-        width: 20px;
-        height: 20px;
-    }
-
-    .zigzag-arrow::before {
-        width: 14px;
-        height: 2px;
-    }
-
-    .zigzag-arrow-left::after,
-    .zigzag-arrow-right::after {
-        border: 5px solid transparent;
-    }
-
     .calendar-btn {
         padding: 0.5rem 1.5rem;
         font-size: 1rem;
@@ -276,5 +204,6 @@ section#courts p, section#referees p, section#coaches p {
     #coaches-items .bg-white {
         margin: 0 auto;
         width: 80%;
+        max-width: none; /* Ensure mobile view uses the full width as before */
     }
 }
