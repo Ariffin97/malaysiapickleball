@@ -1,105 +1,183 @@
-// Mobile menu toggle
-document.getElementById('menu-btn').addEventListener('click', () => {
-    const mobileMenu = document.getElementById('mobile-menu');
-    mobileMenu.classList.toggle('hidden');
-});
-
-// Scroll animations for sections
-const sections = document.querySelectorAll('section');
-const observer = new IntersectionObserver((entries) => {
-    entries.forEach(entry => {
-        if (entry.isIntersecting) {
-            entry.target.classList.add('visible');
-        }
-    });
-}, { threshold: 0.2 });
-
-sections.forEach(section => {
-    observer.observe(section);
-});
-
-// Carousel functionality (for Calendar, News, and Coaches)
-function setupCarousel(carouselId) {
-    console.log(`Initializing carousel: ${carouselId}`);
-    const carousel = document.getElementById(carouselId);
-    if (!carousel) {
+document.addEventListener('DOMContentLoaded', () => {
+    // Mobile Menu Toggle
+    const toggleMobileMenu = () => {
+      const menuBtn = document.getElementById('menu-btn');
+      const mobileMenu = document.getElementById('mobile-menu');
+      if (menuBtn && mobileMenu) {
+        const toggle = () => {
+          const isHidden = mobileMenu.classList.toggle('hidden');
+          menuBtn.setAttribute('aria-expanded', !isHidden);
+        };
+        menuBtn.addEventListener('click', toggle);
+        menuBtn.addEventListener('keydown', (e) => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            toggle();
+          }
+        });
+      }
+    };
+  
+    // Scroll Animations
+    const setupScrollAnimations = () => {
+      const sections = document.querySelectorAll('section');
+      const observer = new IntersectionObserver(
+        (entries) => {
+          entries.forEach(entry => {
+            entry.target.classList.toggle('visible', entry.isIntersecting);
+          });
+        },
+        { threshold: 0.2 }
+      );
+      sections.forEach(section => observer.observe(section));
+    };
+  
+    // Image Load Error Logging
+    const logImageErrors = () => {
+      document.querySelectorAll('img').forEach(img => {
+        img.addEventListener('error', () => {
+          console.warn(`Failed to load image: ${img.src}`);
+        });
+      });
+    };
+  
+    // Carousel Setup
+    const setupCarousel = (carouselId, prevBtnId, nextBtnId) => {
+      const carousel = document.getElementById(carouselId);
+      if (!carousel) {
         console.error(`Carousel with ID ${carouselId} not found`);
         return;
-    }
-
-    let currentIndex = 0;
-    const items = carousel.children;
-    const totalItems = items.length;
-    console.log(`Total items in ${carouselId}: ${totalItems}`);
-
-    // Move carousel to specific index
-    function moveCarousel() {
-        console.log(`Moving ${carouselId} to index ${currentIndex}`);
+      }
+      let currentIndex = 0;
+      const items = carousel.children;
+      const totalItems = items.length;
+      const prevBtn = document.getElementById(prevBtnId);
+      const nextBtn = document.getElementById(nextBtnId);
+  
+      const moveCarousel = () => {
         carousel.style.transform = `translateX(-${currentIndex * 100}%)`;
-    }
-
-    // Auto-scroll every 5 seconds
-    let autoScroll = setInterval(() => {
-        console.log(`Auto-scrolling ${carouselId} to index ${currentIndex + 1}`);
+      };
+  
+      if (prevBtn && nextBtn) {
+        prevBtn.addEventListener('click', () => {
+          currentIndex = (currentIndex - 1 + totalItems) % totalItems;
+          moveCarousel();
+        });
+        nextBtn.addEventListener('click', () => {
+          currentIndex = (currentIndex + 1) % totalItems;
+          moveCarousel();
+        });
+      }
+  
+      let autoScroll = setInterval(() => {
         currentIndex = (currentIndex + 1) % totalItems;
         moveCarousel();
-    }, 5000);
-
-    // Pause auto-scroll on hover
-    carousel.parentElement.addEventListener('mouseenter', () => {
-        console.log(`Pausing auto-scroll for ${carouselId}`);
+      }, 7000);
+  
+      carousel.parentElement.addEventListener('mouseenter', () => {
         clearInterval(autoScroll);
-    });
-    carousel.parentElement.addEventListener('mouseleave', () => {
-        console.log(`Resuming auto-scroll for ${carouselId}`);
+      });
+      carousel.parentElement.addEventListener('mouseleave', () => {
         autoScroll = setInterval(() => {
-            currentIndex = (currentIndex + 1) % totalItems;
-            moveCarousel();
-        }, 5000);
-    });
-
-    // Swipe functionality
-    let touchStartX = 0;
-    let touchEndX = 0;
-
-    carousel.addEventListener('touchstart', (e) => {
-        console.log(`Touch start on ${carouselId}`);
+          currentIndex = (currentIndex + 1) % totalItems;
+          moveCarousel();
+        }, 7000);
+      });
+  
+      let touchStartX = 0;
+      let touchEndX = 0;
+      carousel.addEventListener('touchstart', (e) => {
         touchStartX = e.changedTouches[0].screenX;
-        clearInterval(autoScroll); // Pause auto-scroll during swipe
-    });
-
-    carousel.addEventListener('touchmove', (e) => {
+        clearInterval(autoScroll);
+      });
+      carousel.addEventListener('touchmove', (e) => {
         touchEndX = e.changedTouches[0].screenX;
-    });
-
-    carousel.addEventListener('touchend', () => {
-        console.log(`Touch end on ${carouselId}`);
+      });
+      carousel.addEventListener('touchend', () => {
         const swipeDistance = touchEndX - touchStartX;
-        const minSwipeDistance = 50; // Minimum distance for a swipe
-
+        const minSwipeDistance = 100;
         if (swipeDistance > minSwipeDistance) {
-            // Swipe right (previous)
-            console.log(`Swiping right on ${carouselId}`);
-            currentIndex = (currentIndex - 1 + totalItems) % totalItems;
+          currentIndex = (currentIndex - 1 + totalItems) % totalItems;
         } else if (swipeDistance < -minSwipeDistance) {
-            // Swipe left (next)
-            console.log(`Swiping left on ${carouselId}`);
-            currentIndex = (currentIndex + 1) % totalItems;
+          currentIndex = (currentIndex + 1) % totalItems;
         }
-
         moveCarousel();
-
-        // Resume auto-scroll after swipe
         autoScroll = setInterval(() => {
-            currentIndex = (currentIndex + 1) % totalItems;
-            moveCarousel();
-        }, 5000);
-    });
-}
-
-// Initialize carousels after DOM is fully loaded
-document.addEventListener('DOMContentLoaded', () => {
-    setupCarousel('calendar-items');
-    setupCarousel('news-items');
-    setupCarousel('coaches-items');
-});
+          currentIndex = (currentIndex + 1) % totalItems;
+          moveCarousel();
+        }, 7000);
+      });
+  
+      carousel.addEventListener('keydown', (e) => {
+        if (e.key === 'ArrowLeft') {
+          currentIndex = (currentIndex - 1 + totalItems) % totalItems;
+          moveCarousel();
+        } else if (e.key === 'ArrowRight') {
+          currentIndex = (currentIndex + 1) % totalItems;
+          moveCarousel();
+        }
+      });
+    };
+  
+    // Chart Initialization
+    const initCharts = () => {
+      const tournamentChart = document.getElementById('tournament-chart');
+      const coachChart = document.getElementById('coach-chart');
+      if (tournamentChart && coachChart) {
+        new Chart(tournamentChart.getContext('2d'), {
+          type: 'bar',
+          data: {
+            labels: ['Malaysia Open', 'Penang Classic', 'Johor Championship'],
+            datasets: [{
+              label: 'Tournament Day (2025)',
+              data: [15, 10, 20],
+              backgroundColor: ['#1e40af', '#3b82f6', '#2dd4bf'],
+              borderColor: ['#1e3a8a', '#1e40af', '#14b8a6'],
+              borderWidth: 1
+            }]
+          },
+          options: {
+            scales: {
+              y: { beginAtZero: true, title: { display: true, text: 'Day of Month' } },
+              x: { title: { display: true, text: 'Tournament' } }
+            },
+            plugins: {
+              legend: { display: false },
+              title: { display: true, text: 'Tournament Schedule 2025' }
+            }
+          }
+        });
+  
+        new Chart(coachChart.getContext('2d'), {
+          type: 'pie',
+          data: {
+            labels: ['2-3 years', '4-5 years', '6+ years'],
+            datasets: [{
+              label: 'Coaches',
+              data: [2, 3, 3],
+              backgroundColor: ['#2dd4bf', '#3b82f6', '#1e40af'],
+              borderColor: ['#14b8a6', '#1e40af', '#1e3a8a'],
+              borderWidth: 1
+            }]
+          },
+          options: {
+            plugins: {
+              legend: { position: 'bottom' },
+              title: { display: true, text: 'Coach Experience Distribution' }
+            }
+          }
+        });
+      }
+    };
+  
+    // Initialize Features
+    toggleMobileMenu();
+    setupScrollAnimations();
+    logImageErrors();
+    setupCarousel('calendar-items', 'calendar-prev', 'calendar-next');
+    setupCarousel('news-items', 'news-prev', 'news-next');
+    if (document.getElementById('coaches-items')) {
+      setupCarousel('coaches-items', 'coaches-prev', 'coaches-next');
+    }
+    initCharts();
+  });

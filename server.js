@@ -1,40 +1,271 @@
 const express = require('express');
 const path = require('path');
+const fs = require('fs').promises;
+const helmet = require('helmet');
+const compression = require('compression');
+const session = require('express-session');
+const bcrypt = require('bcrypt');
+const multer = require('multer');
 const app = express();
 const port = process.env.PORT || 3000;
 
-// Set EJS as the view engine
+// Set EJS as view engine
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
 
-// Serve static files
-app.use(express.static(path.join(__dirname, 'public')));
+// Middleware
+app.use(helmet());
+app.use(compression());
+app.use(express.urlencoded({ extended: true })); // Parse form data
+app.use(express.static(path.join(__dirname, 'public'), {
+  setHeaders: (res, path) => {
+    if (path.endsWith('.png') || path.endsWith('.jpg') || path.endsWith('.webp')) {
+      res.setHeader('Cache-Control', 'public, max-age=31536000');
+    }
+  }
+}));
+app.use(session({
+  secret: 'admin123', // Replace with a strong secret
+  resave: false,
+  saveUninitialized: false,
+  cookie: { secure: false } // Set to true in production with HTTPS
+}));
 
-// Route for homepage
-app.get('/', (req, res) => {
-    const tournaments = [
-        { name: 'Malaysia Open 2025', date: 'June 15-18, 2025', location: 'Kuala Lumpur' },
-        { name: 'Penang Pickleball Classic', date: 'August 10-12, 2025', location: 'Penang' },
-        { name: 'Johor Championship', date: 'October 20-22, 2025', location: 'Johor Bahru' }
-    ];
-    const news = [
-        { title: 'New Court Opening in Johor', date: 'May 10, 2025', description: 'Join us for the grand opening of our new facility!' },
-        { title: 'Youth Training Program', date: 'April 20, 2025', description: 'Registration open for ages 10-18.' }
-    ];
-    const coaches = [
-        { name: 'Tan Wei Ming', experience: '5 years', contact: 'tan@example.com', image: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e' },
-        { name: 'Lina Chong', experience: '3 years', contact: 'lina@example.com', image: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330' },
-        { name: 'Ahmad Zulkifli', experience: '7 years', contact: 'ahmad@example.com', image: 'https://images.unsplash.com/photo-1519085360753-af0119f7cbe7' },
-        { name: 'Sofia Lim', experience: '4 years', contact: 'sofia@example.com', image: 'https://images.unsplash.com/photo-1508214751196-bcfd4ca60f91' },
-        { name: 'Rajesh Kumar', experience: '6 years', contact: 'rajesh@example.com', image: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d' },
-        { name: 'Mei Ling', experience: '2 years', contact: 'mei@example.com', image: 'https://images.unsplash.com/photo-1517841903200-7a724dd77e98' },
-        { name: 'Daniel Ong', experience: '8 years', contact: 'daniel@example.com', image: 'https://images.unsplash.com/photo-1530268729831-4e4d24c5b1c2' },
-        { name: 'Nur Aisyah', experience: '5 years', contact: 'nur@example.com', image: 'https://images.unsplash.com/photo-1488426862026-3ee34a7d66df' }
-    ];
-    res.render('index', { tournaments, news, coaches });
+// Multer setup for image uploads
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, 'public/images');
+  },
+  filename: (req, file, cb) => {
+    const ext = path.extname(file.originalname);
+    cb(null, `${Date.now()}${ext}`);
+  }
+});
+const upload = multer({
+  storage,
+  fileFilter: (req, file, cb) => {
+    const filetypes = /jpeg|jpg|png|webp/;
+    const extname = filetypes.test(path.extname(file.originalname).toLowerCase());
+    const mimetype = filetypes.test(file.mimetype);
+    if (extname && mimetype) {
+      return cb(null, true);
+    }
+    cb(new Error('Only images (JPEG, PNG, WebP) are allowed'));
+  },
+  limits: { fileSize: 5 * 1024 * 1024 } // 5MB limit
+});
+
+// Middleware to check if user is authenticated
+const isAuthenticated = (req, res, next) => {
+  if (req.session.authenticated) {
+    return next();
+  }
+  res.redirect('/admin/login');
+};
+
+// Routes
+app.get('/', async (req, res) => {
+  try {
+    const [tournaments, news, coaches, courts, referees] = await Promise.all([
+      fs.readFile('data/tournaments.json').then(JSON.parse),
+      fs.readFile('data/news.json').then(JSON.parse),
+      fs.readFile('data/coaches.json').then(JSON.parse),
+      fs.readFile('data/courts.json').then(JSON.parse),
+      fs.readFile('data/referees.json').then(JSON.parse)
+    ]);
+    res.render('index', { tournaments, news, coaches, courts, referees });
+  } catch (err) {
+    console.error('Server Error:', err);
+    res.status(500).send('Internal Server Error');
+  }
+});
+
+// Admin Login
+app.get('/admin/login', (req, res) => {
+  res.render('admin', { section: 'login', error: null });
+});
+
+app.post('/admin/login', async (req, res) => {
+  try {
+    const { username, password } = req.body;
+    const admins = await fs.readFile('data/admin.json').then(JSON.parse);
+    const admin = admins.find(a => a.username === username);
+    if (admin && await bcrypt.compare(password, admin.password)) {
+      req.session.authenticated = true;
+      res.redirect('/admin/dashboard');
+    } else {
+      res.render('admin', { section: 'login', error: 'Invalid credentials' });
+    }
+  } catch (err) {
+    console.error('Login Error:', err);
+    res.render('admin', { section: 'login', error: 'Server error' });
+  }
+});
+
+// Admin Logout
+app.get('/admin/logout', (req, res) => {
+  req.session.destroy();
+  res.redirect('/admin/login');
+});
+
+// Admin Dashboard
+app.get('/admin/dashboard', isAuthenticated, async (req, res) => {
+  try {
+    const [tournaments, news, coaches, courts, referees] = await Promise.all([
+      fs.readFile('data/tournaments.json').then(JSON.parse),
+      fs.readFile('data/news.json').then(JSON.parse),
+      fs.readFile('data/coaches.json').then(JSON.parse),
+      fs.readFile('data/courts.json').then(JSON.parse),
+      fs.readFile('data/referees.json').then(JSON.parse)
+    ]);
+    res.render('admin', { section: 'dashboard', tournaments, news, coaches, courts, referees, error: null });
+  } catch (err) {
+    console.error('Dashboard Error:', err);
+    res.status(500).send('Internal Server Error');
+  }
+});
+
+// CRUD Routes (Example for Tournaments)
+app.post('/admin/tournaments/add', isAuthenticated, async (req, res) => {
+  try {
+    const { name, date, location } = req.body;
+    const tournaments = await fs.readFile('data/tournaments.json').then(JSON.parse);
+    tournaments.push({ name, date, location });
+    await fs.writeFile('data/tournaments.json', JSON.stringify(tournaments, null, 2));
+    res.redirect('/admin/dashboard');
+  } catch (err) {
+    console.error('Add Tournament Error:', err);
+    res.redirect('/admin/dashboard');
+  }
+});
+
+app.post('/admin/tournaments/delete/:index', isAuthenticated, async (req, res) => {
+  try {
+    const index = parseInt(req.params.index);
+    let tournaments = await fs.readFile('data/tournaments.json').then(JSON.parse);
+    tournaments = tournaments.filter((_, i) => i !== index);
+    await fs.writeFile('data/tournaments.json', JSON.stringify(tournaments, null, 2));
+    res.redirect('/admin/dashboard');
+  } catch (err) {
+    console.error('Delete Tournament Error:', err);
+    res.redirect('/admin/dashboard');
+  }
+});
+
+// CRUD for Coaches with Image Upload
+app.post('/admin/coaches/add', isAuthenticated, upload.single('image'), async (req, res) => {
+  try {
+    const { name, experience, contact } = req.body;
+    const image = req.file ? `/images/${req.file.filename}` : '/images/fallback.jpg';
+    const coaches = await fs.readFile('data/coaches.json').then(JSON.parse);
+    coaches.push({ name, experience, contact, image });
+    await fs.writeFile('data/coaches.json', JSON.stringify(coaches, null, 2));
+    res.redirect('/admin/dashboard');
+  } catch (err) {
+    console.error('Add Coach Error:', err);
+    res.redirect('/admin/dashboard');
+  }
+});
+
+app.post('/admin/coaches/delete/:index', isAuthenticated, async (req, res) => {
+  try {
+    const index = parseInt(req.params.index);
+    let coaches = await fs.readFile('data/coaches.json').then(JSON.parse);
+    coaches = coaches.filter((_, i) => i !== index);
+    await fs.writeFile('data/coaches.json', JSON.stringify(coaches, null, 2));
+    res.redirect('/admin/dashboard');
+  } catch (err) {
+    console.error('Delete Coach Error:', err);
+    res.redirect('/admin/dashboard');
+  }
+});
+
+// CRUD for Courts with Image Upload
+app.post('/admin/courts/add', isAuthenticated, upload.single('image'), async (req, res) => {
+  try {
+    const { name, address, facilities } = req.body;
+    const image = req.file ? `/images/${req.file.filename}` : '/images/fallback.jpg';
+    const courts = await fs.readFile('data/courts.json').then(JSON.parse);
+    const id = courts.length ? Math.max(...courts.map(c => c.id)) + 1 : 1;
+    courts.push({ id, name, address, facilities, image });
+    await fs.writeFile('data/courts.json', JSON.stringify(courts, null, 2));
+    res.redirect('/admin/dashboard');
+  } catch (err) {
+    console.error('Add Court Error:', err);
+    res.redirect('/admin/dashboard');
+  }
+});
+
+app.post('/admin/courts/delete/:id', isAuthenticated, async (req, res) => {
+  try {
+    const id = parseInt(req.params.id);
+    let courts = await fs.readFile('data/courts.json').then(JSON.parse);
+    courts = courts.filter(c => c.id !== id);
+    await fs.writeFile('data/courts.json', JSON.stringify(courts, null, 2));
+    res.redirect('/admin/dashboard');
+  } catch (err) {
+    console.error('Delete Court Error:', err);
+    res.redirect('/admin/dashboard');
+  }
+});
+
+// CRUD for Referees with Image Upload
+app.post('/admin/referees/add', isAuthenticated, upload.single('image'), async (req, res) => {
+  try {
+    const { name, certification } = req.body;
+    const image = req.file ? `/images/${req.file.filename}` : '/images/fallback.jpg';
+    const referees = await fs.readFile('data/referees.json').then(JSON.parse);
+    const id = referees.length ? Math.max(...referees.map(r => r.id)) + 1 : 1;
+    referees.push({ id, name, certification, image });
+    await fs.writeFile('data/referees.json', JSON.stringify(referees, null, 2));
+    res.redirect('/admin/dashboard');
+  } catch (err) {
+    console.error('Add Referee Error:', err);
+    res.redirect('/admin/dashboard');
+  }
+});
+
+app.post('/admin/referees/delete/:id', isAuthenticated, async (req, res) => {
+  try {
+    const id = parseInt(req.params.id);
+    let referees = await fs.readFile('data/referees.json').then(JSON.parse);
+    referees = referees.filter(r => r.id !== id);
+    await fs.writeFile('data/referees.json', JSON.stringify(referees, null, 2));
+    res.redirect('/admin/dashboard');
+  } catch (err) {
+    console.error('Delete Referee Error:', err);
+    res.redirect('/admin/dashboard');
+  }
+});
+
+// CRUD for News
+app.post('/admin/news/add', isAuthenticated, async (req, res) => {
+  try {
+    const { title, date, description } = req.body;
+    const news = await fs.readFile('data/news.json').then(JSON.parse);
+    news.push({ title, date, description });
+    await fs.writeFile('data/news.json', JSON.stringify(news, null, 2));
+    res.redirect('/admin/dashboard');
+  } catch (err) {
+    console.error('Add News Error:', err);
+    res.redirect('/admin/dashboard');
+  }
+});
+
+app.post('/admin/news/delete/:index', isAuthenticated, async (req, res) => {
+  try {
+    const index = parseInt(req.params.index);
+    let news = await fs.readFile('data/news.json').then(JSON.parse);
+    news = news.filter((_, i) => i !== index);
+    await fs.writeFile('data/news.json', JSON.stringify(news, null, 2));
+    res.redirect('/admin/dashboard');
+  } catch (err) {
+    console.error('Delete News Error:', err);
+    res.redirect('/admin/dashboard');
+  }
 });
 
 // Start server
 app.listen(port, () => {
-    console.log(`Server running at http://localhost:${port}`);
+  console.log(`Server running at http://localhost:${port}`);
 });

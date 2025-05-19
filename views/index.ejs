@@ -1,144 +1,165 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Malaysia Pickleball Association</title>
-    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="/styles.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Join the Malaysia Pickleball Association for tournaments, courts, and coaching.">
+  <meta name="keywords" content="pickleball, Malaysia, sports, tournaments, coaches">
+  <title>Malaysia Pickleball Association</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css">
+  <link rel="stylesheet" href="/css/styles.css">
 </head>
 <body class="bg-gray-50 font-sans">
-    <!-- Navbar -->
-    <nav class="bg-gradient-to-r from-blue-700 to-blue-500 text-white p-4 sticky top-0 z-20 shadow-lg">
-        <div class="container mx-auto flex justify-between items-center">
-            <h1 class="text-xl font-extrabold tracking-tight">Malaysia Pickleball Association</h1>
-            <div class="space-x-6 hidden md:flex">
-                <a href="#calendar" class="hover:text-blue-200 transition duration-300">Calendar</a>
-                <a href="#courts" class="hover:text-blue-200 transition duration-300">Courts</a>
-                <a href="#referees" class="hover:text-blue-200 transition duration-300">Referees</a>
-                <a href="#news" class="hover:text-blue-200 transition duration-300">News</a>
-                <a href="#coaches" class="hover:text-blue-200 transition duration-300">Coaches</a>
+  <!-- Navbar -->
+  <nav class="bg-gradient-to-r from-blue-700 to-blue-500 text-white p-4 sticky top-0 z-20 shadow-lg">
+    <div class="container mx-auto flex justify-between items-center">
+      <h1 class="text-2xl font-extrabold tracking-tight">Malaysia Pickleball Association</h1>
+      <div class="space-x-6 hidden md:flex">
+        <a href="#calendar" class="hover:text-blue-200 transition duration-300 ease-in-out">Calendar</a>
+        <a href="#courts" class="hover:text-blue-200 transition duration-300 ease-in-out">Courts</a>
+        <a href="#referees" class="hover:text-blue-200 transition duration-300 ease-in-out">Referees</a>
+        <a href="#news" class="hover:text-blue-200 transition duration-300 ease-in-out">News</a>
+        <a href="#coaches" class="hover:text-blue-200 transition duration-300 ease-in-out">Coaches</a>
+        <a href="#stats" class="hover:text-blue-200 transition duration-300 ease-in-out">Stats</a>
+      </div>
+      <button id="menu-btn" class="md:hidden focus:outline-none" aria-label="Toggle mobile menu" aria-expanded="false">
+        <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+        </svg>
+      </button>
+    </div>
+    <div id="mobile-menu" class="hidden md:hidden bg-blue-600 p-6 shadow-lg">
+      <a href="#calendar" class="block py-3 text-lg hover:text-blue-200 transition duration-300">Calendar</a>
+      <a href="#courts" class="block py-3 text-lg hover:text-blue-200 transition duration-300">Courts</a>
+      <a href="#referees" class="block py-3 text-lg hover:text-blue-200 transition duration-300">Referees</a>
+      <a href="#news" class="block py-3 text-lg hover:text-blue-200 transition duration-300">News</a>
+      <a href="#coaches" class="block py-3 text-lg hover:text-blue-200 transition duration-300">Coaches</a>
+      <a href="#stats" class="block py-3 text-lg hover:text-blue-200 transition duration-300">Stats</a>
+    </div>
+  </nav>
+
+  <!-- Hero Section -->
+  <section class="hero-section bg-cover bg-center h-screen flex items-center justify-center text-white relative">
+    <div class="text-center z-10">
+      <h2 class="text-5xl md:text-6xl font-extrabold mb-6 animate-fade-in">Welcome to Malaysia Pickleball</h2>
+      <p class="text-xl md:text-2xl mb-8">Join the fastest-growing sport community in Malaysia!</p>
+      <a href="#calendar" class="calendar-btn px-6 py-3 rounded-full text-lg transition duration-300 bg-transparent border-2 border-white hover:bg-blue-400 hover:border-blue-400">Explore Tournaments</a>
+    </div>
+  </section>
+
+  <!-- Calendar Section -->
+  <section id="calendar" class="py-16 container mx-auto px-4">
+    <h2 class="text-4xl font-bold text-center mb-12 text-gray-800">Tournament Calendar</h2>
+    <div id="calendar-carousel" class="relative overflow-hidden" role="region" aria-label="Tournament calendar carousel">
+      <div id="calendar-items" class="flex transition-transform duration-500 ease-in-out" tabindex="0">
+        <% tournaments.forEach(tournament => { %>
+          <div class="min-w-full bg-white p-6 rounded-xl shadow-lg">
+            <h3 class="text-2xl font-semibold text-blue-600"><%= tournament.name %></h3>
+            <p class="mt-2 text-gray-600">Date: <%= tournament.date %></p>
+            <p class="text-gray-600">Location: <%= tournament.location %></p>
+          </div>
+        <% }) %>
+      </div>
+      <button id="calendar-prev" class="absolute left-0 top-1/2 transform -translate-y-1/2 bg-blue-600 text-white p-2 rounded-full hover:bg-blue-400 transition" aria-label="Previous tournament">❮</button>
+      <button id="calendar-next" class="absolute right-0 top-1/2 transform -translate-y-1/2 bg-blue-600 text-white p-2 rounded-full hover:bg-blue-400 transition" aria-label="Next tournament">❯</button>
+    </div>
+  </section>
+
+  <!-- Courts Section -->
+  <section id="courts" class="py-16 bg-gray-100">
+    <div class="container mx-auto px-4">
+      <h2 class="text-4xl font-bold text-center mb-12 text-gray-800">Pickleball Courts</h2>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+        <% courts.forEach(court => { %>
+          <div class="bg-white p-6 rounded-xl shadow-lg hover:shadow-xl transform hover:-translate-y-2 transition duration-300">
+            <img src="<%= court.image %>" alt="<%= court.name %>" class="w-full h-48 object-cover rounded-t-xl mb-4" loading="lazy" onerror="this.src='/images/fallback.jpg'; this.onerror=null;">
+            <h3 class="text-2xl font-semibold text-blue-600"><%= court.name %></h3>
+            <p class="mt-2 text-gray-600">Address: <%= court.address %></p>
+            <p class="text-gray-600">Facilities: <%= court.facilities %></p>
+          </div>
+        <% }) %>
+      </div>
+    </div>
+  </section>
+
+  <!-- Referees Section -->
+  <section id="referees" class="py-16 container mx-auto px-4">
+    <h2 class="text-4xl font-bold text-center mb-12 text-gray-800">Certified Referees</h2>
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+      <% referees.forEach(referee => { %>
+        <div class="bg-white p-6 rounded-xl shadow-lg hover:shadow-xl transform hover:-translate-y-2 transition duration-300 text-center">
+          <img src="<%= referee.image %>" alt="<%= referee.name %>" class="w-32 h-32 rounded-full mx-auto mb-4 object-cover" loading="lazy" onerror="this.src='/images/fallback.jpg'; this.onerror=null;">
+          <h3 class="text-xl font-semibold text-blue-600"><%= referee.name %></h3>
+          <p class="text-gray-600">Certification: <%= referee.certification %></p>
+        </div>
+      <% }) %>
+    </div>
+  </section>
+
+  <!-- News Section -->
+  <section id="news" class="py-16 bg-gray-100">
+    <div class="container mx-auto px-4">
+      <h2 class="text-4xl font-bold text-center mb-12 text-gray-800">News & Updates</h2>
+      <div id="news-carousel" class="relative overflow-hidden" role="region" aria-label="News carousel">
+        <div id="news-items" class="flex transition-transform duration-500 ease-in-out" tabindex="0">
+          <% news.forEach(item => { %>
+            <div class="min-w-full bg-white p-6 rounded-xl shadow-lg">
+              <h3 class="text-2xl font-semibold text-blue-600"><%= item.title %></h3>
+              <p class="mt-2 text-gray-600">Date: <%= item.date %></p>
+              <p class="text-gray-600"><%= item.description %></p>
             </div>
-            <button id="menu-btn" class="md:hidden focus:outline-none">
-                <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
-                </svg>
-            </button>
+          <% }) %>
         </div>
-        <div id="mobile-menu" class="hidden md:hidden bg-blue-600 p-6 shadow-lg">
-            <a href="#calendar" class="block py-3 text-lg hover:text-blue-200 transition duration-300">Calendar</a>
-            <a href="#courts" class="block py-3 text-lg hover:text-blue-200 transition duration-300">Courts</a>
-            <a href="#referees" class="block py-3 text-lg hover:text-blue-200 transition duration-300">Referees</a>
-            <a href="#news" class="block py-3 text-lg hover:text-blue-200 transition duration-300">News</a>
-            <a href="#coaches" class="block py-3 text-lg hover:text-blue-200 transition duration-300">Coaches</a>
-        </div>
-    </nav>
+        <button id="news-prev" class="absolute left-0 top-1/2 transform -translate-y-1/2 bg-blue-600 text-white p-2 rounded-full hover:bg-blue-400 transition" aria-label="Previous news">❮</button>
+        <button id="news-next" class="absolute right-0 top-1/2 transform -translate-y-1/2 bg-blue-600 text-white p-2 rounded-full hover:bg-blue-400 transition" aria-label="Next news">❯</button>
+      </div>
+    </div>
+  </section>
 
-    <!-- Hero Section -->
-    <section class="hero-section bg-cover bg-center h-screen flex items-center justify-center text-white relative">
-        <div class="text-center z-10">
-            <h2 class="text-5xl md:text-6xl font-extrabold mb-6 animate-fade-in">Welcome to Malaysia Pickleball</h2>
-            <p class="text-xl md:text-2xl mb-8">Join the fastest-growing sport community in Malaysia!</p>
-            <a href="#calendar" class="calendar-btn px-6 py-3 rounded-full text-lg transition duration-300">Explore Tournaments</a>
-        </div>
-    </section>
-
-    <!-- Calendar Section (Carousel) -->
-    <section id="calendar" class="py-16 container mx-auto px-4">
-        <h2 class="text-4xl font-bold text-center mb-12 text-gray-800">Tournament Calendar</h2>
-        <div id="calendar-carousel" class="relative overflow-hidden">
-            <div id="calendar-items" class="flex transition-transform duration-500">
-                <% tournaments.forEach(tournament => { %>
-                    <div class="min-w-full bg-white p-6 rounded-xl shadow-lg">
-                        <h3 class="text-2xl font-semibold text-blue-600"><%= tournament.name %></h3>
-                        <p class="mt-2 text-gray-600">Date: <%= tournament.date %></p>
-                        <p class="text-gray-600">Location: <%= tournament.location %></p>
-                    </div>
-                <% }) %>
+  <!-- Coaches Section -->
+  <section id="coaches" class="py-16 container mx-auto px-4">
+    <h2 class="text-4xl font-bold text-center mb-12 text-gray-800">List of Coaches</h2>
+    <% if (typeof coaches !== 'undefined' && coaches.length > 0) { %>
+      <div id="coaches-carousel" class="relative overflow-hidden" role="region" aria-label="Coaches carousel">
+        <div id="coaches-items" class="flex transition-transform duration-500 ease-in-out" tabindex="0">
+          <% coaches.forEach(coach => { %>
+            <div class="min-w-full bg-white p-6 rounded-xl shadow-lg text-center">
+              <img src="<%= coach.image %>" alt="<%= coach.name %>" class="w-32 h-32 rounded-full mx-auto mb-4 object-cover" loading="lazy" onerror="this.src='/images/fallback.jpg'; this.onerror=null;">
+              <h3 class="text-xl font-semibold text-blue-600"><%= coach.name %></h3>
+              <p class="text-gray-600">Experience: <%= coach.experience %></p>
+              <p class="text-gray-600">Contact: <%= coach.contact %></p>
             </div>
+          <% }) %>
         </div>
-    </section>
+        <button id="coaches-prev" class="absolute left-0 top-1/2 transform -translate-y-1/2 bg-blue-600 text-white p-2 rounded-full hover:bg-blue-400 transition" aria-label="Previous coach">❮</button>
+        <button id="coaches-next" class="absolute right-0 top-1/2 transform -translate-y-1/2 bg-blue-600 text-white p-2 rounded-full hover:bg-blue-400 transition" aria-label="Next coach">❯</button>
+      </div>
+    <% } else { %>
+      <p class="text-center text-gray-600">No coaches available at the moment.</p>
+    <% } %>
+  </section>
 
-    <!-- Courts Section -->
-    <section id="courts" class="py-16 bg-gray-100">
-        <div class="container mx-auto px-4">
-            <h2 class="text-4xl font-bold text-center mb-12 text-gray-800">Pickleball Courts</h2>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-                <div class="bg-white p-6 rounded-xl shadow-lg hover:shadow-xl transform hover:-translate-y-2 transition duration-300">
-                    <h3 class="text-2xl font-semibold text-blue-600">KL Sports City</h3>
-                    <p class="mt-2 text-gray-600">Address: Bukit Jalil, Kuala Lumpur</p>
-                    <p class="text-gray-600">Facilities: 4 indoor courts, lighting</p>
-                </div>
-                <div class="bg-white p-6 rounded-xl shadow-lg hover:shadow-xl transform hover:-translate-y-2 transition duration-300">
-                    <h3 class="text-2xl font-semibold text-blue-600">Penang Pickleball Hub</h3>
-                    <p class="mt-2 text-gray-600">Address: George Town, Penang</p>
-                    <p class="text-gray-600">Facilities: 3 outdoor courts, parking</p>
-                </div>
-            </div>
-        </div>
-    </section>
+  <!-- Stats Section -->
+  <section id="stats" class="py-16 bg-gray-100 container mx-auto px-4">
+    <h2 class="text-4xl font-bold text-center mb-12 text-gray-800">Pickleball Stats</h2>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+      <div class="bg-white p-6 rounded-xl shadow-lg">
+        <h3 class="text-2xl font-semibold text-blue-600 mb-4">Tournament Schedule</h3>
+        <canvas id="tournament-chart"></canvas>
+      </div>
+      <div class="bg-white p-6 rounded-xl shadow-lg">
+        <h3 class="text-2xl font-semibold text-blue-600 mb-4">Coach Experience</h3>
+        <canvas id="coach-chart"></canvas>
+      </div>
+    </div>
+  </section>
 
-    <!-- Referees Section -->
-    <section id="referees" class="py-16 container mx-auto px-4">
-        <h2 class="text-4xl font-bold text-center mb-12 text-gray-800">Certified Referees</h2>
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <div class="bg-white p-6 rounded-xl shadow-lg hover:shadow-xl transform hover:-translate-y-2 transition duration-300 text-center">
-                <img src="https://via.placeholder.com/150" alt="Referee" class="w-32 h-32 rounded-full mx-auto mb-4">
-                <h3 class="text-xl font-semibold text-blue-600">Ahmad bin Ismail</h3>
-                <p class="text-gray-600">Certification: Level 2</p>
-            </div>
-            <div class="bg-white p-6 rounded-xl shadow-lg hover:shadow-xl transform hover:-translate-y-2 transition duration-300 text-center">
-                <img src="https://via.placeholder.com/150" alt="Referee" class="w-32 h-32 rounded-full mx-auto mb-4">
-                <h3 class="text-xl font-semibold text-blue-600">Siti Nurhaliza</h3>
-                <p class="text-gray-600">Certification: Level 1</p>
-            </div>
-        </div>
-    </section>
+  <!-- Footer -->
+  <footer class="bg-gradient-to-r from-blue-700 to-blue-500 text-white p-6 text-center">
+    <p class="text-lg">© 2025 Malaysia Pickleball Association. All rights reserved.</p>
+  </footer>
 
-    <!-- News Section (Carousel) -->
-    <section id="news" class="py-16 bg-gray-100">
-        <div class="container mx-auto px-4">
-            <h2 class="text-4xl font-bold text-center mb-12 text-gray-800">News & Updates</h2>
-            <div id="news-carousel" class="relative overflow-hidden">
-                <div id="news-items" class="flex transition-transform duration-500">
-                    <% news.forEach(item => { %>
-                        <div class="min-w-full bg-white p-6 rounded-xl shadow-lg">
-                            <h3 class="text-2xl font-semibold text-blue-600"><%= item.title %></h3>
-                            <p class="mt-2 text-gray-600">Date: <%= item.date %></p>
-                            <p class="text-gray-600"><%= item.description %></p>
-                        </div>
-                    <% }) %>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- Coaches Section (Carousel) -->
-    <section id="coaches" class="py-16 container mx-auto px-4">
-        <h2 class="text-4xl font-bold text-center mb-12 text-gray-800">List of Coaches</h2>
-        <div id="coaches-carousel" class="relative overflow-hidden">
-            <div id="coaches-items" class="flex transition-transform duration-500">
-                <% if (typeof coaches !== 'undefined' && coaches.length > 0) { %>
-                    <% coaches.forEach(coach => { %>
-                        <div class="min-w-full bg-white p-6 rounded-xl shadow-lg text-center">
-                            <img src="<%= coach.image %>" alt="<%= coach.name %>" class="w-32 h-32 rounded-full mx-auto mb-4 object-cover">
-                            <h3 class="text-xl font-semibold text-blue-600"><%= coach.name %></h3>
-                            <p class="text-gray-600">Experience: <%= coach.experience %></p>
-                            <p class="text-gray-600">Contact: <%= coach.contact %></p>
-                        </div>
-                    <% }) %>
-                <% } else { %>
-                    <p class="text-center text-gray-600">No coaches available at the moment.</p>
-                <% } %>
-            </div>
-        </div>
-    </section>
-
-    <!-- Footer -->
-    <footer class="bg-gradient-to-r from-blue-700 to-blue-500 text-white p-6 text-center">
-        <p class="text-lg">© 2025 Malaysia Pickleball Association. All rights reserved.</p>
-    </footer>
-
-    <script src="/script.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.min.js"></script>
+  <script src="/script.js"></script>
 </body>
 </html>

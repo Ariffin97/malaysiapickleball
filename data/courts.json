@@ -1,0 +1,23 @@
+[
+  {
+    "id": 1,
+    "name": "KL Sports City",
+    "address": "Bukit Jalil, Kuala Lumpur",
+    "facilities": "4 indoor courts, lighting",
+    "image": "/images/court1.jpg"
+  },
+  {
+    "id": 2,
+    "name": "Penang Pickleball Hub",
+    "address": "George Town, Penang",
+    "facilities": "3 outdoor courts, parking",
+    "image": "/images/court2.jpg"
+  },
+  {
+    "id": 3,
+    "name": "alabama",
+    "address": "adsdad",
+    "facilities": "asdsdadsdsd",
+    "image": "/images/1747669606576.png"
+  }
+]

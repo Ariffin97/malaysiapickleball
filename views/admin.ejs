@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Dashboard - Malaysia Pickleball Association</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css">
+  <link rel="stylesheet" href="/css/styles.css">
+</head>
+<body class="bg-gray-50 font-sans">
+  <!-- Navbar -->
+  <nav class="bg-gradient-to-r from-blue-700 to-blue-500 text-white p-4 sticky top-0 z-20 shadow-lg">
+    <div class="container mx-auto flex justify-between items-center">
+      <h1 class="text-2xl font-extrabold tracking-tight">Admin Dashboard</h1>
+      <% if (section !== 'login') { %>
+        <a href="/admin/logout" class="text-white hover:text-blue-200">Logout</a>
+      <% } %>
+    </div>
+  </nav>
+
+  <!-- Main Content -->
+  <div class="container mx-auto px-4 py-16">
+    <% if (section === 'login') { %>
+      <!-- Login Form -->
+      <div class="max-w-md mx-auto bg-white p-6 rounded-xl shadow-lg">
+        <h2 class="text-2xl font-bold text-center mb-6 text-gray-800">Admin Login</h2>
+        <% if (error) { %>
+          <p class="text-red-500 text-center mb-4"><%= error %></p>
+        <% } %>
+        <form action="/admin/login" method="POST" class="space-y-4">
+          <div>
+            <label for="username" class="block text-gray-700">Username</label>
+            <input type="text" id="username" name="username" required class="w-full p-2 border rounded">
+          </div>
+          <div>
+            <label for="password" class="block text-gray-700">Password</label>
+            <input type="password" id="password" name="password" required class="w-full p-2 border rounded">
+          </div>
+          <button type="submit" class="w-full bg-blue-600 text-white p-2 rounded hover:bg-blue-400">Login</button>
+        </form>
+      </div>
+    <% } else { %>
+      <!-- Dashboard -->
+      <h2 class="text-4xl font-bold text-center mb-12 text-gray-800">Manage Content</h2>
+
+      <!-- Tournaments -->
+      <section class="mb-12">
+        <h3 class="text-2xl font-semibold text-blue-600 mb-4">Tournaments</h3>
+        <form action="/admin/tournaments/add" method="POST" class="mb-6 bg-white p-6 rounded-xl shadow-lg">
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <input type="text" name="name" placeholder="Tournament Name" required class="p-2 border rounded">
+            <input type="text" name="date" placeholder="Date (e.g., June 15-18, 2025)" required class="p-2 border rounded">
+            <input type="text" name="location" placeholder="Location" required class="p-2 border rounded">
+          </div>
+          <button type="submit" class="mt-4 bg-blue-600 text-white p-2 rounded hover:bg-blue-400">Add Tournament</button>
+        </form>
+        <div class="grid gap-4">
+          <% tournaments.forEach((tournament, index) => { %>
+            <div class="bg-white p-4 rounded-xl shadow-lg flex justify-between items-center">
+              <div>
+                <p><strong><%= tournament.name %></strong></p>
+                <p>Date: <%= tournament.date %></p>
+                <p>Location: <%= tournament.location %></p>
+              </div>
+              <form action="/admin/tournaments/delete/<%= index %>" method="POST">
+                <button type="submit" class="bg-red-600 text-white p-2 rounded hover:bg-red-400">Delete</button>
+              </form>
+            </div>
+          <% }) %>
+        </div>
+      </section>
+
+      <!-- Courts -->
+      <section class="mb-12">
+        <h3 class="text-2xl font-semibold text-blue-600 mb-4">Pickleball Courts</h3>
+        <form action="/admin/courts/add" method="POST" enctype="multipart/form-data" class="mb-6 bg-white p-6 rounded-xl shadow-lg">
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <input type="text" name="name" placeholder="Court Name" required class="p-2 border rounded">
+            <input type="text" name="address" placeholder="Address" required class="p-2 border rounded">
+            <input type="text" name="facilities" placeholder="Facilities" required class="p-2 border rounded">
+          </div>
+          <div class="mt-4">
+            <label for="court-image" class="block text-gray-700">Image</label>
+            <input type="file" id="court-image" name="image" accept="image/*" class="p-2">
+          </div>
+          <button type="submit" class="mt-4 bg-blue-600 text-white p-2 rounded hover:bg-blue-400">Add Court</button>
+        </form>
+        <div class="grid gap-4">
+          <% courts.forEach(court => { %>
+            <div class="bg-white p-4 rounded-xl shadow-lg flex justify-between items-center">
+              <div class="flex items-center">
+                <img src="<%= court.image %>" alt="<%= court.name %>" class="w-16 h-16 rounded-full mr-4 object-cover">
+                <div>
+                  <p><strong><%= court.name %></strong></p>
+                  <p>Address: <%= court.address %></p>
+                  <p>Facilities: <%= court.facilities %></p>
+                </div>
+              </div>
+              <form action="/admin/courts/delete/<%= court.id %>" method="POST">
+                <button type="submit" class="bg-red-600 text-white p-2 rounded hover:bg-red-400">Delete</button>
+              </form>
+            </div>
+          <% }) %>
+        </div>
+      </section>
+
+      <!-- Referees -->
+      <section class="mb-12">
+        <h3 class="text-2xl font-semibold text-blue-600 mb-4">Certified Referees</h3>
+        <form action="/admin/referees/add" method="POST" enctype="multipart/form-data" class="mb-6 bg-white p-6 rounded-xl shadow-lg">
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <input type="text" name="name" placeholder="Referee Name" required class="p-2 border rounded">
+            <input type="text" name="certification" placeholder="Certification" required class="p-2 border rounded">
+          </div>
+          <div class="mt-4">
+            <label for="referee-image" class="block text-gray-700">Image</label>
+            <input type="file" id="referee-image" name="image" accept="image/*" class="p-2">
+          </div>
+          <button type="submit" class="mt-4 bg-blue-600 text-white p-2 rounded hover:bg-blue-400">Add Referee</button>
+        </form>
+        <div class="grid gap-4">
+          <% referees.forEach(referee => { %>
+            <div class="bg-white p-4 rounded-xl shadow-lg flex justify-between items-center">
+              <div class="flex items-center">
+                <img src="<%= referee.image %>" alt="<%= referee.name %>" class="w-16 h-16 rounded-full mr-4 object-cover">
+                <div>
+                  <p><strong><%= referee.name %></strong></p>
+                  <p>Certification: <%= referee.certification %></p>
+                </div>
+              </div>
+              <form action="/admin/referees/delete/<%= referee.id %>" method="POST">
+                <button type="submit" class="bg-red-600 text-white p-2 rounded hover:bg-red-400">Delete</button>
+              </form>
+            </div>
+          <% }) %>
+        </div>
+      </section>
+
+      <!-- News -->
+      <section class="mb-12">
+        <h3 class="text-2xl font-semibold text-blue-600 mb-4">News & Updates</h3>
+        <form action="/admin/news/add" method="POST" class="mb-6 bg-white p-6 rounded-xl shadow-lg">
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <input type="text" name="title" placeholder="News Title" required class="p-2 border rounded">
+            <input type="text" name="date" placeholder="Date (e.g., May 10, 2025)" required class="p-2 border rounded">
+            <input type="text" name="description" placeholder="Description" required class="p-2 border rounded">
+          </div>
+          <button type="submit" class="mt-4 bg-blue-600 text-white p-2 rounded hover:bg-blue-400">Add News</button>
+        </form>
+        <div class="grid gap-4">
+          <% news.forEach((item, index) => { %>
+            <div class="bg-white p-4 rounded-xl shadow-lg flex justify-between items-center">
+              <div>
+                <p><strong><%= item.title %></strong></p>
+                <p>Date: <%= item.date %></p>
+                <p><%= item.description %></p>
+              </div>
+              <form action="/admin/news/delete/<%= index %>" method="POST">
+                <button type="submit" class="bg-red-600 text-white p-2 rounded hover:bg-red-400">Delete</button>
+              </form>
+            </div>
+          <% }) %>
+        </div>
+      </section>
+
+      <!-- Coaches -->
+      <section class="mb-12">
+        <h3 class="text-2xl font-semibold text-blue-600 mb-4">Coaches</h3>
+        <form action="/admin/coaches/add" method="POST" enctype="multipart/form-data" class="mb-6 bg-white p-6 rounded-xl shadow-lg">
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <input type="text" name="name" placeholder="Coach Name" required class="p-2 border rounded">
+            <input type="text" name="experience" placeholder="Experience" required class="p-2 border rounded">
+            <input type="text" name="contact" placeholder="Contact" required class="p-2 border rounded">
+          </div>
+          <div class="mt-4">
+            <label for="coach-image" class="block text-gray-700">Image</label>
+            <input type="file" id="coach-image" name="image" accept="image/*" class="p-2">
+          </div>
+          <button type="submit" class="mt-4 bg-blue-600 text-white p-2 rounded hover:bg-blue-400">Add Coach</button>
+        </form>
+        <div class="grid gap-4">
+          <% coaches.forEach((coach, index) => { %>
+            <div class="bg-white p-4 rounded-xl shadow-lg flex justify-between items-center">
+              <div class="flex items-center">
+                <img src="<%= coach.image %>" alt="<%= coach.name %>" class="w-16 h-16 rounded-full mr-4 object-cover">
+                <div>
+                  <p><strong><%= coach.name %></strong></p>
+                  <p>Experience: <%= coach.experience %></p>
+                  <p>Contact: <%= coach.contact %></p>
+                </div>
+              </div>
+              <form action="/admin/coaches/delete/<%= index %>" method="POST">
+                <button type="submit" class="bg-red-600 text-white p-2 rounded hover:bg-red-400">Delete</button>
+              </form>
+            </div>
+          <% }) %>
+        </div>
+      </section>
+    <% } %>
+  </div>
+
+  <!-- Footer -->
+  <footer class="bg-gradient-to-r from-blue-700 to-blue-500 text-white p-6 text-center">
+    <p class="text-lg">© 2025 Malaysia Pickleball Association. All rights reserved.</p>
+  </footer>
+
+  <script src="/script.js"></script>
+</body>
+</html>

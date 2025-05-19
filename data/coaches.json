@@ -1,0 +1,10 @@
+[
+    { "name": "Tan Wei Ming", "experience": "5 years", "contact": "tan@example.com", "image": "/images/coach1.jpg" },
+    { "name": "Lina Chong", "experience": "3 years", "contact": "lina@example.com", "image": "/images/coach2.jpg" },
+    { "name": "Ahmad Zulkifli", "experience": "7 years", "contact": "ahmad@example.com", "image": "/images/coach3.jpg" },
+    { "name": "Sofia Lim", "experience": "4 years", "contact": "sofia@example.com", "image": "/images/coach4.jpg" },
+    { "name": "Rajesh Kumar", "experience": "6 years", "contact": "rajesh@example.com", "image": "/images/coach5.jpg" },
+    { "name": "Mei Ling", "experience": "2 years", "contact": "mei@example.com", "image": "/images/coach6.jpg" },
+    { "name": "Daniel Ong", "experience": "8 years", "contact": "daniel@example.com", "image": "/images/coach7.jpg" },
+    { "name": "Nur Aisyah", "experience": "5 years", "contact": "nur@example.com", "image": "/images/coach8.jpg" }
+  ]

@@ -1,0 +1,228 @@
+/* Color Palette */
+:root {
+  --primary-blue: #1e40af;
+  --primary-blue-light: #3b82f6;
+  --primary-blue-dark: #1e3a8a;
+  --secondary-gray: #f3f4f6;
+  --text-dark: #1f2937;
+  --text-light: #6b7280;
+  --white: #ffffff;
+  --accent-teal: #2dd4bf;
+  --shadow-color: rgba(0, 0, 0, 0.1);
+  --button-bg: transparent;
+  --button-bg-hover: rgba(59, 130, 246, 0.2);
+  --button-text: #ffffff;
+}
+
+/* Global Styles */
+body {
+  scroll-behavior: smooth;
+  background-color: var(--secondary-gray);
+  color: var(--text-dark);
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+/* Typography */
+nav h1 {
+  font-size: 1.875rem; /* text-3xl */
+}
+
+/* Section Animations */
+section {
+  opacity: 0;
+  transform: translateY(30px);
+  transition: opacity 0.6s ease, transform 0.6s ease;
+}
+
+section.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Hero Section */
+.hero-section {
+  background-image: url('/images/pickleball.webp');
+  background-size: cover;
+  background-position: center;
+  position: relative;
+}
+
+.hero-section::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(to bottom, rgba(30, 58, 138, 0.5), rgba(0, 0, 0, 0.4));
+  z-index: 1;
+}
+
+.hero-section .text-center {
+  position: relative;
+  z-index: 2;
+}
+
+.hero-section h2 {
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+}
+
+.hero-section p {
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+/* Buttons */
+.calendar-btn {
+  background-color: var(--button-bg);
+  color: var(--button-text);
+  border: 2px solid var(--button-text);
+  transition: background-color 0.3s ease, border-color 0.3s ease;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+.calendar-btn:hover {
+  background-color: var(--button-bg-hover);
+}
+
+/* Navbar */
+nav {
+  background: linear-gradient(to right, var(--primary-blue-dark), var(--primary-blue));
+}
+
+/* Mobile Menu */
+#mobile-menu {
+  transition: all 0.3s ease-in-out;
+  background-color: var(--primary-blue);
+}
+
+#mobile-menu a {
+  color: var(--white);
+  transition: color 0.3s ease;
+}
+
+#mobile-menu a:hover {
+  color: var(--primary-blue-light);
+}
+
+/* Carousels */
+#calendar-items, #news-items, #coaches-items {
+  display: flex;
+  transition: transform 0.5s ease-in-out;
+  touch-action: pan-y;
+  scroll-snap-type: x mandatory;
+  overflow-x: auto;
+}
+
+#calendar-items > div, #news-items > div, #coaches-items > div {
+  flex-shrink: 0;
+  background-colorulho: var(--white);
+  box-shadow: 0 4px 6px var(--shadow-color);
+  scroll-snap-align: center;
+}
+
+#calendar-prev, #calendar-next, #news-prev, #news-next, #coaches-prev, #coaches-next {
+  background-color: var(--primary-blue);
+  color: var(--white);
+  padding: 0.5rem;
+  border-radius: 50%;
+  transition: background-color 0.3s ease, opacity 0.3s ease;
+  z-index: 10;
+  opacity: 0.8;
+}
+
+#calendar-prev:hover, #calendar-next:hover, #news-prev:hover, #news-next:hover, #coaches-prev:hover, #coaches-next:hover {
+  background-color: var(--primary-blue-light);
+  opacity: 1;
+}
+
+/* Cards */
+section#courts, section#referees, section#coaches, section#stats {
+  background-color: var(--secondary-gray);
+}
+
+section#courts .bg-white, section#referees .bg-white, section#coaches .bg-white, section#stats .bg-white {
+  background-color: var(--white);
+  box-shadow: 0 4px 6px var(--shadow-color);
+  transition: transform 0.3s ease, box-shadow 0.3s ease平日;
+}
+
+section#courts .bg-white:hover, section#referees .bg-white:hover, section#coaches .bg-white:hover, section#stats .bg-white:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 8px 12px var(--shadow-color);
+}
+
+section#courts h3, section#referees h3, section#coaches h3, section#stats h3 {
+  color: var(--primary-blue);
+}
+
+section#courts p, section#referees p, section#coaches p, section#stats p {
+  color: var(--text-light);
+}
+
+/* Coaches Carousel */
+#coaches-items .bg-white {
+  max-width: 400px;
+  margin: 0 auto;
+}
+
+/* Charts */
+#tournament-chart, #coach-chart {
+  max-width: 100%;
+  height: auto;
+}
+
+/* Admin Dashboard Styles */
+.admin-form input, .admin-form select {
+  border: 1px solid var(--text-light);
+  transition: border-color 0.3s ease;
+}
+
+.admin-form input:focus, .admin-form select:focus {
+  border-color: var(--primary-blue);
+  outline: none;
+}
+
+.admin-form button {
+  transition: background-color 0.3s ease;
+}
+
+.admin-form .bg-red-600:hover {
+  background-color: #e53e3e;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .grid-cols-3, .grid-cols-2 {
+      grid-template-columns: 1fr;
+  }
+  #calendar-items > div, #news-items > div, #coaches-items > div {
+      min-w-full;
+  }
+  .text-5xl {
+      font-size: 2.5rem;
+  }
+  .text-4xl {
+      font-size: 2rem;
+  }
+}
+
+@media (max-width: 640px) {
+  .h-screen {
+      height: 80vh;
+  }
+  .hero-section h2 {
+      font-size: 2.5rem;
+  }
+  .hero-section p {
+      font-size: 1.25rem;
+  }
+  .calendar-btn {
+      padding: 0.5rem 1.5rem;
+      font-size: 1rem;
+  }
+  #coaches-items .bg-white {
+      margin: 0 auto;
+      width: 90%;
+      max-width: none;
+  }
+}
