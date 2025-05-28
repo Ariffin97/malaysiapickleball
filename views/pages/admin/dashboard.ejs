@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Dashboard - Malaysia Pickleball Association</title>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="/css/styles.css">
+</head>
+<body class="bg-gray-100">
+  <%- include('../../partials/header') %>
+  <main class="pt-20 p-4 pb-20">
+    <div class="container mx-auto">
+      <h1 class="text-3xl font-bold mb-4">Admin Dashboard</h1>
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-8">
+        <a href="/admin/home" class="p-4 bg-white rounded shadow hover:bg-gray-50">Manage Home Page</a>
+        <a href="/admin/tournaments" class="p-4 bg-white rounded shadow hover:bg-gray-50">Manage Tournaments</a>
+        <a href="/admin/referees" class="p-4 bg-white rounded shadow hover:bg-gray-50">Manage Referees</a>
+        <a href="/admin/coaches" class="p-4 bg-white rounded shadow hover:bg-gray-50">Manage Coaches</a>
+        <a href="/admin/venues" class="p-4 bg-white rounded shadow hover:bg-gray-50">Manage Venues</a>
+        <a href="/admin/sponsorships" class="p-4 bg-white rounded shadow hover:bg-gray-50">Manage Sponsors</a>
+        <a href="/admin/rankings" class="p-4 bg-white rounded shadow hover:bg-gray-50">Manage Rankings</a>
+      </div>
+      <div class="bg-white p-4 rounded shadow mb-8 relative">
+        <h2 class="text-xl mb-2">Pending Registrations</h2>
+        <% if (pendingRegistrations.length) { %>
+          <a href="/admin/registrations" class="block p-4 bg-gray-50 rounded card hover:bg-gray-100">
+            <span class="absolute top-2 right-2 bg-red-600 text-white text-xs font-bold px-2 py-1 rounded-full">
+              <%= pendingRegistrations.length %>
+            </span>
+            View Pending Registrations
+          </a>
+        <% } else { %>
+          <p>No pending registrations.</p>
+        <% } %>
+      </div>
+      <div class="bg-white p-4 rounded shadow">
+        <h2 class="text-xl mb-2">Player Info</h2>
+        <% if (users.length) { %>
+          <div class="grid grid-cols-1 gap-4">
+            <% users.forEach(user => { %>
+              <div class="p-4 bg-gray-50 rounded card">
+                <h3 class="font-bold"><%= user.fullName %></h3>
+                <p>I/C: <%= user.icNumber %></p>
+                <p>Age: <%= user.age %></p>
+                <p>Marital Status: <%= user.maritalStatus %></p>
+                <p>Phone: <%= user.phone %></p>
+                <p>Email: <%= user.email %></p>
+                <% if (user.faceImage) { %>
+                  <img src="<%= user.faceImage %>" alt="Face Image" class="w-32 h-32 object-cover mt-2">
+                <% } %>
+              </div>
+            <% }) %>
+          </div>
+        <% } else { %>
+          <p>No registered players.</p>
+        <% } %>
+      </div>
+    </div>
+  </main>
+  <%- include('../../partials/footer') %>
+  <script src="/js/script.js"></script>
+</body>
+</html>

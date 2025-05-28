@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pending Registrations - Malaysia Pickleball Association</title>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="/css/styles.css">
+</head>
+<body class="bg-gray-100">
+  <%- include('../../partials/header') %>
+  <main class="pt-20 p-4 pb-20">
+    <div class="container mx-auto">
+      <div class="flex justify-between items-center mb-4">
+        <h1 class="text-3xl font-bold">Pending Registrations</h1>
+        <a href="/admin/dashboard" class="bg-gray-600 text-white p-2 rounded hover:bg-gray-700">Back to Dashboard</a>
+      </div>
+      <% if (pendingRegistrations.length) { %>
+        <div class="bg-white p-4 rounded shadow">
+          <ul class="divide-y divide-gray-200">
+            <% pendingRegistrations.forEach(reg => { %>
+              <li class="py-2">
+                <a href="/admin/registrations/<%= reg.id %>" class="block hover:bg-gray-50 p-2 rounded">
+                  <%= reg.fullName %>
+                </a>
+              </li>
+            <% }) %>
+          </ul>
+        </div>
+      <% } else { %>
+        <p>No pending registrations.</p>
+      <% } %>
+    </div>
+  </main>
+  <%- include('../../partials/footer') %>
+  <script src="/js/script.js"></script>
+</body>
+</html>

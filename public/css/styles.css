@@ -1,0 +1,95 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --navbar-height: 56px; /* More precise calculation: p-4 (32px) + line-height (~24px) */
+  --footer-height: 56px; /* p-4 (16px) * 2 + text content (~24px) */
+}
+
+.sidebar {
+  transition: transform 0.3s ease-in-out;
+  /* top: var(--navbar-height); */
+  /* bottom: var(--footer-height); */
+}
+
+.sidebar .flex-1 {
+  scrollbar-width: thin;
+  scrollbar-color: #4a5568 #2d3748;
+}
+
+.sidebar .flex-1::-webkit-scrollbar {
+  width: 6px;
+}
+
+.sidebar .flex-1::-webkit-scrollbar-track {
+  background: #2d3748;
+}
+
+.sidebar .flex-1::-webkit-scrollbar-thumb {
+  background: #4a5568;
+  border-radius: 3px;
+}
+
+.sidebar .flex-1::-webkit-scrollbar-thumb:hover {
+  background: #718096;
+}
+
+@media (max-width: 768px) {
+  .sidebar {
+    transform: translateX(-100%);
+  }
+  .sidebar.open {
+    transform: translateX(0);
+  }
+}
+
+/* Form Validation Styles */
+input:invalid {
+  border-color: red;
+}
+.error {
+  color: red;
+  font-size: 0.875rem;
+}
+
+/* Card Hover Effects */
+.card {
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+.card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Registration Card Styles */
+.registration-card {
+  border: 1px solid #e5e7eb;
+}
+.registration-card img {
+  border-radius: 0.25rem;
+}
+
+/* Collapsible Menu Styles */
+#services-menu {
+  transition: max-height 0.3s ease-in-out;
+}
+#services-arrow {
+  transition: transform 0.3s ease-in-out;
+}
+
+/* Background Image Styles */
+main.bg-cover {
+  min-height: calc(100vh - 8rem); /* Adjust for header and footer */
+}
+
+/* Infographic Image Styles */
+.infographic-image {
+  max-width: 100%;
+  height: auto;
+  border-radius: 0.375rem;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  width: 100%;
+  max-width: 42rem; /* md:max-w-2xl equivalent */
+  object-fit: contain;
+}

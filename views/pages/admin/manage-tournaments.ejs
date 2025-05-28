@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Manage Tournaments - Malaysia Pickleball Association</title>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="/css/styles.css">
+</head>
+<body class="bg-gray-100">
+  <%- include('../../partials/header') %>
+  <%- include('../../partials/sidebar') %>
+  <main class="md:ml-64 pt-20 p-4 pb-20">
+    <div class="container mx-auto">
+      <div class="flex justify-between items-center mb-4">
+        <h1 class="text-3xl font-bold">Manage Tournaments</h1>
+        <a href="/admin/dashboard" class="bg-gray-600 text-white p-2 rounded hover:bg-gray-700">Back to Dashboard</a>
+      </div>
+      <div class="bg-white p-4 rounded shadow">
+        <h2 class="text-xl mb-2">Add New Tournament</h2>
+        <form action="/admin/tournaments" method="POST" enctype="multipart/form-data">
+          <div class="mb-4">
+            <label class="block mb-1">Tournament Name</label>
+            <input type="text" name="name" class="w-full p-2 border rounded">
+          </div>
+          <div class="mb-4">
+            <label class="block mb-1">Date</label>
+            <input type="date" name="date" class="w-full p-2 border rounded">
+          </div>
+          <div class="mb-4">
+            <label class="block mb-1">Image</label>
+            <input type="file" name="image" accept="image/*" class="w-full p-2 border rounded">
+          </div>
+          <button type="submit" class="bg-green-600 text-white p-2 rounded hover:bg-green-700">Save</button>
+        </form>
+      </div>
+    </div>
+  </main>
+  <%- include('../../partials/footer') %>
+  <script src="/js/script.js"></script>
+</body>
+</html>

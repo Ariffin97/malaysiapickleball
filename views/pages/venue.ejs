@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Venues - Malaysia Pickleball Association</title>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="/css/styles.css">
+</head>
+<body class="bg-gray-100">
+  <%- include('../partials/header') %>
+  <%- include('../partials/sidebar') %>
+  <main class="md:ml-64 pt-20 p-4 pb-20">
+    <div class="container mx-auto">
+      <h1 class="text-3xl font-bold mb-4">Our Venues</h1>
+      <% if (venues.length) { %>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          <% venues.forEach(venue => { %>
+            <div class="p-4 bg-white rounded shadow card">
+              <h2 class="text-xl font-bold"><%= venue.name %></h2>
+              <p><%= venue.address %></p>
+            </div>
+          <% }) %>
+        </div>
+      <% } else { %>
+        <p>No venues available at the moment.</p>
+      <% } %>
+    </div>
+  </main>
+  <%- include('../partials/footer') %>
+  <script src="/js/script.js"></script>
+</body>
+</html>

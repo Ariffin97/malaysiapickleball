@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Manage Rankings - Malaysia Pickleball Association</title>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="/css/styles.css">
+</head>
+<body class="bg-gray-100">
+  <%- include('../../partials/header') %>
+  <%- include('../../partials/sidebar') %>
+  <main class="md:ml-64 pt-20 p-4 pb-20">
+    <div class="container mx-auto">
+      <h1 class="text-3xl font-bold mb-4">Manage Rankings</h1>
+      <div class="bg-white p-4 rounded shadow">
+        <h2 class="text-xl mb-2">Update Player Ranking</h2>
+        <form action="/admin/rankings" method="POST">
+          <div class="mb-4">
+            <label class="block mb-1">Player Name</label>
+            <input type="text" name="player" class="w-full p-2 border rounded">
+          </div>
+          <div class="mb-4">
+            <label class="block mb-1">Rank</label>
+            <input type="number" name="rank" class="w-full p-2 border rounded">
+          </div>
+          <button type="submit" class="bg-green-600 text-white p-2 rounded hover:bg-green-700">Save</button>
+        </form>
+      </div>
+    </div>
+  </main>
+  <%- include('../../partials/footer') %>
+  <script src="/js/script.js"></script>
+</body>
+</html>

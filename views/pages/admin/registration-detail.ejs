@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Registration Details - Malaysia Pickleball Association</title>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="/css/styles.css">
+</head>
+<body class="bg-gray-100">
+  <%- include('../../partials/header') %>
+  <main class="pt-20 p-4 pb-20">
+    <div class="container mx-auto">
+      <div class="flex justify-between items-center mb-4">
+        <h1 class="text-3xl font-bold">Registration Details</h1>
+        <a href="/admin/registrations" class="bg-gray-600 text-white p-2 rounded hover:bg-gray-700">Back to Registrations</a>
+      </div>
+      <% if (registration) { %>
+        <div class="bg-white p-4 rounded shadow">
+          <div class="p-4 bg-gray-50 rounded card">
+            <h3 class="font-bold text-xl mb-2"><%= registration.fullName %></h3>
+            <p>I/C: <%= registration.icNumber %></p>
+            <p>Age: <%= registration.age %></p>
+            <p>Marital Status: <%= registration.maritalStatus %></p>
+            <p>Phone: <%= registration.phone %></p>
+            <p>Email: <%= registration.email %></p>
+            <% if (registration.faceImage) { %>
+              <img src="<%= registration.faceImage %>" alt="Face Image" class="w-32 h-32 object-cover mt-2">
+            <% } %>
+            <div class="mt-4 flex space-x-2">
+              <form action="/admin/registrations/accept/<%= registration.id %>" method="POST">
+                <button type="submit" class="bg-green-600 text-white p-2 rounded hover:bg-green-700">Accept</button>
+              </form>
+              <form action="/admin/registrations/reject/<%= registration.id %>" method="POST">
+                <button type="submit" class="bg-red-600 text-white p-2 rounded hover:bg-red-700">Reject</button>
+              </form>
+            </div>
+          </div>
+        </div>
+      <% } else { %>
+        <p>Registration not found.</p>
+      <% } %>
+    </div>
+  </main>
+  <%- include('../../partials/footer') %>
+  <script src="/js/script.js"></script>
+</body>
+</html>

@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Manage Venues - Malaysia Pickleball Association</title>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="/css/styles.css">
+</head>
+<body class="bg-gray-100">
+  <%- include('../../partials/header') %>
+  <%- include('../../partials/sidebar') %>
+  <main class="md:ml-64 pt-20 p-4 pb-20">
+    <div class="container mx-auto">
+      <h1 class="text-3xl font-bold mb-4">Manage Venues</h1>
+      <div class="bg-white p-4 rounded shadow">
+        <h2 class="text-xl mb-2">Add New Venue</h2>
+        <form action="/admin/venues" method="POST">
+          <div class="mb-4">
+            <label class="block mb-1">Venue Name</label>
+            <input type="text" name="name" class="w-full p-2 border rounded" required>
+          </div>
+          <div class="mb-4">
+            <label class="block mb-1">Address</label>
+            <textarea name="address" class="w-full p-2 border rounded" required></textarea>
+          </div>
+          <button type="submit" class="bg-green-600 text-white p-2 rounded hover:bg-green-700">Save</button>
+        </form>
+      </div>
+      <div class="mt-4">
+        <h2 class="text-xl mb-2">Current Venues</h2>
+        <% if (venues.length) { %>
+          <ul class="grid grid-cols-1 gap-4">
+            <% venues.forEach(venue => { %>
+              <li class="p-4 bg-white rounded shadow card">
+                <h3 class="font-bold"><%= venue.name %></h3>
+                <p><%= venue.address %></p>
+              </li>
+            <% }) %>
+          </ul>
+        <% } else { %>
+          <p>No venues available.</p>
+        <% } %>
+      </div>
+    </div>
+  </main>
+  <%- include('../../partials/footer') %>
+  <script src="/js/script.js"></script>
+</body>
+</html>

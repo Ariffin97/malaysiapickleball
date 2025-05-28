@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Player Rankings - Malaysia Pickleball Association</title>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="/css/styles.css">
+</head>
+<body class="bg-gray-100">
+  <%- include('../../partials/header') %>
+  <%- include('../../partials/sidebar') %>
+  <main class="md:ml-64 pt-20 p-4 pb-20">
+    <div class="container mx-auto">
+      <h1 class="text-3xl font-bold mb-4">Player Rankings</h1>
+      <% if (rankings.length) { %>
+        <div class="bg-white p-4 rounded shadow">
+          <table class="w-full">
+            <thead>
+              <tr class="bg-gray-200">
+                <th class="p-2 text-left">Rank</th>
+                <th class="p-2 text-left">Player</th>
+              </tr>
+            </thead>
+            <tbody>
+              <% rankings.forEach(ranking => { %>
+                <tr class="border-b">
+                  <td class="p-2"><%= ranking.rank %></td>
+                  <td class="p-2"><%= ranking.player %></td>
+                </tr>
+              <% }) %>
+            </tbody>
+          </table>
+        </div>
+      <% } else { %>
+        <p>No rankings available at the moment.</p>
+      <% } %>
+    </div>
+  </main>
+  <%- include('../../partials/footer') %>
+  <script src="/js/script.js"></script>
+</body>
+</html>

@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Home - Malaysia Pickleball Association</title>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="/css/styles.css">
+</head>
+<body class="bg-gray-100">
+  <%- include('../partials/header') %>
+  <%- include('../partials/sidebar') %>
+  <main class="md:ml-64 pt-20 p-4 pb-20 bg-cover bg-center" style="background-image: url('<%= backgroundImage || '/images/default-bg.jpg' %>')">
+    <div class="container mx-auto bg-white bg-opacity-80 p-6 rounded">
+      <h1 class="text-3xl font-bold mb-4">Welcome to Malaysia Pickleball Association</h1>
+      <p>Explore our tournaments, coaches, venues, and more!</p>
+    </div>
+  </main>
+  <%- include('../partials/footer') %>
+  <script src="/js/script.js"></script>
+</body>
+</html>
