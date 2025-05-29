@@ -7,14 +7,19 @@
   <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
   <link rel="stylesheet" href="/css/styles.css">
 </head>
-<body class="bg-gray-100">
+<%
+  const defaultBg = backgroundImage || '/images/defaultbg.png';
+%>
+<body class="bg-gray-100 bg-cover bg-center bg-fixed min-h-screen" style="background-image: url('<%= defaultBg %>')">
   <%- include('../../partials/header') %>
   <%- include('../../partials/sidebar') %>
-  <main class="md:ml-64 pt-20 p-4 pb-20">
+  <main class="md:ml-64 pt-20 p-4 pb-20 min-h-screen">
     <div class="container mx-auto">
-      <h1 class="text-3xl font-bold mb-4">Player Rankings</h1>
+      <div class="bg-white bg-opacity-90 p-6 rounded-lg shadow-lg mb-6">
+        <h1 class="text-3xl font-bold mb-4 text-gray-800">Player Rankings</h1>
+      </div>
       <% if (rankings.length) { %>
-        <div class="bg-white p-4 rounded shadow">
+        <div class="bg-white bg-opacity-95 p-4 rounded-lg shadow-lg">
           <table class="w-full">
             <thead>
               <tr class="bg-gray-200">
@@ -33,7 +38,9 @@
           </table>
         </div>
       <% } else { %>
-        <p>No rankings available at the moment.</p>
+        <div class="bg-white bg-opacity-90 p-6 rounded-lg shadow-lg">
+          <p>No rankings available at the moment.</p>
+        </div>
       <% } %>
     </div>
   </main>

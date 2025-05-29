@@ -8,7 +8,12 @@ const app = express();
 
 // In-memory data store (replace with database in production)
 const dataStore = {
-  tournaments: [],
+  tournaments: [
+    { name: 'KGM Autumn Tournament', startDate: '2025-11-01', endDate: '2025-11-03', type: 'local', months: [10], image: null },
+    { name: 'MPR@KL (SUKMA)', startDate: '2025-04-26', endDate: '2025-04-28', type: 'state', months: [3], image: null },
+    { name: 'SPA Grand Finals', startDate: '2025-11-10', endDate: '2025-11-12', type: 'national', months: [10], image: null },
+    { name: 'IOP Johor', startDate: '2025-03-20', endDate: '2025-03-22', type: 'international', months: [2], image: null }
+  ],
   coaches: [],
   referees: [],
   venues: [],
@@ -17,6 +22,14 @@ const dataStore = {
   pendingRegistrations: [],
   users: [],
   backgroundImage: null
+};
+
+// Color mapping for tournament types
+const tournamentTypes = {
+  local: { color: 'green', label: 'Local' },
+  state: { color: 'red', label: 'State' },
+  national: { color: 'blue', label: 'National' },
+  international: { color: 'yellow', label: 'International/Major Quarters' }
 };
 
 // Middleware
@@ -41,20 +54,29 @@ const adminAuth = (req, res, next) => {
 
 // Routes
 app.get('/', (req, res) => res.render('pages/home', { session: req.session, backgroundImage: dataStore.backgroundImage }));
-app.get('/tournament', (req, res) => res.render('pages/tournament', { tournaments: dataStore.tournaments, session: req.session }));
-app.get('/referee', (req, res) => res.render('pages/referee', { referees: dataStore.referees, session: req.session }));
-app.get('/coaches', (req, res) => res.render('pages/coaches', { coaches: dataStore.coaches, session: req.session }));
-app.get('/venue', (req, res) => res.render('pages/venue', { venues: dataStore.venues, session: req.session }));
-app.get('/services/sponsorship', (req, res) => res.render('pages/services/sponsorship', { sponsorships: dataStore.sponsorships, session: req.session }));
-app.get('/services/registration', (req, res) => res.render('pages/services/registration', { tournaments: dataStore.tournaments, session: req.session }));
-app.get('/services/requirement-approval', (req, res) => res.render('pages/services/requirement-approval', { session: req.session }));
-app.get('/services/requirement-bidding', (req, res) => res.render('pages/services/requirement-bidding', { session: req.session }));
-app.get('/services/application-organizing', (req, res) => res.render('pages/services/application-organizing', { session: req.session }));
-app.get('/services/application-bidding', (req, res) => res.render('pages/services/application-bidding', { session: req.session }));
-app.get('/services/section-33', (req, res) => res.render('pages/services/section-33', { session: req.session }));
-app.get('/services/section-34', (req, res) => res.render('pages/services/section-34', { session: req.session }));
-app.get('/services/section-36', (req, res) => res.render('pages/services/section-36', { session: req.session }));
-app.get('/services/ranking', (req, res) => res.render('pages/services/ranking', { rankings: dataStore.rankings, session: req.session }));
+
+app.get('/tournament', (req, res) => {
+  console.log('Tournaments:', dataStore.tournaments); // Debug log
+  const formattedTournaments = dataStore.tournaments.map(t => ({
+    ...t,
+    color: tournamentTypes[t.type]?.color || 'green'
+  }));
+  res.render('pages/tournament', { tournaments: formattedTournaments, session: req.session, backgroundImage: dataStore.backgroundImage });
+});
+
+app.get('/referee', (req, res) => res.render('pages/referee', { referees: dataStore.referees, session: req.session, backgroundImage: dataStore.backgroundImage }));
+app.get('/coaches', (req, res) => res.render('pages/coaches', { coaches: dataStore.coaches, session: req.session, backgroundImage: dataStore.backgroundImage }));
+app.get('/venue', (req, res) => res.render('pages/venue', { venues: dataStore.venues, session: req.session, backgroundImage: dataStore.backgroundImage }));
+app.get('/services/sponsorship', (req, res) => res.render('pages/services/sponsorship', { sponsorships: dataStore.sponsorships, session: req.session, backgroundImage: dataStore.backgroundImage }));
+app.get('/services/registration', (req, res) => res.render('pages/services/registration', { tournaments: dataStore.tournaments, session: req.session, backgroundImage: dataStore.backgroundImage }));
+app.get('/services/requirement-approval', (req, res) => res.render('pages/services/requirement-approval', { session: req.session, backgroundImage: dataStore.backgroundImage }));
+app.get('/services/requirement-bidding', (req, res) => res.render('pages/services/requirement-bidding', { session: req.session, backgroundImage: dataStore.backgroundImage }));
+app.get('/services/application-organizing', (req, res) => res.render('pages/services/application-organizing', { session: req.session, backgroundImage: dataStore.backgroundImage }));
+app.get('/services/application-bidding', (req, res) => res.render('pages/services/application-bidding', { session: req.session, backgroundImage: dataStore.backgroundImage }));
+app.get('/services/section-33', (req, res) => res.render('pages/services/section-33', { session: req.session, backgroundImage: dataStore.backgroundImage }));
+app.get('/services/section-34', (req, res) => res.render('pages/services/section-34', { session: req.session, backgroundImage: dataStore.backgroundImage }));
+app.get('/services/section-36', (req, res) => res.render('pages/services/section-36', { session: req.session, backgroundImage: dataStore.backgroundImage }));
+app.get('/services/ranking', (req, res) => res.render('pages/services/ranking', { rankings: dataStore.rankings, session: req.session, backgroundImage: dataStore.backgroundImage }));
 
 // Login Routes
 app.get('/login', (req, res) => {
@@ -121,12 +143,12 @@ app.get('/admin/registrations/:id', adminAuth, (req, res) => {
   const registration = dataStore.pendingRegistrations.find(reg => reg.id === req.params.id);
   res.render('pages/admin/registration-detail', { registration, session: req.session });
 });
-app.get('/admin/tournaments', adminAuth, (req, res) => res.render('pages/admin/manage-tournaments', { tournaments: dataStore.tournaments, session: req.session }));
+app.get('/admin/tournaments', adminAuth, (req, res) => res.render('pages/admin/manage-tournaments', { tournaments: dataStore.tournaments, session: req.session, errors: [], formData: {} }));
 app.get('/admin/referees', adminAuth, (req, res) => res.render('pages/admin/manage-referees', { referees: dataStore.referees, session: req.session }));
 app.get('/admin/coaches', adminAuth, (req, res) => res.render('pages/admin/manage-coaches', { coaches: dataStore.coaches, session: req.session }));
-app.get('/admin/venues', adminAuth, (req, res) => res.render('pages/admin/manage-venues', { venues: dataStore.venues, session: req.session }));
-app.get('/admin/sponsorships', adminAuth, (req, res) => res.render('pages/admin/manage-sponsorships', { sponsorships: dataStore.sponsorships, session: req.session }));
-app.get('/admin/rankings', adminAuth, (req, res) => res.render('pages/admin/manage-rankings', { rankings: dataStore.rankings, session: req.session }));
+app.get('/admin/venues', adminAuth, (req, res) => res.render('pages/admin/manage-venue', { venues: dataStore.venues, session: req.session }));
+app.get('/admin/sponsorships', adminAuth, (req, res) => res.render('pages/admin/manage-sponsership', { sponsorships: dataStore.sponsorships, session: req.session }));
+app.get('/admin/rankings', adminAuth, (req, res) => res.render('pages/admin/manage-ranking', { rankings: dataStore.rankings, session: req.session }));
 
 // Admin Home Page Actions
 app.post('/admin/home', adminAuth, (req, res) => {
@@ -157,15 +179,43 @@ app.post('/admin/registrations/reject/:id', adminAuth, (req, res) => {
 
 // POST Routes for Admin Forms
 app.post('/admin/tournaments', adminAuth, [
-  body('name').notEmpty().trim().escape(),
-  body('date').isDate()
+  body('name').notEmpty().withMessage('Tournament name is required').trim().escape(),
+  body('startDate').optional().isDate().withMessage('Invalid start date format'),
+  body('endDate').optional().isDate().withMessage('Invalid end date format'),
+  body('type').isIn(['local', 'state', 'national', 'international']).withMessage('Invalid tournament type'),
+  body('months').optional().isArray().withMessage('Months must be an array')
 ], (req, res) => {
   const errors = validationResult(req);
-  if (!errors.isEmpty()) return res.status(400).send('Invalid input');
-  const { name, date } = req.body;
+  if (!errors.isEmpty()) {
+    console.log('Validation errors:', errors.array()); // Debug log
+    return res.render('pages/admin/manage-tournaments', {
+      tournaments: dataStore.tournaments,
+      session: req.session,
+      errors: errors.array(),
+      formData: req.body
+    });
+  }
+  const { name, startDate, endDate, type, months } = req.body;
+  console.log('Form data:', req.body); // Debug log
   const image = req.files?.image ? `/uploads/${req.files.image.name}` : null;
   if (image) req.files.image.mv(path.join(__dirname, 'public/uploads', req.files.image.name));
-  dataStore.tournaments.push({ name, date, image });
+  
+  // Handle both 'months' and 'months[]' field names
+  const monthsData = months || req.body['months[]'];
+  const monthsArray = monthsData ? (Array.isArray(monthsData) ? monthsData.map(Number) : [Number(monthsData)]) : [];
+  console.log('Processed months:', monthsArray); // Debug log
+  
+  dataStore.tournaments.push({ name, startDate, endDate, type, months: monthsArray, image });
+  res.redirect('/admin/tournaments');
+});
+
+// Delete tournament route
+app.post('/admin/tournaments/delete/:index', adminAuth, (req, res) => {
+  const index = parseInt(req.params.index);
+  if (index >= 0 && index < dataStore.tournaments.length) {
+    const deletedTournament = dataStore.tournaments.splice(index, 1)[0];
+    console.log('Deleted tournament:', deletedTournament.name); // Debug log
+  }
   res.redirect('/admin/tournaments');
 });
 

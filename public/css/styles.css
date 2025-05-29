@@ -69,6 +69,29 @@
   to { opacity: 1; }
 }
 
+/* Sidebar collapse functionality */
+main {
+  transition: margin-left 0.3s ease-in-out;
+}
+
+/* Tournament page toggle button */
+#tournament-sidebar-toggle {
+  transition: left 0.3s ease-in-out;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  border: none;
+  cursor: pointer;
+}
+
+#tournament-sidebar-toggle:hover {
+  background-color: #4a5568 !important;
+  transform: scale(1.05);
+}
+
+#tournament-sidebar-toggle svg {
+  width: 24px;
+  height: 24px;
+}
+
 /* Form Validation Styles */
 input:invalid {
   border-color: red;
@@ -118,3 +141,29 @@ main.bg-cover {
   max-width: 42rem; /* md:max-w-2xl equivalent */
   object-fit: contain;
 }
+
+/* Calendar Table Styles */
+table {
+  border-collapse: collapse;
+  width: 100%;
+  text-align: center;
+  font-family: Arial, sans-serif;
+}
+th, td {
+  border: 1px solid black;
+  padding: 4px;
+  height: 30px;
+}
+th.month {
+  background-color: #f0f0f0;
+  font-weight: bold;
+}
+td.tournament-name {
+  font-weight: bold;
+  background-color: #f9f9f9;
+  text-align: left;
+}
+.filled-green { background-color: #90ee90; color: white; } /* Local */
+.filled-red { background-color: #f08080; color: white; }   /* State */
+.filled-blue { background-color: #add8e6; color: white; } /* National */
+.filled-yellow { background-color: #ffff99; color: black; } /* International */

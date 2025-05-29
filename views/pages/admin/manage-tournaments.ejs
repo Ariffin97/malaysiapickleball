@@ -16,27 +16,94 @@
         <h1 class="text-3xl font-bold">Manage Tournaments</h1>
         <a href="/admin/dashboard" class="bg-gray-600 text-white p-2 rounded hover:bg-gray-700">Back to Dashboard</a>
       </div>
-      <div class="bg-white p-4 rounded shadow">
+
+      <!-- Add New Tournament Form -->
+      <div class="bg-white p-4 rounded shadow mb-8">
         <h2 class="text-xl mb-2">Add New Tournament</h2>
+        <% if (errors && errors.length) { %>
+          <div class="mb-4">
+            <% errors.forEach(error => { %>
+              <p class="error"><%= error.msg %></p>
+            <% }) %>
+          </div>
+        <% } %>
         <form action="/admin/tournaments" method="POST" enctype="multipart/form-data">
           <div class="mb-4">
             <label class="block mb-1">Tournament Name</label>
-            <input type="text" name="name" class="w-full p-2 border rounded">
+            <input type="text" name="name" value="<%= formData?.name || '' %>" class="w-full p-2 border rounded" required>
           </div>
           <div class="mb-4">
-            <label class="block mb-1">Date</label>
-            <input type="date" name="date" class="w-full p-2 border rounded">
+            <label class="block mb-1">Start Date (Optional)</label>
+            <input type="date" name="startDate" value="<%= formData?.startDate || '' %>" class="w-full p-2 border rounded">
           </div>
           <div class="mb-4">
-            <label class="block mb-1">Image</label>
+            <label class="block mb-1">End Date (Optional)</label>
+            <input type="date" name="endDate" value="<%= formData?.endDate || '' %>" class="w-full p-2 border rounded">
+          </div>
+          <div class="mb-4">
+            <label class="block mb-1">Tournament Type</label>
+            <select name="type" class="w-full p-2 border rounded" required>
+              <option value="local" <%= formData?.type === 'local' ? 'selected' : '' %>>Local</option>
+              <option value="state" <%= formData?.type === 'state' ? 'selected' : '' %>>State</option>
+              <option value="national" <%= formData?.type === 'national' ? 'selected' : '' %>>National</option>
+              <option value="international" <%= formData?.type === 'international' ? 'selected' : '' %>>International/Major Quarters</option>
+            </select>
+          </div>
+          <div class="mb-4">
+            <label class="block mb-1">Months (Select all applicable)</label>
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-2">
+              <% for (let m = 0; m < 12; m++) { %>
+                <label class="flex items-center">
+                  <input type="checkbox" name="months[]" value="<%= m %>" <%= formData?.months && formData.months.includes(String(m)) ? 'checked' : '' %> class="mr-2">
+                  <%= new Date(2025, m).toLocaleString('default', { month: 'short' }) %>
+                </label>
+              <% } %>
+            </div>
+          </div>
+          <div class="mb-4">
+            <label class="block mb-1">Image (Optional)</label>
             <input type="file" name="image" accept="image/*" class="w-full p-2 border rounded">
           </div>
           <button type="submit" class="bg-green-600 text-white p-2 rounded hover:bg-green-700">Save</button>
         </form>
       </div>
+
+      <!-- Current Tournaments -->
+      <div class="mt-4">
+        <h2 class="text-xl mb-2">Current Tournaments</h2>
+        <% if (tournaments.length) { %>
+          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            <% tournaments.forEach((tournament, index) => { %>
+              <div class="p-4 bg-white rounded shadow card">
+                <h3 class="font-bold"><%= tournament.name %></h3>
+                <p>Date: <%= tournament.startDate ? `${tournament.startDate} to ${tournament.endDate || 'TBD'}` : 'TBD' %></p>
+                <p>Type: <%= tournament.type %></p>
+                <p>Months: <%= tournament.months.map(m => new Date(2025, m).toLocaleString('default', { month: 'short' })).join(', ') %></p>
+                <% if (tournament.image) { %>
+                  <img src="<%= tournament.image %>" alt="Tournament Image" class="w-32 h-32 object-cover mt-2">
+                <% } %>
+                <div class="mt-4 flex justify-end">
+                  <form action="/admin/tournaments/delete/<%= index %>" method="POST" onsubmit="return confirmDelete('<%= tournament.name %>')" class="inline">
+                    <button type="submit" class="bg-red-600 text-white px-3 py-1 rounded hover:bg-red-700 text-sm">
+                      Delete
+                    </button>
+                  </form>
+                </div>
+              </div>
+            <% }) %>
+          </div>
+        <% } else { %>
+          <p>No tournaments available.</p>
+        <% } %>
+      </div>
     </div>
   </main>
   <%- include('../../partials/footer') %>
   <script src="/js/script.js"></script>
+  <script>
+    function confirmDelete(tournamentName) {
+      return confirm(`Are you sure you want to delete the tournament "${tournamentName}"? This action cannot be undone.`);
+    }
+  </script>
 </body>
 </html>

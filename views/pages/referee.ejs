@@ -7,14 +7,19 @@
   <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
   <link rel="stylesheet" href="/css/styles.css">
 </head>
-<body class="bg-gray-100">
+<%
+  const defaultBg = backgroundImage || '/images/defaultbg.png';
+%>
+<body class="bg-gray-100 bg-cover bg-center bg-fixed min-h-screen" style="background-image: url('<%= defaultBg %>')">
   <%- include('../partials/header') %>
   <%- include('../partials/sidebar') %>
-  <main class="md:ml-64 pt-20 p-4 pb-20">
+  <main class="md:ml-64 pt-20 p-4 pb-20 min-h-screen">
     <div class="container mx-auto">
-      <h1 class="text-3xl font-bold mb-4">Our Referees</h1>
+      <div class="bg-white bg-opacity-90 p-6 rounded-lg shadow-lg mb-6">
+        <h1 class="text-3xl font-bold mb-4 text-gray-800">Our Referees</h1>
+      </div>
       <% if (referees.length) { %>
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 bg-white bg-opacity-90 p-4 rounded-lg shadow-lg">
           <% referees.forEach(referee => { %>
             <div class="p-4 bg-white rounded shadow card">
               <h2 class="text-xl font-bold"><%= referee.name %></h2>
@@ -23,7 +28,9 @@
           <% }) %>
         </div>
       <% } else { %>
-        <p>No referees available at the moment.</p>
+        <div class="bg-white bg-opacity-90 p-6 rounded-lg shadow-lg">
+          <p>No referees available at the moment.</p>
+        </div>
       <% } %>
     </div>
   </main>

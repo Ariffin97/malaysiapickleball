@@ -10,13 +10,103 @@
 <body class="bg-gray-100">
   <%- include('../partials/header') %>
   <%- include('../partials/sidebar') %>
-  <main class="md:ml-64 pt-20 p-4 pb-20">
+  <main class="pt-20 p-4 pb-20">
     <div class="container mx-auto">
-      <h1 class="text-3xl font-bold mb-4">Tournaments</h1>
-      <p>View upcoming pickleball tournaments in Malaysia.</p>
+      <h1 class="text-3xl font-bold mb-4">2025 Pickleball Tournament Calendar</h1>
+      
+      <!-- Legend -->
+      <div class="mb-6 flex flex-wrap gap-4">
+        <div class="flex items-center">
+          <span class="w-4 h-4 filled-green inline-block mr-2"></span>
+          <span>Local Tournaments</span>
+        </div>
+        <div class="flex items-center">
+          <span class="w-4 h-4 filled-red inline-block mr-2"></span>
+          <span>State Tournaments</span>
+        </div>
+        <div class="flex items-center">
+          <span class="w-4 h-4 filled-blue inline-block mr-2"></span>
+          <span>National Tournaments</span>
+        </div>
+        <div class="flex items-center">
+          <span class="w-4 h-4 filled-yellow inline-block mr-2"></span>
+          <span>International/Major Quarters</span>
+        </div>
+      </div>
+
+      <!-- Calendar Table -->
+      <div class="overflow-x-auto">
+        <table class="w-full bg-white rounded shadow table">
+          <thead>
+            <tr>
+              <th rowspan="2" class="p-3 text-left">Tournament</th>
+              <% const months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']; %>
+              <% months.forEach(month => { %>
+                <th class="month" colspan="4"><%= month %></th>
+              <% }); %>
+            </tr>
+            <tr>
+              <% for (let i = 0; i < months.length; i++) { %>
+                <th>Q1</th><th>Q2</th><th>Q3</th><th>Q4</th>
+              <% } %>
+            </tr>
+          </thead>
+          <tbody>
+            <% 
+              // Transform tournaments to tournamentData format
+              const tournamentData = tournaments.map(t => {
+                const schedule = Array(12).fill().map(() => []);
+                if (t.startDate) {
+                  const start = new Date(t.startDate);
+                  const month = start.getMonth();
+                  const day = start.getDate();
+                  let quarter = 0;
+                  if (day >= 1 && day <= 7) quarter = 1;
+                  else if (day >= 8 && day <= 14) quarter = 2;
+                  else if (day >= 15 && day <= 21) quarter = 3;
+                  else if (day >= 22) quarter = 4;
+                  if (quarter > 0) {
+                    schedule[month] = [quarter];
+                  }
+                }
+                return {
+                  name: t.name,
+                  color: `filled-${t.color}`,
+                  schedule
+                };
+              });
+            %>
+            <% if (tournamentData && tournamentData.length) { %>
+              <% tournamentData.forEach(t => { %>
+                <tr>
+                  <td class="tournament-name"><%= t.name %></td>
+                  <% for (let m = 0; m < months.length; m++) { %>
+                    <% for (let q = 1; q <= 4; q++) { %>
+                      <% 
+                        let cellClass = "";
+                        if (t.schedule?.[m]?.includes(q)) {
+                          cellClass = t.color || "filled-red";
+                        }
+                      %>
+                      <td class="<%= cellClass %>"></td>
+                    <% } %>
+                  <% } %>
+                </tr>
+              <% }) %>
+            <% } else { %>
+              <tr>
+                <td colspan="49" class="p-4 text-center">No tournaments scheduled.</td>
+              <% } %>
+          </tbody>
+        </table>
+      </div>
     </div>
   </main>
   <%- include('../partials/footer') %>
   <script src="/js/script.js"></script>
+  <script>
+    // Client-side debugging
+    console.log('Tournament Data:', <%- JSON.stringify(tournamentData) %>);
+  </script>
 </body>
 </html>
