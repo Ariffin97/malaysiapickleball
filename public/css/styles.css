@@ -4,13 +4,12 @@
 
 :root {
   --navbar-height: 56px; /* More precise calculation: p-4 (32px) + line-height (~24px) */
-  --footer-height: 56px; /* p-4 (16px) * 2 + text content (~24px) */
 }
 
 .sidebar {
   transition: transform 0.3s ease-in-out;
   /* top: var(--navbar-height); */
-  /* bottom: var(--footer-height); */
+  height: calc(100vh - 120px); /* Full height minus navbar and small footer gap */
 }
 
 .sidebar .flex-1 {
@@ -35,10 +34,16 @@
   background: #718096;
 }
 
+/* Sidebar extends to footer */
+.sidebar-modern {
+  height: calc(100vh - 120px) !important; /* Navbar + small footer gap */
+  border-bottom: 2px solid rgba(255, 255, 255, 0.1); /* Subtle border at bottom */
+}
+
 @media (max-width: 768px) {
   .sidebar {
     transform: translateX(-100%);
-    z-index: 30;
+    z-index: 50; /* Higher z-index to ensure sidebar is above content */
   }
   .sidebar.open {
     transform: translateX(0);
@@ -57,10 +62,15 @@
     animation: fadeIn 0.3s ease-in-out;
   }
   
-  /* Main content shift on mobile when sidebar is open */
+  /* Main content padding on mobile when sidebar is open */
   .sidebar.open ~ main {
-    transform: translateX(256px);
-    transition: transform 0.3s ease-in-out;
+    transform: translateX(0); /* Disable content shift on mobile */
+    padding-left: 2.5rem; /* Maintain padding for button */
+  }
+  
+  /* Position toggle button when sidebar is open */
+  .sidebar.open ~ #tournament-sidebar-toggle {
+    left: 17rem; /* Align with sidebar width (16rem + 1rem padding) */
   }
 }
 
@@ -71,25 +81,9 @@
 
 /* Sidebar collapse functionality */
 main {
-  transition: margin-left 0.3s ease-in-out;
-}
-
-/* Tournament page toggle button */
-#tournament-sidebar-toggle {
-  transition: left 0.3s ease-in-out;
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-  border: none;
-  cursor: pointer;
-}
-
-#tournament-sidebar-toggle:hover {
-  background-color: #4a5568 !important;
-  transform: scale(1.05);
-}
-
-#tournament-sidebar-toggle svg {
-  width: 24px;
-  height: 24px;
+  transition: margin-left 0.3s ease-in-out, padding-left 0.3s ease-in-out;
+  position: relative;
+  z-index: 1;
 }
 
 /* Form Validation Styles */
@@ -128,7 +122,7 @@ input:invalid {
 
 /* Background Image Styles */
 main.bg-cover {
-  min-height: calc(100vh - 8rem); /* Adjust for header and footer */
+  min-height: calc(100vh - 4rem); /* Adjust for header only */
 }
 
 /* Infographic Image Styles */
@@ -148,22 +142,302 @@ table {
   width: 100%;
   text-align: center;
   font-family: Arial, sans-serif;
+  position: relative;
+  z-index: 1;
 }
 th, td {
-  border: 1px solid black;
+  border: 1px solid #e5e7eb;
   padding: 4px;
   height: 30px;
+  position: relative;
 }
 th.month {
-  background-color: #f0f0f0;
+  background-color: #f9fafb;
   font-weight: bold;
 }
 td.tournament-name {
   font-weight: bold;
   background-color: #f9f9f9;
   text-align: left;
+  z-index: 5; /* Higher z-index for tournament names */
+  position: sticky;
+  left: 0;
 }
-.filled-green { background-color: #90ee90; color: white; } /* Local */
-.filled-red { background-color: #f08080; color: white; }   /* State */
-.filled-blue { background-color: #add8e6; color: white; } /* National */
-.filled-yellow { background-color: #ffff99; color: black; } /* International */
+
+/* Tournament type specific colors */
+.filled-green { 
+  background: linear-gradient(135deg, #10b981, #059669);
+  color: white;
+  border-radius: 6px;
+  box-shadow: 0 2px 4px rgba(16, 185, 129, 0.3);
+  position: relative;
+  z-index: 2;
+}
+.filled-red { 
+  background: linear-gradient(135deg, #ef4444, #dc2626);
+  color: white;
+  border-radius: 6px;
+  box-shadow: 0 2px 4px rgba(239, 68, 68, 0.3);
+  position: relative;
+  z-index: 2;
+}
+.filled-blue { 
+  background: linear-gradient(135deg, #3b82f6, #2563eb);
+  color: white;
+  border-radius: 6px;
+  box-shadow: 0 2px 4px rgba(59, 130, 246, 0.3);
+  position: relative;
+  z-index: 2;
+}
+.filled-yellow { 
+  background: linear-gradient(135deg, #f59e0b, #d97706);
+  color: white;
+  border-radius: 6px;
+  box-shadow: 0 2px 4px rgba(245, 158, 11, 0.3);
+  position: relative;
+  z-index: 2;
+}
+
+/* Fix hover overlay issue */
+.calendar-cell.filled-green:hover,
+.calendar-cell.filled-red:hover,
+.calendar-cell.filled-blue:hover,
+.calendar-cell.filled-yellow:hover {
+  transform: scale(1.1) !important;
+  z-index: 3 !important; /* Lower than tournament names */
+  border-radius: 8px !important;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.2) !important;
+}
+
+/* Enhanced interactive elements */
+.tournament-card {
+  position: relative;
+  overflow: hidden;
+}
+
+.tournament-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+  transition: left 0.5s;
+}
+
+.tournament-card:hover::before {
+  left: 100%;
+}
+
+/* Responsive improvements */
+@media (max-width: 768px) {
+  .tournament-hero h1 {
+    font-size: 2.5rem !important;
+  }
+  
+  .tournament-hero p {
+    font-size: 1.1rem !important;
+  }
+  
+  table {
+    font-size: 0.8rem;
+  }
+  
+  th, td {
+    padding: 2px;
+    height: 25px;
+  }
+  
+  .tournament-name {
+    min-width: 120px;
+    font-size: 0.75rem;
+  }
+  
+  /* Mobile specific spacing */
+  .tournament-page {
+    padding-bottom: 2rem; /* Normal spacing */
+  }
+}
+
+/* Animation enhancements */
+@keyframes pulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+}
+
+.tournament-card:hover {
+  animation: pulse 2s infinite;
+}
+
+/* Modal enhancements */
+.modal-content {
+  max-height: 90vh;
+  overflow-y: auto;
+}
+
+/* Smooth scrolling for modal */
+.modal-content::-webkit-scrollbar {
+  width: 6px;
+}
+
+.modal-content::-webkit-scrollbar-track {
+  background: #f1f5f9;
+}
+
+.modal-content::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 3px;
+}
+
+.modal-content::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
+
+/* Calendar view container */
+#calendar-view {
+  margin-bottom: 3rem;
+  position: relative;
+  z-index: 2;
+  min-height: 400px; /* Ensure minimum height */
+}
+
+#calendar-view .overflow-x-auto {
+  position: relative;
+  z-index: 3;
+  max-width: 100%;
+  overflow-x: auto;
+  overflow-y: visible;
+  -webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS */
+  isolation: isolate; /* Create new stacking context */
+}
+
+/* Ensure table doesn't get cut off */
+#calendar-view table {
+  min-width: 800px; /* Minimum width for proper display */
+  isolation: isolate; /* Isolate table stacking context */
+}
+
+/* Tournament row isolation */
+.tournament-row {
+  isolation: isolate; /* Each row has its own stacking context */
+}
+
+/* Card view container */
+#card-view {
+  margin-bottom: 3rem;
+  position: relative;
+  z-index: 2;
+  min-height: 300px; /* Ensure minimum height */
+}
+
+/* Modal z-index fix */
+.modal {
+  z-index: 9999 !important;
+}
+
+/* Tournament modal specific */
+#tournament-modal {
+  z-index: 9999 !important;
+}
+
+#tournament-modal .bg-white {
+  z-index: 10000 !important;
+}
+
+/* Clean layout */
+html, body {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  overflow-x: hidden; /* Prevent horizontal scroll issues */
+}
+
+main {
+  transition: margin-left 0.3s ease-in-out, padding-left 0.3s ease-in-out;
+  position: relative;
+  z-index: 1;
+  min-height: calc(100vh - 80px); /* Ensure main content fills screen */
+}
+
+/* Override any potential conflicts */
+* {
+  box-sizing: border-box;
+}
+
+/* Tournament page specific spacing adjustments */
+.tournament-page {
+  padding-bottom: 2rem; /* Normal spacing */
+  margin-bottom: 2rem;
+}
+
+/* Footer Styles */
+footer {
+  position: relative;
+  z-index: 20; /* Higher than sidebar */
+  box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.1);
+  margin-left: 0; /* Footer spans full width */
+}
+
+footer .container {
+  max-width: 1200px;
+}
+
+footer h3, footer h4 {
+  color: #ffffff;
+}
+
+footer a {
+  transition: all 0.3s ease;
+}
+
+footer a:hover {
+  transform: translateY(-1px);
+}
+
+footer .social-icon {
+  transition: all 0.3s ease;
+}
+
+footer .social-icon:hover {
+  transform: scale(1.1);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+}
+
+footer input[type="email"] {
+  transition: all 0.3s ease;
+}
+
+footer input[type="email"]:focus {
+  transform: scale(1.02);
+  box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.1);
+}
+
+footer button {
+  transition: all 0.3s ease;
+}
+
+footer button:hover {
+  transform: scale(1.05);
+}
+
+/* Responsive footer adjustments */
+@media (max-width: 768px) {
+  footer {
+    padding: 2rem 0;
+  }
+  
+  footer .grid {
+    grid-template-columns: 1fr;
+    gap: 2rem;
+  }
+  
+  footer .flex {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+  }
+}
