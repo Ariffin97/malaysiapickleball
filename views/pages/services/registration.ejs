@@ -6,6 +6,146 @@
   <title>Procedure for Applying for Approval to Organize/Bid for a Sport Event - Malaysia Pickleball Association</title>
   <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
   <link rel="stylesheet" href="/css/styles.css">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+  <style>
+    .hero-gradient {
+      background: linear-gradient(135deg, #059669 0%, #047857 50%, #065f46 100%);
+    }
+    
+    .interactive-card {
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(10px);
+    }
+    
+    .interactive-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+    }
+    
+    .accordion-item {
+      transition: all 0.3s ease;
+      border: 1px solid #e5e7eb;
+      border-radius: 0.75rem;
+      overflow: hidden;
+      margin-bottom: 1rem;
+    }
+    
+    .accordion-header {
+      cursor: pointer;
+      transition: all 0.3s ease;
+      background: linear-gradient(135deg, #f8fafc, #f1f5f9);
+      position: relative;
+      z-index: 10;
+      pointer-events: auto;
+    }
+    
+    .accordion-header:hover {
+      background: linear-gradient(135deg, #e2e8f0, #cbd5e1);
+    }
+    
+    .accordion-header.active {
+      background: linear-gradient(135deg, #059669, #047857);
+      color: white;
+    }
+    
+    .accordion-content {
+      display: none;
+      background: white;
+    }
+    
+    .accordion-content.active {
+      display: block;
+    }
+    
+    .category-icon {
+      transition: transform 0.3s ease;
+    }
+    
+    .accordion-header.active .category-icon {
+      transform: rotate(180deg);
+    }
+    
+    .level-badge {
+      transition: all 0.3s ease;
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .level-badge::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+      transition: left 0.5s;
+    }
+    
+    .level-badge:hover::before {
+      left: 100%;
+    }
+    
+    .process-step {
+      transition: all 0.4s ease;
+      cursor: pointer;
+    }
+    
+    .process-step:hover {
+      transform: translateY(-5px) scale(1.02);
+      box-shadow: 0 15px 30px rgba(0, 0, 0, 0.15);
+    }
+    
+    .fade-in {
+      opacity: 0;
+      transform: translateY(30px);
+      animation: fadeInUp 0.8s ease-out forwards;
+    }
+    
+    .fade-in-delay {
+      opacity: 0;
+      transform: translateY(30px);
+      animation: fadeInUp 0.8s ease-out 0.3s forwards;
+    }
+    
+    @keyframes fadeInUp {
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+    
+    .pulse-animation {
+      animation: pulse 2s infinite;
+    }
+    
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.7; }
+    }
+    
+    .progress-indicator {
+      height: 4px;
+      background: linear-gradient(90deg, #ef4444, #f97316, #eab308, #22c55e);
+      border-radius: 2px;
+      animation: progressFlow 3s ease-in-out infinite;
+    }
+    
+    @keyframes progressFlow {
+      0%, 100% { transform: scaleX(0.5); }
+      50% { transform: scaleX(1); }
+    }
+    
+    @media (max-width: 768px) {
+      .hero-title {
+        font-size: 1.875rem !important;
+      }
+      .accordion-content {
+        padding: 1rem !important;
+      }
+    }
+  </style>
 </head>
 <%
   const defaultBg = backgroundImage || '/images/defaultbg.png';
@@ -13,47 +153,428 @@
 <body class="bg-gray-100 bg-cover bg-center bg-fixed min-h-screen" style="background-image: url('<%= defaultBg %>')">
   <%- include('../../partials/header') %>
   <%- include('../../partials/sidebar') %>
+  
   <main class="md:ml-64 pt-20 p-4 pb-20 min-h-screen">
-    <div class="container mx-auto">
-      <div class="bg-white bg-opacity-90 p-6 rounded-lg shadow-lg mb-6">
-        <h1 class="text-3xl font-bold mb-4 text-center text-gray-800">Procedure for Applying for Approval to Organize/Bid for a Sport Event</h1>
+    <div class="container mx-auto max-w-6xl">
+      <!-- Hero Section -->
+      <div class="hero-gradient text-white p-8 rounded-2xl shadow-2xl mb-8 text-center fade-in">
+        <div class="inline-flex items-center justify-center w-20 h-20 bg-white bg-opacity-20 rounded-full mb-6">
+          <i class="fas fa-clipboard-check text-white text-3xl"></i>
+        </div>
+        <h1 class="hero-title text-3xl md:text-4xl font-bold mb-4">
+          Event Organization Procedures
+        </h1>
+        <p class="text-xl mb-6 opacity-90 max-w-3xl mx-auto">
+          Complete guide for applying for approval to organize or bid for sports events in Malaysia
+        </p>
+        <div class="progress-indicator w-full mb-4"></div>
+        <div class="flex flex-wrap justify-center gap-4">
+          <button class="bg-white text-green-600 px-6 py-3 rounded-xl font-bold hover:bg-opacity-90 transition-all duration-300" onclick="scrollToSection('levels')">
+            <i class="fas fa-play mr-2"></i>
+            Get Started
+          </button>
+          <button class="border-2 border-white text-white px-6 py-3 rounded-xl font-bold hover:bg-white hover:text-green-600 transition-all duration-300" onclick="scrollToSection('application')">
+            <i class="fas fa-external-link-alt mr-2"></i>
+            Apply Online
+          </button>
+        </div>
       </div>
-      
-      <div class="bg-white bg-opacity-95 p-6 rounded-lg shadow-lg mb-8">
-        <h2 class="text-2xl font-semibold mb-4 text-red-600 border-b-2 border-red-600 pb-2">Local Level</h2>
-        <p class="mb-6">Any organization of sports competitions at the national, state, district, division, or any administrative area level under local authority involving the participation of local citizens or permanent residents.</p>
 
-        <h2 class="text-2xl font-semibold mb-4 text-red-600 border-b-2 border-red-600 pb-2">International Level</h2>
-        <p class="mb-6">Organization of sports competitions in Malaysia involving the participation of non-citizens representing a country or individually, excluding those residing and working or studying in any part of the Federation (Malaysia).</p>
+      <!-- Event Levels Section -->
+      <section id="levels" class="mb-12 fade-in-delay">
+        <h2 class="text-3xl font-bold text-center mb-8 text-gray-800">
+          <i class="fas fa-layer-group text-green-600 mr-3"></i>
+          Event Organization Levels
+        </h2>
+        
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <!-- Local Level -->
+          <div class="accordion-item interactive-card">
+            <div class="accordion-header p-6 flex items-center justify-between" onclick="toggleAccordion('local')">
+              <div class="flex items-center">
+                <div class="level-badge bg-gradient-to-r from-blue-500 to-blue-600 text-white px-4 py-2 rounded-full mr-4">
+                  <i class="fas fa-map-marker-alt mr-2"></i>
+                  Local Level
+                </div>
+              </div>
+              <i class="fas fa-chevron-down category-icon text-2xl" id="local-icon"></i>
+            </div>
+            <div class="accordion-content" id="local-content">
+              <div class="bg-gradient-to-r from-blue-50 to-blue-100 rounded-lg p-6">
+                <h3 class="text-xl font-bold mb-4 text-blue-800">
+                  <i class="fas fa-city mr-2"></i>
+                  Local & Regional Events
+                </h3>
+                <div class="space-y-4">
+                  <div class="flex items-start space-x-3">
+                    <i class="fas fa-check-circle text-blue-500 mt-1"></i>
+                    <div>
+                      <p class="font-semibold">National Level Competitions</p>
+                      <p class="text-gray-600">Sports competitions involving participants from across Malaysia</p>
+                    </div>
+                  </div>
+                  <div class="flex items-start space-x-3">
+                    <i class="fas fa-check-circle text-blue-500 mt-1"></i>
+                    <div>
+                      <p class="font-semibold">State & District Events</p>
+                      <p class="text-gray-600">Regional competitions within state or district boundaries</p>
+                    </div>
+                  </div>
+                  <div class="flex items-start space-x-3">
+                    <i class="fas fa-check-circle text-blue-500 mt-1"></i>
+                    <div>
+                      <p class="font-semibold">Local Authority Events</p>
+                      <p class="text-gray-600">Community-level sports competitions and tournaments</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
 
-        <h2 class="text-2xl font-semibold mb-4 text-red-600 border-b-2 border-red-600 pb-2">Licensing</h2>
-        <p class="mb-4">Any company registered under Act 777, the Companies Act 2016 (application by a company representative).</p>
+          <!-- International Level -->
+          <div class="accordion-item interactive-card">
+            <div class="accordion-header p-6 flex items-center justify-between" onclick="toggleAccordion('international')">
+              <div class="flex items-center">
+                <div class="level-badge bg-gradient-to-r from-purple-500 to-purple-600 text-white px-4 py-2 rounded-full mr-4">
+                  <i class="fas fa-globe mr-2"></i>
+                  International Level
+                </div>
+              </div>
+              <i class="fas fa-chevron-down category-icon text-2xl" id="international-icon"></i>
+            </div>
+            <div class="accordion-content" id="international-content">
+              <div class="bg-gradient-to-r from-purple-50 to-purple-100 rounded-lg p-6">
+                <h3 class="text-xl font-bold mb-4 text-purple-800">
+                  <i class="fas fa-flag mr-2"></i>
+                  International Competitions
+                </h3>
+                <div class="space-y-4">
+                  <div class="flex items-start space-x-3">
+                    <i class="fas fa-check-circle text-purple-500 mt-1"></i>
+                    <div>
+                      <p class="font-semibold">Foreign Participants</p>
+                      <p class="text-gray-600">Events involving non-citizens representing their countries</p>
+                    </div>
+                  </div>
+                  <div class="flex items-start space-x-3">
+                    <i class="fas fa-check-circle text-purple-500 mt-1"></i>
+                    <div>
+                      <p class="font-semibold">Individual International Athletes</p>
+                      <p class="text-gray-600">Competitions with individual foreign participants</p>
+                    </div>
+                  </div>
+                  <div class="flex items-start space-x-3">
+                    <i class="fas fa-exclamation-triangle text-yellow-500 mt-1"></i>
+                    <div>
+                      <p class="font-semibold text-yellow-700">Exclusions</p>
+                      <p class="text-gray-600">Does not include foreign residents working or studying in Malaysia</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
 
-        <h2 class="text-2xl font-semibold mb-4 text-red-600 border-b-2 border-red-600 pb-2">Sports Body</h2>
-        <p class="mb-4">A sports body registered with the Office of the Commissioner of Sports under the Sports Development Act 1997 (Act 576) (application by the secretary).</p>
+      <!-- Applicant Categories -->
+      <section class="mb-12 fade-in-delay">
+        <h2 class="text-3xl font-bold text-center mb-8 text-gray-800">
+          <i class="fas fa-users text-green-600 mr-3"></i>
+          Who Can Apply?
+        </h2>
+        
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <!-- Sports Body -->
+          <div class="process-step interactive-card p-6 rounded-xl text-center">
+            <div class="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-r from-green-500 to-emerald-500 rounded-full mb-4">
+              <i class="fas fa-certificate text-white text-2xl"></i>
+            </div>
+            <h3 class="text-xl font-bold mb-3 text-gray-800">Sports Body</h3>
+            <p class="text-gray-600 mb-4">Registered under Sports Development Act 1997 (Act 576)</p>
+            <div class="bg-green-50 p-3 rounded-lg">
+              <p class="text-sm text-green-700 font-semibold">Application by Secretary</p>
+            </div>
+          </div>
 
-        <h2 class="text-2xl font-semibold mb-4 text-red-600 border-b-2 border-red-600 pb-2">Non-Sports Body</h2>
-        <p class="mb-2">Any organization or association registered other than under:</p>
-        <ul class="list-disc ml-6 mb-4">
-          <li>Act 777</li>
-          <li>Act 576</li>
-        </ul>
-        <p class="mb-2">Includes:</p>
-        <ul class="list-disc ml-6 mb-6">
-          <li>Federal/State Public Government Agencies / Local Authorities</li>
-          <li>Non-Sports Bodies / NGOs</li>
-        </ul>
+          <!-- Licensed Company -->
+          <div class="process-step interactive-card p-6 rounded-xl text-center">
+            <div class="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-r from-blue-500 to-indigo-500 rounded-full mb-4">
+              <i class="fas fa-building text-white text-2xl"></i>
+            </div>
+            <h3 class="text-xl font-bold mb-3 text-gray-800">Licensed Company</h3>
+            <p class="text-gray-600 mb-4">Company registered under Companies Act 2016 (Act 777)</p>
+            <div class="bg-blue-50 p-3 rounded-lg">
+              <p class="text-sm text-blue-700 font-semibold">Application by Company Representative</p>
+            </div>
+          </div>
 
-        <h2 class="text-2xl font-semibold mb-4 text-red-600 border-b-2 border-red-600 pb-2">Application Process</h2>
-        <p class="mb-6">Applications can be made via the link: <a href="http://erosa.kbs.gov.my" class="text-blue-600 hover:underline">http://erosa.kbs.gov.my</a></p>
-        <div class="mt-6 flex justify-center">
-          <img src="/images/pic1.png" alt="Application Process Infographic" class="infographic-image">
+          <!-- Other Organizations -->
+          <div class="process-step interactive-card p-6 rounded-xl text-center">
+            <div class="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-r from-orange-500 to-red-500 rounded-full mb-4">
+              <i class="fas fa-handshake text-white text-2xl"></i>
+            </div>
+            <h3 class="text-xl font-bold mb-3 text-gray-800">Other Organizations</h3>
+            <p class="text-gray-600 mb-4">Government agencies, NGOs, and other registered bodies</p>
+            <div class="bg-orange-50 p-3 rounded-lg">
+              <p class="text-sm text-orange-700 font-semibold">Various Application Types</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Application Process -->
+      <section id="application" class="interactive-card p-8 rounded-2xl mb-12 fade-in-delay">
+        <h2 class="text-3xl font-bold text-center mb-8 text-gray-800">
+          <i class="fas fa-rocket text-green-600 mr-3"></i>
+          Ready to Apply?
+        </h2>
+        
+        <div class="text-center mb-8">
+          <p class="text-xl text-gray-600 mb-6">
+            Submit your application through our official online portal
+          </p>
+          
+          <div class="bg-gradient-to-r from-green-100 to-blue-100 p-6 rounded-xl mb-6">
+            <div class="flex items-center justify-center mb-4">
+              <i class="fas fa-globe text-green-600 text-3xl mr-3"></i>
+              <span class="text-2xl font-bold text-gray-800">Official Portal</span>
+            </div>
+            <p class="text-lg font-semibold text-gray-700 mb-4">erosa.kbs.gov.my</p>
+            <a href="http://erosa.kbs.gov.my" target="_blank" class="inline-flex items-center bg-gradient-to-r from-green-500 to-green-600 text-white px-8 py-4 rounded-xl font-bold text-lg hover:from-green-600 hover:to-green-700 transition-all duration-300 transform hover:scale-105">
+              <i class="fas fa-external-link-alt mr-2"></i>
+              Access Application Portal
+            </a>
+          </div>
+        </div>
+
+        <!-- Benefits -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div class="text-center">
+            <div class="inline-flex items-center justify-center w-16 h-16 bg-green-100 rounded-full mb-4">
+              <i class="fas fa-clock text-green-600 text-2xl"></i>
+            </div>
+            <h4 class="font-bold text-gray-800 mb-2">Fast Processing</h4>
+            <p class="text-gray-600">Streamlined application review process</p>
+          </div>
+          
+          <div class="text-center">
+            <div class="inline-flex items-center justify-center w-16 h-16 bg-blue-100 rounded-full mb-4">
+              <i class="fas fa-shield-check text-blue-600 text-2xl"></i>
+            </div>
+            <h4 class="font-bold text-gray-800 mb-2">Official Approval</h4>
+            <p class="text-gray-600">Government-backed event authorization</p>
+          </div>
+          
+          <div class="text-center">
+            <div class="inline-flex items-center justify-center w-16 h-16 bg-purple-100 rounded-full mb-4">
+              <i class="fas fa-headset text-purple-600 text-2xl"></i>
+            </div>
+            <h4 class="font-bold text-gray-800 mb-2">Expert Support</h4>
+            <p class="text-gray-600">Dedicated assistance throughout the process</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- Infographic Section -->
+      <section class="interactive-card p-8 rounded-2xl text-center mb-8 fade-in-delay">
+        <h2 class="text-3xl font-bold mb-6 text-gray-800">
+          <i class="fas fa-chart-bar text-green-600 mr-3"></i>
+          Process Overview
+        </h2>
+        <div class="overflow-hidden rounded-xl shadow-lg">
+          <img src="/images/pic1.png" alt="Application Process Infographic" class="w-full h-auto transition-transform duration-500 hover:scale-105">
+        </div>
+      </section>
+
+      <!-- Government Footer -->
+      <div class="text-center mt-8 text-gray-600 text-sm interactive-card p-6 rounded-xl shadow">
+        <div class="flex items-center justify-center mb-3">
+          <i class="fas fa-flag text-red-500 text-2xl mr-3"></i>
+          <span class="text-lg font-bold">Government of Malaysia</span>
+        </div>
+        <div class="pulse-animation">
+          <i class="fas fa-heart text-red-500 mr-2"></i>
+          <span class="font-semibold">Madani</span>
         </div>
       </div>
     </div>
   </main>
 
-  <%- include('../partials/footer') %>
+  <%- include('../../partials/footer') %>
   <script src="/js/script.js"></script>
+  <script>
+    // Ultra-simple accordion functionality
+    function toggleAccordion(id) {
+      console.log('🎯 Accordion clicked:', id);
+      
+      // Get the content element
+      const content = document.getElementById(id + '-content');
+      if (!content) {
+        console.error('❌ Content not found:', id + '-content');
+        return;
+      }
+      
+      // Simple show/hide toggle
+      if (content.style.display === 'none' || content.style.display === '') {
+        content.style.display = 'block';
+        console.log('✅ Opened:', id);
+      } else {
+        content.style.display = 'none';
+        console.log('✅ Closed:', id);
+      }
+      
+      // Update icon
+      const icon = document.getElementById(id + '-icon');
+      if (icon) {
+        if (content.style.display === 'block') {
+          icon.style.transform = 'rotate(180deg)';
+        } else {
+          icon.style.transform = 'rotate(0deg)';
+        }
+      }
+      
+      // Update header
+      const header = document.querySelector(`[onclick="toggleAccordion('${id}')"]`);
+      if (header) {
+        if (content.style.display === 'block') {
+          header.style.background = 'linear-gradient(135deg, #059669, #047857)';
+          header.style.color = 'white';
+        } else {
+          header.style.background = 'linear-gradient(135deg, #f8fafc, #f1f5f9)';
+          header.style.color = '';
+        }
+      }
+    }
+
+    // Test function - can be called from console
+    function testAccordion() {
+      console.log('🧪 Testing accordion elements:');
+      console.log('Local content:', document.getElementById('local-content'));
+      console.log('Local icon:', document.getElementById('local-icon'));
+      console.log('International content:', document.getElementById('international-content'));
+      console.log('International icon:', document.getElementById('international-icon'));
+      
+      // Try to open local accordion
+      console.log('🔥 Trying to open local accordion...');
+      toggleAccordion('local');
+    }
+    
+    // Add click debugging
+    function addClickDebugging() {
+      console.log('🔧 Adding click debugging...');
+      
+      // Find all accordion headers
+      const headers = document.querySelectorAll('.accordion-header');
+      console.log('📋 Found headers:', headers.length);
+      
+      headers.forEach((header, index) => {
+        console.log(`Header ${index}:`, header);
+        
+        // Add click event listener for debugging
+        header.addEventListener('click', function(e) {
+          console.log('🖱️ Header clicked!', e.target);
+          console.log('📍 Click position:', e.clientX, e.clientY);
+          
+          // Try to determine which accordion this is
+          if (header.innerHTML.includes('Local Level')) {
+            console.log('🏠 Local level clicked');
+            toggleAccordion('local');
+          } else if (header.innerHTML.includes('International Level')) {
+            console.log('🌍 International level clicked');
+            toggleAccordion('international');
+          }
+        });
+        
+        // Add mouseover debugging
+        header.addEventListener('mouseover', function() {
+          console.log('👆 Mouse over header');
+          header.style.background = 'rgba(5, 150, 105, 0.1)';
+        });
+        
+        header.addEventListener('mouseout', function() {
+          header.style.background = '';
+        });
+      });
+    }
+    
+    // Alternative direct approach
+    function setupDirectClicks() {
+      console.log('🎯 Setting up direct clicks...');
+      
+      // Get specific headers by their onclick attribute
+      const localHeader = document.querySelector('[onclick*="local"]');
+      const intlHeader = document.querySelector('[onclick*="international"]');
+      
+      console.log('Local header found:', !!localHeader);
+      console.log('Intl header found:', !!intlHeader);
+      
+      if (localHeader) {
+        localHeader.addEventListener('click', function(e) {
+          e.preventDefault();
+          e.stopPropagation();
+          console.log('🏠 Local header direct click!');
+          toggleAccordion('local');
+        });
+      }
+      
+      if (intlHeader) {
+        intlHeader.addEventListener('click', function(e) {
+          e.preventDefault();
+          e.stopPropagation();
+          console.log('🌍 International header direct click!');
+          toggleAccordion('international');
+        });
+      }
+    }
+    
+    // Make functions available globally
+    window.toggleAccordion = toggleAccordion;
+    window.testAccordion = testAccordion;
+    window.addClickDebugging = addClickDebugging;
+    window.setupDirectClicks = setupDirectClicks;
+    
+    // Initialize everything
+    document.addEventListener('DOMContentLoaded', function() {
+      console.log('🚀 DOM loaded, setting up accordions...');
+      
+      setTimeout(() => {
+        console.log('🔧 Running setup...');
+        addClickDebugging();
+        setupDirectClicks();
+        
+        console.log('💡 Try clicking headers or call testAccordion() in console');
+        
+        // Auto-open local after delay
+        setTimeout(() => {
+          console.log('🔄 Auto-opening local accordion...');
+          toggleAccordion('local');
+        }, 1000);
+      }, 500);
+    });
+    
+    // Immediate backup setup
+    setTimeout(() => {
+      if (document.readyState === 'complete') {
+        console.log('🔄 Backup setup running...');
+        addClickDebugging();
+        setupDirectClicks();
+      }
+    }, 2000);
+    
+    // Smooth scrolling
+    function scrollToSection(sectionId) {
+      const element = document.getElementById(sectionId);
+      if (element) {
+        element.scrollIntoView({
+          behavior: 'smooth',
+          block: 'start'
+        });
+      }
+    }
+    
+    window.scrollToSection = scrollToSection;
+  </script>
 </body>
 </html>

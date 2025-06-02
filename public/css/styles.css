@@ -1,6 +1,4 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+/* Removed Tailwind directives - using CDN version instead */
 
 :root {
   --navbar-height: 56px; /* More precise calculation: p-4 (32px) + line-height (~24px) */

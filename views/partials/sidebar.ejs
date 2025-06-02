@@ -1,4 +1,4 @@
-<aside class="sidebar-modern bg-transparent text-white w-64 fixed left-0 z-10 md:transform-none overflow-hidden" style="top: 70px; bottom: 50px;">
+<aside class="sidebar sidebar-modern bg-transparent text-white w-64 fixed left-0 z-10 md:transform-none overflow-hidden" style="top: 70px; bottom: 50px;">
   <div class="h-full flex flex-col relative">
     <!-- Animated Background -->
     <div class="sidebar-bg absolute inset-0 bg-gradient-to-b from-gray-900 via-gray-800 to-gray-900 opacity-95 backdrop-blur-lg"></div>
@@ -195,6 +195,9 @@
   .sidebar-modern {
     transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     border-right: 1px solid rgba(255, 255, 255, 0.1);
+    top: var(--navbar-height, 70px); /* Align with bottom of navbar */
+    bottom: var(--footer-height, 60px); /* Stop above the footer */
+    height: calc(100vh - var(--navbar-height, 70px) - var(--footer-height, 60px)); /* Full height minus navbar and footer */
   }
   
   .sidebar-bg {
@@ -296,16 +299,22 @@
   
   /* Mobile responsive */
   @media (max-width: 768px) {
-    .sidebar-modern {
+    .sidebar-modern,
+    .sidebar {
       transform: translateX(-100%);
       z-index: 50;
+      top: var(--navbar-height, 70px); /* Align with navbar on mobile */
+      bottom: var(--footer-height, 60px); /* Stop above footer on mobile */
+      height: calc(100vh - var(--navbar-height, 70px) - var(--footer-height, 60px)); /* Full height minus navbar and footer */
     }
     
-    .sidebar-modern.open {
+    .sidebar-modern.open,
+    .sidebar.open {
       transform: translateX(0);
     }
     
-    .sidebar-modern.open::before {
+    .sidebar-modern.open::before,
+    .sidebar.open::before {
       content: '';
       position: fixed;
       top: 0;
@@ -316,6 +325,11 @@
       z-index: -1;
       animation: fadeIn 0.3s ease-in-out;
     }
+  }
+  
+  @keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
   }
   
   /* Custom scrollbar */

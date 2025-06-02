@@ -8,30 +8,52 @@ document.addEventListener('DOMContentLoaded', () => {
   const servicesArrow = document.querySelector('#services-arrow');
 
   // Function to toggle sidebar
-  const toggleSidebar = (isVisible, toggleButton) => {
+  const toggleSidebar = (forceClose = false) => {
     if (sidebar && main) {
-      if (isVisible) {
-        sidebar.style.transform = 'translateX(-100%)';
-        main.style.marginLeft = '0';
-        main.style.paddingLeft = '2.5rem'; // Ensure padding for button
-        if (toggleButton) toggleButton.style.left = '1rem';
+      const isCurrentlyOpen = sidebar.classList.contains('open');
+      const shouldClose = forceClose || isCurrentlyOpen;
+      
+      if (window.innerWidth <= 768) {
+        // Mobile behavior
+        if (shouldClose) {
+          sidebar.classList.remove('open');
+          sidebar.style.transform = 'translateX(-100%)';
+        } else {
+          sidebar.classList.add('open');
+          sidebar.style.transform = 'translateX(0)';
+        }
       } else {
-        sidebar.style.transform = 'translateX(0)';
-        main.style.marginLeft = '16rem'; // Sidebar width
-        main.style.paddingLeft = '2.5rem'; // Maintain padding
-        if (toggleButton) toggleButton.style.left = '17rem'; // Align with sidebar
+        // Desktop behavior
+        if (shouldClose) {
+          sidebar.style.transform = 'translateX(-100%)';
+          main.style.marginLeft = '0';
+          main.style.paddingLeft = '2.5rem';
+          if (toggleBtn) toggleBtn.style.left = '1rem';
+        } else {
+          sidebar.style.transform = 'translateX(0)';
+          main.style.marginLeft = '16rem';
+          main.style.paddingLeft = '2.5rem';
+          if (toggleBtn) toggleBtn.style.left = '17rem';
+        }
+        sidebar.classList.toggle('open', !shouldClose);
       }
-      sidebar.classList.toggle('open', !isVisible);
     }
   };
 
-  // Handle default toggle buttons
+  // Handle desktop toggle button
   if (toggleBtn) {
-    toggleBtn.addEventListener('click', () => toggleSidebar(sidebar.classList.contains('open')));
+    toggleBtn.addEventListener('click', () => {
+      toggleSidebar();
+    });
   }
   
+  // Handle mobile toggle button
   if (mobileToggleBtn) {
-    mobileToggleBtn.addEventListener('click', () => toggleSidebar(sidebar.classList.contains('open')));
+    mobileToggleBtn.addEventListener('click', (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      toggleSidebar();
+    });
   }
 
   // Close sidebar when clicking outside on mobile
@@ -39,8 +61,8 @@ document.addEventListener('DOMContentLoaded', () => {
     if (window.innerWidth <= 768 && 
         sidebar && sidebar.classList.contains('open') && 
         !sidebar.contains(e.target) && 
-        !toggleBtn.contains(e.target)) {
-      toggleSidebar();
+        (!mobileToggleBtn || !mobileToggleBtn.contains(e.target))) {
+      toggleSidebar(true);
     }
   });
 
@@ -48,6 +70,19 @@ document.addEventListener('DOMContentLoaded', () => {
   document.addEventListener('keydown', (e) => {
     if (e.key === 'Escape' && sidebar && sidebar.classList.contains('open')) {
       toggleSidebar(true);
+    }
+  });
+
+  // Handle window resize
+  window.addEventListener('resize', () => {
+    if (window.innerWidth > 768 && sidebar) {
+      // Reset mobile classes when switching to desktop
+      sidebar.classList.remove('open');
+      sidebar.style.transform = '';
+      if (main) {
+        main.style.marginLeft = '';
+        main.style.paddingLeft = '';
+      }
     }
   });
 
