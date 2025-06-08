@@ -1,4 +1,4 @@
-<nav class="navbar-modern fixed w-full top-0 z-20 transition-all duration-300">
+<nav class="navbar-modern fixed w-full top-0 z-50 transition-all duration-300">
   <div class="container mx-auto flex justify-between items-center px-4 py-3">
     <!-- Left Side - Logo & Brand -->
     <div class="flex items-center space-x-4">
@@ -53,7 +53,7 @@
           </button>
           
           <!-- Dropdown Menu -->
-          <div class="dropdown-menu absolute right-0 mt-2 w-48 bg-white rounded-xl shadow-2xl border border-gray-200 opacity-0 invisible transform translate-y-2 transition-all duration-300" id="user-dropdown">
+          <div class="dropdown-menu absolute right-0 mt-2 w-48 bg-white rounded-xl shadow-2xl border border-gray-200 opacity-0 invisible transform translate-y-2 transition-all duration-300 z-50" id="user-dropdown">
             <div class="py-2">
               <a href="/admin/dashboard" class="dropdown-item flex items-center space-x-3 px-4 py-3 text-gray-700 hover:bg-green-50 hover:text-green-600 transition-colors duration-200">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -100,6 +100,12 @@
     backdrop-filter: blur(10px);
     border-bottom: 1px solid rgba(255, 255, 255, 0.1);
     box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 50;
+    width: 100%;
   }
   
   .navbar-modern.scrolled {

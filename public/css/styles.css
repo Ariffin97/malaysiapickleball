@@ -2,12 +2,21 @@
 
 :root {
   --navbar-height: 56px; /* More precise calculation: p-4 (32px) + line-height (~24px) */
+  --primary-color: #3B82F6;
+  --secondary-color: #10B981;
+  --accent-color: #F59E0B;
+  --danger-color: #EF4444;
 }
 
 .sidebar {
-  transition: transform 0.3s ease-in-out;
+  transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
   /* top: var(--navbar-height); */
   height: calc(100vh - 120px); /* Full height minus navbar and small footer gap */
+  backdrop-filter: blur(10px);
+}
+
+.sidebar:hover {
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
 }
 
 .sidebar .flex-1 {
@@ -47,7 +56,7 @@
     transform: translateX(0);
   }
   
-  /* Mobile sidebar backdrop */
+  /* Mobile sidebar backdrop with blur effect */
   .sidebar.open::before {
     content: '';
     position: fixed;
@@ -56,6 +65,7 @@
     right: 0;
     bottom: 0;
     background-color: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(5px);
     z-index: -1;
     animation: fadeIn 0.3s ease-in-out;
   }
@@ -70,11 +80,30 @@
   .sidebar.open ~ #tournament-sidebar-toggle {
     left: 17rem; /* Align with sidebar width (16rem + 1rem padding) */
   }
+
+  /* Dashboard card adjustments for mobile */
+  .dashboard-card {
+    padding: 1rem;
+  }
+
+  .stat-card {
+    padding: 1.5rem;
+  }
+
+  .action-btn {
+    padding: 1rem;
+  }
 }
 
 @keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
+  from { 
+    opacity: 0; 
+    backdrop-filter: blur(0px);
+  }
+  to { 
+    opacity: 1; 
+    backdrop-filter: blur(5px);
+  }
 }
 
 /* Sidebar collapse functionality */
@@ -86,34 +115,79 @@ main {
 
 /* Form Validation Styles */
 input:invalid {
-  border-color: red;
+  border-color: var(--danger-color);
+  box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1);
 }
+
+input:valid {
+  border-color: var(--secondary-color);
+}
+
 .error {
-  color: red;
+  color: var(--danger-color);
   font-size: 0.875rem;
+  margin-top: 0.25rem;
+  display: flex;
+  align-items: center;
+}
+
+.error::before {
+  content: '⚠';
+  margin-right: 0.5rem;
 }
 
 /* Card Hover Effects */
 .card {
-  transition: transform 0.2s, box-shadow 0.2s;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
 }
+
+.card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+  transition: left 0.5s;
+}
+
+.card:hover::before {
+  left: 100%;
+}
+
 .card:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  transform: translateY(-5px) scale(1.02);
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.15);
 }
 
 /* Registration Card Styles */
 .registration-card {
   border: 1px solid #e5e7eb;
+  transition: all 0.3s ease;
 }
+
+.registration-card:hover {
+  border-color: var(--primary-color);
+  box-shadow: 0 8px 20px rgba(59, 130, 246, 0.1);
+}
+
 .registration-card img {
   border-radius: 0.25rem;
+  transition: transform 0.3s ease;
+}
+
+.registration-card:hover img {
+  transform: scale(1.05);
 }
 
 /* Collapsible Menu Styles */
 #services-menu {
-  transition: max-height 0.3s ease-in-out;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
+
 #services-arrow {
   transition: transform 0.3s ease-in-out;
 }
@@ -121,6 +195,18 @@ input:invalid {
 /* Background Image Styles */
 main.bg-cover {
   min-height: calc(100vh - 4rem); /* Adjust for header only */
+  position: relative;
+}
+
+main.bg-cover::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.1);
+  z-index: -1;
 }
 
 /* Infographic Image Styles */
@@ -128,10 +214,15 @@ main.bg-cover {
   max-width: 100%;
   height: auto;
   border-radius: 0.375rem;
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
   width: 100%;
   max-width: 42rem; /* md:max-w-2xl equivalent */
   object-fit: contain;
+  transition: transform 0.3s ease;
+}
+
+.infographic-image:hover {
+  transform: scale(1.05);
 }
 
 /* Calendar Table Styles */
@@ -142,17 +233,24 @@ table {
   font-family: Arial, sans-serif;
   position: relative;
   z-index: 1;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  border-radius: 0.5rem;
+  overflow: hidden;
 }
+
 th, td {
   border: 1px solid #e5e7eb;
-  padding: 4px;
-  height: 30px;
+  padding: 8px;
+  height: 40px;
   position: relative;
+  transition: all 0.3s ease;
 }
+
 th.month {
-  background-color: #f9fafb;
+  background: linear-gradient(135deg, #f9fafb, #f3f4f6);
   font-weight: bold;
 }
+
 td.tournament-name {
   font-weight: bold;
   background-color: #f9f9f9;
@@ -160,40 +258,68 @@ td.tournament-name {
   z-index: 5; /* Higher z-index for tournament names */
   position: sticky;
   left: 0;
+  box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
 }
 
-/* Tournament type specific colors */
+/* Enhanced Tournament type specific colors */
 .filled-green { 
   background: linear-gradient(135deg, #10b981, #059669);
   color: white;
   border-radius: 6px;
-  box-shadow: 0 2px 4px rgba(16, 185, 129, 0.3);
+  box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);
   position: relative;
   z-index: 2;
+  transition: all 0.3s ease;
 }
+
+.filled-green:hover {
+  transform: scale(1.1);
+  box-shadow: 0 6px 20px rgba(16, 185, 129, 0.4);
+}
+
 .filled-red { 
   background: linear-gradient(135deg, #ef4444, #dc2626);
   color: white;
   border-radius: 6px;
-  box-shadow: 0 2px 4px rgba(239, 68, 68, 0.3);
+  box-shadow: 0 4px 15px rgba(239, 68, 68, 0.3);
   position: relative;
   z-index: 2;
+  transition: all 0.3s ease;
 }
+
+.filled-red:hover {
+  transform: scale(1.1);
+  box-shadow: 0 6px 20px rgba(239, 68, 68, 0.4);
+}
+
 .filled-blue { 
   background: linear-gradient(135deg, #3b82f6, #2563eb);
   color: white;
   border-radius: 6px;
-  box-shadow: 0 2px 4px rgba(59, 130, 246, 0.3);
+  box-shadow: 0 4px 15px rgba(59, 130, 246, 0.3);
   position: relative;
   z-index: 2;
+  transition: all 0.3s ease;
 }
+
+.filled-blue:hover {
+  transform: scale(1.1);
+  box-shadow: 0 6px 20px rgba(59, 130, 246, 0.4);
+}
+
 .filled-yellow { 
   background: linear-gradient(135deg, #f59e0b, #d97706);
   color: white;
   border-radius: 6px;
-  box-shadow: 0 2px 4px rgba(245, 158, 11, 0.3);
+  box-shadow: 0 4px 15px rgba(245, 158, 11, 0.3);
   position: relative;
   z-index: 2;
+  transition: all 0.3s ease;
+}
+
+.filled-yellow:hover {
+  transform: scale(1.1);
+  box-shadow: 0 6px 20px rgba(245, 158, 11, 0.4);
 }
 
 /* Fix hover overlay issue */
@@ -439,3 +565,178 @@ footer button:hover {
     text-align: center;
   }
 }
+
+/* Enhanced Dashboard Styles */
+.dashboard-card {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  border-left: 4px solid transparent;
+  position: relative;
+  overflow: hidden;
+}
+
+.dashboard-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+  transition: left 0.5s;
+}
+
+.dashboard-card:hover::before {
+  left: 100%;
+}
+
+.dashboard-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+  border-left-color: var(--primary-color);
+}
+
+.stat-card {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.stat-card::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 100px;
+  height: 100px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 50%;
+  transform: translate(30px, -30px);
+}
+
+.stat-card:hover {
+  transform: scale(1.02) translateY(-2px);
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
+}
+
+.action-btn {
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.action-btn::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(59, 130, 246, 0.1), transparent);
+  transition: left 0.5s;
+}
+
+.action-btn:hover::before {
+  left: 100%;
+}
+
+.action-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+}
+
+.pulse-dot {
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { 
+    opacity: 1; 
+    transform: scale(1);
+  }
+  50% { 
+    opacity: 0.5; 
+    transform: scale(1.1);
+  }
+}
+
+.loading-spinner {
+  border: 3px solid #f3f3f3;
+  border-top: 3px solid #3498db;
+  border-radius: 50%;
+  width: 20px;
+  height: 20px;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Enhanced Player Cards */
+.player-card {
+  transition: all 0.3s ease;
+  border: 1px solid #e5e7eb;
+  position: relative;
+}
+
+.player-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+  border-color: var(--primary-color);
+}
+
+.player-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
+  transform: scaleX(0);
+  transition: transform 0.3s ease;
+}
+
+.player-card:hover::before {
+  transform: scaleX(1);
+}
+
+/* Enhanced Animation Effects */
+@keyframes slideInFromLeft {
+  0% {
+    transform: translateX(-50px);
+    opacity: 0;
+  }
+  100% {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@keyframes slideInFromBottom {
+  0% {
+    transform: translateY(30px);
+    opacity: 0;
+  }
+  100% {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.animate-slide-in-left {
+  animation: slideInFromLeft 0.6s ease-out;
+}
+
+.animate-slide-in-bottom {
+  animation: slideInFromBottom 0.6s ease-out;
+}
+
+/* Staggered animation delays */
+.dashboard-card:nth-child(1) { animation-delay: 0.1s; }
+.dashboard-card:nth-child(2) { animation-delay: 0.2s; }
+.dashboard-card:nth-child(3) { animation-delay: 0.3s; }
+.dashboard-card:nth-child(4) { animation-delay: 0.4s; }

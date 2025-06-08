@@ -12,7 +12,7 @@
       background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
       position: relative;
       overflow: hidden;
-      padding-top: 4.5rem; /* Custom padding-top for perfect navbar fit */
+      padding-top: 7rem; /* Fixed padding-top for navbar clearance */
     }
     .tournament-hero::before {
       content: '';
@@ -78,6 +78,25 @@
     }
     .modal.show {
       display: flex !important;
+    }
+    
+    /* Mobile responsive adjustments for navbar */
+    @media (max-width: 640px) {
+      .tournament-hero {
+        padding-top: 6rem !important; /* 96px for mobile */
+      }
+    }
+    
+    @media (min-width: 641px) and (max-width: 1024px) {
+      .tournament-hero {
+        padding-top: 6.5rem !important; /* 104px for tablet */
+      }
+    }
+    
+    @media (min-width: 1025px) {
+      .tournament-hero {
+        padding-top: 7rem !important; /* 112px for desktop */
+      }
     }
   </style>
 </head>

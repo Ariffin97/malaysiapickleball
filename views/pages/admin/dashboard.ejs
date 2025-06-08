@@ -6,62 +6,647 @@
   <title>Admin Dashboard - Malaysia Pickleball Association</title>
   <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
   <link rel="stylesheet" href="/css/styles.css">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    .dashboard-card {
+      transition: all 0.3s ease;
+      border-left: 4px solid transparent;
+    }
+    .dashboard-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+      border-left-color: #3B82F6;
+    }
+    .stat-card {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      transition: all 0.3s ease;
+    }
+    .stat-card:hover {
+      transform: scale(1.02);
+    }
+    .action-btn {
+      transition: all 0.3s ease;
+    }
+    .action-btn:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    }
+    .section-divider {
+      border-top: 2px solid #e2e8f0;
+      margin: 2rem 0;
+      position: relative;
+    }
+    .section-divider::before {
+      content: '';
+      position: absolute;
+      top: -1px;
+      left: 0;
+      width: 60px;
+      height: 2px;
+      background: linear-gradient(90deg, #3B82F6, #8B5CF6);
+    }
+    .pulse-dot {
+      animation: pulse 2s infinite;
+    }
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.5; }
+    }
+    .loading-spinner {
+      border: 3px solid #f3f3f3;
+      border-top: 3px solid #3498db;
+      border-radius: 50%;
+      width: 20px;
+      height: 20px;
+      animation: spin 1s linear infinite;
+    }
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+    .category-header {
+      background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+      border-left: 4px solid #3B82F6;
+    }
+    
+    /* Mobile optimizations */
+    @media (max-width: 768px) {
+      .dashboard-card {
+        min-height: 60px;
+        padding: 12px !important;
+      }
+      .dashboard-card h4 {
+        font-size: 0.9rem;
+      }
+      .dashboard-card p {
+        font-size: 0.75rem;
+      }
+      .action-btn {
+        min-height: 70px;
+        padding: 12px !important;
+      }
+      .action-btn h3 {
+        font-size: 0.9rem;
+      }
+      .action-btn p {
+        font-size: 0.75rem;
+      }
+      .category-header {
+        padding: 16px !important;
+      }
+      .category-header h2, .category-header h3 {
+        font-size: 1.1rem !important;
+        line-height: 1.3;
+      }
+      .player-card {
+        padding: 12px !important;
+      }
+      .player-card h3 {
+        font-size: 1rem !important;
+      }
+      .player-card .text-sm {
+        font-size: 0.75rem;
+      }
+      .player-card img, .player-card .w-16 {
+        width: 48px !important;
+        height: 48px !important;
+      }
+    }
+    
+    @media (max-width: 640px) {
+      .stat-card {
+        min-height: 100px;
+        padding: 16px !important;
+      }
+      .stat-card .text-3xl {
+        font-size: 1.5rem !important;
+      }
+      .stat-card .text-sm {
+        font-size: 0.75rem;
+      }
+    }
+    
+    /* Ensure proper layout and prevent navbar overlay */
+    body {
+      position: relative;
+    }
+    
+    main {
+      position: relative;
+      z-index: 1;
+    }
+    
+    /* Adjust padding-top for different screen sizes */
+    @media (max-width: 640px) {
+      main {
+        padding-top: 6rem !important; /* 96px */
+      }
+    }
+    
+    @media (min-width: 641px) and (max-width: 1024px) {
+      main {
+        padding-top: 6.5rem !important; /* 104px */
+      }
+    }
+    
+    @media (min-width: 1025px) {
+      main {
+        padding-top: 7rem !important; /* 112px */
+      }
+    }
+    
+    /* Ensure all content sections are properly spaced */
+    .container {
+      max-width: 100%;
+      margin: 0 auto;
+    }
+    
+    /* Fix any potential z-index issues */
+    .category-header,
+    .stat-card,
+    .action-btn,
+    .dashboard-card {
+      position: relative;
+      z-index: 2;
+    }
+  </style>
 </head>
-<body class="bg-gray-100 bg-cover bg-center bg-fixed min-h-screen" style="background-image: url('/images/bg1.png')">
+<body class="bg-gray-50 min-h-screen">
   <%- include('../../partials/header') %>
-  <main class="pt-20 p-4 pb-20 min-h-screen">
-    <div class="container mx-auto">
-      <div class="bg-white bg-opacity-90 p-6 rounded-lg shadow-lg mb-6">
-        <h1 class="text-3xl font-bold mb-4 text-gray-800">Admin Dashboard</h1>
+  
+  <main class="pt-24 sm:pt-28 p-3 sm:p-6 min-h-screen">
+    <div class="container mx-auto max-w-7xl">
+      <!-- Dashboard Header -->
+      <div class="mb-6 sm:mb-8">
+        <div class="flex flex-col md:flex-row md:items-center md:justify-between">
+          <div class="mb-4 md:mb-0">
+            <h1 class="text-2xl sm:text-4xl font-bold text-gray-800 mb-2">
+              <i class="fas fa-tachometer-alt text-blue-600 mr-2 sm:mr-3"></i>
+              Admin Dashboard
+            </h1>
+            <p class="text-gray-600 text-sm sm:text-base">Welcome back! Here's what's happening with your platform.</p>
+          </div>
+          <div class="mt-4 md:mt-0 flex flex-col sm:flex-row items-stretch sm:items-center space-y-2 sm:space-y-0 sm:space-x-3">
+            <div class="text-xs sm:text-sm text-gray-500 text-center sm:text-left">
+              <i class="fas fa-clock mr-1"></i>
+              Last updated: <span id="lastUpdated"></span>
+            </div>
+            <button onclick="refreshData()" class="bg-blue-600 text-white px-3 sm:px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors text-sm">
+              <i class="fas fa-sync-alt mr-1 sm:mr-2"></i>Refresh
+            </button>
+          </div>
+        </div>
       </div>
-      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-8">
-        <a href="/admin/home" class="p-4 bg-white bg-opacity-95 rounded shadow hover:bg-opacity-100 transition-all duration-200">Manage Home Page</a>
-        <a href="/admin/tournaments" class="p-4 bg-white bg-opacity-95 rounded shadow hover:bg-opacity-100 transition-all duration-200">Manage Tournaments</a>
-        <a href="/admin/referees" class="p-4 bg-white bg-opacity-95 rounded shadow hover:bg-opacity-100 transition-all duration-200">Manage Referees</a>
-        <a href="/admin/coaches" class="p-4 bg-white bg-opacity-95 rounded shadow hover:bg-opacity-100 transition-all duration-200">Manage Coaches</a>
-        <a href="/admin/venues" class="p-4 bg-white bg-opacity-95 rounded shadow hover:bg-opacity-100 transition-all duration-200">Manage Venues</a>
-        <a href="/admin/sponsorships" class="p-4 bg-white bg-opacity-95 rounded shadow hover:bg-opacity-100 transition-all duration-200">Manage Sponsors</a>
-        <a href="/admin/rankings" class="p-4 bg-white bg-opacity-95 rounded shadow hover:bg-opacity-100 transition-all duration-200">Manage Rankings</a>
-      </div>
-      <div class="bg-white bg-opacity-95 p-4 rounded shadow mb-8 relative">
-        <h2 class="text-xl mb-2">Pending Registrations</h2>
-        <% if (pendingRegistrations.length) { %>
-          <a href="/admin/registrations" class="block p-4 bg-gray-50 rounded card hover:bg-gray-100">
-            <span class="absolute top-2 right-2 bg-red-600 text-white text-xs font-bold px-2 py-1 rounded-full">
-              <%= pendingRegistrations.length %>
-            </span>
-            View Pending Registrations
+
+      <!-- Overview Section -->
+      <section class="mb-8 sm:mb-12">
+        <div class="category-header p-3 sm:p-4 rounded-t-xl mb-4 sm:mb-6">
+          <h2 class="text-xl sm:text-2xl font-bold text-gray-800 flex items-center">
+            <i class="fas fa-chart-line text-blue-600 mr-2 sm:mr-3"></i>
+            Platform Overview
+          </h2>
+        </div>
+        
+        <!-- Statistics Cards -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6">
+          <div class="stat-card p-4 sm:p-6 rounded-xl shadow-lg">
+            <div class="flex items-center justify-between">
+              <div>
+                <p class="text-blue-100 text-xs sm:text-sm font-medium">Total Players</p>
+                <p class="text-2xl sm:text-3xl font-bold"><%= users.length %></p>
+                <p class="text-blue-200 text-xs sm:text-sm">
+                  <i class="fas fa-arrow-up mr-1"></i>
+                  +12% from last month
+                </p>
+              </div>
+              <div class="bg-white bg-opacity-20 p-2 sm:p-3 rounded-full">
+                <i class="fas fa-users text-lg sm:text-2xl"></i>
+              </div>
+            </div>
+          </div>
+
+          <div class="bg-gradient-to-br from-green-500 to-green-600 text-white p-4 sm:p-6 rounded-xl shadow-lg">
+            <div class="flex items-center justify-between">
+              <div>
+                <p class="text-green-100 text-xs sm:text-sm font-medium">Active Tournaments</p>
+                <p class="text-2xl sm:text-3xl font-bold" id="tournamentCount">0</p>
+                <p class="text-green-200 text-xs sm:text-sm">
+                  <i class="fas fa-trophy mr-1"></i>
+                  Ongoing events
+                </p>
+              </div>
+              <div class="bg-white bg-opacity-20 p-2 sm:p-3 rounded-full">
+                <i class="fas fa-trophy text-lg sm:text-2xl"></i>
+              </div>
+            </div>
+          </div>
+
+          <div class="bg-gradient-to-br from-orange-500 to-red-500 text-white p-4 sm:p-6 rounded-xl shadow-lg">
+            <div class="flex items-center justify-between">
+              <div>
+                <p class="text-orange-100 text-xs sm:text-sm font-medium">Pending Registrations</p>
+                <p class="text-2xl sm:text-3xl font-bold flex items-center">
+                  <%= pendingRegistrations.length %>
+                  <% if (pendingRegistrations.length > 0) { %>
+                    <span class="pulse-dot ml-2 w-2 sm:w-3 h-2 sm:h-3 bg-yellow-400 rounded-full"></span>
+                  <% } %>
+                </p>
+                <p class="text-orange-200 text-xs sm:text-sm">
+                  <i class="fas fa-clock mr-1"></i>
+                  Awaiting approval
+                </p>
+              </div>
+              <div class="bg-white bg-opacity-20 p-2 sm:p-3 rounded-full">
+                <i class="fas fa-clipboard-list text-lg sm:text-2xl"></i>
+              </div>
+            </div>
+          </div>
+
+          <div class="bg-gradient-to-br from-purple-500 to-purple-600 text-white p-4 sm:p-6 rounded-xl shadow-lg">
+            <div class="flex items-center justify-between">
+              <div>
+                <p class="text-purple-100 text-xs sm:text-sm font-medium">Total Venues</p>
+                <p class="text-2xl sm:text-3xl font-bold" id="venueCount">0</p>
+                <p class="text-purple-200 text-xs sm:text-sm">
+                  <i class="fas fa-map-marker-alt mr-1"></i>
+                  Locations available
+                </p>
+              </div>
+              <div class="bg-white bg-opacity-20 p-2 sm:p-3 rounded-full">
+                <i class="fas fa-map-marker-alt text-lg sm:text-2xl"></i>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <div class="section-divider"></div>
+
+      <!-- Quick Actions Section -->
+      <section class="mb-8 sm:mb-12">
+        <div class="category-header p-3 sm:p-4 rounded-t-xl mb-4 sm:mb-6">
+          <h2 class="text-xl sm:text-2xl font-bold text-gray-800 flex items-center">
+            <i class="fas fa-bolt text-yellow-500 mr-2 sm:mr-3"></i>
+            Quick Actions
+          </h2>
+        </div>
+        
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+          <a href="/admin/tournaments" class="action-btn bg-white p-3 sm:p-4 rounded-lg shadow-md hover:shadow-lg border-l-4 border-blue-500">
+            <div class="flex items-center">
+              <div class="bg-blue-100 p-2 sm:p-3 rounded-full mr-3 sm:mr-4">
+                <i class="fas fa-trophy text-blue-600 text-sm sm:text-base"></i>
+              </div>
+              <div>
+                <h3 class="font-semibold text-gray-800 text-sm sm:text-base">Tournaments</h3>
+                <p class="text-xs sm:text-sm text-gray-600">Manage events</p>
+              </div>
+            </div>
           </a>
-        <% } else { %>
-          <p>No pending registrations.</p>
-        <% } %>
-      </div>
-      <div class="bg-white bg-opacity-95 p-4 rounded shadow">
-        <h2 class="text-xl mb-2">Player Info</h2>
-        <% if (users.length) { %>
-          <div class="grid grid-cols-1 gap-4">
-            <% users.forEach(user => { %>
-              <div class="p-4 bg-gray-50 rounded card">
-                <h3 class="font-bold"><%= user.fullName %></h3>
-                <p>I/C: <%= user.icNumber %></p>
-                <p>Age: <%= user.age %></p>
-                <p>Marital Status: <%= user.maritalStatus %></p>
-                <p>Phone: <%= user.phone %></p>
-                <p>Email: <%= user.email %></p>
-                <% if (user.faceImage) { %>
-                  <img src="<%= user.faceImage %>" alt="Face Image" class="w-32 h-32 object-cover mt-2">
+
+          <a href="/admin/registrations" class="action-btn bg-white p-3 sm:p-4 rounded-lg shadow-md hover:shadow-lg border-l-4 border-orange-500">
+            <div class="flex items-center">
+              <div class="bg-orange-100 p-2 sm:p-3 rounded-full mr-3 sm:mr-4">
+                <i class="fas fa-clipboard-list text-orange-600 text-sm sm:text-base"></i>
+              </div>
+              <div>
+                <h3 class="font-semibold text-gray-800 text-sm sm:text-base">Registrations</h3>
+                <p class="text-xs sm:text-sm text-gray-600">Review applications</p>
+              </div>
+            </div>
+          </a>
+
+          <a href="/admin/venues" class="action-btn bg-white p-3 sm:p-4 rounded-lg shadow-md hover:shadow-lg border-l-4 border-green-500">
+            <div class="flex items-center">
+              <div class="bg-green-100 p-2 sm:p-3 rounded-full mr-3 sm:mr-4">
+                <i class="fas fa-map-marker-alt text-green-600 text-sm sm:text-base"></i>
+              </div>
+              <div>
+                <h3 class="font-semibold text-gray-800 text-sm sm:text-base">Venues</h3>
+                <p class="text-xs sm:text-sm text-gray-600">Manage locations</p>
+              </div>
+            </div>
+          </a>
+
+          <a href="/admin/home" class="action-btn bg-white p-3 sm:p-4 rounded-lg shadow-md hover:shadow-lg border-l-4 border-purple-500">
+            <div class="flex items-center">
+              <div class="bg-purple-100 p-2 sm:p-3 rounded-full mr-3 sm:mr-4">
+                <i class="fas fa-home text-purple-600 text-sm sm:text-base"></i>
+              </div>
+              <div>
+                <h3 class="font-semibold text-gray-800 text-sm sm:text-base">Home Page</h3>
+                <p class="text-xs sm:text-sm text-gray-600">Update content</p>
+              </div>
+            </div>
+          </a>
+        </div>
+      </section>
+
+      <div class="section-divider"></div>
+
+      <!-- Main Management Section -->
+      <section class="mb-8 sm:mb-12">
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 sm:gap-8">
+          <!-- Content Management -->
+          <div class="lg:col-span-2">
+            <div class="bg-white rounded-xl shadow-lg overflow-hidden">
+              <div class="category-header p-4 sm:p-6">
+                <h2 class="text-lg sm:text-xl font-bold text-gray-800 flex items-center">
+                  <i class="fas fa-cogs text-blue-600 mr-2 sm:mr-3"></i>
+                  Content Management
+                </h2>
+              </div>
+              
+              <!-- Core Content Management -->
+              <div class="p-6">
+                <h3 class="text-lg font-semibold text-gray-700 mb-4 flex items-center">
+                  <i class="fas fa-edit text-green-600 mr-2"></i>
+                  Core Content
+                </h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <a href="/admin/home" class="dashboard-card p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-all duration-200">
+                    <div class="flex items-center mb-2">
+                      <i class="fas fa-home text-blue-600 mr-3"></i>
+                      <h4 class="font-semibold">Home Page</h4>
+                    </div>
+                    <p class="text-sm text-gray-600">Manage homepage content and layout</p>
+                  </a>
+
+                  <a href="/admin/tournaments" class="dashboard-card p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-all duration-200">
+                    <div class="flex items-center mb-2">
+                      <i class="fas fa-trophy text-yellow-600 mr-3"></i>
+                      <h4 class="font-semibold">Tournaments</h4>
+                    </div>
+                    <p class="text-sm text-gray-600">Create and manage tournaments</p>
+                  </a>
+
+                  <a href="/admin/venues" class="dashboard-card p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-all duration-200">
+                    <div class="flex items-center mb-2">
+                      <i class="fas fa-map-marker-alt text-red-600 mr-3"></i>
+                      <h4 class="font-semibold">Venues</h4>
+                    </div>
+                    <p class="text-sm text-gray-600">Manage venue information</p>
+                  </a>
+
+                  <a href="/admin/sponsorships" class="dashboard-card p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-all duration-200">
+                    <div class="flex items-center mb-2">
+                      <i class="fas fa-handshake text-purple-600 mr-3"></i>
+                      <h4 class="font-semibold">Sponsors</h4>
+                    </div>
+                    <p class="text-sm text-gray-600">Manage sponsorship details</p>
+                  </a>
+                </div>
+              </div>
+
+              <div class="border-t border-gray-200 p-6">
+                <h3 class="text-lg font-semibold text-gray-700 mb-4 flex items-center">
+                  <i class="fas fa-users text-indigo-600 mr-2"></i>
+                  People Management
+                </h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <a href="/admin/referees" class="dashboard-card p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-all duration-200">
+                    <div class="flex items-center mb-2">
+                      <i class="fas fa-whistle text-gray-600 mr-3"></i>
+                      <h4 class="font-semibold">Referees</h4>
+                    </div>
+                    <p class="text-sm text-gray-600">Manage referee information</p>
+                  </a>
+
+                  <a href="/admin/coaches" class="dashboard-card p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-all duration-200">
+                    <div class="flex items-center mb-2">
+                      <i class="fas fa-chalkboard-teacher text-green-600 mr-3"></i>
+                      <h4 class="font-semibold">Coaches</h4>
+                    </div>
+                    <p class="text-sm text-gray-600">Manage coaching staff</p>
+                  </a>
+
+                  <a href="/admin/rankings" class="dashboard-card p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-all duration-200">
+                    <div class="flex items-center mb-2">
+                      <i class="fas fa-medal text-orange-600 mr-3"></i>
+                      <h4 class="font-semibold">Rankings</h4>
+                    </div>
+                    <p class="text-sm text-gray-600">Update player rankings</p>
+                  </a>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Activity & Notifications Sidebar -->
+          <div class="space-y-6">
+            <!-- Pending Registrations -->
+            <div class="bg-white rounded-xl shadow-lg overflow-hidden">
+              <div class="bg-orange-500 text-white p-4">
+                <div class="flex items-center justify-between">
+                  <h3 class="text-lg font-bold flex items-center">
+                    <i class="fas fa-clock mr-2"></i>
+                    Pending Items
+                  </h3>
+                  <% if (pendingRegistrations.length > 0) { %>
+                    <span class="bg-red-100 text-red-800 text-xs font-medium px-2.5 py-0.5 rounded-full">
+                      <%= pendingRegistrations.length %> pending
+                    </span>
+                  <% } %>
+                </div>
+              </div>
+              
+              <div class="p-4">
+                <% if (pendingRegistrations.length > 0) { %>
+                  <div class="space-y-3 max-h-64 overflow-y-auto">
+                    <% pendingRegistrations.slice(0, 5).forEach(registration => { %>
+                      <div class="flex items-center p-3 bg-orange-50 rounded-lg">
+                        <div class="w-2 h-2 bg-orange-500 rounded-full mr-3"></div>
+                        <div class="flex-1">
+                          <p class="font-medium text-sm">New Registration</p>
+                          <p class="text-xs text-gray-500">ID: <%= registration.id || 'N/A' %></p>
+                        </div>
+                      </div>
+                    <% }) %>
+                  </div>
+                  <a href="/admin/registrations" class="mt-4 block w-full bg-orange-600 text-white text-center py-2 rounded-lg hover:bg-orange-700 transition-colors">
+                    View All Registrations
+                  </a>
+                <% } else { %>
+                  <div class="text-center py-6">
+                    <i class="fas fa-check-circle text-green-500 text-3xl mb-2"></i>
+                    <p class="text-gray-600">No pending registrations</p>
+                  </div>
                 <% } %>
               </div>
-            <% }) %>
+            </div>
+
+            <!-- Recent Activity -->
+            <div class="bg-white rounded-xl shadow-lg overflow-hidden">
+              <div class="bg-blue-500 text-white p-4">
+                <h3 class="text-lg font-bold flex items-center">
+                  <i class="fas fa-history mr-2"></i>
+                  Recent Activity
+                </h3>
+              </div>
+              
+              <div class="p-4">
+                <div class="space-y-3">
+                  <div class="flex items-center p-3 bg-blue-50 rounded-lg">
+                    <div class="w-2 h-2 bg-blue-500 rounded-full mr-3"></div>
+                    <div>
+                      <p class="font-medium text-sm">System initialized</p>
+                      <p class="text-xs text-gray-500">Just now</p>
+                    </div>
+                  </div>
+                  <div class="flex items-center p-3 bg-green-50 rounded-lg">
+                    <div class="w-2 h-2 bg-green-500 rounded-full mr-3"></div>
+                    <div>
+                      <p class="font-medium text-sm">Players registered: <%= users.length %></p>
+                      <p class="text-xs text-gray-500">Total count</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
-        <% } else { %>
-          <p>No registered players.</p>
-        <% } %>
-      </div>
+        </div>
+      </section>
+
+      <div class="section-divider"></div>
+
+      <!-- Players Management Section -->
+      <% if (users.length > 0) { %>
+      <section class="mb-6 sm:mb-8">
+        <div class="bg-white rounded-xl shadow-lg overflow-hidden">
+          <div class="category-header p-4 sm:p-6">
+            <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between">
+              <h2 class="text-lg sm:text-xl font-bold text-gray-800 flex items-center mb-4 lg:mb-0">
+                <i class="fas fa-users text-blue-600 mr-2 sm:mr-3"></i>
+                Registered Players Management
+              </h2>
+              <div class="flex flex-col sm:flex-row items-stretch sm:items-center space-y-3 sm:space-y-0 sm:space-x-4">
+                <div class="relative flex-1 lg:flex-none">
+                  <input type="text" id="playerSearch" placeholder="Search players..." 
+                         class="pl-8 sm:pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm w-full lg:w-auto">
+                  <i class="fas fa-search absolute left-2 sm:left-3 top-3 text-gray-400 text-sm"></i>
+                </div>
+                <select id="playerFilter" class="border border-gray-300 rounded-lg px-2 sm:px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm flex-1 lg:flex-none">
+                  <option value="">All Ages</option>
+                  <option value="youth">Youth (Under 18)</option>
+                  <option value="adult">Adult (18-50)</option>
+                  <option value="senior">Senior (50+)</option>
+                </select>
+              </div>
+            </div>
+          </div>
+          
+          <div class="p-4 sm:p-6">
+            <div id="playersGrid" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 sm:gap-6">
+              <% users.forEach(user => { %>
+                <div class="player-card bg-gray-50 rounded-lg p-3 sm:p-4 hover:shadow-md transition-shadow" data-age="<%= user.age %>" data-name="<%= user.fullName.toLowerCase() %>">
+                  <div class="flex items-start space-x-3 sm:space-x-4">
+                    <% if (user.faceImage) { %>
+                      <img src="<%= user.faceImage %>" alt="<%= user.fullName %>" class="w-12 h-12 sm:w-16 sm:h-16 rounded-full object-cover">
+                    <% } else { %>
+                      <div class="w-12 h-12 sm:w-16 sm:h-16 bg-gray-300 rounded-full flex items-center justify-center">
+                        <i class="fas fa-user text-lg sm:text-2xl text-gray-500"></i>
+                      </div>
+                    <% } %>
+                    <div class="flex-1 min-w-0">
+                      <h3 class="font-bold text-base sm:text-lg text-gray-800 truncate"><%= user.fullName %></h3>
+                      <div class="space-y-1 text-xs sm:text-sm text-gray-600">
+                        <p><i class="fas fa-id-card mr-1 sm:mr-2"></i><%= user.icNumber %></p>
+                        <p><i class="fas fa-birthday-cake mr-1 sm:mr-2"></i>Age: <%= user.age %></p>
+                        <p><i class="fas fa-heart mr-1 sm:mr-2"></i><%= user.maritalStatus %></p>
+                        <p><i class="fas fa-phone mr-1 sm:mr-2"></i><%= user.phone %></p>
+                        <p><i class="fas fa-envelope mr-1 sm:mr-2"></i><%= user.email %></p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              <% }) %>
+            </div>
+          </div>
+        </div>
+      </section>
+      <% } %>
     </div>
   </main>
 
   <%- include('../../partials/footer') %>
+  
   <script src="/js/script.js"></script>
+  <script>
+    // Update timestamp
+    function updateTimestamp() {
+      document.getElementById('lastUpdated').textContent = new Date().toLocaleTimeString();
+    }
+    updateTimestamp();
+
+    // Refresh data function
+    function refreshData() {
+      const button = event.target;
+      const originalText = button.innerHTML;
+      button.innerHTML = '<div class="loading-spinner inline-block mr-2"></div>Refreshing...';
+      button.disabled = true;
+      
+      setTimeout(() => {
+        button.innerHTML = originalText;
+        button.disabled = false;
+        updateTimestamp();
+        // Add any actual refresh logic here
+      }, 2000);
+    }
+
+    // Player search and filter functionality
+    document.addEventListener('DOMContentLoaded', function() {
+      const searchInput = document.getElementById('playerSearch');
+      const filterSelect = document.getElementById('playerFilter');
+      const playerCards = document.querySelectorAll('.player-card');
+
+      function filterPlayers() {
+        const searchTerm = searchInput?.value.toLowerCase() || '';
+        const ageFilter = filterSelect?.value || '';
+
+        playerCards.forEach(card => {
+          const playerName = card.dataset.name || '';
+          const playerAge = parseInt(card.dataset.age) || 0;
+          
+          let ageMatch = true;
+          if (ageFilter === 'youth') ageMatch = playerAge < 18;
+          else if (ageFilter === 'adult') ageMatch = playerAge >= 18 && playerAge <= 50;
+          else if (ageFilter === 'senior') ageMatch = playerAge > 50;
+          
+          const nameMatch = playerName.includes(searchTerm);
+          
+          card.style.display = (nameMatch && ageMatch) ? 'block' : 'none';
+        });
+      }
+
+      if (searchInput) searchInput.addEventListener('input', filterPlayers);
+      if (filterSelect) filterSelect.addEventListener('change', filterPlayers);
+    });
+
+    // Animate statistics on load
+    function animateStats() {
+      const statElements = document.querySelectorAll('.stat-card .text-3xl');
+      statElements.forEach(element => {
+        const finalValue = parseInt(element.textContent);
+        let currentValue = 0;
+        const increment = Math.ceil(finalValue / 20);
+        
+        const timer = setInterval(() => {
+          currentValue += increment;
+          if (currentValue >= finalValue) {
+            currentValue = finalValue;
+            clearInterval(timer);
+          }
+          element.textContent = currentValue;
+        }, 50);
+      });
+    }
+
+    // Initialize animations
+    document.addEventListener('DOMContentLoaded', function() {
+      setTimeout(animateStats, 500);
+    });
+  </script>
 </body>
 </html>
