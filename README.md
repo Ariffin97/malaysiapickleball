@@ -238,4 +238,4 @@ This project is proprietary software for the Malaysia Pickleball Association.
 **Malaysia Pickleball Association**  
 *Building a stronger pickleball community in Malaysia*
 
-🏓 **Play. Compete. Excel.** 
+🏓 **Play. Compete. Excel.**
