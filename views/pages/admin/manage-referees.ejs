@@ -6,46 +6,895 @@
   <title>Manage Referees - Malaysia Pickleball Association</title>
   <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
   <link rel="stylesheet" href="/css/styles.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+  <style>
+    .admin-card {
+      transition: all 0.3s ease;
+      border: 2px solid transparent;
+    }
+    .admin-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+      border-color: #3b82f6;
+    }
+    .modal {
+      backdrop-filter: blur(10px);
+      animation: fadeIn 0.3s ease-out;
+    }
+    .modal-content {
+      animation: slideIn 0.3s ease-out;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+    @keyframes slideIn {
+      from { transform: translateY(-50px); opacity: 0; }
+      to { transform: translateY(0); opacity: 1; }
+    }
+    .drag-drop-area,
+    .drag-drop-area-doc {
+      border: 2px dashed #cbd5e0;
+      transition: all 0.3s ease;
+    }
+    .drag-drop-area:hover,
+    .drag-drop-area.drag-over,
+    .drag-drop-area-doc:hover,
+    .drag-drop-area-doc.drag-over {
+      border-color: #3b82f6;
+      background-color: #eff6ff;
+    }
+    .stats-card {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    }
+    .action-btn {
+      transition: all 0.2s ease;
+    }
+    .action-btn:hover {
+      transform: scale(1.05);
+    }
+    .notification {
+      position: fixed;
+      top: 100px;
+      right: 20px;
+      z-index: 1000;
+      animation: slideInRight 0.3s ease-out;
+    }
+    @keyframes slideInRight {
+      from { transform: translateX(100%); }
+      to { transform: translateX(0); }
+    }
+    .application-card {
+      background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%);
+      border-left: 4px solid #f59e0b;
+    }
+    .referee-card {
+      background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
+      border-left: 4px solid #10b981;
+    }
+    .image-preview {
+      max-width: 120px;
+      max-height: 120px;
+      object-fit: cover;
+      border-radius: 50%;
+      border: 4px solid #e5e7eb;
+    }
+  </style>
 </head>
-<body class="bg-gray-100">
+<body class="bg-gray-50">
   <%- include('../../partials/header') %>
-  <%- include('../../partials/sidebar') %>
-  <main class="md:ml-64 pt-20 p-4 pb-20">
+  
+  <main class="pt-20 p-6 pb-20">
     <div class="container mx-auto">
-      <h1 class="text-3xl font-bold mb-4">Manage Referees</h1>
-      <div class="bg-white p-4 rounded shadow">
-        <h2 class="text-xl mb-2">Add New Referee</h2>
-        <form action="/admin/referees" method="POST">
-          <div class="mb-4">
-            <label class="block mb-1">Referee Name</label>
-            <input type="text" name="name" class="w-full p-2 border rounded" required>
-          </div>
-          <div class="mb-4">
-            <label class="block mb-1">Experience</label>
-            <textarea name="experience" class="w-full p-2 border rounded" required></textarea>
-          </div>
-          <button type="submit" class="bg-green-600 text-white p-2 rounded hover:bg-green-700">Save</button>
-        </form>
+      <!-- Page Header -->
+      <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-8">
+        <div>
+          <h1 class="text-4xl font-bold text-gray-800 mb-2">
+            <i class="fas fa-users-cog mr-3 text-blue-600"></i>Manage Referees
+          </h1>
+          <p class="text-gray-600">Add, edit, and manage referee applications</p>
+        </div>
+        <button onclick="openAddRefereeModal()" class="mt-4 md:mt-0 bg-gradient-to-r from-blue-500 to-purple-600 text-white px-6 py-3 rounded-xl font-semibold hover:from-blue-600 hover:to-purple-700 transition-all duration-200 shadow-lg action-btn">
+          <i class="fas fa-plus mr-2"></i>Add New Referee
+        </button>
       </div>
-      <div class="mt-4">
-        <h2 class="text-xl mb-2">Current Referees</h2>
+
+      <!-- Search Section -->
+      <div class="bg-white bg-opacity-95 backdrop-filter backdrop-blur-lg p-6 rounded-2xl shadow-xl mb-8">
+        <div class="flex flex-col lg:flex-row gap-4 items-center justify-between">
+          <!-- Search Bar -->
+          <div class="relative flex-1 w-full lg:max-w-md">
+            <i class="fas fa-search absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+            <input 
+              type="text" 
+              id="refereeSearchInput" 
+              placeholder="Search referees by name or experience..." 
+              class="w-full pl-12 pr-4 py-3 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:outline-none transition-colors duration-200 text-gray-700"
+            >
+          </div>
+          
+          <!-- Filter Buttons -->
+          <div class="flex flex-wrap gap-3">
+            <button class="filter-btn active px-4 py-2 rounded-full border-2 border-blue-500 text-blue-500 font-medium" data-filter="all">
+              <i class="fas fa-users mr-2"></i>All Referees
+            </button>
+            <button class="filter-btn px-4 py-2 rounded-full border-2 border-green-500 text-green-500 font-medium" data-filter="certified">
+              <i class="fas fa-certificate mr-2"></i>Certified
+            </button>
+            <button class="filter-btn px-4 py-2 rounded-full border-2 border-orange-500 text-orange-500 font-medium" data-filter="pending">
+              <i class="fas fa-clock mr-2"></i>Pending
+            </button>
+          </div>
+        </div>
+        
+        <!-- Results Counter -->
+        <div class="mt-4 text-center">
+          <span id="refereeResultsCount" class="text-gray-600 font-medium">Showing <span class="font-bold text-blue-600"><%= referees.length %></span> referees</span>
+        </div>
+      </div>
+
+      <!-- Statistics Cards -->
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+        <div class="stats-card text-white p-6 rounded-xl shadow-lg">
+          <div class="flex items-center justify-between">
+            <div>
+              <h3 class="text-2xl font-bold" id="totalReferees"><%= referees.length %></h3>
+              <p class="text-blue-100">Total Referees</p>
+            </div>
+            <i class="fas fa-users text-3xl opacity-80"></i>
+          </div>
+        </div>
+        <div class="bg-gradient-to-r from-green-400 to-blue-500 text-white p-6 rounded-xl shadow-lg">
+          <div class="flex items-center justify-between">
+            <div>
+              <h3 class="text-2xl font-bold" id="pendingApplications">3</h3>
+              <p class="text-green-100">Pending Applications</p>
+            </div>
+            <i class="fas fa-clock text-3xl opacity-80"></i>
+          </div>
+        </div>
+        <div class="bg-gradient-to-r from-yellow-400 to-orange-500 text-white p-6 rounded-xl shadow-lg">
+          <div class="flex items-center justify-between">
+            <div>
+              <h3 class="text-2xl font-bold">24/7</h3>
+              <p class="text-yellow-100">Available</p>
+            </div>
+            <i class="fas fa-calendar-check text-3xl opacity-80"></i>
+          </div>
+        </div>
+        <div class="bg-gradient-to-r from-pink-400 to-red-500 text-white p-6 rounded-xl shadow-lg">
+          <div class="flex items-center justify-between">
+            <div>
+              <h3 class="text-2xl font-bold">100%</h3>
+              <p class="text-pink-100">Certified</p>
+            </div>
+            <i class="fas fa-certificate text-3xl opacity-80"></i>
+          </div>
+        </div>
+      </div>
+
+      <!-- Pending Applications Section -->
+      <div class="mb-8">
+        <h2 class="text-2xl font-bold text-gray-800 mb-4 flex items-center">
+          <i class="fas fa-inbox mr-3 text-orange-500"></i>Pending Applications
+          <span class="ml-2 bg-orange-100 text-orange-800 text-sm px-2 py-1 rounded-full">3 New</span>
+        </h2>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" id="applicationsGrid">
+          <!-- Sample Applications -->
+          <div class="application-card p-6 rounded-xl shadow-lg admin-card">
+            <div class="flex items-center mb-4">
+              <img src="https://via.placeholder.com/60x60/667eea/ffffff?text=JD" alt="John Doe" class="w-15 h-15 rounded-full mr-4">
+              <div>
+                <h3 class="font-bold text-gray-800">John Doe</h3>
+                <p class="text-sm text-gray-600">Applied 2 days ago</p>
+              </div>
+            </div>
+            <p class="text-gray-700 mb-4">5+ years experience in professional tournaments</p>
+            <div class="flex gap-2">
+              <button onclick="acceptApplication('John Doe')" class="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg text-sm font-medium action-btn">
+                <i class="fas fa-check mr-1"></i>Accept
+              </button>
+              <button onclick="rejectApplication('John Doe')" class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg text-sm font-medium action-btn">
+                <i class="fas fa-times mr-1"></i>Reject
+              </button>
+              <button onclick="viewApplication('John Doe')" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium action-btn">
+                <i class="fas fa-eye mr-1"></i>View
+              </button>
+            </div>
+          </div>
+
+          <div class="application-card p-6 rounded-xl shadow-lg admin-card">
+            <div class="flex items-center mb-4">
+              <img src="https://via.placeholder.com/60x60/f093fb/ffffff?text=SA" alt="Sarah Ali" class="w-15 h-15 rounded-full mr-4">
+              <div>
+                <h3 class="font-bold text-gray-800">Sarah Ali</h3>
+                <p class="text-sm text-gray-600">Applied 1 day ago</p>
+              </div>
+            </div>
+            <p class="text-gray-700 mb-4">International referee certification, 8 years experience</p>
+            <div class="flex gap-2">
+              <button onclick="acceptApplication('Sarah Ali')" class="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg text-sm font-medium action-btn">
+                <i class="fas fa-check mr-1"></i>Accept
+              </button>
+              <button onclick="rejectApplication('Sarah Ali')" class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg text-sm font-medium action-btn">
+                <i class="fas fa-times mr-1"></i>Reject
+              </button>
+              <button onclick="viewApplication('Sarah Ali')" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium action-btn">
+                <i class="fas fa-eye mr-1"></i>View
+              </button>
+            </div>
+          </div>
+
+          <div class="application-card p-6 rounded-xl shadow-lg admin-card">
+            <div class="flex items-center mb-4">
+              <img src="https://via.placeholder.com/60x60/a8edea/333333?text=MR" alt="Mike Rahman" class="w-15 h-15 rounded-full mr-4">
+              <div>
+                <h3 class="font-bold text-gray-800">Mike Rahman</h3>
+                <p class="text-sm text-gray-600">Applied today</p>
+              </div>
+            </div>
+            <p class="text-gray-700 mb-4">Former professional player, referee training completed</p>
+            <div class="flex gap-2">
+              <button onclick="acceptApplication('Mike Rahman')" class="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg text-sm font-medium action-btn">
+                <i class="fas fa-check mr-1"></i>Accept
+              </button>
+              <button onclick="rejectApplication('Mike Rahman')" class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg text-sm font-medium action-btn">
+                <i class="fas fa-times mr-1"></i>Reject
+              </button>
+              <button onclick="viewApplication('Mike Rahman')" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium action-btn">
+                <i class="fas fa-eye mr-1"></i>View
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Current Referees Section -->
+      <div>
+        <h2 class="text-2xl font-bold text-gray-800 mb-4 flex items-center">
+          <i class="fas fa-users mr-3 text-green-500"></i>Current Referees
+        </h2>
         <% if (referees.length) { %>
-          <ul class="grid grid-cols-1 gap-4">
-            <% referees.forEach(referee => { %>
-              <li class="p-4 bg-white rounded shadow card">
-                <h3 class="font-bold"><%= referee.name %></h3>
-                <p><%= referee.experience %></p>
-              </li>
+          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" id="refereesGrid">
+            <% referees.forEach((referee, index) => { %>
+              <div class="referee-card p-6 rounded-xl shadow-lg admin-card" data-referee-index="<%= index %>">
+                <div class="flex items-center mb-4">
+                  <img src="<%= referee.profileImage || referee.image || 'https://via.placeholder.com/60x60/10b981/ffffff?text=' + (referee.fullName || referee.name || 'R').charAt(0) %>" 
+                       alt="<%= referee.fullName || referee.name %>" 
+                       class="w-15 h-15 rounded-full mr-4 image-preview">
+                  <div class="flex-1">
+                    <h3 class="font-bold text-gray-800"><%= referee.fullName || referee.name %></h3>
+                    <p class="text-sm text-gray-600">ID: <%= referee.idNumber || 'Not specified' %></p>
+                    <p class="text-xs text-gray-500">Active Referee</p>
+                  </div>
+                  <div class="flex flex-col gap-2">
+                    <button onclick="editReferee(<%= index %>)" class="bg-blue-500 hover:bg-blue-600 text-white p-2 rounded-lg action-btn" title="Edit">
+                      <i class="fas fa-edit"></i>
+                    </button>
+                    <button onclick="removeReferee(<%= index %>, '<%= referee.name %>')" class="bg-red-500 hover:bg-red-600 text-white p-2 rounded-lg action-btn" title="Remove">
+                      <i class="fas fa-trash"></i>
+                    </button>
+                  </div>
+                </div>
+                <p class="text-gray-700 mb-4"><%= referee.experience %></p>
+                <div class="flex flex-wrap gap-2 items-center justify-between">
+                  <span class="bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm font-medium">
+                    <i class="fas fa-check-circle mr-1"></i>Certified
+                  </span>
+                  <div class="flex gap-2">
+                    <% if (referee.certificateDocument) { %>
+                      <button onclick="viewCertificate('<%= referee.certificateDocument %>')" class="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded-lg text-sm action-btn" title="View Certificate">
+                        <i class="fas fa-file-pdf mr-1"></i>Certificate
+                      </button>
+                    <% } %>
+                    <button onclick="uploadRefereeImage(<%= index %>)" class="bg-purple-500 hover:bg-purple-600 text-white px-3 py-1 rounded-lg text-sm action-btn" title="Update Photo">
+                      <i class="fas fa-camera mr-1"></i>Photo
+                    </button>
+                  </div>
+                </div>
+              </div>
             <% }) %>
-          </ul>
+          </div>
         <% } else { %>
-          <p>No referees available.</p>
+          <div class="bg-white p-12 rounded-xl shadow-lg text-center">
+            <div class="text-6xl text-gray-300 mb-4">
+              <i class="fas fa-user-slash"></i>
+            </div>
+            <h3 class="text-xl font-bold text-gray-700 mb-2">No Referees Yet</h3>
+            <p class="text-gray-600 mb-6">Start by adding your first referee or reviewing pending applications.</p>
+            <button onclick="openAddRefereeModal()" class="bg-blue-500 hover:bg-blue-600 text-white px-6 py-3 rounded-xl font-semibold action-btn">
+              <i class="fas fa-plus mr-2"></i>Add First Referee
+            </button>
+          </div>
         <% } %>
       </div>
     </div>
   </main>
 
+  <!-- Add/Edit Referee Modal -->
+  <div id="refereeModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50 modal">
+    <div class="bg-white p-8 rounded-2xl shadow-2xl max-w-2xl w-full mx-4 modal-content max-h-screen overflow-y-auto">
+      <h2 id="modalTitle" class="text-2xl font-bold mb-6 text-gray-800">Add New Referee</h2>
+      <form id="refereeForm" action="/admin/referees" method="POST" enctype="multipart/form-data">
+        <input type="hidden" id="refereeIndex" name="refereeIndex">
+        
+        <!-- Personal Information Section -->
+        <div class="mb-6">
+          <h3 class="text-lg font-semibold text-gray-700 mb-4 flex items-center">
+            <i class="fas fa-user mr-2 text-blue-500"></i>Personal Information
+          </h3>
+          
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label class="block text-gray-700 font-medium mb-2">Full Name *</label>
+              <input type="text" id="refereeName" name="fullName" class="w-full p-3 border border-gray-300 rounded-xl focus:border-blue-500 focus:outline-none transition-colors" required>
+            </div>
+            
+            <div>
+              <label class="block text-gray-700 font-medium mb-2">Identity Card Number *</label>
+              <input type="text" id="refereeIdNumber" name="idNumber" placeholder="e.g., 123456-12-1234" class="w-full p-3 border border-gray-300 rounded-xl focus:border-blue-500 focus:outline-none transition-colors" required>
+            </div>
+          </div>
+        </div>
+
+        <!-- Profile Photo Upload Section -->
+        <div class="mb-6">
+          <h3 class="text-lg font-semibold text-gray-700 mb-4 flex items-center">
+            <i class="fas fa-camera mr-2 text-purple-500"></i>Profile Photo
+          </h3>
+          <div class="drag-drop-area p-6 border-2 border-dashed border-gray-300 rounded-xl text-center cursor-pointer" onclick="document.getElementById('imageInput').click()">
+            <div id="imagePreview" class="hidden">
+              <img id="previewImg" class="image-preview mx-auto mb-4" alt="Preview">
+            </div>
+            <div id="uploadPrompt">
+              <i class="fas fa-cloud-upload-alt text-4xl text-gray-400 mb-4"></i>
+              <p class="text-gray-600">Click to upload profile photo</p>
+              <p class="text-sm text-gray-500">PNG, JPG up to 5MB</p>
+            </div>
+          </div>
+          <input type="file" id="imageInput" name="profileImage" accept="image/*" class="hidden" onchange="previewImage(this)">
+        </div>
+
+        <!-- Referee Certificate Upload Section -->
+        <div class="mb-6">
+          <h3 class="text-lg font-semibold text-gray-700 mb-4 flex items-center">
+            <i class="fas fa-certificate mr-2 text-green-500"></i>Referee Certification *
+          </h3>
+          <div class="drag-drop-area-doc p-6 border-2 border-dashed border-gray-300 rounded-xl text-center cursor-pointer" onclick="document.getElementById('certificateInput').click()">
+            <div id="certificatePreview" class="hidden">
+              <div class="bg-blue-50 p-4 rounded-lg mb-4">
+                <i class="fas fa-file-pdf text-3xl text-red-500 mb-2"></i>
+                <p id="certificateFileName" class="text-sm text-gray-700 font-medium"></p>
+                <p class="text-xs text-gray-500">Certificate document uploaded</p>
+              </div>
+            </div>
+            <div id="certificateUploadPrompt">
+              <i class="fas fa-file-upload text-4xl text-gray-400 mb-4"></i>
+              <p class="text-gray-600">Click to upload certification document</p>
+              <p class="text-sm text-gray-500">PDF, DOC, DOCX up to 10MB</p>
+            </div>
+          </div>
+          <input type="file" id="certificateInput" name="certificateDocument" accept=".pdf,.doc,.docx" class="hidden" onchange="previewCertificate(this)" required>
+        </div>
+        
+        <div class="mb-6">
+          <label class="block text-gray-700 font-medium mb-2">Experience & Qualifications *</label>
+          <textarea id="refereeExperience" name="experience" rows="4" placeholder="Describe referee experience, certifications, and qualifications..." class="w-full p-3 border border-gray-300 rounded-xl focus:border-blue-500 focus:outline-none transition-colors" required></textarea>
+        </div>
+        
+        <div class="flex gap-3">
+          <button type="submit" class="flex-1 bg-gradient-to-r from-green-500 to-blue-600 text-white py-3 rounded-xl font-semibold hover:from-green-600 hover:to-blue-700 transition-all action-btn">
+            <i class="fas fa-save mr-2"></i>Save Referee
+          </button>
+          <button type="button" onclick="closeRefereeModal()" class="flex-1 bg-gray-500 text-white py-3 rounded-xl font-semibold hover:bg-gray-600 transition-all action-btn">
+            <i class="fas fa-times mr-2"></i>Cancel
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Image Upload Modal -->
+  <div id="imageModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50 modal">
+    <div class="bg-white p-8 rounded-2xl shadow-2xl max-w-md w-full mx-4 modal-content">
+      <h2 class="text-2xl font-bold mb-6 text-gray-800">Update Referee Photo</h2>
+      <form id="imageForm" enctype="multipart/form-data">
+        <input type="hidden" id="imageRefereeIndex">
+        
+        <div class="mb-6">
+          <div class="drag-drop-area p-6 border-2 border-dashed border-gray-300 rounded-xl text-center cursor-pointer" onclick="document.getElementById('newImageInput').click()">
+            <div id="newImagePreview" class="hidden">
+              <img id="newPreviewImg" class="image-preview mx-auto mb-4" alt="Preview">
+            </div>
+            <div id="newUploadPrompt">
+              <i class="fas fa-cloud-upload-alt text-4xl text-gray-400 mb-4"></i>
+              <p class="text-gray-600">Click to upload new photo</p>
+              <p class="text-sm text-gray-500">PNG, JPG up to 5MB</p>
+            </div>
+          </div>
+          <input type="file" id="newImageInput" accept="image/*" class="hidden" onchange="previewNewImage(this)">
+        </div>
+        
+        <div class="flex gap-3">
+          <button type="button" onclick="uploadNewImage()" class="flex-1 bg-gradient-to-r from-purple-500 to-pink-600 text-white py-3 rounded-xl font-semibold hover:from-purple-600 hover:to-pink-700 transition-all action-btn">
+            <i class="fas fa-upload mr-2"></i>Upload Photo
+          </button>
+          <button type="button" onclick="closeImageModal()" class="flex-1 bg-gray-500 text-white py-3 rounded-xl font-semibold hover:bg-gray-600 transition-all action-btn">
+            <i class="fas fa-times mr-2"></i>Cancel
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
   <%- include('../../partials/footer') %>
+  
   <script src="/js/script.js"></script>
+  <script>
+    let currentFilter = 'all';
+    
+    // Modal Management
+    function openAddRefereeModal() {
+      document.getElementById('modalTitle').textContent = 'Add New Referee';
+      document.getElementById('refereeForm').action = '/admin/referees';
+      document.getElementById('refereeIndex').value = '';
+      document.getElementById('refereeName').value = '';
+      document.getElementById('refereeIdNumber').value = '';
+      document.getElementById('refereeExperience').value = '';
+      resetImagePreview();
+      resetCertificatePreview();
+      
+      // Make certificate required for new referees
+      document.getElementById('certificateInput').setAttribute('required', 'required');
+      
+      document.getElementById('refereeModal').style.display = 'flex';
+    }
+
+    function closeRefereeModal() {
+      document.getElementById('refereeModal').style.display = 'none';
+    }
+
+    function closeImageModal() {
+      document.getElementById('imageModal').style.display = 'none';
+    }
+
+    // Search and Filter Functions
+    function searchReferees() {
+      const searchTerm = document.getElementById('refereeSearchInput').value.toLowerCase();
+      const refereeCards = document.querySelectorAll('.referee-card');
+      const applicationCards = document.querySelectorAll('.application-card');
+      let visibleCount = 0;
+
+      // Search through referee cards
+      refereeCards.forEach(card => {
+        const name = card.querySelector('h3').textContent.toLowerCase();
+        const experience = card.querySelector('p').textContent.toLowerCase();
+        
+        const matchesSearch = name.includes(searchTerm) || experience.includes(searchTerm);
+        const matchesFilter = currentFilter === 'all' || 
+                             (currentFilter === 'certified') || 
+                             (currentFilter === 'pending');
+
+        if (matchesSearch && (currentFilter === 'all' || currentFilter === 'certified')) {
+          card.style.display = 'block';
+          card.style.animation = 'fadeIn 0.6s ease-out';
+          visibleCount++;
+        } else {
+          card.style.display = 'none';
+        }
+      });
+
+      // Search through application cards
+      if (currentFilter === 'all' || currentFilter === 'pending') {
+        applicationCards.forEach(card => {
+          const name = card.querySelector('h3').textContent.toLowerCase();
+          const experience = card.querySelector('p').textContent.toLowerCase();
+          
+          const matchesSearch = name.includes(searchTerm) || experience.includes(searchTerm);
+          
+          if (matchesSearch) {
+            card.style.display = 'block';
+            card.style.animation = 'fadeIn 0.6s ease-out';
+            if (currentFilter === 'pending') visibleCount++;
+          } else {
+            card.style.display = 'none';
+          }
+        });
+      } else {
+        applicationCards.forEach(card => {
+          card.style.display = 'none';
+        });
+      }
+
+      // Update results count
+      document.getElementById('refereeResultsCount').innerHTML = `Showing <span class="font-bold text-blue-600">${visibleCount}</span> ${currentFilter === 'pending' ? 'applications' : 'referees'}`;
+    }
+
+    // Image Preview Functions
+    function previewImage(input) {
+      if (input.files && input.files[0]) {
+        const file = input.files[0];
+        if (file.size > 5 * 1024 * 1024) { // 5MB limit
+          showNotification('File size must be less than 5MB', 'warning');
+          return;
+        }
+        
+        const reader = new FileReader();
+        reader.onload = function(e) {
+          document.getElementById('previewImg').src = e.target.result;
+          document.getElementById('imagePreview').classList.remove('hidden');
+          document.getElementById('uploadPrompt').style.display = 'none';
+        };
+        reader.readAsDataURL(file);
+      }
+    }
+
+    function previewNewImage(input) {
+      if (input.files && input.files[0]) {
+        const file = input.files[0];
+        if (file.size > 5 * 1024 * 1024) { // 5MB limit
+          showNotification('File size must be less than 5MB', 'warning');
+          return;
+        }
+        
+        const reader = new FileReader();
+        reader.onload = function(e) {
+          document.getElementById('newPreviewImg').src = e.target.result;
+          document.getElementById('newImagePreview').classList.remove('hidden');
+          document.getElementById('newUploadPrompt').style.display = 'none';
+        };
+        reader.readAsDataURL(file);
+      }
+    }
+
+    function resetImagePreview() {
+      document.getElementById('imagePreview').classList.add('hidden');
+      document.getElementById('uploadPrompt').style.display = 'block';
+      document.getElementById('imageInput').value = '';
+    }
+
+    function previewCertificate(input) {
+      if (input.files && input.files[0]) {
+        const file = input.files[0];
+        if (file.size > 10 * 1024 * 1024) { // 10MB limit
+          showNotification('Certificate file size must be less than 10MB', 'warning');
+          return;
+        }
+        
+        document.getElementById('certificateFileName').textContent = file.name;
+        document.getElementById('certificatePreview').classList.remove('hidden');
+        document.getElementById('certificateUploadPrompt').style.display = 'none';
+      }
+    }
+
+    function resetCertificatePreview() {
+      document.getElementById('certificatePreview').classList.add('hidden');
+      document.getElementById('certificateUploadPrompt').style.display = 'block';
+      document.getElementById('certificateInput').value = '';
+    }
+
+    // Referee Management Functions
+    function editReferee(index) {
+      const refereeCard = document.querySelector(`[data-referee-index="${index}"]`);
+      const name = refereeCard.querySelector('h3').textContent;
+      const idText = refereeCard.querySelectorAll('p')[0].textContent;
+      const idNumber = idText.replace('ID: ', '').replace('Not specified', '');
+      const experience = refereeCard.querySelectorAll('p')[2] ? 
+                        refereeCard.querySelectorAll('p')[2].textContent : 
+                        refereeCard.querySelector('p:last-of-type').textContent;
+      
+      document.getElementById('modalTitle').textContent = 'Edit Referee';
+      document.getElementById('refereeForm').action = '/admin/referees';
+      document.getElementById('refereeIndex').value = index;
+      document.getElementById('refereeName').value = name;
+      document.getElementById('refereeIdNumber').value = idNumber;
+      document.getElementById('refereeExperience').value = experience;
+      resetImagePreview();
+      resetCertificatePreview();
+      
+      // Make certificate optional for existing referees
+      document.getElementById('certificateInput').removeAttribute('required');
+      
+      document.getElementById('refereeModal').style.display = 'flex';
+    }
+
+    function viewCertificate(certificateUrl) {
+      if (certificateUrl) {
+        // Open certificate in new window/tab
+        window.open(certificateUrl, '_blank');
+        showNotification('Opening certificate document...', 'info');
+      } else {
+        showNotification('No certificate document available', 'warning');
+      }
+    }
+
+    function removeReferee(index, name) {
+      if (confirm(`Are you sure you want to remove ${name} as a referee? This action cannot be undone.`)) {
+        showNotification('Removing referee...', 'info');
+        
+        fetch(`/admin/referees/${index}`, {
+          method: 'DELETE',
+          headers: {
+            'Content-Type': 'application/json',
+          }
+        })
+        .then(response => {
+          if (!response.ok) {
+            throw new Error('Network response was not ok');
+          }
+          return response.json();
+        })
+        .then(data => {
+          if (data.success) {
+            showNotification('Referee removed successfully', 'success');
+            // Remove the card from DOM
+            const card = document.querySelector(`[data-referee-index="${index}"]`);
+            if (card) {
+              card.remove();
+              updateStats();
+              searchReferees(); // Update search results
+            }
+          } else {
+            showNotification(data.message || 'Error removing referee', 'error');
+          }
+        })
+        .catch(error => {
+          console.error('Error:', error);
+          showNotification('Error removing referee. Please try again.', 'error');
+        });
+      }
+    }
+
+    function uploadRefereeImage(index) {
+      document.getElementById('imageRefereeIndex').value = index;
+      document.getElementById('newImagePreview').classList.add('hidden');
+      document.getElementById('newUploadPrompt').style.display = 'block';
+      document.getElementById('newImageInput').value = '';
+      document.getElementById('imageModal').style.display = 'flex';
+    }
+
+    function uploadNewImage() {
+      const fileInput = document.getElementById('newImageInput');
+      const index = document.getElementById('imageRefereeIndex').value;
+      
+      if (!fileInput.files[0]) {
+        showNotification('Please select an image first', 'warning');
+        return;
+      }
+
+      const formData = new FormData();
+      formData.append('image', fileInput.files[0]);
+      formData.append('refereeIndex', index);
+
+      showNotification('Uploading image...', 'info');
+
+      fetch('/admin/referees/upload-image', {
+        method: 'POST',
+        body: formData
+      })
+      .then(response => {
+        if (!response.ok) {
+          throw new Error('Network response was not ok');
+        }
+        return response.json();
+      })
+      .then(data => {
+        if (data.success) {
+          showNotification('Image updated successfully', 'success');
+          // Update the image in the DOM
+          const refereeCard = document.querySelector(`[data-referee-index="${index}"]`);
+          if (refereeCard) {
+            const img = refereeCard.querySelector('.image-preview');
+            img.src = data.imageUrl + '?t=' + new Date().getTime(); // Add timestamp to avoid cache
+          }
+          closeImageModal();
+        } else {
+          showNotification(data.message || 'Error uploading image', 'error');
+        }
+      })
+      .catch(error => {
+        console.error('Error:', error);
+        showNotification('Error uploading image. Please try again.', 'error');
+      });
+    }
+
+    // Application Management Functions
+    function acceptApplication(name) {
+      if (confirm(`Accept ${name}'s referee application?`)) {
+        showNotification('Processing application...', 'info');
+        
+        fetch('/admin/referees/accept-application', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ name: name })
+        })
+        .then(response => {
+          if (!response.ok) {
+            throw new Error('Network response was not ok');
+          }
+          return response.json();
+        })
+        .then(data => {
+          if (data.success) {
+            showNotification(`${name}'s application accepted!`, 'success');
+            setTimeout(() => {
+              location.reload();
+            }, 1500);
+          } else {
+            showNotification(data.message || 'Error accepting application', 'error');
+          }
+        })
+        .catch(error => {
+          console.error('Error:', error);
+          showNotification('Error accepting application. Please try again.', 'error');
+        });
+      }
+    }
+
+    function rejectApplication(name) {
+      if (confirm(`Reject ${name}'s referee application?`)) {
+        showNotification('Processing application...', 'info');
+        
+        fetch('/admin/referees/reject-application', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ name: name })
+        })
+        .then(response => {
+          if (!response.ok) {
+            throw new Error('Network response was not ok');
+          }
+          return response.json();
+        })
+        .then(data => {
+          if (data.success) {
+            showNotification(`${name}'s application rejected`, 'info');
+            // Remove the application card from DOM
+            const cards = document.querySelectorAll('.application-card');
+            cards.forEach(card => {
+              const cardName = card.querySelector('h3').textContent;
+              if (cardName === name) {
+                card.remove();
+              }
+            });
+            updateApplicationCount();
+          } else {
+            showNotification(data.message || 'Error rejecting application', 'error');
+          }
+        })
+        .catch(error => {
+          console.error('Error:', error);
+          showNotification('Error rejecting application. Please try again.', 'error');
+        });
+      }
+    }
+
+    function viewApplication(name) {
+      showNotification(`Opening ${name}'s detailed application...`, 'info');
+      // Create a detailed view modal or redirect to detail page
+      setTimeout(() => {
+        alert(`Detailed Application View for ${name}\n\nFeatures:\n- Full CV/Resume\n- Certification Documents\n- References\n- Interview Notes\n\nThis feature will be implemented in the next update.`);
+      }, 500);
+    }
+
+    // Utility Functions
+    function showNotification(message, type = 'info') {
+      // Remove any existing notifications
+      const existingNotifications = document.querySelectorAll('.notification');
+      existingNotifications.forEach(notification => notification.remove());
+      
+      const notification = document.createElement('div');
+      notification.className = `notification bg-${type === 'success' ? 'green' : type === 'error' ? 'red' : type === 'warning' ? 'yellow' : 'blue'}-500 text-white px-6 py-4 rounded-xl shadow-lg`;
+      notification.innerHTML = `
+        <div class="flex items-center">
+          <i class="fas fa-${type === 'success' ? 'check-circle' : type === 'error' ? 'exclamation-circle' : type === 'warning' ? 'exclamation-triangle' : 'info-circle'} mr-3"></i>
+          <span>${message}</span>
+        </div>
+      `;
+      document.body.appendChild(notification);
+      
+      setTimeout(() => {
+        if (notification.parentNode) {
+          notification.remove();
+        }
+      }, 3000);
+    }
+
+    function updateStats() {
+      const totalReferees = document.querySelectorAll('.referee-card:not([style*="display: none"])').length;
+      document.getElementById('totalReferees').textContent = totalReferees;
+    }
+
+    function updateApplicationCount() {
+      const pendingApplications = document.querySelectorAll('.application-card').length;
+      document.getElementById('pendingApplications').textContent = pendingApplications;
+    }
+
+    // Drag and Drop Functionality
+    document.addEventListener('DOMContentLoaded', function() {
+      // Search functionality
+      const searchInput = document.getElementById('refereeSearchInput');
+      const filterButtons = document.querySelectorAll('.filter-btn');
+
+      searchInput.addEventListener('input', searchReferees);
+
+      // Filter functionality
+      filterButtons.forEach(button => {
+        button.addEventListener('click', function() {
+          // Remove active class from all buttons
+          filterButtons.forEach(btn => btn.classList.remove('active'));
+          // Add active class to clicked button
+          this.classList.add('active');
+          
+          currentFilter = this.dataset.filter;
+          
+          // Show/hide sections based on filter
+          const refereesSection = document.querySelector('#refereesContainer').parentElement;
+          const applicationsSection = document.querySelector('#applicationsGrid').parentElement;
+          
+          if (currentFilter === 'pending') {
+            refereesSection.style.display = 'none';
+            applicationsSection.style.display = 'block';
+          } else if (currentFilter === 'certified') {
+            refereesSection.style.display = 'block';
+            applicationsSection.style.display = 'none';
+          } else {
+            refereesSection.style.display = 'block';
+            applicationsSection.style.display = 'block';
+          }
+          
+          searchReferees();
+        });
+      });
+
+      // Drag and drop functionality
+      const dropAreas = document.querySelectorAll('.drag-drop-area, .drag-drop-area-doc');
+      
+      dropAreas.forEach(dropArea => {
+        dropArea.addEventListener('dragover', function(e) {
+          e.preventDefault();
+          this.classList.add('drag-over');
+        });
+        
+        dropArea.addEventListener('dragleave', function(e) {
+          e.preventDefault();
+          this.classList.remove('drag-over');
+        });
+        
+        dropArea.addEventListener('drop', function(e) {
+          e.preventDefault();
+          this.classList.remove('drag-over');
+          
+          const files = e.dataTransfer.files;
+          if (files.length > 0) {
+            const fileInput = this.parentElement.querySelector('input[type="file"]');
+            fileInput.files = files;
+            
+            // Trigger change event
+            const event = new Event('change', { bubbles: true });
+            fileInput.dispatchEvent(event);
+          }
+        });
+      });
+
+      // Close modals when clicking outside
+      document.addEventListener('click', function(e) {
+        if (e.target.classList.contains('modal')) {
+          if (e.target.id === 'refereeModal') {
+            closeRefereeModal();
+          } else if (e.target.id === 'imageModal') {
+            closeImageModal();
+          }
+        }
+      });
+
+      // Initialize search
+      searchReferees();
+    });
+  </script>
 </body>
 </html>

@@ -1,4 +1,4 @@
-<aside class="sidebar sidebar-modern bg-transparent text-white w-64 fixed left-0 z-10 md:transform-none overflow-hidden" style="top: 70px; bottom: 50px;">
+<aside class="sidebar sidebar-modern bg-transparent text-white w-64 fixed left-0 z-10 md:transform-none overflow-hidden" style="top: 70px; bottom: 0;">
   <div class="h-full flex flex-col relative">
     <!-- Animated Background -->
     <div class="sidebar-bg absolute inset-0 bg-gradient-to-b from-gray-900 via-gray-800 to-gray-900 opacity-95 backdrop-blur-lg"></div>
@@ -196,8 +196,8 @@
     transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     border-right: 1px solid rgba(255, 255, 255, 0.1);
     top: var(--navbar-height, 70px); /* Align with bottom of navbar */
-    bottom: var(--footer-height, 60px); /* Stop above the footer */
-    height: calc(100vh - var(--navbar-height, 70px) - var(--footer-height, 60px)); /* Full height minus navbar and footer */
+    bottom: 0; /* Extend to bottom of viewport */
+    height: calc(100vh - var(--navbar-height, 70px)); /* Full height minus navbar only */
   }
   
   .sidebar-bg {
@@ -304,8 +304,8 @@
       transform: translateX(-100%);
       z-index: 50;
       top: var(--navbar-height, 70px); /* Align with navbar on mobile */
-      bottom: var(--footer-height, 60px); /* Stop above footer on mobile */
-      height: calc(100vh - var(--navbar-height, 70px) - var(--footer-height, 60px)); /* Full height minus navbar and footer */
+      bottom: 0; /* Extend to bottom of viewport on mobile */
+      height: calc(100vh - var(--navbar-height, 70px)); /* Full height minus navbar only */
     }
     
     .sidebar-modern.open,
@@ -352,13 +352,8 @@
   }
 </style>
 
-<script>
-  // Simple services dropdown functionality that works with the existing system
-  document.addEventListener('DOMContentLoaded', function() {
-    // This will be handled by the main script.js file
-    console.log('Sidebar loaded - services dropdown handled by main script');
-  });
-</script>
+<!-- Include external sidebar JavaScript -->
+<script src="/js/sidebar.js"></script>
 
 <style>
   .ripple {

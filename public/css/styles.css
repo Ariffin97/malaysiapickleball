@@ -1,7 +1,7 @@
 /* Removed Tailwind directives - using CDN version instead */
 
 :root {
-  --navbar-height: 56px; /* More precise calculation: p-4 (32px) + line-height (~24px) */
+  --navbar-height: 70px; /* Consistent height with sidebar positioning */
   --primary-color: #3B82F6;
   --secondary-color: #10B981;
   --accent-color: #F59E0B;
@@ -11,7 +11,7 @@
 .sidebar {
   transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
   /* top: var(--navbar-height); */
-  height: calc(100vh - 120px); /* Full height minus navbar and small footer gap */
+  height: calc(100vh - var(--navbar-height, 70px)); /* Full height minus navbar only */
   backdrop-filter: blur(10px);
 }
 
@@ -41,10 +41,10 @@
   background: #718096;
 }
 
-/* Sidebar extends to footer */
+/* Sidebar extends to bottom of viewport */
 .sidebar-modern {
-  height: calc(100vh - 120px) !important; /* Navbar + small footer gap */
-  border-bottom: 2px solid rgba(255, 255, 255, 0.1); /* Subtle border at bottom */
+  height: calc(100vh - var(--navbar-height, 70px)) !important; /* Navbar only */
+  border-bottom: none; /* Remove bottom border since it reaches viewport edge */
 }
 
 @media (max-width: 768px) {

@@ -1,5 +1,5 @@
 <nav class="navbar-modern fixed w-full top-0 z-50 transition-all duration-300">
-  <div class="container mx-auto flex justify-between items-center px-4 py-3">
+  <div class="container mx-auto flex justify-between items-center px-4 h-full">
     <!-- Left Side - Logo & Brand -->
     <div class="flex items-center space-x-4">
       <!-- Mobile Sidebar Toggle Button -->
@@ -106,6 +106,7 @@
     right: 0;
     z-index: 50;
     width: 100%;
+    height: var(--navbar-height) !important; /* Force exact match with sidebar calculation */
   }
   
   .navbar-modern.scrolled {
@@ -171,47 +172,5 @@
   }
 </style>
 
-<script>
-  // Navbar scroll effect
-  window.addEventListener('scroll', function() {
-    const navbar = document.querySelector('.navbar-modern');
-    const progressBar = document.querySelector('.progress-bar');
-    
-    if (window.scrollY > 50) {
-      navbar.classList.add('scrolled');
-    } else {
-      navbar.classList.remove('scrolled');
-    }
-    
-    // Progress bar based on scroll
-    const scrollPercent = (window.scrollY / (document.documentElement.scrollHeight - window.innerHeight)) * 100;
-    progressBar.style.width = scrollPercent + '%';
-  });
-  
-  // User dropdown functionality
-  const userMenuButton = document.getElementById('user-menu-button');
-  const userDropdown = document.getElementById('user-dropdown');
-  
-  if (userMenuButton && userDropdown) {
-    userMenuButton.addEventListener('click', function(e) {
-      e.stopPropagation();
-      userDropdown.classList.toggle('opacity-0');
-      userDropdown.classList.toggle('invisible');
-      userDropdown.classList.toggle('translate-y-2');
-    });
-    
-    // Close dropdown when clicking outside
-    document.addEventListener('click', function() {
-      userDropdown.classList.add('opacity-0', 'invisible', 'translate-y-2');
-    });
-  }
-  
-  // Mobile menu enhanced animation
-  const mobileToggle = document.getElementById('mobile-sidebar-toggle');
-  if (mobileToggle) {
-    mobileToggle.addEventListener('click', function() {
-      const svg = this.querySelector('svg');
-      svg.style.transform = svg.style.transform === 'rotate(90deg)' ? 'rotate(0deg)' : 'rotate(90deg)';
-    });
-  }
-</script>
+<!-- Include external header JavaScript -->
+<script src="/js/header.js"></script>

@@ -6,36 +6,658 @@
   <title>Referees - Malaysia Pickleball Association</title>
   <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
   <link rel="stylesheet" href="/css/styles.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+  <style>
+    .referee-card {
+      transition: all 0.3s ease;
+      transform: translateY(0);
+    }
+    .referee-card:hover {
+      transform: translateY(-8px);
+      box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+    }
+    .search-container {
+      position: relative;
+    }
+    .search-container::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: linear-gradient(135deg, rgba(59, 130, 246, 0.1), rgba(147, 51, 234, 0.1));
+      border-radius: 1rem;
+      z-index: -1;
+    }
+    .filter-btn {
+      transition: all 0.2s ease;
+    }
+    .filter-btn:hover {
+      transform: scale(1.05);
+    }
+    .filter-btn.active {
+      background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+      color: white;
+      transform: scale(1.05);
+    }
+    .hero-gradient {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    }
+    .card-gradient {
+      background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+    }
+    .stats-card {
+      background: linear-gradient(135deg, rgba(255,255,255,0.9), rgba(255,255,255,0.7));
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255,255,255,0.2);
+    }
+    .animate-fadeIn {
+      animation: fadeIn 0.6s ease-out;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .referee-badge {
+      background: linear-gradient(45deg, #ff6b6b, #feca57);
+      color: white;
+      font-size: 0.75rem;
+      padding: 0.25rem 0.75rem;
+      border-radius: 9999px;
+      font-weight: 600;
+    }
+    .modal {
+      backdrop-filter: blur(10px);
+      animation: fadeIn 0.3s ease-out;
+    }
+    .modal-content {
+      animation: slideIn 0.3s ease-out;
+    }
+    @keyframes slideIn {
+      from { transform: translateY(-50px); opacity: 0; }
+      to { transform: translateY(0); opacity: 1; }
+    }
+    .animate-slideInRight {
+      animation: slideInRight 0.3s ease-out;
+    }
+    @keyframes slideInRight {
+      from { transform: translateX(100%); }
+      to { transform: translateX(0); }
+    }
+    .drag-drop-area,
+    .drag-drop-area-doc {
+      border: 2px dashed #cbd5e0;
+      transition: all 0.3s ease;
+    }
+    .drag-drop-area:hover,
+    .drag-drop-area.drag-over,
+    .drag-drop-area-doc:hover,
+    .drag-drop-area-doc.drag-over {
+      border-color: #3b82f6;
+      background-color: #eff6ff;
+    }
+  </style>
 </head>
 <%
   const defaultBg = backgroundImage || '/images/defaultbg.png';
 %>
 <body class="bg-gray-100 bg-cover bg-center bg-fixed min-h-screen" style="background-image: url('<%= defaultBg %>')">
   <%- include('../partials/header') %>
-  <%- include('../partials/sidebar') %>
-  <main class="md:ml-64 pt-20 p-4 pb-20 min-h-screen">
-    <div class="container mx-auto">
-      <div class="bg-white bg-opacity-90 p-6 rounded-lg shadow-lg mb-6">
-        <h1 class="text-3xl font-bold mb-4 text-gray-800">Our Referees</h1>
+  
+  <main class="pt-20 p-4 pb-20 min-h-screen">
+    <!-- Hero Section -->
+    <div class="hero-gradient text-white py-16 mb-8 rounded-2xl shadow-2xl">
+      <div class="container mx-auto px-6 text-center">
+        <h1 class="text-5xl md:text-6xl font-bold mb-4 animate-fadeIn">
+          <i class="fas fa-whistle mr-4"></i>Our Expert Referees
+        </h1>
+        <p class="text-xl md:text-2xl mb-8 opacity-90 animate-fadeIn">
+          Meet the certified professionals ensuring fair play in every match
+        </p>
+        
+        <!-- Stats Cards -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mt-12 max-w-4xl mx-auto">
+          <div class="stats-card p-6 rounded-xl text-center animate-fadeIn">
+            <div class="text-3xl font-bold text-blue-600 mb-2" id="totalReferees"><%= referees.length %></div>
+            <div class="text-gray-700 font-medium">Total Referees</div>
+          </div>
+          <div class="stats-card p-6 rounded-xl text-center animate-fadeIn">
+            <div class="text-3xl font-bold text-green-600 mb-2">24/7</div>
+            <div class="text-gray-700 font-medium">Available</div>
+          </div>
+          <div class="stats-card p-6 rounded-xl text-center animate-fadeIn">
+            <div class="text-3xl font-bold text-purple-600 mb-2">100%</div>
+            <div class="text-gray-700 font-medium">Certified</div>
+          </div>
+        </div>
       </div>
-      <% if (referees.length) { %>
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 bg-white bg-opacity-90 p-4 rounded-lg shadow-lg">
-          <% referees.forEach(referee => { %>
-            <div class="p-4 bg-white rounded shadow card">
-              <h2 class="text-xl font-bold"><%= referee.name %></h2>
-              <p><%= referee.experience %></p>
+    </div>
+
+    <div class="container mx-auto">
+      <!-- Search and Filter Section -->
+      <div class="bg-white bg-opacity-95 backdrop-filter backdrop-blur-lg p-8 rounded-2xl shadow-xl mb-8 search-container">
+        <div class="flex flex-col lg:flex-row gap-6 items-center justify-between">
+          <!-- Search Bar -->
+          <div class="relative flex-1 w-full lg:max-w-md">
+            <i class="fas fa-search absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+            <input 
+              type="text" 
+              id="searchInput" 
+              placeholder="Search referees by name or experience..." 
+              class="w-full pl-12 pr-4 py-3 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:outline-none transition-colors duration-200 text-gray-700"
+            >
+          </div>
+          
+          <!-- Filter Buttons -->
+          <div class="flex flex-wrap gap-3">
+            <button class="filter-btn active px-6 py-2 rounded-full border-2 border-blue-500 text-blue-500 font-medium" data-filter="all">
+              <i class="fas fa-users mr-2"></i>All Referees
+            </button>
+            <button class="filter-btn px-6 py-2 rounded-full border-2 border-green-500 text-green-500 font-medium" data-filter="senior">
+              <i class="fas fa-star mr-2"></i>Senior
+            </button>
+            <button class="filter-btn px-6 py-2 rounded-full border-2 border-yellow-500 text-yellow-500 font-medium" data-filter="junior">
+              <i class="fas fa-certificate mr-2"></i>Junior
+            </button>
+          </div>
+        </div>
+        
+        <!-- Results Counter -->
+        <div class="mt-4 text-center">
+          <span id="resultsCount" class="text-gray-600 font-medium">Showing <span class="font-bold text-blue-600"><%= referees.length %></span> referees</span>
+        </div>
+      </div>
+
+      <!-- Referees Grid -->
+      <div id="refereesContainer">
+        <% if (referees.length) { %>
+          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8" id="refereesGrid">
+            <% referees.forEach((referee, index) => { %>
+              <div class="referee-card bg-white rounded-2xl shadow-lg overflow-hidden hover:shadow-2xl border border-gray-100 animate-fadeIn" 
+                   data-name="<%= referee.name.toLowerCase() %>" 
+                   data-experience="<%= referee.experience.toLowerCase() %>"
+                   style="animation-delay: <%= index * 0.1 %>s">
+                
+                <!-- Card Header -->
+                <div class="card-gradient p-6 text-center text-white relative">
+                  <div class="w-20 h-20 bg-white bg-opacity-20 rounded-full mx-auto mb-4 flex items-center justify-center">
+                    <i class="fas fa-user-tie text-3xl"></i>
+                  </div>
+                  <h2 class="text-xl font-bold mb-2"><%= referee.name %></h2>
+                  <div class="referee-badge">
+                    <i class="fas fa-certificate mr-1"></i>Certified
+                  </div>
+                </div>
+                
+                <!-- Card Body -->
+                <div class="p-6">
+                  <div class="space-y-4">
+                    <div class="flex items-center text-gray-600">
+                      <i class="fas fa-briefcase w-5 text-blue-500 mr-3"></i>
+                      <span class="text-sm"><%= referee.experience %></span>
+                    </div>
+                    
+                    <div class="flex items-center text-gray-600">
+                      <i class="fas fa-calendar-alt w-5 text-green-500 mr-3"></i>
+                      <span class="text-sm">Available</span>
+                    </div>
+                    
+                    <div class="flex items-center text-gray-600">
+                      <i class="fas fa-map-marker-alt w-5 text-red-500 mr-3"></i>
+                      <span class="text-sm">Malaysia</span>
+                    </div>
+                  </div>
+                  
+                  <!-- Action Buttons -->
+                  <div class="mt-6 grid grid-cols-2 gap-3">
+                    <button class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg transition-colors duration-200 text-sm font-medium">
+                      <i class="fas fa-envelope mr-2"></i>Contact
+                    </button>
+                    <button class="bg-gray-100 hover:bg-gray-200 text-gray-700 px-4 py-2 rounded-lg transition-colors duration-200 text-sm font-medium">
+                      <i class="fas fa-eye mr-2"></i>Profile
+                    </button>
+                  </div>
+                </div>
+              </div>
+            <% }) %>
+          </div>
+        <% } else { %>
+          <div class="bg-white bg-opacity-95 backdrop-filter backdrop-blur-lg p-12 rounded-2xl shadow-xl text-center">
+            <div class="text-6xl text-gray-300 mb-6">
+              <i class="fas fa-user-slash"></i>
             </div>
-          <% }) %>
+            <h3 class="text-2xl font-bold text-gray-700 mb-4">No Referees Available</h3>
+            <p class="text-gray-600 mb-8">We're currently recruiting qualified referees. Check back soon!</p>
+            <button onclick="openApplicationModal()" class="bg-blue-500 hover:bg-blue-600 text-white px-8 py-3 rounded-xl transition-colors duration-200 font-medium">
+              <i class="fas fa-plus mr-2"></i>Apply to Become a Referee
+            </button>
+          </div>
+        <% } %>
+      </div>
+
+      <!-- No Results Message -->
+      <div id="noResults" class="hidden bg-white bg-opacity-95 backdrop-filter backdrop-blur-lg p-12 rounded-2xl shadow-xl text-center">
+        <div class="text-6xl text-gray-300 mb-6">
+          <i class="fas fa-search"></i>
         </div>
-      <% } else { %>
-        <div class="bg-white bg-opacity-90 p-6 rounded-lg shadow-lg">
-          <p>No referees available at the moment.</p>
-        </div>
-      <% } %>
+        <h3 class="text-2xl font-bold text-gray-700 mb-4">No Referees Found</h3>
+        <p class="text-gray-600">Try adjusting your search terms or filters.</p>
+      </div>
     </div>
   </main>
 
   <%- include('../partials/footer') %>
+
+  <!-- Referee Application Modal -->
+  <div id="applicationModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50 modal">
+    <div class="bg-white p-8 rounded-2xl shadow-2xl max-w-2xl w-full mx-4 modal-content max-h-screen overflow-y-auto">
+      <h2 class="text-3xl font-bold mb-6 text-gray-800 text-center">
+        <i class="fas fa-clipboard-check mr-3 text-blue-600"></i>Apply to Become a Referee
+      </h2>
+      <p class="text-gray-600 text-center mb-8">Join our team of certified referees and help ensure fair play in pickleball tournaments across Malaysia.</p>
+      
+      <form id="applicationForm" action="/referee/apply" method="POST" enctype="multipart/form-data">
+        <!-- Personal Information Section -->
+        <div class="mb-6">
+          <h3 class="text-lg font-semibold text-gray-700 mb-4 flex items-center">
+            <i class="fas fa-user mr-2 text-blue-500"></i>Personal Information
+          </h3>
+          
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+            <div>
+              <label class="block text-gray-700 font-medium mb-2">Full Name *</label>
+              <input type="text" name="fullName" class="w-full p-3 border border-gray-300 rounded-xl focus:border-blue-500 focus:outline-none transition-colors" required>
+            </div>
+            
+            <div>
+              <label class="block text-gray-700 font-medium mb-2">Identity Card Number *</label>
+              <input type="text" name="idNumber" placeholder="e.g., 123456-12-1234" class="w-full p-3 border border-gray-300 rounded-xl focus:border-blue-500 focus:outline-none transition-colors" required>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+            <div>
+              <label class="block text-gray-700 font-medium mb-2">Email Address *</label>
+              <input type="email" name="email" class="w-full p-3 border border-gray-300 rounded-xl focus:border-blue-500 focus:outline-none transition-colors" required>
+            </div>
+            
+            <div>
+              <label class="block text-gray-700 font-medium mb-2">Phone Number *</label>
+              <input type="tel" name="phone" placeholder="e.g., +60123456789" class="w-full p-3 border border-gray-300 rounded-xl focus:border-blue-500 focus:outline-none transition-colors" required>
+            </div>
+          </div>
+
+          <div>
+            <label class="block text-gray-700 font-medium mb-2">Address *</label>
+            <textarea name="address" rows="2" placeholder="Your complete address" class="w-full p-3 border border-gray-300 rounded-xl focus:border-blue-500 focus:outline-none transition-colors" required></textarea>
+          </div>
+        </div>
+
+        <!-- Experience Section -->
+        <div class="mb-6">
+          <h3 class="text-lg font-semibold text-gray-700 mb-4 flex items-center">
+            <i class="fas fa-trophy mr-2 text-green-500"></i>Experience & Qualifications
+          </h3>
+          
+          <div class="mb-4">
+            <label class="block text-gray-700 font-medium mb-2">Years of Pickleball Experience *</label>
+            <select name="yearsExperience" class="w-full p-3 border border-gray-300 rounded-xl focus:border-blue-500 focus:outline-none transition-colors" required>
+              <option value="">Select experience level</option>
+              <option value="1-2">1-2 years</option>
+              <option value="3-5">3-5 years</option>
+              <option value="6-10">6-10 years</option>
+              <option value="10+">10+ years</option>
+            </select>
+          </div>
+
+          <div class="mb-4">
+            <label class="block text-gray-700 font-medium mb-2">Playing Level *</label>
+            <select name="playingLevel" class="w-full p-3 border border-gray-300 rounded-xl focus:border-blue-500 focus:outline-none transition-colors" required>
+              <option value="">Select your level</option>
+              <option value="Beginner">Beginner (2.0-2.5)</option>
+              <option value="Intermediate">Intermediate (3.0-3.5)</option>
+              <option value="Advanced">Advanced (4.0-4.5)</option>
+              <option value="Professional">Professional (5.0+)</option>
+            </select>
+          </div>
+
+          <div class="mb-4">
+            <label class="block text-gray-700 font-medium mb-2">Previous Referee Experience</label>
+            <textarea name="refereeExperience" rows="3" placeholder="Describe any previous referee or officiating experience in pickleball or other sports..." class="w-full p-3 border border-gray-300 rounded-xl focus:border-blue-500 focus:outline-none transition-colors"></textarea>
+          </div>
+
+          <div>
+            <label class="block text-gray-700 font-medium mb-2">Why do you want to become a referee? *</label>
+            <textarea name="motivation" rows="3" placeholder="Tell us about your motivation and what you hope to contribute..." class="w-full p-3 border border-gray-300 rounded-xl focus:border-blue-500 focus:outline-none transition-colors" required></textarea>
+          </div>
+        </div>
+
+        <!-- Document Upload Section -->
+        <div class="mb-6">
+          <h3 class="text-lg font-semibold text-gray-700 mb-4 flex items-center">
+            <i class="fas fa-file-upload mr-2 text-purple-500"></i>Required Documents
+          </h3>
+          
+          <!-- Profile Photo -->
+          <div class="mb-4">
+            <label class="block text-gray-700 font-medium mb-2">Profile Photo *</label>
+            <div class="drag-drop-area p-6 border-2 border-dashed border-gray-300 rounded-xl text-center cursor-pointer" onclick="document.getElementById('profilePhotoInput').click()">
+              <div id="profilePhotoPreview" class="hidden">
+                <img id="profilePhotoImg" class="w-24 h-24 rounded-full mx-auto mb-4 object-cover border-4 border-gray-200" alt="Preview">
+              </div>
+              <div id="profilePhotoPrompt">
+                <i class="fas fa-camera text-4xl text-gray-400 mb-4"></i>
+                <p class="text-gray-600">Click to upload your profile photo</p>
+                <p class="text-sm text-gray-500">PNG, JPG up to 5MB</p>
+              </div>
+            </div>
+            <input type="file" id="profilePhotoInput" name="profilePhoto" accept="image/*" class="hidden" onchange="previewProfilePhoto(this)" required>
+          </div>
+
+          <!-- Resume/CV -->
+          <div class="mb-4">
+            <label class="block text-gray-700 font-medium mb-2">Resume/CV *</label>
+            <div class="drag-drop-area-doc p-6 border-2 border-dashed border-gray-300 rounded-xl text-center cursor-pointer" onclick="document.getElementById('resumeInput').click()">
+              <div id="resumePreview" class="hidden">
+                <div class="bg-blue-50 p-4 rounded-lg mb-4">
+                  <i class="fas fa-file-pdf text-3xl text-red-500 mb-2"></i>
+                  <p id="resumeFileName" class="text-sm text-gray-700 font-medium"></p>
+                  <p class="text-xs text-gray-500">Resume uploaded</p>
+                </div>
+              </div>
+              <div id="resumePrompt">
+                <i class="fas fa-file-upload text-4xl text-gray-400 mb-4"></i>
+                <p class="text-gray-600">Click to upload your resume/CV</p>
+                <p class="text-sm text-gray-500">PDF, DOC, DOCX up to 10MB</p>
+              </div>
+            </div>
+            <input type="file" id="resumeInput" name="resume" accept=".pdf,.doc,.docx" class="hidden" onchange="previewResume(this)" required>
+          </div>
+        </div>
+
+        <!-- Availability Section -->
+        <div class="mb-6">
+          <h3 class="text-lg font-semibold text-gray-700 mb-4 flex items-center">
+            <i class="fas fa-calendar mr-2 text-orange-500"></i>Availability
+          </h3>
+          
+          <div class="mb-4">
+            <label class="block text-gray-700 font-medium mb-2">Preferred Tournament Types (Select all that apply)</label>
+            <div class="grid grid-cols-2 gap-2">
+              <label class="flex items-center">
+                <input type="checkbox" name="tournamentTypes" value="local" class="mr-2">
+                <span>Local Tournaments</span>
+              </label>
+              <label class="flex items-center">
+                <input type="checkbox" name="tournamentTypes" value="state" class="mr-2">
+                <span>State Tournaments</span>
+              </label>
+              <label class="flex items-center">
+                <input type="checkbox" name="tournamentTypes" value="national" class="mr-2">
+                <span>National Tournaments</span>
+              </label>
+              <label class="flex items-center">
+                <input type="checkbox" name="tournamentTypes" value="international" class="mr-2">
+                <span>International Tournaments</span>
+              </label>
+            </div>
+          </div>
+
+          <div>
+            <label class="block text-gray-700 font-medium mb-2">Additional Comments</label>
+            <textarea name="comments" rows="2" placeholder="Any additional information you'd like to share..." class="w-full p-3 border border-gray-300 rounded-xl focus:border-blue-500 focus:outline-none transition-colors"></textarea>
+          </div>
+        </div>
+
+        <!-- Agreement Section -->
+        <div class="mb-6">
+          <label class="flex items-start">
+            <input type="checkbox" name="agreement" class="mt-1 mr-3" required>
+            <span class="text-sm text-gray-600">
+              I agree to the terms and conditions and understand that this application will be reviewed by the Malaysia Pickleball Association. I confirm that all information provided is accurate and complete.
+            </span>
+          </label>
+        </div>
+        
+        <div class="flex gap-3">
+          <button type="submit" class="flex-1 bg-gradient-to-r from-green-500 to-blue-600 text-white py-3 rounded-xl font-semibold hover:from-green-600 hover:to-blue-700 transition-all action-btn">
+            <i class="fas fa-paper-plane mr-2"></i>Submit Application
+          </button>
+          <button type="button" onclick="closeApplicationModal()" class="flex-1 bg-gray-500 text-white py-3 rounded-xl font-semibold hover:bg-gray-600 transition-all action-btn">
+            <i class="fas fa-times mr-2"></i>Cancel
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
   <script src="/js/script.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      const searchInput = document.getElementById('searchInput');
+      const filterButtons = document.querySelectorAll('.filter-btn');
+      const refereesGrid = document.getElementById('refereesGrid');
+      const refereesContainer = document.getElementById('refereesContainer');
+      const noResults = document.getElementById('noResults');
+      const resultsCount = document.getElementById('resultsCount');
+      const refereeCards = document.querySelectorAll('.referee-card');
+
+      let currentFilter = 'all';
+
+      // Search functionality
+      searchInput.addEventListener('input', function() {
+        filterReferees();
+      });
+
+      // Filter functionality
+      filterButtons.forEach(button => {
+        button.addEventListener('click', function() {
+          // Remove active class from all buttons
+          filterButtons.forEach(btn => btn.classList.remove('active'));
+          // Add active class to clicked button
+          this.classList.add('active');
+          
+          currentFilter = this.dataset.filter;
+          filterReferees();
+        });
+      });
+
+      function filterReferees() {
+        const searchTerm = searchInput.value.toLowerCase();
+        let visibleCount = 0;
+
+        refereeCards.forEach(card => {
+          const name = card.dataset.name;
+          const experience = card.dataset.experience;
+          
+          const matchesSearch = name.includes(searchTerm) || experience.includes(searchTerm);
+          const matchesFilter = currentFilter === 'all' || 
+                               (currentFilter === 'senior' && experience.includes('senior')) ||
+                               (currentFilter === 'junior' && experience.includes('junior'));
+
+          if (matchesSearch && matchesFilter) {
+            card.style.display = 'block';
+            card.style.animation = 'fadeIn 0.6s ease-out';
+            visibleCount++;
+          } else {
+            card.style.display = 'none';
+          }
+        });
+
+        // Update results count
+        resultsCount.innerHTML = `Showing <span class="font-bold text-blue-600">${visibleCount}</span> referees`;
+
+        // Show/hide no results message
+        if (visibleCount === 0) {
+          refereesContainer.style.display = 'none';
+          noResults.classList.remove('hidden');
+        } else {
+          refereesContainer.style.display = 'block';
+          noResults.classList.add('hidden');
+        }
+      }
+
+      // Contact button functionality
+      document.querySelectorAll('.referee-card button').forEach(button => {
+        if (button.textContent.includes('Contact')) {
+          button.addEventListener('click', function() {
+            const refereeName = this.closest('.referee-card').querySelector('h2').textContent;
+            alert(`Contacting ${refereeName}... Feature coming soon!`);
+          });
+        }
+        
+        if (button.textContent.includes('Profile')) {
+          button.addEventListener('click', function() {
+            const refereeName = this.closest('.referee-card').querySelector('h2').textContent;
+            alert(`Viewing ${refereeName}'s profile... Feature coming soon!`);
+          });
+        }
+      });
+
+      // Add loading animation for better UX
+      window.addEventListener('load', function() {
+        document.body.classList.add('loaded');
+      });
+    });
+
+    // Application Modal Functions
+    function openApplicationModal() {
+      document.getElementById('applicationModal').style.display = 'flex';
+      document.body.style.overflow = 'hidden'; // Prevent background scrolling
+    }
+
+    function closeApplicationModal() {
+      document.getElementById('applicationModal').style.display = 'none';
+      document.body.style.overflow = 'auto';
+      resetApplicationForm();
+    }
+
+    function resetApplicationForm() {
+      document.getElementById('applicationForm').reset();
+      resetProfilePhotoPreview();
+      resetResumePreview();
+    }
+
+    // File Preview Functions
+    function previewProfilePhoto(input) {
+      if (input.files && input.files[0]) {
+        const file = input.files[0];
+        if (file.size > 5 * 1024 * 1024) { // 5MB limit
+          showNotification('Profile photo size must be less than 5MB', 'warning');
+          return;
+        }
+        
+        const reader = new FileReader();
+        reader.onload = function(e) {
+          document.getElementById('profilePhotoImg').src = e.target.result;
+          document.getElementById('profilePhotoPreview').classList.remove('hidden');
+          document.getElementById('profilePhotoPrompt').style.display = 'none';
+        };
+        reader.readAsDataURL(file);
+      }
+    }
+
+    function resetProfilePhotoPreview() {
+      document.getElementById('profilePhotoPreview').classList.add('hidden');
+      document.getElementById('profilePhotoPrompt').style.display = 'block';
+      document.getElementById('profilePhotoInput').value = '';
+    }
+
+    function previewResume(input) {
+      if (input.files && input.files[0]) {
+        const file = input.files[0];
+        if (file.size > 10 * 1024 * 1024) { // 10MB limit
+          showNotification('Resume file size must be less than 10MB', 'warning');
+          return;
+        }
+        
+        document.getElementById('resumeFileName').textContent = file.name;
+        document.getElementById('resumePreview').classList.remove('hidden');
+        document.getElementById('resumePrompt').style.display = 'none';
+      }
+    }
+
+    function resetResumePreview() {
+      document.getElementById('resumePreview').classList.add('hidden');
+      document.getElementById('resumePrompt').style.display = 'block';
+      document.getElementById('resumeInput').value = '';
+    }
+
+    // Form submission with loading state
+    document.getElementById('applicationForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+      
+      const submitBtn = this.querySelector('button[type="submit"]');
+      const originalText = submitBtn.innerHTML;
+      
+      // Show loading state
+      submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Submitting Application...';
+      submitBtn.disabled = true;
+      
+      // Create FormData for file uploads
+      const formData = new FormData(this);
+      
+      fetch('/referee/apply', {
+        method: 'POST',
+        body: formData
+      })
+      .then(response => response.json())
+      .then(data => {
+        if (data.success) {
+          showNotification('Application submitted successfully! We will review your application and contact you soon.', 'success');
+          closeApplicationModal();
+        } else {
+          showNotification(data.message || 'Error submitting application. Please try again.', 'error');
+        }
+      })
+      .catch(error => {
+        console.error('Error:', error);
+        showNotification('Error submitting application. Please check your connection and try again.', 'error');
+      })
+      .finally(() => {
+        // Reset button state
+        submitBtn.innerHTML = originalText;
+        submitBtn.disabled = false;
+      });
+    });
+
+    // Notification function
+    function showNotification(message, type = 'info') {
+      // Remove any existing notifications
+      const existingNotifications = document.querySelectorAll('.notification');
+      existingNotifications.forEach(notification => notification.remove());
+      
+      const notification = document.createElement('div');
+      notification.className = `notification fixed top-24 right-4 z-50 bg-${type === 'success' ? 'green' : type === 'error' ? 'red' : type === 'warning' ? 'yellow' : 'blue'}-500 text-white px-6 py-4 rounded-xl shadow-lg animate-slideInRight`;
+      notification.innerHTML = `
+        <div class="flex items-center">
+          <i class="fas fa-${type === 'success' ? 'check-circle' : type === 'error' ? 'exclamation-circle' : type === 'warning' ? 'exclamation-triangle' : 'info-circle'} mr-3"></i>
+          <span>${message}</span>
+        </div>
+      `;
+      document.body.appendChild(notification);
+      
+      setTimeout(() => {
+        if (notification.parentNode) {
+          notification.remove();
+        }
+      }, 5000);
+    }
+
+    // Close modal when clicking outside
+    document.addEventListener('click', function(e) {
+      if (e.target.id === 'applicationModal') {
+        closeApplicationModal();
+      }
+    });
+
+    // Handle ESC key to close modal
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'Escape' && document.getElementById('applicationModal').style.display === 'flex') {
+        closeApplicationModal();
+      }
+    });
+  </script>
 </body>
 </html>

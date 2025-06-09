@@ -106,98 +106,203 @@
   <!-- Hero Section -->
   <section class="tournament-hero text-white py-20">
     <div class="container mx-auto px-4 text-center relative z-10">
-      <h1 class="text-5xl md:text-7xl font-bold mb-6 slide-in">
-        <i class="fas fa-trophy mr-4 text-yellow-300"></i>
-        2025 Tournament Calendar
-      </h1>
-      <p class="text-xl md:text-2xl mb-8 opacity-90 fade-in">
-        Discover exciting pickleball tournaments across Malaysia
-      </p>
-      <div class="flex justify-center space-x-4 fade-in">
-        <div class="text-center">
-          <div class="text-3xl font-bold"><%= tournaments.length %></div>
-          <div class="text-sm opacity-80">Total Tournaments</div>
+      <div class="max-w-4xl mx-auto">
+        <h1 class="text-5xl md:text-7xl font-bold mb-6 slide-in">
+          <i class="fas fa-trophy mr-4 text-yellow-300"></i>
+          2025 Tournament Calendar
+        </h1>
+        <p class="text-xl md:text-2xl mb-8 opacity-90 fade-in">
+          Discover exciting pickleball tournaments across Malaysia
+        </p>
+        
+        <!-- Enhanced Stats Grid -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mt-12 fade-in">
+          <div class="bg-white bg-opacity-20 backdrop-blur-md rounded-2xl p-6 text-center transform hover:scale-105 transition-all duration-300">
+            <div class="text-4xl font-bold text-yellow-300 mb-2"><%= tournaments.length %></div>
+            <div class="text-sm opacity-90">Total Tournaments</div>
+            <div class="text-xs opacity-70 mt-2">Scheduled for 2025</div>
+          </div>
+          <div class="bg-white bg-opacity-20 backdrop-blur-md rounded-2xl p-6 text-center transform hover:scale-105 transition-all duration-300">
+            <div class="text-4xl font-bold text-yellow-300 mb-2">4</div>
+            <div class="text-sm opacity-90">Tournament Types</div>
+            <div class="text-xs opacity-70 mt-2">Local to International</div>
+          </div>
+          <div class="bg-white bg-opacity-20 backdrop-blur-md rounded-2xl p-6 text-center transform hover:scale-105 transition-all duration-300">
+            <div class="text-4xl font-bold text-yellow-300 mb-2">12</div>
+            <div class="text-sm opacity-90">Months Coverage</div>
+            <div class="text-xs opacity-70 mt-2">Year-round Events</div>
+          </div>
         </div>
-        <div class="text-center">
-          <div class="text-3xl font-bold">4</div>
-          <div class="text-sm opacity-80">Tournament Types</div>
-        </div>
-        <div class="text-center">
-          <div class="text-3xl font-bold">12</div>
-          <div class="text-sm opacity-80">Months Coverage</div>
+
+        <!-- Quick Action Buttons -->
+        <div class="flex flex-col sm:flex-row gap-4 justify-center mt-8">
+          <a href="#calendar-view" class="bg-white bg-opacity-20 backdrop-blur-md text-white px-8 py-3 rounded-full font-semibold hover:bg-opacity-30 transition-all duration-300 flex items-center justify-center">
+            <i class="fas fa-calendar-alt mr-2"></i>
+            View Calendar
+          </a>
+          <a href="/tournament/download-pdf" class="bg-yellow-500 hover:bg-yellow-600 text-gray-900 px-8 py-3 rounded-full font-semibold transition-all duration-300 flex items-center justify-center shadow-lg">
+            <i class="fas fa-download mr-2"></i>
+            Download PDF
+          </a>
         </div>
       </div>
     </div>
   </section>
 
   <main class="py-12 tournament-page">
-    <div class="container mx-auto px-4">
+    <div class="container mx-auto px-4 max-w-7xl">
       
-      <!-- View Toggle & Filters -->
-      <div class="mb-8 flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
-        <!-- View Toggle -->
-        <div class="flex bg-white rounded-full p-1 shadow-lg">
-          <button id="calendar-view-btn" class="view-toggle-btn active px-6 py-3 rounded-full font-semibold">
-            <i class="fas fa-calendar-alt mr-2"></i>Calendar View
-          </button>
-          <button id="card-view-btn" class="view-toggle-btn px-6 py-3 rounded-full font-semibold">
-            <i class="fas fa-th-large mr-2"></i>Card View
-          </button>
+      <!-- Enhanced Control Panel -->
+      <div class="mb-8 space-y-6">
+        
+        <!-- Header Section -->
+        <div class="text-center mb-6">
+          <h2 class="text-3xl font-bold text-gray-800 mb-2">Tournament Management</h2>
+          <p class="text-gray-600">View, filter, and download tournament schedules</p>
         </div>
 
-        <!-- Filters -->
-        <div class="flex flex-wrap gap-3">
-          <button class="filter-btn active px-4 py-2 rounded-full bg-white text-gray-700 shadow-md font-semibold" data-filter="all">
-            <i class="fas fa-globe mr-2"></i>All Types
-          </button>
-          <button class="filter-btn px-4 py-2 rounded-full bg-white text-gray-700 shadow-md font-semibold" data-filter="local">
-            <i class="fas fa-map-marker-alt mr-2"></i>Local
-          </button>
-          <button class="filter-btn px-4 py-2 rounded-full bg-white text-gray-700 shadow-md font-semibold" data-filter="state">
-            <i class="fas fa-flag mr-2"></i>State
-          </button>
-          <button class="filter-btn px-4 py-2 rounded-full bg-white text-gray-700 shadow-md font-semibold" data-filter="national">
-            <i class="fas fa-star mr-2"></i>National
-          </button>
-          <button class="filter-btn px-4 py-2 rounded-full bg-white text-gray-700 shadow-md font-semibold" data-filter="international">
-            <i class="fas fa-trophy mr-2"></i>International
-          </button>
+        <!-- Main Controls -->
+        <div class="bg-white rounded-2xl shadow-xl p-6 border">
+          <div class="flex flex-col lg:flex-row justify-between items-center gap-6">
+            
+            <!-- Left: View Toggle -->
+            <div class="flex items-center gap-4">
+              <span class="text-gray-700 font-semibold flex items-center">
+                <i class="fas fa-eye mr-2 text-indigo-500"></i>
+                View Mode:
+              </span>
+              <div class="flex bg-gray-100 rounded-full p-1 shadow-inner">
+                <button id="calendar-view-btn" class="view-toggle-btn active px-6 py-3 rounded-full font-semibold transition-all duration-300">
+                  <i class="fas fa-calendar-alt mr-2"></i>Calendar
+                </button>
+                <button id="card-view-btn" class="view-toggle-btn px-6 py-3 rounded-full font-semibold transition-all duration-300">
+                  <i class="fas fa-th-large mr-2"></i>Cards
+                </button>
+              </div>
+            </div>
+
+            <!-- Center: Download -->
+            <div class="flex items-center">
+              <a href="/tournament/download-pdf" 
+                 id="download-pdf-btn"
+                 class="bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white px-8 py-4 rounded-2xl font-semibold shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300 flex items-center group">
+                <i class="fas fa-download mr-3 group-hover:animate-bounce"></i>
+                <span class="hidden sm:inline">Download PDF</span>
+                <span class="sm:hidden">PDF</span>
+                <i class="fas fa-file-pdf ml-3 text-red-200"></i>
+              </a>
+            </div>
+
+            <!-- Right: Stats -->
+            <div class="hidden lg:flex items-center gap-6 text-center">
+              <div class="text-center">
+                <div class="text-2xl font-bold text-indigo-600"><%= tournaments.length %></div>
+                <div class="text-xs text-gray-500">Events</div>
+              </div>
+              <div class="text-center">
+                <div class="text-2xl font-bold text-purple-600">4</div>
+                <div class="text-xs text-gray-500">Types</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Filter Panel -->
+        <div class="bg-white rounded-2xl shadow-lg p-6 border">
+          <div class="flex flex-col sm:flex-row sm:items-center gap-4">
+            <div class="flex items-center text-gray-700 font-semibold">
+              <i class="fas fa-filter mr-2 text-blue-500"></i>
+              <span>Filter Tournaments:</span>
+            </div>
+            <div class="flex flex-wrap gap-3 justify-center sm:justify-start">
+              <button class="filter-btn active px-4 py-2 rounded-full bg-indigo-500 text-white shadow-md font-semibold hover:shadow-lg transition-all duration-300 transform hover:scale-105" data-filter="all">
+                <i class="fas fa-globe mr-2"></i>All Types
+              </button>
+              <button class="filter-btn px-4 py-2 rounded-full bg-white text-gray-700 shadow-md font-semibold border-2 border-green-200 hover:border-green-400 hover:shadow-lg transition-all duration-300 transform hover:scale-105" data-filter="local">
+                <i class="fas fa-map-marker-alt mr-2 text-green-500"></i>Local
+              </button>
+              <button class="filter-btn px-4 py-2 rounded-full bg-white text-gray-700 shadow-md font-semibold border-2 border-red-200 hover:border-red-400 hover:shadow-lg transition-all duration-300 transform hover:scale-105" data-filter="state">
+                <i class="fas fa-flag mr-2 text-red-500"></i>State
+              </button>
+              <button class="filter-btn px-4 py-2 rounded-full bg-white text-gray-700 shadow-md font-semibold border-2 border-blue-200 hover:border-blue-400 hover:shadow-lg transition-all duration-300 transform hover:scale-105" data-filter="national">
+                <i class="fas fa-star mr-2 text-blue-500"></i>National
+              </button>
+              <button class="filter-btn px-4 py-2 rounded-full bg-white text-gray-700 shadow-md font-semibold border-2 border-yellow-200 hover:border-yellow-400 hover:shadow-lg transition-all duration-300 transform hover:scale-105" data-filter="international">
+                <i class="fas fa-trophy mr-2 text-yellow-500"></i>International
+              </button>
+            </div>
+          </div>
         </div>
       </div>
 
       <!-- Enhanced Legend -->
-      <div class="mb-8 bg-white rounded-2xl shadow-xl p-6 fade-in">
-        <h3 class="text-2xl font-bold mb-6 text-gray-800">
-          <i class="fas fa-info-circle mr-3 text-blue-500"></i>Tournament Categories
-        </h3>
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-          <div class="flex items-center p-4 bg-gradient-to-r from-green-400 to-green-600 rounded-xl text-white shadow-lg">
-            <div class="w-4 h-4 bg-white rounded-full mr-3 shadow-inner"></div>
-            <div>
-              <div class="font-semibold">Local Tournaments</div>
-              <div class="text-sm opacity-90">Community Level</div>
+      <div class="mb-8 bg-gradient-to-br from-blue-50 to-indigo-50 rounded-2xl shadow-xl p-8 fade-in border">
+        <div class="text-center mb-8">
+          <h3 class="text-3xl font-bold text-gray-800 mb-2">
+            <i class="fas fa-info-circle mr-3 text-blue-500"></i>Tournament Categories
+          </h3>
+          <p class="text-gray-600">Understanding different tournament levels and their significance</p>
+        </div>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div class="group relative overflow-hidden bg-gradient-to-br from-green-400 to-green-600 rounded-2xl text-white shadow-lg hover:shadow-2xl transform hover:scale-105 transition-all duration-300">
+            <div class="absolute inset-0 bg-white opacity-10 transform -skew-y-3"></div>
+            <div class="relative p-6">
+              <div class="flex items-center mb-4">
+                <div class="w-5 h-5 bg-white rounded-full mr-3 shadow-inner group-hover:animate-pulse"></div>
+                <i class="fas fa-map-marker-alt text-2xl"></i>
+              </div>
+              <div class="font-bold text-lg mb-1">Local Tournaments</div>
+              <div class="text-sm opacity-90 mb-2">Community Level</div>
+              <div class="text-xs opacity-80">Grassroots competitions for local players</div>
             </div>
           </div>
-          <div class="flex items-center p-4 bg-gradient-to-r from-red-400 to-red-600 rounded-xl text-white shadow-lg">
-            <div class="w-4 h-4 bg-white rounded-full mr-3 shadow-inner"></div>
-            <div>
-              <div class="font-semibold">State Tournaments</div>
-              <div class="text-sm opacity-90">State Level</div>
+
+          <div class="group relative overflow-hidden bg-gradient-to-br from-red-400 to-red-600 rounded-2xl text-white shadow-lg hover:shadow-2xl transform hover:scale-105 transition-all duration-300">
+            <div class="absolute inset-0 bg-white opacity-10 transform -skew-y-3"></div>
+            <div class="relative p-6">
+              <div class="flex items-center mb-4">
+                <div class="w-5 h-5 bg-white rounded-full mr-3 shadow-inner group-hover:animate-pulse"></div>
+                <i class="fas fa-flag text-2xl"></i>
+              </div>
+              <div class="font-bold text-lg mb-1">State Tournaments</div>
+              <div class="text-sm opacity-90 mb-2">State Level</div>
+              <div class="text-xs opacity-80">Regional competitions within Malaysia</div>
             </div>
           </div>
-          <div class="flex items-center p-4 bg-gradient-to-r from-blue-400 to-blue-600 rounded-xl text-white shadow-lg">
-            <div class="w-4 h-4 bg-white rounded-full mr-3 shadow-inner"></div>
-            <div>
-              <div class="font-semibold">National Tournaments</div>
-              <div class="text-sm opacity-90">National Level</div>
+
+          <div class="group relative overflow-hidden bg-gradient-to-br from-blue-400 to-blue-600 rounded-2xl text-white shadow-lg hover:shadow-2xl transform hover:scale-105 transition-all duration-300">
+            <div class="absolute inset-0 bg-white opacity-10 transform -skew-y-3"></div>
+            <div class="relative p-6">
+              <div class="flex items-center mb-4">
+                <div class="w-5 h-5 bg-white rounded-full mr-3 shadow-inner group-hover:animate-pulse"></div>
+                <i class="fas fa-star text-2xl"></i>
+              </div>
+              <div class="font-bold text-lg mb-1">National Tournaments</div>
+              <div class="text-sm opacity-90 mb-2">National Level</div>
+              <div class="text-xs opacity-80">Premier national championships</div>
             </div>
           </div>
-          <div class="flex items-center p-4 bg-gradient-to-r from-yellow-400 to-yellow-600 rounded-xl text-white shadow-lg">
-            <div class="w-4 h-4 bg-white rounded-full mr-3 shadow-inner"></div>
-            <div>
-              <div class="font-semibold">International</div>
-              <div class="text-sm opacity-90">Major Quarters</div>
+
+          <div class="group relative overflow-hidden bg-gradient-to-br from-yellow-400 to-yellow-600 rounded-2xl text-white shadow-lg hover:shadow-2xl transform hover:scale-105 transition-all duration-300">
+            <div class="absolute inset-0 bg-white opacity-10 transform -skew-y-3"></div>
+            <div class="relative p-6">
+              <div class="flex items-center mb-4">
+                <div class="w-5 h-5 bg-white rounded-full mr-3 shadow-inner group-hover:animate-pulse"></div>
+                <i class="fas fa-trophy text-2xl"></i>
+              </div>
+              <div class="font-bold text-lg mb-1">International</div>
+              <div class="text-sm opacity-90 mb-2">Global Level</div>
+              <div class="text-xs opacity-80">World-class competitions</div>
             </div>
+          </div>
+        </div>
+
+        <!-- Additional Info -->
+        <div class="mt-8 text-center">
+          <div class="inline-flex items-center bg-white bg-opacity-70 rounded-full px-6 py-3 text-gray-700">
+            <i class="fas fa-lightbulb mr-2 text-yellow-500"></i>
+            <span class="text-sm font-medium">Click on any tournament event in the calendar for detailed information</span>
           </div>
         </div>
       </div>
@@ -301,7 +406,13 @@
 
       <!-- Card View -->
       <div id="card-view" class="hidden">
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <!-- Card View Header -->
+        <div class="mb-6 text-center">
+          <h3 class="text-2xl font-bold text-gray-800 mb-2">Tournament Cards</h3>
+          <p class="text-gray-600">Detailed view of each tournament</p>
+        </div>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           <% if (tournamentData && tournamentData.length) { %>
             <% tournamentData.forEach((t, index) => { %>
               <div class="tournament-card bg-white rounded-2xl shadow-xl overflow-hidden" data-type="<%= t.type %>">
@@ -394,36 +505,67 @@
       document.getElementById('calendar-view-btn').classList.remove('active');
     });
 
-    // Filter functionality
+    // Enhanced filter functionality
     document.querySelectorAll('.filter-btn').forEach(btn => {
       btn.addEventListener('click', function() {
-        // Update active filter
-        document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
-        this.classList.add('active');
+        // Update active filter with enhanced styling
+        document.querySelectorAll('.filter-btn').forEach(b => {
+          b.classList.remove('active');
+          if (b !== this) {
+            // Reset non-active buttons
+            b.classList.remove('bg-indigo-500', 'text-white');
+            b.classList.add('bg-white', 'text-gray-700');
+          }
+        });
+        
+        // Style active button
+        this.classList.add('active', 'bg-indigo-500', 'text-white');
+        this.classList.remove('bg-white', 'text-gray-700');
         
         const filter = this.dataset.filter;
         
-        // Filter tournament rows
-        document.querySelectorAll('.tournament-row').forEach(row => {
-          if (filter === 'all' || row.dataset.type === filter) {
-            row.style.display = '';
-            row.classList.add('fade-in');
+        // Add transition effects
+        const animateElement = (element, show) => {
+          if (show) {
+            element.style.display = '';
+            element.style.opacity = '0';
+            element.style.transform = 'translateY(10px)';
+            
+            setTimeout(() => {
+              element.style.transition = 'all 0.3s ease';
+              element.style.opacity = '1';
+              element.style.transform = 'translateY(0)';
+              element.classList.add('fade-in');
+            }, 50);
           } else {
-            row.style.display = 'none';
-            row.classList.remove('fade-in');
+            element.style.transition = 'all 0.3s ease';
+            element.style.opacity = '0';
+            element.style.transform = 'translateY(-10px)';
+            element.classList.remove('fade-in');
+            
+            setTimeout(() => {
+              element.style.display = 'none';
+            }, 300);
           }
+        };
+        
+        // Filter tournament rows with animation
+        document.querySelectorAll('.tournament-row').forEach(row => {
+          const shouldShow = filter === 'all' || row.dataset.type === filter;
+          animateElement(row, shouldShow);
         });
         
-        // Filter tournament cards
+        // Filter tournament cards with animation
         document.querySelectorAll('.tournament-card').forEach(card => {
-          if (filter === 'all' || card.dataset.type === filter) {
-            card.style.display = '';
-            card.classList.add('fade-in');
-          } else {
-            card.style.display = 'none';
-            card.classList.remove('fade-in');
-          }
+          const shouldShow = filter === 'all' || card.dataset.type === filter;
+          animateElement(card, shouldShow);
         });
+        
+        // Update filter count (optional visual feedback)
+        setTimeout(() => {
+          const visibleRows = document.querySelectorAll('.tournament-row[style*="opacity: 1"], .tournament-row:not([style*="display: none"])').length;
+          console.log(`Showing ${visibleRows} tournaments for filter: ${filter}`);
+        }, 350);
       });
     });
 
@@ -581,5 +723,8 @@
       observer.observe(el);
     });
   </script>
+  
+  <!-- PDF Download Functionality -->
+  <script src="/js/tournament-pdf.js"></script>
 </body>
 </html>
