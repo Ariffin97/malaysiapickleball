@@ -366,10 +366,32 @@
               <% if (tournamentData && tournamentData.length) { %>
                 <% tournamentData.forEach((t, index) => { %>
                   <tr class="tournament-row border-b border-gray-100 hover:bg-gray-50 transition-colors" data-type="<%= t.type %>">
-                    <td class="tournament-name p-4 font-semibold text-gray-800 border-r border-gray-200 sticky left-0 bg-white cursor-pointer hover:bg-blue-50" onclick="openTournamentModal(<%= index %>)">
-                      <div class="flex items-center">
-                        <i class="fas fa-trophy mr-3 text-yellow-500"></i>
-                        <%= t.name %>
+                    <td class="tournament-name p-4 border-r border-gray-200 sticky left-0 bg-white cursor-pointer hover:bg-blue-50" onclick="openTournamentModal(<%= index %>)">
+                      <div class="flex items-start">
+                        <i class="fas fa-trophy mr-3 text-yellow-500 mt-1"></i>
+                        <div>
+                          <div class="font-medium text-gray-800 text-sm leading-tight">
+                            <%= t.name %>
+                          </div>
+                          <div class="text-xs text-gray-500 mt-1">
+                            <% if (t.startDate) { %>
+                              <%= new Date(t.startDate).toLocaleDateString('en-US', { 
+                                month: 'short', 
+                                day: 'numeric',
+                                year: 'numeric'
+                              }) %>
+                              <% if (t.endDate && t.endDate !== t.startDate) { %>
+                                - <%= new Date(t.endDate).toLocaleDateString('en-US', { 
+                                  month: 'short', 
+                                  day: 'numeric',
+                                  year: 'numeric'
+                                }) %>
+                              <% } %>
+                            <% } else { %>
+                              Date TBD
+                            <% } %>
+                          </div>
+                        </div>
                       </div>
                     </td>
                     <% for (let m = 0; m < months.length; m++) { %>
@@ -490,83 +512,102 @@
     // Tournament data for JavaScript
     const tournamentData = <%- JSON.stringify(tournamentData) %>;
     
-    // View toggle functionality
-    document.getElementById('calendar-view-btn').addEventListener('click', function() {
-      document.getElementById('calendar-view').classList.remove('hidden');
-      document.getElementById('card-view').classList.add('hidden');
-      this.classList.add('active');
-      document.getElementById('card-view-btn').classList.remove('active');
-    });
-
-    document.getElementById('card-view-btn').addEventListener('click', function() {
-      document.getElementById('card-view').classList.remove('hidden');
-      document.getElementById('calendar-view').classList.add('hidden');
-      this.classList.add('active');
-      document.getElementById('calendar-view-btn').classList.remove('active');
-    });
-
-    // Enhanced filter functionality
-    document.querySelectorAll('.filter-btn').forEach(btn => {
-      btn.addEventListener('click', function() {
-        // Update active filter with enhanced styling
-        document.querySelectorAll('.filter-btn').forEach(b => {
-          b.classList.remove('active');
-          if (b !== this) {
-            // Reset non-active buttons
-            b.classList.remove('bg-indigo-500', 'text-white');
-            b.classList.add('bg-white', 'text-gray-700');
-          }
+    // Wait for DOM to be fully loaded
+    document.addEventListener('DOMContentLoaded', function() {
+      console.log('Tournament page loaded, setting up filters...');
+      console.log('Tournament data:', tournamentData);
+      
+      // View toggle functionality
+      const calendarViewBtn = document.getElementById('calendar-view-btn');
+      const cardViewBtn = document.getElementById('card-view-btn');
+      
+      if (calendarViewBtn) {
+        calendarViewBtn.addEventListener('click', function() {
+          document.getElementById('calendar-view').classList.remove('hidden');
+          document.getElementById('card-view').classList.add('hidden');
+          this.classList.add('active');
+          document.getElementById('card-view-btn').classList.remove('active');
         });
+      }
+
+      if (cardViewBtn) {
+        cardViewBtn.addEventListener('click', function() {
+          document.getElementById('card-view').classList.remove('hidden');
+          document.getElementById('calendar-view').classList.add('hidden');
+          this.classList.add('active');
+          document.getElementById('calendar-view-btn').classList.remove('active');
+        });
+      }
+
+      // Enhanced filter functionality
+      const filterButtons = document.querySelectorAll('.filter-btn');
+      console.log('Found filter buttons:', filterButtons.length);
+      
+      filterButtons.forEach(btn => {
+              btn.addEventListener('click', function() {
+          console.log('Filter button clicked:', this.dataset.filter);
+          
+          // Update active filter with enhanced styling
+          document.querySelectorAll('.filter-btn').forEach(b => {
+            b.classList.remove('active');
+            if (b !== this) {
+              // Reset non-active buttons
+              b.classList.remove('bg-indigo-500', 'text-white');
+              b.classList.add('bg-white', 'text-gray-700');
+            }
+          });
+          
+          // Style active button
+          this.classList.add('active', 'bg-indigo-500', 'text-white');
+          this.classList.remove('bg-white', 'text-gray-700');
+          
+          const filter = this.dataset.filter;
+          console.log('Applying filter:', filter);
         
-        // Style active button
-        this.classList.add('active', 'bg-indigo-500', 'text-white');
-        this.classList.remove('bg-white', 'text-gray-700');
-        
-        const filter = this.dataset.filter;
-        
-        // Add transition effects
-        const animateElement = (element, show) => {
-          if (show) {
-            element.style.display = '';
-            element.style.opacity = '0';
-            element.style.transform = 'translateY(10px)';
+        // Improved filter functionality with better animation
+        const filterElements = (selector, filter) => {
+          document.querySelectorAll(selector).forEach(element => {
+            const shouldShow = filter === 'all' || element.dataset.type === filter;
             
-            setTimeout(() => {
+            if (shouldShow) {
+              // Show element
+              element.style.display = '';
               element.style.transition = 'all 0.3s ease';
               element.style.opacity = '1';
               element.style.transform = 'translateY(0)';
-              element.classList.add('fade-in');
-            }, 50);
-          } else {
-            element.style.transition = 'all 0.3s ease';
-            element.style.opacity = '0';
-            element.style.transform = 'translateY(-10px)';
-            element.classList.remove('fade-in');
-            
-            setTimeout(() => {
-              element.style.display = 'none';
-            }, 300);
-          }
+              element.classList.remove('hidden');
+            } else {
+              // Hide element
+              element.style.transition = 'all 0.3s ease';
+              element.style.opacity = '0';
+              element.style.transform = 'translateY(-10px)';
+              
+              setTimeout(() => {
+                element.style.display = 'none';
+                element.classList.add('hidden');
+              }, 300);
+            }
+          });
         };
         
-        // Filter tournament rows with animation
-        document.querySelectorAll('.tournament-row').forEach(row => {
-          const shouldShow = filter === 'all' || row.dataset.type === filter;
-          animateElement(row, shouldShow);
-        });
+        // Filter tournament rows and cards
+        filterElements('.tournament-row', filter);
+        filterElements('.tournament-card', filter);
         
-        // Filter tournament cards with animation
-        document.querySelectorAll('.tournament-card').forEach(card => {
-          const shouldShow = filter === 'all' || card.dataset.type === filter;
-          animateElement(card, shouldShow);
+          // Update filter count (optional visual feedback)
+          setTimeout(() => {
+            const visibleRows = document.querySelectorAll('.tournament-row[style*="opacity: 1"], .tournament-row:not([style*="display: none"])').length;
+            console.log(`Showing ${visibleRows} tournaments for filter: ${filter}`);
+          }, 350);
         });
-        
-        // Update filter count (optional visual feedback)
-        setTimeout(() => {
-          const visibleRows = document.querySelectorAll('.tournament-row[style*="opacity: 1"], .tournament-row:not([style*="display: none"])').length;
-          console.log(`Showing ${visibleRows} tournaments for filter: ${filter}`);
-        }, 350);
       });
+      
+      // Initialize filters - show all by default
+      console.log('Initializing filters...');
+      const allRows = document.querySelectorAll('.tournament-row');
+      const allCards = document.querySelectorAll('.tournament-card');
+      console.log('Found tournament rows:', allRows.length);
+      console.log('Found tournament cards:', allCards.length);
     });
 
     // Tournament modal functionality

@@ -131,6 +131,14 @@
             <div class="text-gray-700 font-medium">Certified</div>
           </div>
         </div>
+        
+        <!-- Apply to Become a Referee Button -->
+        <div class="mt-8 text-center animate-fadeIn">
+          <button onclick="openApplicationModal()" class="bg-gradient-to-r from-green-500 to-blue-600 hover:from-green-600 hover:to-blue-700 text-white px-10 py-4 rounded-xl font-bold text-lg transition-all duration-200 transform hover:scale-105 shadow-xl hover:shadow-2xl">
+            <i class="fas fa-plus mr-3"></i>Apply to Become a Referee
+          </button>
+          <p class="text-white opacity-80 mt-3 text-sm">Join our team of certified referees and ensure fair play in tournaments</p>
+        </div>
       </div>
     </div>
 
@@ -248,6 +256,16 @@
   </main>
 
   <%- include('../partials/footer') %>
+
+  <!-- Floating Apply Button -->
+  <div class="fixed bottom-6 right-6 z-40">
+    <button onclick="openApplicationModal()" class="bg-gradient-to-r from-green-500 to-blue-600 hover:from-green-600 hover:to-blue-700 text-white w-16 h-16 rounded-full shadow-2xl hover:shadow-3xl transition-all duration-300 transform hover:scale-110 flex items-center justify-center group" title="Apply to Become a Referee">
+      <i class="fas fa-plus text-xl group-hover:rotate-90 transition-transform duration-300"></i>
+    </button>
+    <div class="absolute bottom-20 right-0 bg-gray-800 text-white px-3 py-2 rounded-lg text-sm whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none">
+      Apply to Become a Referee
+    </div>
+  </div>
 
   <!-- Referee Application Modal -->
   <div id="applicationModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50 modal">
