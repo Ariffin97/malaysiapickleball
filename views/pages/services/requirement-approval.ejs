@@ -3,37 +3,626 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Approval Requirements - Malaysia Pickleball Association</title>
+  <title>Requirements for Approval/Licensing - Malaysia Pickleball Association</title>
   <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
   <link rel="stylesheet" href="/css/styles.css">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+  <style>
+    .hero-gradient {
+      background: linear-gradient(135deg, #059669 0%, #047857 50%, #065f46 100%);
+    }
+    
+    .interactive-card {
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(10px);
+    }
+    
+    .interactive-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+    }
+    
+    .accordion-item {
+      transition: all 0.3s ease;
+      border: 1px solid #e5e7eb;
+      border-radius: 0.75rem;
+      overflow: hidden;
+      margin-bottom: 1rem;
+    }
+    
+    .accordion-header {
+      cursor: pointer;
+      transition: all 0.3s ease;
+      background: linear-gradient(135deg, #f8fafc, #f1f5f9);
+      position: relative;
+      z-index: 10;
+      pointer-events: auto;
+    }
+    
+    .accordion-header:hover {
+      background: linear-gradient(135deg, #e2e8f0, #cbd5e1);
+    }
+    
+    .accordion-header.active {
+      background: linear-gradient(135deg, #059669, #047857);
+      color: white;
+    }
+    
+    .accordion-content {
+      display: none;
+      background: white;
+    }
+    
+    .accordion-content.active {
+      display: block;
+    }
+    
+    .category-icon {
+      transition: transform 0.3s ease;
+    }
+    
+    .accordion-header.active .category-icon {
+      transform: rotate(180deg);
+    }
+    
+    .requirement-badge {
+      display: inline-flex;
+      align-items: center;
+      padding: 0.5rem 1rem;
+      border-radius: 9999px;
+      font-weight: 600;
+      text-sm;
+    }
+    
+    .orange-badge {
+      background: linear-gradient(135deg, #ff9a56, #ff6b35);
+      color: white;
+    }
+    
+    .blue-badge {
+      background: linear-gradient(135deg, #4facfe, #00f2fe);
+      color: white;
+    }
+    
+    .green-badge {
+      background: linear-gradient(135deg, #43e97b, #38f9d7);
+      color: white;
+    }
+    
+    .red-badge {
+      background: linear-gradient(135deg, #fa709a, #fee140);
+      color: white;
+    }
+    
+    .yellow-badge {
+      background: linear-gradient(135deg, #ffecd2, #fcb69f);
+      color: #333;
+    }
+    
+    .mandatory-pulse {
+      animation: mandatoryPulse 2s infinite;
+    }
+    
+    @keyframes mandatoryPulse {
+      0%, 100% { 
+        box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7);
+      }
+      50% { 
+        box-shadow: 0 0 0 10px rgba(239, 68, 68, 0);
+      }
+    }
+    
+    .fade-in {
+      animation: fadeInUp 0.8s ease-out;
+    }
+    
+    .fade-in-delay {
+      animation: fadeInUp 0.8s ease-out 0.2s both;
+    }
+    
+    .fade-in-delay-2 {
+      animation: fadeInUp 0.8s ease-out 0.4s both;
+    }
+    
+    @keyframes fadeInUp {
+      from {
+        opacity: 0;
+        transform: translateY(30px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+    
+    .process-step {
+      transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    
+    .process-step:hover {
+      transform: translateY(-8px) scale(1.02);
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+    }
+    
+    .step-icon {
+      transition: all 0.3s ease;
+    }
+    
+    .process-step:hover .step-icon {
+      transform: scale(1.2) rotate(5deg);
+    }
+    
+    .cta-button {
+      background: linear-gradient(135deg, #059669, #047857);
+      transition: all 0.3s ease;
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .cta-button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 25px rgba(5, 150, 105, 0.4);
+    }
+    
+    .requirement-item {
+      background: rgba(255, 255, 255, 0.8);
+      border-radius: 0.5rem;
+      padding: 1rem;
+      margin: 0.5rem 0;
+      transition: all 0.3s ease;
+    }
+    
+    .requirement-item:hover {
+      background: rgba(255, 255, 255, 0.95);
+      transform: translateX(5px);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+  </style>
 </head>
 <%
   const defaultBg = backgroundImage || '/images/defaultbg.png';
 %>
 <body class="bg-gray-100 bg-cover bg-center bg-fixed min-h-screen" style="background-image: url('<%= defaultBg %>')">
   <%- include('../../partials/header') %>
-  <%- include('../../partials/sidebar') %>
-  <main class="md:ml-64 pt-20 p-4 pb-20 min-h-screen">
-    <div class="container mx-auto">
-      <div class="bg-white bg-opacity-90 p-6 rounded-lg shadow-lg mb-6">
-        <h1 class="text-3xl font-bold mb-4 text-center text-gray-800">Requirements for Approval/Licensing Application for Organizing Sports Event Competitions</h1>
-      </div>
-      
-      <div class="bg-white bg-opacity-95 p-6 rounded-lg shadow-lg mb-8">
-        <p class="mb-6">This section outlines the requirements for obtaining approval or licensing to organize sports event competitions in Malaysia, including necessary documentation, compliance with local regulations, and eligibility criteria for applicants.</p>
-        <div class="mt-6 flex justify-center">
-          <img src="/images/pic2.png" alt="Approval Requirements Infographic" class="infographic-image">
+  
+  <main class="pt-24 sm:pt-28 lg:pt-32 p-4 pb-20 min-h-screen">
+    <div class="container mx-auto max-w-6xl">
+      <!-- Hero Section -->
+      <div class="hero-gradient text-white p-8 rounded-2xl shadow-2xl mb-8 text-center fade-in">
+        <div class="inline-flex items-center justify-center w-20 h-20 bg-white bg-opacity-20 rounded-full mb-6">
+          <i class="fas fa-clipboard-check text-white text-3xl"></i>
+        </div>
+        <h1 class="hero-title text-3xl md:text-4xl font-bold mb-4">
+          Requirements for Approval/Licensing
+        </h1>
+        <p class="text-xl mb-6 opacity-90 max-w-3xl mx-auto">
+          Complete guide for sports competition approval and licensing requirements in Malaysia
+        </p>
+        <div class="flex flex-wrap justify-center gap-4">
+          <button class="bg-white text-green-600 px-6 py-3 rounded-xl font-bold hover:bg-opacity-90 transition-all duration-300" onclick="scrollToSection('requirements')">
+            <i class="fas fa-play mr-2"></i>
+            View Requirements
+          </button>
+          <button class="border-2 border-white text-white px-6 py-3 rounded-xl font-bold hover:bg-white hover:text-green-600 transition-all duration-300" onclick="scrollToSection('application')">
+            <i class="fas fa-external-link-alt mr-2"></i>
+            Apply Online
+          </button>
         </div>
       </div>
 
-      <div class="text-center mt-6 text-gray-600 text-sm bg-white bg-opacity-80 p-4 rounded-lg shadow">
-        <p>Government of Malaysia</p>
-        <p>Madani</p>
+      <!-- Requirements Section -->
+      <section id="requirements" class="mb-12 fade-in-delay">
+        <h2 class="text-3xl font-bold text-center mb-8 text-gray-800">
+          <i class="fas fa-list-check text-green-600 mr-3"></i>
+          Requirements for Approval/Licensing Application
+        </h2>
+        
+        <div class="grid grid-cols-1 gap-6">
+          <!-- Registration Certification -->
+          <div class="accordion-item interactive-card">
+            <div class="accordion-header p-6 flex items-center justify-between" onclick="toggleAccordion('registration')">
+              <div class="flex items-center">
+                <div class="requirement-badge orange-badge mr-4">
+                  <i class="fas fa-certificate mr-2"></i>
+                  Registration Certification
+                </div>
+              </div>
+              <i class="fas fa-chevron-down category-icon text-2xl" id="registration-icon"></i>
+            </div>
+            <div class="accordion-content" id="registration-content">
+              <div class="bg-gradient-to-r from-orange-50 to-orange-100 rounded-lg p-6">
+                <h3 class="text-xl font-bold mb-4 text-orange-800">
+                  <i class="fas fa-building mr-2"></i>
+                  Required Business and Organizational Registrations
+                </h3>
+                <div class="space-y-4">
+                  <div class="requirement-item">
+                    <div class="flex items-start space-x-3">
+                      <i class="fas fa-check-circle text-orange-500 mt-1"></i>
+                      <div>
+                        <p class="font-semibold text-gray-800">SSM (Company)</p>
+                        <p class="text-gray-600">Registration with the Companies Commission of Malaysia (SSM) for company entities organizing sports competitions.</p>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <div class="requirement-item">
+                    <div class="flex items-start space-x-3">
+                      <i class="fas fa-check-circle text-orange-500 mt-1"></i>
+                      <div>
+                        <p class="font-semibold text-gray-800">PJS Certification (Sports Body)</p>
+                        <p class="text-gray-600">Certification from recognized sports governing bodies and associations under the supervision of the Sports Commissioner.</p>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <div class="requirement-item">
+                    <div class="flex items-start space-x-3">
+                      <i class="fas fa-check-circle text-orange-500 mt-1"></i>
+                      <div>
+                        <p class="font-semibold text-gray-800">Other forms of registration certification for non-sports bodies</p>
+                        <p class="text-gray-600 mb-3">Alternative registration forms for organizations not directly affiliated with sports bodies:</p>
+                        <div class="ml-4 space-y-2">
+                          <div class="flex items-center">
+                            <span class="w-2 h-2 bg-orange-500 rounded-full mr-3"></span>
+                            <span class="text-gray-700"><strong>ROS</strong> - Registry of Societies</span>
+                          </div>
+                          <div class="flex items-center">
+                            <span class="w-2 h-2 bg-orange-500 rounded-full mr-3"></span>
+                            <span class="text-gray-700"><strong>ROI</strong> - Registry of Organizations</span>
+                          </div>
+                          <div class="flex items-center">
+                            <span class="w-2 h-2 bg-orange-500 rounded-full mr-3"></span>
+                            <span class="text-gray-700"><strong>Cooperatives</strong> and related entities</span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Approval Support -->
+          <div class="accordion-item interactive-card">
+            <div class="accordion-header p-6 flex items-center justify-between" onclick="toggleAccordion('approval')">
+              <div class="flex items-center">
+                <div class="requirement-badge blue-badge mr-4">
+                  <i class="fas fa-handshake mr-2"></i>
+                  Approval (Support)
+                </div>
+              </div>
+              <i class="fas fa-chevron-down category-icon text-2xl" id="approval-icon"></i>
+            </div>
+            <div class="accordion-content" id="approval-content">
+              <div class="bg-gradient-to-r from-blue-50 to-blue-100 rounded-lg p-6">
+                <h3 class="text-xl font-bold mb-4 text-blue-800">
+                  <i class="fas fa-shield-check mr-2"></i>
+                  Agency Requirements and Technical Support
+                </h3>
+                <div class="space-y-4">
+                  <div class="requirement-item">
+                    <div class="flex items-start space-x-3">
+                      <i class="fas fa-check-circle text-blue-500 mt-1"></i>
+                      <div>
+                        <p class="font-semibold text-gray-800">Relevant Agencies Requirements</p>
+                        <p class="text-gray-600 mb-3">Approval for organizing a sports event is subject to the requirements of relevant agencies and technical support departments, including recognized governing bodies, especially in terms of safety and health measures.</p>
+                        
+                        <div class="bg-blue-50 p-4 rounded-lg border-l-4 border-blue-400 mt-3">
+                          <h4 class="font-semibold text-blue-800 mb-2">Key Focus Areas:</h4>
+                          <div class="space-y-2">
+                            <div class="flex items-center">
+                              <span class="w-2 h-2 bg-blue-500 rounded-full mr-3"></span>
+                              <span class="text-blue-700">Safety and health measures</span>
+                            </div>
+                            <div class="flex items-center">
+                              <span class="w-2 h-2 bg-blue-500 rounded-full mr-3"></span>
+                              <span class="text-blue-700">Technical support compliance</span>
+                            </div>
+                            <div class="flex items-center">
+                              <span class="w-2 h-2 bg-blue-500 rounded-full mr-3"></span>
+                              <span class="text-blue-700">Recognized governing body endorsement</span>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Insurance Requirements -->
+          <div class="accordion-item interactive-card mandatory-pulse">
+            <div class="accordion-header p-6 flex items-center justify-between" onclick="toggleAccordion('insurance')">
+              <div class="flex items-center">
+                <div class="requirement-badge green-badge mr-4">
+                  <i class="fas fa-shield-alt mr-2"></i>
+                  Insurance
+                  <span class="bg-red-600 text-white px-2 py-1 rounded-full text-xs font-bold uppercase tracking-wide ml-2">
+                    MANDATORY
+                  </span>
+                </div>
+              </div>
+              <i class="fas fa-chevron-down category-icon text-2xl" id="insurance-icon"></i>
+            </div>
+            <div class="accordion-content" id="insurance-content">
+              <div class="bg-gradient-to-r from-green-50 to-green-100 rounded-lg p-6">
+                <h3 class="text-xl font-bold mb-4 text-green-800">
+                  <i class="fas fa-exclamation-triangle mr-2"></i>
+                  Mandatory Insurance Coverage
+                </h3>
+                <div class="space-y-4">
+                  <div class="requirement-item border-l-4 border-red-500">
+                    <div class="flex items-start space-x-3">
+                      <i class="fas fa-exclamation-triangle text-red-500 mt-1"></i>
+                      <div>
+                        <p class="font-semibold text-red-700">Mandatory Requirement</p>
+                        <p class="text-gray-700 font-medium">Insurance – One of the MANDATORY requirements for organizing sports activities and obtaining licenses.</p>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <div class="requirement-item bg-green-50">
+                    <div class="flex items-start space-x-3">
+                      <i class="fas fa-check-circle text-green-500 mt-1"></i>
+                      <div>
+                        <p class="font-semibold text-gray-800">Coverage Requirements</p>
+                        <p class="text-gray-600 mb-3">Comprehensive insurance coverage must be in place before organizing any sports competition or activity.</p>
+                        <div class="space-y-2">
+                          <div class="flex items-center">
+                            <span class="w-2 h-2 bg-green-500 rounded-full mr-3"></span>
+                            <span class="text-gray-700">Public liability protection</span>
+                          </div>
+                          <div class="flex items-center">
+                            <span class="w-2 h-2 bg-green-500 rounded-full mr-3"></span>
+                            <span class="text-gray-700">Participant accident coverage</span>
+                          </div>
+                          <div class="flex items-center">
+                            <span class="w-2 h-2 bg-green-500 rounded-full mr-3"></span>
+                            <span class="text-gray-700">Organizer indemnity insurance</span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Additional Compliance Requirements -->
+      <section class="mb-12 fade-in-delay">
+        <h2 class="text-3xl font-bold text-center mb-8 text-gray-800">
+          <i class="fas fa-users-cog text-green-600 mr-3"></i>
+          Additional Compliance Requirements for Organizers
+        </h2>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <!-- Safe Sports Code -->
+          <div class="accordion-item interactive-card">
+            <div class="accordion-header p-6 flex items-center justify-between" onclick="toggleAccordion('safesports')">
+              <div class="flex items-center">
+                <div class="requirement-badge red-badge mr-4">
+                  <i class="fas fa-shield mr-2"></i>
+                  Safe Sports Code
+                </div>
+              </div>
+              <i class="fas fa-chevron-down category-icon text-2xl" id="safesports-icon"></i>
+            </div>
+            <div class="accordion-content" id="safesports-content">
+              <div class="bg-gradient-to-r from-red-50 to-pink-100 rounded-lg p-6">
+                <h3 class="text-xl font-bold mb-4 text-red-800">
+                  <i class="fas fa-clipboard-check mr-2"></i>
+                  Safety and Protection Commitment
+                </h3>
+                <div class="space-y-4">
+                  <div class="requirement-item">
+                    <div class="flex items-start space-x-3">
+                      <i class="fas fa-check-circle text-red-500 mt-1"></i>
+                      <div>
+                        <p class="font-semibold text-gray-800">Implementation Commitment</p>
+                        <p class="text-gray-700 font-medium mb-2">Commitment to implementing the Safe Sports Code</p>
+                        <p class="text-gray-600">Organizers must demonstrate their commitment to maintaining safe sporting environments through adherence to established safety protocols and codes of conduct.</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Anti-Doping Regulations -->
+          <div class="accordion-item interactive-card">
+            <div class="accordion-header p-6 flex items-center justify-between" onclick="toggleAccordion('antidoping')">
+              <div class="flex items-center">
+                <div class="requirement-badge yellow-badge mr-4">
+                  <i class="fas fa-vial mr-2"></i>
+                  Anti-Doping
+                </div>
+              </div>
+              <i class="fas fa-chevron-down category-icon text-2xl" id="antidoping-icon"></i>
+            </div>
+            <div class="accordion-content" id="antidoping-content">
+              <div class="bg-gradient-to-r from-yellow-50 to-yellow-100 rounded-lg p-6">
+                <h3 class="text-xl font-bold mb-4 text-yellow-800">
+                  <i class="fas fa-microscope mr-2"></i>
+                  Drug-free Competition Standards
+                </h3>
+                <div class="space-y-4">
+                  <div class="requirement-item">
+                    <div class="flex items-start space-x-3">
+                      <i class="fas fa-check-circle text-yellow-600 mt-1"></i>
+                      <div>
+                        <p class="font-semibold text-gray-800">Regulatory Compliance</p>
+                        <p class="text-gray-700 font-medium mb-2">Commitment to implementing Anti-Doping Regulations</p>
+                        <p class="text-gray-600">Event organizers must ensure compliance with anti-doping policies and procedures to maintain the integrity of sporting competitions.</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Summary Section -->
+      <section class="interactive-card p-8 rounded-2xl mb-12 fade-in-delay-2">
+        <h2 class="text-3xl font-bold text-center mb-8 text-gray-800">
+          <i class="fas fa-list-check text-green-600 mr-3"></i>
+          Requirements Summary
+        </h2>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div class="process-step text-center p-6 bg-orange-50 rounded-xl">
+            <div class="step-icon inline-flex items-center justify-center w-16 h-16 bg-gradient-to-r from-orange-500 to-red-500 rounded-full mb-4">
+              <i class="fas fa-certificate text-white text-2xl"></i>
+            </div>
+            <h4 class="font-bold text-lg mb-2 text-gray-800">Registration</h4>
+            <p class="text-sm text-gray-600">SSM, PJS, ROS/ROI certification</p>
+          </div>
+          
+          <div class="process-step text-center p-6 bg-blue-50 rounded-xl">
+            <div class="step-icon inline-flex items-center justify-center w-16 h-16 bg-gradient-to-r from-blue-500 to-indigo-500 rounded-full mb-4">
+              <i class="fas fa-handshake text-white text-2xl"></i>
+            </div>
+            <h4 class="font-bold text-lg mb-2 text-gray-800">Approval</h4>
+            <p class="text-sm text-gray-600">Agency support & safety measures</p>
+          </div>
+          
+          <div class="process-step text-center p-6 bg-green-50 rounded-xl">
+            <div class="step-icon inline-flex items-center justify-center w-16 h-16 bg-gradient-to-r from-green-500 to-emerald-500 rounded-full mb-4">
+              <i class="fas fa-shield-alt text-white text-2xl"></i>
+            </div>
+            <h4 class="font-bold text-lg mb-2 text-gray-800">Insurance</h4>
+            <p class="text-sm text-gray-600">Mandatory coverage required</p>
+          </div>
+          
+          <div class="process-step text-center p-6 bg-purple-50 rounded-xl">
+            <div class="step-icon inline-flex items-center justify-center w-16 h-16 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full mb-4">
+              <i class="fas fa-users-cog text-white text-2xl"></i>
+            </div>
+            <h4 class="font-bold text-lg mb-2 text-gray-800">Compliance</h4>
+            <p class="text-sm text-gray-600">Safe Sports & Anti-Doping</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- Application Portal -->
+      <section id="application" class="interactive-card p-8 rounded-2xl text-center mb-12 fade-in-delay-2">
+        <h2 class="text-3xl font-bold mb-6 text-gray-800">
+          <i class="fas fa-rocket text-green-600 mr-3"></i>
+          Ready to Apply?
+        </h2>
+        <p class="text-xl text-gray-600 mb-8 max-w-2xl mx-auto">
+          Begin your approval application process today. Access official government portals for a streamlined submission process.
+        </p>
+        
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+          <div class="text-center">
+            <div class="inline-flex items-center justify-center w-16 h-16 bg-blue-100 rounded-full mb-4">
+              <i class="fas fa-clock text-blue-600 text-2xl"></i>
+            </div>
+            <h4 class="font-bold text-gray-800">Fast Process</h4>
+            <p class="text-gray-600">Quick application review</p>
+          </div>
+          
+          <div class="text-center">
+            <div class="inline-flex items-center justify-center w-16 h-16 bg-green-100 rounded-full mb-4">
+              <i class="fas fa-headset text-green-600 text-2xl"></i>
+            </div>
+            <h4 class="font-bold text-gray-800">Expert Support</h4>
+            <p class="text-gray-600">Dedicated assistance team</p>
+          </div>
+          
+          <div class="text-center">
+            <div class="inline-flex items-center justify-center w-16 h-16 bg-purple-100 rounded-full mb-4">
+              <i class="fas fa-award text-purple-600 text-2xl"></i>
+            </div>
+            <h4 class="font-bold text-gray-800">Official Recognition</h4>
+            <p class="text-gray-600">Government approved events</p>
+          </div>
+        </div>
+        
+        <div class="flex flex-wrap justify-center gap-4">
+          <a href="http://erosa.kbs.gov.my" target="_blank" class="cta-button text-white px-8 py-4 rounded-xl font-bold text-lg inline-flex items-center">
+            <i class="fas fa-external-link-alt mr-2"></i>
+            Apply Online Now
+          </a>
+          <button class="bg-gray-200 text-gray-700 px-8 py-4 rounded-xl font-bold text-lg hover:bg-gray-300 transition-all duration-300" onclick="downloadGuide()">
+            <i class="fas fa-download mr-2"></i>
+            Download Guide
+          </button>
+        </div>
+      </section>
+
+      <!-- Footer Info -->
+      <div class="text-center mt-8 text-gray-600 text-sm interactive-card p-4 rounded-lg shadow">
+        <p class="mb-2">
+          <i class="fas fa-flag text-red-500 mr-2"></i>
+          Government of Malaysia
+        </p>
+        <p>
+          <i class="fas fa-heart text-red-500 mr-2"></i>
+          Madani
+        </p>
       </div>
     </div>
   </main>
 
   <%- include('../../partials/footer') %>
   <script src="/js/script.js"></script>
+  <script>
+    function toggleAccordion(sectionId) {
+      const header = event.currentTarget;
+      const content = document.getElementById(sectionId + '-content');
+      const icon = document.getElementById(sectionId + '-icon');
+      
+      // Toggle active class
+      header.classList.toggle('active');
+      content.classList.toggle('active');
+      
+      // Update ARIA attributes
+      const isExpanded = header.classList.contains('active');
+      header.setAttribute('aria-expanded', isExpanded);
+    }
+    
+    // Smooth scrolling function
+    function scrollToSection(sectionId) {
+      document.getElementById(sectionId).scrollIntoView({
+        behavior: 'smooth',
+        block: 'start'
+      });
+    }
+    
+    // Download guide function
+    function downloadGuide() {
+      // Create a temporary download link
+      const link = document.createElement('a');
+      link.href = '/images/pic4.png';
+      link.download = 'Requirements-Guide.png';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    }
+    
+    // Keyboard accessibility
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'Enter' || e.key === ' ') {
+        const focusedElement = document.activeElement;
+        if (focusedElement.classList.contains('accordion-header')) {
+          focusedElement.click();
+          e.preventDefault();
+        }
+      }
+    });
+  </script>
 </body>
 </html>
+

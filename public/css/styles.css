@@ -252,13 +252,32 @@ th.month {
 }
 
 td.tournament-name {
-  font-weight: bold;
+  font-weight: normal;
   background-color: #f9f9f9;
   text-align: left;
   z-index: 5; /* Higher z-index for tournament names */
   position: sticky;
   left: 0;
   box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+  min-width: 180px; /* Increased width to accommodate title and date */
+  max-width: 220px;
+  vertical-align: top; /* Align content to top for better layout */
+}
+
+/* Tournament title styling */
+td.tournament-name .tournament-title {
+  font-size: 0.875rem; /* Smaller font size */
+  font-weight: 500;
+  line-height: 1.2;
+  color: #374151;
+}
+
+/* Tournament date styling */
+td.tournament-name .tournament-date {
+  font-size: 0.75rem;
+  color: #6b7280;
+  margin-top: 0.25rem;
+  line-height: 1.1;
 }
 
 /* Enhanced Tournament type specific colors */
@@ -373,9 +392,17 @@ td.tournament-name {
     height: 25px;
   }
   
-  .tournament-name {
-    min-width: 120px;
+  td.tournament-name {
+    min-width: 140px;
+    max-width: 180px;
+  }
+  
+  td.tournament-name .tournament-title {
     font-size: 0.75rem;
+  }
+  
+  td.tournament-name .tournament-date {
+    font-size: 0.65rem;
   }
   
   /* Mobile specific spacing */
