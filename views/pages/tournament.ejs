@@ -140,9 +140,13 @@
             <i class="fas fa-calendar-alt mr-2"></i>
             View Calendar
           </a>
-          <a href="/tournament/download-pdf" class="bg-yellow-500 hover:bg-yellow-600 text-gray-900 px-8 py-3 rounded-full font-semibold transition-all duration-300 flex items-center justify-center shadow-lg">
+          <a href="/tournament/download-pdf" class="bg-green-500 hover:bg-green-600 text-white px-6 py-3 rounded-full font-semibold transition-all duration-300 flex items-center justify-center shadow-lg">
             <i class="fas fa-download mr-2"></i>
-            Download PDF
+            Auto PDF
+          </a>
+          <a href="/tournament/print-pdf" target="_blank" class="bg-blue-500 hover:bg-blue-600 text-white px-6 py-3 rounded-full font-semibold transition-all duration-300 flex items-center justify-center shadow-lg">
+            <i class="fas fa-print mr-2"></i>
+            Print PDF
           </a>
         </div>
       </div>
@@ -181,15 +185,22 @@
               </div>
             </div>
 
-            <!-- Center: Download -->
-            <div class="flex items-center">
+            <!-- Center: Download Options -->
+            <div class="flex items-center gap-3">
               <a href="/tournament/download-pdf" 
                  id="download-pdf-btn"
-                 class="bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white px-8 py-4 rounded-2xl font-semibold shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300 flex items-center group">
-                <i class="fas fa-download mr-3 group-hover:animate-bounce"></i>
-                <span class="hidden sm:inline">Download PDF</span>
+                 class="bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white px-6 py-4 rounded-2xl font-semibold shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300 flex items-center group">
+                <i class="fas fa-download mr-2 group-hover:animate-bounce"></i>
+                <span class="hidden sm:inline">Auto PDF</span>
                 <span class="sm:hidden">PDF</span>
-                <i class="fas fa-file-pdf ml-3 text-red-200"></i>
+              </a>
+              
+              <a href="/tournament/print-pdf" 
+                 target="_blank"
+                 class="bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white px-6 py-4 rounded-2xl font-semibold shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300 flex items-center group">
+                <i class="fas fa-print mr-2 group-hover:animate-bounce"></i>
+                <span class="hidden sm:inline">Print PDF</span>
+                <span class="sm:hidden">Print</span>
               </a>
             </div>
 
