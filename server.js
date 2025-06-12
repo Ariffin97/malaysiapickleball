@@ -134,7 +134,25 @@ app.get('/tournament/download-pdf-simple', async (req, res) => {
     
     browser = await puppeteer.launch({
       headless: true,
-      args: ['--no-sandbox', '--disable-setuid-sandbox']
+      args: [
+        '--no-sandbox',
+        '--disable-setuid-sandbox',
+        '--disable-dev-shm-usage',
+        '--disable-web-security',
+        '--disable-features=VizDisplayCompositor',
+        '--disable-ipc-flooding-protection',
+        '--disable-background-timer-throttling',
+        '--disable-backgrounding-occluded-windows',
+        '--disable-renderer-backgrounding',
+        '--no-first-run',
+        '--no-default-browser-check',
+        '--disable-extensions',
+        '--disable-plugins',
+        '--disable-default-apps',
+        '--disable-background-networking'
+      ],
+      executablePath: process.env.PUPPETEER_EXECUTABLE_PATH || puppeteer.executablePath(),
+      timeout: 60000
     });
     
     const page = await browser.newPage();
@@ -172,12 +190,38 @@ app.get('/tournament/download-pdf-simple', async (req, res) => {
   }
 });
 
-// PDF Download Route
-app.get('/tournament/download-pdf', async (req, res) => {
+// Fallback HTML Print Route (if Puppeteer fails)
+app.get('/tournament/print-pdf', (req, res) => {
+  try {
+    console.log('Serving printable HTML version...');
+    
+    // Format tournaments for PDF
+    const formattedTournaments = dataStore.tournaments.map(t => ({
+      ...t,
+      color: tournamentTypes[t.type]?.color || 'green'
+    }));
+    
+    // Render printable HTML template
+    res.render('templates/tournament-pdf', { 
+      tournaments: formattedTournaments 
+    });
+  } catch (error) {
+    console.error('Print template error:', error);
+    res.status(500).json({ 
+      error: 'Failed to generate printable version', 
+      details: error.message 
+    });
+  }
+});
+
+// Enhanced PDF Download with fallback
+app.get('/tournament/download-pdf-enhanced', async (req, res) => {
   let browser = null;
   
   try {
-    console.log('Starting PDF generation...');
+    console.log('Starting enhanced PDF generation...');
+    console.log('Environment:', process.env.NODE_ENV);
+    console.log('Puppeteer executable path:', process.env.PUPPETEER_EXECUTABLE_PATH);
     
     // Format tournaments for PDF
     const formattedTournaments = dataStore.tournaments.map(t => ({
@@ -187,104 +231,124 @@ app.get('/tournament/download-pdf', async (req, res) => {
     
     console.log('Formatted tournaments:', formattedTournaments.length);
     
-    // Launch puppeteer with Windows-compatible options
-    browser = await puppeteer.launch({
-      headless: 'new',
-      args: [
-        '--no-sandbox',
-        '--disable-setuid-sandbox',
-        '--disable-dev-shm-usage',
-        '--disable-web-security',
-        '--disable-features=VizDisplayCompositor',
-        '--disable-ipc-flooding-protection'
-      ],
-      timeout: 60000
-    });
-    
-    console.log('Browser launched successfully');
-    const page = await browser.newPage();
-    
-    // Set viewport for consistent rendering
-    await page.setViewport({
-      width: 1200,
-      height: 800,
-      deviceScaleFactor: 1
-    });
-    
-    // Render the EJS template to HTML string
-    console.log('Rendering template...');
-    const htmlContent = await new Promise((resolve, reject) => {
-      const timeout = setTimeout(() => {
-        reject(new Error('Template rendering timeout'));
-      }, 10000);
+    // Try to launch browser with extensive error handling
+    try {
+      browser = await puppeteer.launch({
+        headless: true,
+        args: [
+          '--no-sandbox',
+          '--disable-setuid-sandbox',
+          '--disable-dev-shm-usage',
+          '--disable-web-security',
+          '--disable-features=VizDisplayCompositor',
+          '--disable-ipc-flooding-protection',
+          '--disable-background-timer-throttling',
+          '--disable-backgrounding-occluded-windows',
+          '--disable-renderer-backgrounding',
+          '--no-first-run',
+          '--no-default-browser-check',
+          '--disable-extensions',
+          '--disable-plugins',
+          '--disable-default-apps',
+          '--disable-background-networking',
+          '--memory-pressure-off',
+          '--max_old_space_size=4096'
+        ],
+        executablePath: process.env.PUPPETEER_EXECUTABLE_PATH || puppeteer.executablePath(),
+        timeout: 60000
+      });
       
-      res.app.render('templates/tournament-pdf', { 
-        tournaments: formattedTournaments 
-      }, (err, html) => {
-        clearTimeout(timeout);
-        if (err) {
-          console.error('Template render error:', err);
-          reject(err);
-        } else {
-          console.log('Template rendered successfully, length:', html?.length || 0);
-          resolve(html);
+      console.log('Browser launched successfully');
+      
+      const page = await browser.newPage();
+      
+      // Set viewport for consistent rendering
+      await page.setViewport({
+        width: 1200,
+        height: 800,
+        deviceScaleFactor: 1
+      });
+      
+      // Render the EJS template to HTML string
+      console.log('Rendering template...');
+      const htmlContent = await new Promise((resolve, reject) => {
+        const timeout = setTimeout(() => {
+          reject(new Error('Template rendering timeout'));
+        }, 15000);
+        
+        res.app.render('templates/tournament-pdf', { 
+          tournaments: formattedTournaments 
+        }, (err, html) => {
+          clearTimeout(timeout);
+          if (err) {
+            console.error('Template render error:', err);
+            reject(err);
+          } else {
+            console.log('Template rendered successfully, length:', html?.length || 0);
+            resolve(html);
+          }
+        });
+      });
+      
+      if (!htmlContent || htmlContent.length === 0) {
+        throw new Error('Empty HTML content generated');
+      }
+      
+      // Set page content
+      console.log('Setting page content...');
+      await page.setContent(htmlContent, { 
+        waitUntil: 'domcontentloaded',
+        timeout: 30000
+      });
+      
+      // Wait for content to be ready
+      await new Promise(resolve => setTimeout(resolve, 2000));
+      
+      console.log('Generating PDF...');
+      // Generate PDF
+      const pdfBuffer = await page.pdf({
+        format: 'A4',
+        landscape: true,
+        printBackground: true,
+        margin: {
+          top: '10mm',
+          right: '10mm',
+          bottom: '10mm',
+          left: '10mm'
         }
       });
-    });
-    
-    if (!htmlContent || htmlContent.length === 0) {
-      throw new Error('Empty HTML content generated');
-    }
-    
-    // Set page content with simplified options
-    console.log('Setting page content...');
-    await page.setContent(htmlContent, { 
-      waitUntil: 'domcontentloaded',
-      timeout: 30000
-    });
-    
-    // Wait for content to be ready
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    
-    console.log('Generating PDF...');
-    // Generate PDF with basic settings
-    const pdfBuffer = await page.pdf({
-      format: 'A4',
-      landscape: true,
-      printBackground: true,
-      margin: {
-        top: '10mm',
-        right: '10mm',
-        bottom: '10mm',
-        left: '10mm'
+      
+      console.log('PDF generated successfully, size:', pdfBuffer.length, 'bytes');
+      
+      if (!pdfBuffer || pdfBuffer.length === 0) {
+        throw new Error('Generated PDF is empty');
       }
-    });
-    
-    console.log('PDF generated, size:', pdfBuffer.length, 'bytes');
-    
-    if (!pdfBuffer || pdfBuffer.length === 0) {
-      throw new Error('Generated PDF is empty');
+      
+      // Set response headers for PDF download
+      const filename = `Malaysia_Pickleball_Tournament_Calendar_${new Date().getFullYear()}.pdf`;
+      res.setHeader('Content-Type', 'application/pdf');
+      res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
+      res.setHeader('Content-Length', pdfBuffer.length);
+      res.setHeader('Cache-Control', 'no-cache');
+      
+      console.log('Sending PDF to client:', filename);
+      res.end(pdfBuffer);
+      
+    } catch (puppeteerError) {
+      console.error('Puppeteer failed, redirecting to print version:', puppeteerError);
+      
+      // Redirect to printable HTML version as fallback
+      res.redirect('/tournament/print-pdf');
+      return;
     }
-    
-    // Set response headers for PDF download
-    const filename = `Malaysia_Pickleball_Tournament_Calendar_${new Date().getFullYear()}.pdf`;
-    res.setHeader('Content-Type', 'application/pdf');
-    res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
-    res.setHeader('Content-Length', pdfBuffer.length);
-    res.setHeader('Cache-Control', 'no-cache');
-    
-    console.log('Sending PDF to client:', filename);
-    res.end(pdfBuffer);
     
   } catch (error) {
-    console.error('PDF generation error:', error);
+    console.error('Enhanced PDF generation error:', error);
     
-    // Send error response
+    // Final fallback - redirect to print version
     if (!res.headersSent) {
-      res.status(500).json({ 
-        error: 'Failed to generate PDF', 
-        details: error.message 
-      });
+      console.log('Redirecting to print version as final fallback');
+      res.redirect('/tournament/print-pdf');
     }
   } finally {
     // Always close browser
@@ -297,6 +361,12 @@ app.get('/tournament/download-pdf', async (req, res) => {
       }
     }
   }
+});
+
+// PDF Download Route (Main - now uses enhanced version)
+app.get('/tournament/download-pdf', async (req, res) => {
+  // Redirect to enhanced version with fallback
+  res.redirect('/tournament/download-pdf-enhanced');
 });
 
 app.get('/referee', (req, res) => res.render('pages/referee', { referees: dataStore.referees, session: req.session, backgroundImage: dataStore.backgroundImage }));

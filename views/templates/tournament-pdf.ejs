@@ -221,6 +221,45 @@
       padding-top: 15px;
     }
 
+    /* Print-friendly button for browser printing */
+    .print-btn {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      background: #667eea;
+      color: white;
+      padding: 12px 24px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: bold;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+      z-index: 1000;
+    }
+    
+    .print-btn:hover {
+      background: #5a6fd8;
+    }
+    
+    .print-instructions {
+      background: #f0f9ff;
+      border: 2px solid #0ea5e9;
+      border-radius: 8px;
+      padding: 16px;
+      margin: 20px 0;
+      text-align: center;
+    }
+    
+    .print-instructions h3 {
+      color: #0369a1;
+      margin-bottom: 8px;
+    }
+    
+    .print-instructions p {
+      color: #075985;
+      margin: 4px 0;
+    }
+
     @media print {
       body { 
         -webkit-print-color-adjust: exact;
@@ -238,11 +277,28 @@
       .calendar-table {
         font-size: 10px;
       }
+      
+      .print-btn,
+      .print-instructions {
+        display: none !important;
+      }
     }
   </style>
 </head>
 <body>
+  <!-- Print Button (only visible when not printing) -->
+  <button class="print-btn" onclick="window.print()">🖨️ Print to PDF</button>
+  
   <div class="pdf-container">
+    <!-- Print Instructions -->
+    <div class="print-instructions">
+      <h3>📄 How to Save as PDF</h3>
+      <p><strong>Step 1:</strong> Click the "Print to PDF" button above</p>
+      <p><strong>Step 2:</strong> In the print dialog, select "Save as PDF" or "Microsoft Print to PDF"</p>
+      <p><strong>Step 3:</strong> Choose your save location and click Save</p>
+      <p><em>💡 Tip: Use Landscape orientation for best results</em></p>
+    </div>
+    
     <!-- Header -->
     <div class="header">
       <h1>🏓 2025 Tournament Calendar</h1>
