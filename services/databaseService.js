@@ -1,0 +1,371 @@
+const Tournament = require('../models/Tournament');
+const Player = require('../models/Player');
+const PlayerRegistration = require('../models/PlayerRegistration');
+const Admin = require('../models/Admin');
+const Settings = require('../models/Settings');
+
+class DatabaseService {
+  // Tournament operations
+  static async getAllTournaments() {
+    try {
+      return await Tournament.find().sort({ startDate: 1 });
+    } catch (error) {
+      console.error('Error getting tournaments:', error);
+      throw error;
+    }
+  }
+
+  static async getTournamentById(id) {
+    try {
+      return await Tournament.findById(id);
+    } catch (error) {
+      console.error('Error getting tournament by ID:', error);
+      throw error;
+    }
+  }
+
+  static async createTournament(tournamentData) {
+    try {
+      const tournament = new Tournament(tournamentData);
+      return await tournament.save();
+    } catch (error) {
+      console.error('Error creating tournament:', error);
+      throw error;
+    }
+  }
+
+  static async updateTournament(id, updateData) {
+    try {
+      return await Tournament.findByIdAndUpdate(id, updateData, { new: true });
+    } catch (error) {
+      console.error('Error updating tournament:', error);
+      throw error;
+    }
+  }
+
+  static async deleteTournament(id) {
+    try {
+      return await Tournament.findByIdAndDelete(id);
+    } catch (error) {
+      console.error('Error deleting tournament:', error);
+      throw error;
+    }
+  }
+
+  // Player operations
+  static async getAllPlayers() {
+    try {
+      return await Player.find().sort({ createdAt: -1 });
+    } catch (error) {
+      console.error('Error getting players:', error);
+      throw error;
+    }
+  }
+
+  static async getPlayerById(id) {
+    try {
+      return await Player.findById(id).populate('tournaments.tournamentId');
+    } catch (error) {
+      console.error('Error getting player by ID:', error);
+      throw error;
+    }
+  }
+
+  static async getPlayerByPlayerId(playerId) {
+    try {
+      return await Player.findOne({ playerId }).populate('tournaments.tournamentId');
+    } catch (error) {
+      console.error('Error getting player by player ID:', error);
+      throw error;
+    }
+  }
+
+  static async getPlayerByUsername(username) {
+    try {
+      return await Player.findOne({ username });
+    } catch (error) {
+      console.error('Error getting player by username:', error);
+      throw error;
+    }
+  }
+
+  static async getPlayerByEmail(email) {
+    try {
+      return await Player.findOne({ email });
+    } catch (error) {
+      console.error('Error getting player by email:', error);
+      throw error;
+    }
+  }
+
+  static async createPlayer(playerData) {
+    try {
+      // Generate unique player ID
+      const playerId = await Player.generatePlayerId();
+      const player = new Player({ ...playerData, playerId });
+      return await player.save();
+    } catch (error) {
+      console.error('Error creating player:', error);
+      throw error;
+    }
+  }
+
+  static async updatePlayer(id, updateData) {
+    try {
+      return await Player.findByIdAndUpdate(id, updateData, { new: true });
+    } catch (error) {
+      console.error('Error updating player:', error);
+      throw error;
+    }
+  }
+
+  static async deletePlayer(id) {
+    try {
+      return await Player.findByIdAndDelete(id);
+    } catch (error) {
+      console.error('Error deleting player:', error);
+      throw error;
+    }
+  }
+
+  // Player Registration operations
+  static async getAllPlayerRegistrations() {
+    try {
+      return await PlayerRegistration.find().sort({ submittedAt: -1 });
+    } catch (error) {
+      console.error('Error getting player registrations:', error);
+      throw error;
+    }
+  }
+
+  static async getPendingPlayerRegistrations() {
+    try {
+      return await PlayerRegistration.find({ status: 'pending' }).sort({ submittedAt: -1 });
+    } catch (error) {
+      console.error('Error getting pending player registrations:', error);
+      throw error;
+    }
+  }
+
+  static async getPlayerRegistrationById(id) {
+    try {
+      return await PlayerRegistration.findById(id);
+    } catch (error) {
+      console.error('Error getting player registration by ID:', error);
+      throw error;
+    }
+  }
+
+  static async createPlayerRegistration(registrationData) {
+    try {
+      // Generate unique registration ID
+      const registrationId = await PlayerRegistration.generateRegistrationId();
+      const registration = new PlayerRegistration({ ...registrationData, registrationId });
+      return await registration.save();
+    } catch (error) {
+      console.error('Error creating player registration:', error);
+      throw error;
+    }
+  }
+
+  static async approvePlayerRegistration(id, processedBy) {
+    try {
+      const registration = await PlayerRegistration.findById(id);
+      if (!registration) {
+        throw new Error('Registration not found');
+      }
+
+      // Create player from registration
+      const playerData = {
+        fullName: registration.fullName,
+        icNumber: registration.icNumber,
+        age: registration.age,
+        address: registration.address,
+        phoneNumber: registration.phoneNumber,
+        email: registration.email,
+        username: registration.username,
+        password: registration.password,
+        profilePicture: registration.profilePicture
+      };
+
+      const player = await this.createPlayer(playerData);
+
+      // Update registration status
+      registration.status = 'approved';
+      registration.processedAt = new Date();
+      registration.processedBy = processedBy;
+      await registration.save();
+
+      return { player, registration };
+    } catch (error) {
+      console.error('Error approving player registration:', error);
+      throw error;
+    }
+  }
+
+  static async rejectPlayerRegistration(id, processedBy, notes = '') {
+    try {
+      return await PlayerRegistration.findByIdAndUpdate(
+        id,
+        {
+          status: 'rejected',
+          processedAt: new Date(),
+          processedBy,
+          notes
+        },
+        { new: true }
+      );
+    } catch (error) {
+      console.error('Error rejecting player registration:', error);
+      throw error;
+    }
+  }
+
+  // Admin operations
+  static async getAdminByUsername(username) {
+    try {
+      return await Admin.findOne({ username, isActive: true });
+    } catch (error) {
+      console.error('Error getting admin by username:', error);
+      throw error;
+    }
+  }
+
+  static async createAdmin(adminData) {
+    try {
+      const admin = new Admin(adminData);
+      return await admin.save();
+    } catch (error) {
+      console.error('Error creating admin:', error);
+      throw error;
+    }
+  }
+
+  static async updateAdminLastLogin(id) {
+    try {
+      return await Admin.findByIdAndUpdate(
+        id,
+        { lastLogin: new Date() },
+        { new: true }
+      );
+    } catch (error) {
+      console.error('Error updating admin last login:', error);
+      throw error;
+    }
+  }
+
+  // Settings operations
+  static async getSetting(key, defaultValue = null) {
+    try {
+      return await Settings.getSetting(key, defaultValue);
+    } catch (error) {
+      console.error('Error getting setting:', error);
+      return defaultValue;
+    }
+  }
+
+  static async setSetting(key, value, description = '', category = 'general', modifiedBy = 'system') {
+    try {
+      return await Settings.setSetting(key, value, description, category, modifiedBy);
+    } catch (error) {
+      console.error('Error setting setting:', error);
+      throw error;
+    }
+  }
+
+  static async getSettingsByCategory(category) {
+    try {
+      return await Settings.getSettingsByCategory(category);
+    } catch (error) {
+      console.error('Error getting settings by category:', error);
+      return {};
+    }
+  }
+
+  // Tournament registration operations
+  static async registerPlayerForTournament(playerId, tournamentId) {
+    try {
+      const player = await Player.findById(playerId);
+      if (!player) {
+        throw new Error('Player not found');
+      }
+
+      const tournament = await Tournament.findById(tournamentId);
+      if (!tournament) {
+        throw new Error('Tournament not found');
+      }
+
+      // Check if already registered
+      const existingRegistration = player.tournaments.find(
+        t => t.tournamentId.toString() === tournamentId
+      );
+
+      if (existingRegistration) {
+        throw new Error('Player already registered for this tournament');
+      }
+
+      // Add tournament to player's tournaments
+      player.tournaments.push({
+        tournamentId,
+        registrationDate: new Date(),
+        status: 'registered'
+      });
+
+      return await player.save();
+    } catch (error) {
+      console.error('Error registering player for tournament:', error);
+      throw error;
+    }
+  }
+
+  static async unregisterPlayerFromTournament(playerId, tournamentId) {
+    try {
+      const player = await Player.findById(playerId);
+      if (!player) {
+        throw new Error('Player not found');
+      }
+
+      // Remove tournament from player's tournaments
+      player.tournaments = player.tournaments.filter(
+        t => t.tournamentId.toString() !== tournamentId
+      );
+
+      return await player.save();
+    } catch (error) {
+      console.error('Error unregistering player from tournament:', error);
+      throw error;
+    }
+  }
+
+  // Statistics operations
+  static async getStatistics() {
+    try {
+      const [
+        totalPlayers,
+        activePlayers,
+        totalTournaments,
+        pendingRegistrations,
+        totalAdmins
+      ] = await Promise.all([
+        Player.countDocuments(),
+        Player.countDocuments({ status: 'active' }),
+        Tournament.countDocuments(),
+        PlayerRegistration.countDocuments({ status: 'pending' }),
+        Admin.countDocuments({ isActive: true })
+      ]);
+
+      return {
+        totalPlayers,
+        activePlayers,
+        totalTournaments,
+        pendingRegistrations,
+        totalAdmins
+      };
+    } catch (error) {
+      console.error('Error getting statistics:', error);
+      throw error;
+    }
+  }
+}
+
+module.exports = DatabaseService; 
