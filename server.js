@@ -13,7 +13,7 @@ const dataStore = {
     { name: 'KGM Autumn Tournament', startDate: '2025-11-01', endDate: '2025-11-03', type: 'local', months: [10], image: null },
     { name: 'MPR@KL (SUKMA)', startDate: '2025-04-26', endDate: '2025-04-28', type: 'state', months: [3], image: null },
     { name: 'SPA Grand Finals', startDate: '2025-11-10', endDate: '2025-11-12', type: 'national', months: [10], image: null },
-    { name: 'IOP Johor', startDate: '2025-03-20', endDate: '2025-03-22', type: 'international', months: [2], image: null }
+    { name: 'IOP Johor', startDate: '2025-03-20', endDate: '2025-03-22', type: 'wmalaysia', months: [2], image: null }
   ],
   coaches: [],
   referees: [],
@@ -23,6 +23,8 @@ const dataStore = {
   rankings: [],
   pendingRegistrations: [],
   users: [],
+  players: [], // Store approved players
+  playerRegistrations: [], // Store pending player registrations
   backgroundImage: null,
   popupMessage: {
     active: false,
@@ -32,16 +34,38 @@ const dataStore = {
   }
 };
 
+// Player ID generator
+let nextPlayerId = 1000; // Starting player ID
+const generatePlayerId = () => {
+  return `MP${String(nextPlayerId++).padStart(4, '0')}`; // MP0001, MP0002, etc.
+};
+
 // Color mapping for tournament types
 const tournamentTypes = {
   local: { color: 'green', label: 'Local' },
   state: { color: 'red', label: 'State' },
   national: { color: 'blue', label: 'National' },
-  international: { color: 'yellow', label: 'International/Major Quarters' }
+  sarawak: { color: 'purple', label: 'Miscellaneous Pickleball Events in Sarawak' },
+  wmalaysia: { color: 'orange', label: 'Miscellaneous Events in W. Malaysia' }
 };
 
 // Middleware
-app.use(helmet()); // Security headers
+app.use(helmet({
+  contentSecurityPolicy: {
+    directives: {
+      defaultSrc: ["'self'"],
+      scriptSrc: ["'self'", "'unsafe-inline'", "'unsafe-eval'"],
+      scriptSrcAttr: ["'unsafe-inline'"],
+      styleSrc: ["'self'", "'unsafe-inline'", "https://cdn.jsdelivr.net", "https://cdnjs.cloudflare.com"],
+      fontSrc: ["'self'", "https://cdnjs.cloudflare.com", "data:"],
+      imgSrc: ["'self'", "data:", "https:"],
+      connectSrc: ["'self'"],
+      objectSrc: ["'none'"],
+      mediaSrc: ["'self'"],
+      frameSrc: ["'none'"],
+    },
+  },
+})); // Security headers with CSP allowing inline scripts
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json()); // Parse JSON bodies
 app.use(fileUpload());
@@ -654,7 +678,7 @@ app.post('/admin/tournaments', adminAuth, [
   body('name').notEmpty().withMessage('Tournament name is required').trim().escape(),
   body('startDate').optional().isDate().withMessage('Invalid start date format'),
   body('endDate').optional().isDate().withMessage('Invalid end date format'),
-  body('type').isIn(['local', 'state', 'national', 'international']).withMessage('Invalid tournament type'),
+  body('type').isIn(['local', 'state', 'national', 'sarawak', 'wmalaysia']).withMessage('Invalid tournament type'),
   body('months').optional().isArray().withMessage('Months must be an array')
 ], (req, res) => {
   const errors = validationResult(req);
@@ -995,6 +1019,357 @@ app.post('/admin/venues', adminAuth, [
   const { name, address } = req.body;
   dataStore.venues.push({ name, address });
   res.redirect('/admin/venues');
+});
+
+// Player Authentication Middleware
+const playerAuth = (req, res, next) => {
+  if (!req.session.isPlayerAuthenticated) {
+    return res.redirect('/player/login');
+  }
+  
+  // Check session timeout (2 hours)
+  const now = Date.now();
+  const loginTime = req.session.playerLoginTime || 0;
+  const sessionTimeout = 2 * 60 * 60 * 1000;
+  
+  if (now - loginTime > sessionTimeout) {
+    req.session.destroy(() => {
+      res.redirect('/player/login?reason=timeout');
+    });
+    return;
+  }
+  
+  // Update last activity
+  req.session.playerLastActivity = now;
+  next();
+};
+
+// PLAYER REGISTRATION ROUTES
+
+// Show player registration form
+app.get('/player/register', (req, res) => {
+  res.render('pages/player-register', { 
+    session: req.session, 
+    backgroundImage: dataStore.backgroundImage,
+    error: null,
+    success: null
+  });
+});
+
+// Handle player registration
+app.post('/player/register', [
+  body('fullName').notEmpty().withMessage('Full name is required').trim().escape(),
+  body('icNumber').matches(/^[0-9]{6}-[0-9]{2}-[0-9]{4}$/).withMessage('Invalid IC format (123456-78-9012)'),
+  body('age').isInt({ min: 12, max: 100 }).withMessage('Age must be between 12 and 100'),
+  body('address').notEmpty().withMessage('Address is required').trim().escape(),
+  body('phoneNumber').notEmpty().withMessage('Phone number is required').trim().escape(),
+  body('email').isEmail().withMessage('Valid email is required').normalizeEmail(),
+  body('username').matches(/^[a-zA-Z0-9_]{3,20}$/).withMessage('Username must be 3-20 characters, letters, numbers, and underscores only'),
+  body('password').isLength({ min: 6 }).withMessage('Password must be at least 6 characters'),
+  body('terms').equals('on').withMessage('You must agree to the terms and conditions')
+], (req, res) => {
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    return res.render('pages/player-register', {
+      session: req.session,
+      backgroundImage: dataStore.backgroundImage,
+      error: errors.array()[0].msg,
+      success: null
+    });
+  }
+
+  try {
+    const {
+      fullName, icNumber, age, address, phoneNumber, email, username, password
+    } = req.body;
+
+    // Check if username already exists
+    const existingPlayer = dataStore.players.find(p => p.username === username);
+    const existingRegistration = dataStore.playerRegistrations.find(p => p.username === username);
+    
+    if (existingPlayer || existingRegistration) {
+      return res.render('pages/player-register', {
+        session: req.session,
+        backgroundImage: dataStore.backgroundImage,
+        error: 'Username already exists. Please choose a different username.',
+        success: null
+      });
+    }
+
+    // Check if IC already exists
+    const existingIC = dataStore.players.find(p => p.icNumber === icNumber);
+    const existingRegIC = dataStore.playerRegistrations.find(p => p.icNumber === icNumber);
+    
+    if (existingIC || existingRegIC) {
+      return res.render('pages/player-register', {
+        session: req.session,
+        backgroundImage: dataStore.backgroundImage,
+        error: 'Identity card number already registered.',
+        success: null
+      });
+    }
+
+    // Handle profile picture upload
+    let profilePicture = null;
+    if (req.files && req.files.profilePicture) {
+      const file = req.files.profilePicture;
+      const fileName = `${Date.now()}_${file.name}`;
+      profilePicture = `/uploads/${fileName}`;
+      file.mv(path.join(__dirname, 'public/uploads', fileName));
+    }
+
+    // Create registration object
+    const registration = {
+      id: Date.now().toString(),
+      fullName,
+      icNumber,
+      age: parseInt(age),
+      address,
+      phoneNumber,
+      email,
+      username,
+      password, // In production, hash this password!
+      profilePicture,
+      submittedAt: new Date().toISOString(),
+      status: 'pending'
+    };
+
+    // Store registration
+    dataStore.playerRegistrations.push(registration);
+
+    console.log('New player registration received:', registration.fullName);
+
+    res.render('pages/player-register', {
+      session: req.session,
+      backgroundImage: dataStore.backgroundImage,
+      error: null,
+      success: 'Registration submitted successfully! You will receive a notification once your application is approved by our admin team.'
+    });
+
+  } catch (error) {
+    console.error('Error processing player registration:', error);
+    res.render('pages/player-register', {
+      session: req.session,
+      backgroundImage: dataStore.backgroundImage,
+      error: 'Server error while processing registration. Please try again.',
+      success: null
+    });
+  }
+});
+
+// Show player login form
+app.get('/player/login', (req, res) => {
+  let error = null;
+  const reason = req.query.reason;
+  
+  if (reason === 'timeout') {
+    error = 'Your session has expired. Please login again.';
+  } else if (reason === 'unauthorized') {
+    error = 'You must be logged in to access that page.';
+  }
+  
+  res.render('pages/player-login', { 
+    error, 
+    session: req.session,
+    backgroundImage: dataStore.backgroundImage
+  });
+});
+
+// Handle player login
+app.post('/player/login', [
+  body('username').notEmpty().withMessage('Username is required').trim(),
+  body('password').notEmpty().withMessage('Password is required')
+], (req, res) => {
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    return res.render('pages/player-login', {
+      error: 'Please fill in all fields.',
+      session: req.session,
+      backgroundImage: dataStore.backgroundImage
+    });
+  }
+
+  const { username, password } = req.body;
+
+  // Find player in approved players
+  const player = dataStore.players.find(p => p.username === username && p.password === password);
+
+  if (player) {
+    req.session.isPlayerAuthenticated = true;
+    req.session.playerId = player.id;
+    req.session.playerUsername = player.username;
+    req.session.playerLoginTime = Date.now();
+    req.session.playerLastActivity = Date.now();
+    
+    res.redirect('/player/dashboard');
+  } else {
+    res.render('pages/player-login', {
+      error: 'Invalid username or password. Please make sure your account has been approved.',
+      session: req.session,
+      backgroundImage: dataStore.backgroundImage
+    });
+  }
+});
+
+// Player dashboard
+app.get('/player/dashboard', playerAuth, (req, res) => {
+  const player = dataStore.players.find(p => p.id === req.session.playerId);
+  
+  if (!player) {
+    req.session.destroy(() => {
+      res.redirect('/player/login');
+    });
+    return;
+  }
+
+  // Get player's tournament participations (placeholder for future implementation)
+  const playerTournaments = [];
+  
+  res.render('pages/player-dashboard', {
+    player,
+    playerTournaments,
+    session: req.session,
+    backgroundImage: dataStore.backgroundImage
+  });
+});
+
+// Player logout
+app.post('/player/logout', (req, res) => {
+  req.session.destroy(() => {
+    res.redirect('/');
+  });
+});
+
+// Update player profile
+app.post('/player/update-profile', playerAuth, [
+  body('fullName').notEmpty().withMessage('Full name is required').trim().escape(),
+  body('age').isInt({ min: 12, max: 100 }).withMessage('Age must be between 12 and 100'),
+  body('address').notEmpty().withMessage('Address is required').trim().escape(),
+  body('phoneNumber').notEmpty().withMessage('Phone number is required').trim().escape(),
+  body('email').isEmail().withMessage('Valid email is required').normalizeEmail()
+], (req, res) => {
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    return res.json({ success: false, message: errors.array()[0].msg });
+  }
+
+  try {
+    const player = dataStore.players.find(p => p.id === req.session.playerId);
+    if (!player) {
+      return res.json({ success: false, message: 'Player not found' });
+    }
+
+    const { fullName, age, address, phoneNumber, email } = req.body;
+
+    // Update player information
+    player.fullName = fullName;
+    player.age = parseInt(age);
+    player.address = address;
+    player.phoneNumber = phoneNumber;
+    player.email = email;
+
+    // Handle profile picture update
+    if (req.files && req.files.profilePicture) {
+      const file = req.files.profilePicture;
+      const fileName = `${Date.now()}_${file.name}`;
+      player.profilePicture = `/uploads/${fileName}`;
+      file.mv(path.join(__dirname, 'public/uploads', fileName));
+    }
+
+    res.json({ success: true, message: 'Profile updated successfully!' });
+
+  } catch (error) {
+    console.error('Error updating player profile:', error);
+    res.json({ success: false, message: 'Server error while updating profile.' });
+  }
+});
+
+// ADMIN ROUTES FOR PLAYER MANAGEMENT
+
+// Show player registrations in admin dashboard
+app.get('/admin/players', adminAuth, (req, res) => {
+  res.render('pages/admin/manage-players', {
+    playerRegistrations: dataStore.playerRegistrations,
+    approvedPlayers: dataStore.players,
+    session: req.session,
+    backgroundImage: dataStore.backgroundImage
+  });
+});
+
+// Approve player registration
+app.post('/admin/players/approve', adminAuth, (req, res) => {
+  try {
+    const { registrationId } = req.body;
+    
+    const registration = dataStore.playerRegistrations.find(r => r.id === registrationId);
+    if (!registration) {
+      return res.json({ success: false, message: 'Registration not found' });
+    }
+
+    // Generate unique player ID
+    const playerId = generatePlayerId();
+
+    // Create approved player object
+    const approvedPlayer = {
+      id: playerId,
+      fullName: registration.fullName,
+      icNumber: registration.icNumber,
+      age: registration.age,
+      address: registration.address,
+      phoneNumber: registration.phoneNumber,
+      email: registration.email,
+      username: registration.username,
+      password: registration.password,
+      profilePicture: registration.profilePicture,
+      joinDate: new Date().toISOString(),
+      status: 'active'
+    };
+
+    // Add to approved players
+    dataStore.players.push(approvedPlayer);
+
+    // Remove from pending registrations
+    const index = dataStore.playerRegistrations.findIndex(r => r.id === registrationId);
+    dataStore.playerRegistrations.splice(index, 1);
+
+    console.log(`Player approved: ${approvedPlayer.fullName} (ID: ${playerId})`);
+
+    res.json({ 
+      success: true, 
+      message: `${approvedPlayer.fullName} approved successfully! Player ID: ${playerId}` 
+    });
+
+  } catch (error) {
+    console.error('Error approving player:', error);
+    res.json({ success: false, message: 'Server error while approving player.' });
+  }
+});
+
+// Reject player registration
+app.post('/admin/players/reject', adminAuth, (req, res) => {
+  try {
+    const { registrationId } = req.body;
+    
+    const registration = dataStore.playerRegistrations.find(r => r.id === registrationId);
+    if (!registration) {
+      return res.json({ success: false, message: 'Registration not found' });
+    }
+
+    // Remove from pending registrations
+    const index = dataStore.playerRegistrations.findIndex(r => r.id === registrationId);
+    dataStore.playerRegistrations.splice(index, 1);
+
+    console.log(`Player registration rejected: ${registration.fullName}`);
+
+    res.json({ 
+      success: true, 
+      message: `${registration.fullName}'s registration has been rejected.` 
+    });
+
+  } catch (error) {
+    console.error('Error rejecting player:', error);
+    res.json({ success: false, message: 'Server error while rejecting registration.' });
+  }
 });
 
 // 404 Handler

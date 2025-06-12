@@ -326,6 +326,36 @@ td.tournament-name .tournament-date {
   box-shadow: 0 6px 20px rgba(59, 130, 246, 0.4);
 }
 
+.filled-purple { 
+  background: linear-gradient(135deg, #8b5cf6, #7c3aed);
+  color: white;
+  border-radius: 6px;
+  box-shadow: 0 4px 15px rgba(139, 92, 246, 0.3);
+  position: relative;
+  z-index: 2;
+  transition: all 0.3s ease;
+}
+
+.filled-purple:hover {
+  transform: scale(1.1);
+  box-shadow: 0 6px 20px rgba(139, 92, 246, 0.4);
+}
+
+.filled-orange { 
+  background: linear-gradient(135deg, #f97316, #ea580c);
+  color: white;
+  border-radius: 6px;
+  box-shadow: 0 4px 15px rgba(249, 115, 22, 0.3);
+  position: relative;
+  z-index: 2;
+  transition: all 0.3s ease;
+}
+
+.filled-orange:hover {
+  transform: scale(1.1);
+  box-shadow: 0 6px 20px rgba(249, 115, 22, 0.4);
+}
+
 .filled-yellow { 
   background: linear-gradient(135deg, #f59e0b, #d97706);
   color: white;

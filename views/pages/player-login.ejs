@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Player Login - Malaysia Pickleball Association</title>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="/css/styles.css">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+  <style>
+    .login-hero {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      position: relative;
+      overflow: hidden;
+      padding-top: 7rem;
+    }
+    .login-hero::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.1'%3E%3Ccircle cx='30' cy='30' r='2'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E") repeat;
+      animation: float 20s infinite linear;
+    }
+    @keyframes float {
+      0% { transform: translateX(0) translateY(0); }
+      100% { transform: translateX(-60px) translateY(-60px); }
+    }
+    .login-card {
+      backdrop-filter: blur(10px);
+      background: rgba(255, 255, 255, 0.95);
+    }
+    .input-group {
+      position: relative;
+    }
+    .input-group input {
+      transition: all 0.3s ease;
+    }
+    .input-group input:focus {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+    }
+  </style>
+</head>
+<%
+  const defaultBg = backgroundImage || '/images/defaultbg.png';
+%>
+<body class="bg-gray-100 bg-cover bg-center bg-fixed min-h-screen" style="background-image: url('<%= defaultBg %>')">
+  <%- include('../partials/header') %>
+  <%- include('../partials/sidebar') %>
+
+  <!-- Hero Section -->
+  <section class="login-hero py-16 mb-8">
+    <div class="container mx-auto px-4 text-center relative z-10">
+      <h1 class="text-4xl md:text-6xl font-bold text-white mb-4">
+        <i class="fas fa-sign-in-alt mr-3"></i>
+        Player Login
+      </h1>
+      <p class="text-xl text-gray-200 mb-6">
+        Access your player dashboard and manage your pickleball journey
+      </p>
+    </div>
+  </section>
+
+  <main class="md:ml-64 pb-12">
+    <div class="container mx-auto px-4 max-w-md">
+      
+      <!-- Login Form -->
+      <div class="login-card rounded-2xl shadow-2xl p-8 mb-8">
+        <div class="text-center mb-8">
+          <div class="bg-blue-100 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-4">
+            <i class="fas fa-user text-3xl text-blue-600"></i>
+          </div>
+          <h2 class="text-2xl font-bold text-gray-800 mb-2">Welcome Back!</h2>
+          <p class="text-gray-600">Sign in to your player account</p>
+        </div>
+
+        <% if (error) { %>
+          <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-6">
+            <i class="fas fa-exclamation-triangle mr-2"></i>
+            <%= error %>
+          </div>
+        <% } %>
+
+        <form action="/player/login" method="POST" id="loginForm">
+          <!-- Username -->
+          <div class="input-group mb-6">
+            <label for="username" class="block text-sm font-medium text-gray-700 mb-2">
+              <i class="fas fa-user mr-2"></i>Username
+            </label>
+            <input type="text" id="username" name="username" required
+                   class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                   placeholder="Enter your username">
+          </div>
+
+          <!-- Password -->
+          <div class="input-group mb-6">
+            <label for="password" class="block text-sm font-medium text-gray-700 mb-2">
+              <i class="fas fa-lock mr-2"></i>Password
+            </label>
+            <input type="password" id="password" name="password" required
+                   class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                   placeholder="Enter your password">
+          </div>
+
+          <!-- Remember Me -->
+          <div class="flex items-center justify-between mb-6">
+            <label class="flex items-center">
+              <input type="checkbox" class="mr-2">
+              <span class="text-sm text-gray-600">Remember me</span>
+            </label>
+            <a href="#" class="text-sm text-blue-600 hover:underline">Forgot password?</a>
+          </div>
+
+          <!-- Submit Button -->
+          <button type="submit" id="submitBtn"
+                  class="w-full bg-gradient-to-r from-blue-600 to-purple-600 text-white py-3 px-8 rounded-xl font-bold text-lg hover:from-blue-700 hover:to-purple-700 transition-all duration-300 transform hover:scale-105 shadow-lg">
+            <i class="fas fa-sign-in-alt mr-3"></i>
+            Sign In
+          </button>
+        </form>
+
+        <!-- Register Link -->
+        <div class="text-center mt-6 pt-6 border-t border-gray-200">
+          <p class="text-gray-600 mb-4">Don't have an account yet?</p>
+          <a href="/player/register" 
+             class="inline-block bg-gradient-to-r from-green-500 to-emerald-600 text-white py-2 px-6 rounded-lg font-semibold hover:from-green-600 hover:to-emerald-700 transition-all duration-300">
+            <i class="fas fa-user-plus mr-2"></i>
+            Register as Player
+          </a>
+        </div>
+      </div>
+
+      <!-- Info Cards -->
+      <div class="grid grid-cols-1 gap-4">
+        <div class="login-card rounded-xl shadow-lg p-6 text-center">
+          <div class="bg-green-100 w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-3">
+            <i class="fas fa-shield-alt text-green-600"></i>
+          </div>
+          <h3 class="font-semibold text-gray-800 mb-2">Secure Account</h3>
+          <p class="text-sm text-gray-600">Your account is protected with secure authentication</p>
+        </div>
+
+        <div class="login-card rounded-xl shadow-lg p-6 text-center">
+          <div class="bg-blue-100 w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-3">
+            <i class="fas fa-trophy text-blue-600"></i>
+          </div>
+          <h3 class="font-semibold text-gray-800 mb-2">Tournament Access</h3>
+          <p class="text-sm text-gray-600">Join tournaments and track your progress</p>
+        </div>
+
+        <div class="login-card rounded-xl shadow-lg p-6 text-center">
+          <div class="bg-purple-100 w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-3">
+            <i class="fas fa-chart-line text-purple-600"></i>
+          </div>
+          <h3 class="font-semibold text-gray-800 mb-2">Player Rankings</h3>
+          <p class="text-sm text-gray-600">View your ranking and compete with others</p>
+        </div>
+      </div>
+
+    </div>
+  </main>
+
+  <%- include('../partials/footer') %>
+  <script src="/js/script.js"></script>
+  <script>
+    // Form submission handling
+    document.getElementById('loginForm').addEventListener('submit', function(e) {
+      const submitBtn = document.getElementById('submitBtn');
+      submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-3"></i>Signing In...';
+      submitBtn.disabled = true;
+    });
+
+    // Enter key handling
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'Enter') {
+        document.getElementById('loginForm').submit();
+      }
+    });
+  </script>
+</body>
+</html> 
