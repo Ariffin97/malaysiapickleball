@@ -173,15 +173,20 @@
           <p class="text-xl md:text-2xl mb-8 text-gray-200 max-w-3xl mx-auto">
             Join the fastest-growing sport in Malaysia. Discover tournaments, connect with coaches, and be part of our vibrant community.
           </p>
-          <div class="flex flex-col sm:flex-row gap-4 justify-center">
-            <button class="cta-button text-white px-8 py-4 rounded-2xl font-bold text-lg relative overflow-hidden">
-              <i class="fas fa-play mr-3"></i>
-              Explore Tournaments
-            </button>
-            <button class="bg-white bg-opacity-20 text-white px-8 py-4 rounded-2xl font-bold text-lg hover:bg-opacity-30 transition-all duration-300 border border-white border-opacity-30">
-              <i class="fas fa-users mr-3"></i>
-              Find Coaches
-            </button>
+          <!-- Quick Action Buttons -->
+          <div class="flex flex-col sm:flex-row gap-4 justify-center mt-8">
+            <a href="#calendar-view" class="bg-white bg-opacity-20 backdrop-blur-md text-white px-8 py-3 rounded-full font-semibold hover:bg-opacity-30 transition-all duration-300 flex items-center justify-center">
+              <i class="fas fa-calendar-alt mr-2"></i>
+              View Calendar
+            </a>
+            <a href="/tournament" class="bg-yellow-500 hover:bg-yellow-600 text-gray-900 px-8 py-3 rounded-full font-semibold transition-all duration-300 flex items-center justify-center shadow-lg">
+              <i class="fas fa-trophy mr-2"></i>
+              Browse Tournaments
+            </a>
+            <a href="/player/login" class="bg-green-500 hover:bg-green-600 text-white px-8 py-3 rounded-full font-semibold transition-all duration-300 flex items-center justify-center shadow-lg">
+              <i class="fas fa-sign-in-alt mr-2"></i>
+              Player Login
+            </a>
           </div>
         </div>
       </div>
@@ -293,6 +298,17 @@
             <p class="text-gray-600 mb-6">Partner with us to support Malaysian pickleball community.</p>
             <div class="text-indigo-600 font-semibold flex items-center">
               Learn More <i class="fas fa-arrow-right ml-2 transition-transform group-hover:translate-x-2"></i>
+            </div>
+          </div>
+
+          <div class="feature-card p-8 rounded-2xl cursor-pointer group" data-href="/player/register">
+            <div class="feature-icon text-4xl text-orange-600 mb-6 group-hover:text-orange-700">
+              <i class="fas fa-user-plus"></i>
+            </div>
+            <h3 class="text-2xl font-bold mb-4 text-gray-800">Player Registration</h3>
+            <p class="text-gray-600 mb-6">Join our community! Register as an official player and get your unique ID.</p>
+            <div class="text-orange-600 font-semibold flex items-center">
+              Register Now <i class="fas fa-arrow-right ml-2 transition-transform group-hover:translate-x-2"></i>
             </div>
           </div>
         </div>
