@@ -6,31 +6,109 @@
   <title>Venues - Malaysia Pickleball Association</title>
   <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
   <link rel="stylesheet" href="/css/styles.css">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+  <style>
+    .coming-soon-card {
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(10px);
+      transition: all 0.3s ease;
+    }
+    .coming-soon-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+    }
+    .pulse-animation {
+      animation: pulse 2s infinite;
+    }
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.7; }
+    }
+  </style>
 </head>
 <%
   const defaultBg = backgroundImage || '/images/defaultbg.png';
 %>
 <body class="bg-gray-100 bg-cover bg-center bg-fixed min-h-screen" style="background-image: url('<%= defaultBg %>')">
   <%- include('../partials/header') %>
-  <main class="pt-20 p-4 pb-20 min-h-screen">
-    <div class="container mx-auto">
-      <div class="bg-white bg-opacity-90 p-6 rounded-lg shadow-lg mb-6">
-        <h1 class="text-3xl font-bold mb-4 text-gray-800">Our Venues</h1>
-      </div>
-      <% if (venues.length) { %>
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 bg-white bg-opacity-90 p-4 rounded-lg shadow-lg">
-          <% venues.forEach(venue => { %>
-            <div class="p-4 bg-white rounded shadow card">
-              <h2 class="text-xl font-bold"><%= venue.name %></h2>
-              <p><%= venue.address %></p>
+  
+  <main class="pt-20 pb-20 min-h-screen flex items-center justify-center">
+    <div class="container mx-auto px-4">
+      <div class="max-w-2xl mx-auto text-center">
+        
+        <!-- Coming Soon Card -->
+        <div class="coming-soon-card rounded-3xl shadow-2xl p-12 mb-8">
+          
+          <!-- Icon -->
+          <div class="mb-8">
+            <div class="w-24 h-24 mx-auto bg-gradient-to-br from-green-500 to-blue-600 rounded-full flex items-center justify-center pulse-animation">
+              <i class="fas fa-map-marker-alt text-3xl text-white"></i>
             </div>
-          <% }) %>
+          </div>
+          
+          <!-- Title -->
+          <h1 class="text-4xl md:text-5xl font-bold text-gray-800 mb-4">
+            Venues Section
+          </h1>
+          
+          <!-- Release Soon Badge -->
+          <div class="inline-flex items-center px-6 py-3 bg-gradient-to-r from-orange-400 to-pink-500 text-white rounded-full font-semibold text-lg mb-6 shadow-lg">
+            <i class="fas fa-rocket mr-2"></i>
+            Release Soon
+          </div>
+          
+          <!-- Description -->
+          <p class="text-xl text-gray-600 mb-8 leading-relaxed">
+            We're building a comprehensive directory of pickleball venues across Malaysia. 
+            This section will help you find the perfect courts for your games and tournaments.
+          </p>
+          
+          <!-- Features Coming -->
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+            <div class="flex items-center justify-center p-4 bg-gray-50 rounded-xl">
+              <i class="fas fa-building text-blue-500 mr-3 text-xl"></i>
+              <span class="text-gray-700 font-medium">Venue Directory</span>
+            </div>
+            <div class="flex items-center justify-center p-4 bg-gray-50 rounded-xl">
+              <i class="fas fa-images text-green-500 mr-3 text-xl"></i>
+              <span class="text-gray-700 font-medium">Photo Gallery</span>
+            </div>
+            <div class="flex items-center justify-center p-4 bg-gray-50 rounded-xl">
+              <i class="fas fa-calendar-alt text-purple-500 mr-3 text-xl"></i>
+              <span class="text-gray-700 font-medium">Court Booking</span>
+            </div>
+            <div class="flex items-center justify-center p-4 bg-gray-50 rounded-xl">
+              <i class="fas fa-info-circle text-yellow-500 mr-3 text-xl"></i>
+              <span class="text-gray-700 font-medium">Facilities Info</span>
+            </div>
+          </div>
+          
+          <!-- Back Button -->
+          <div class="flex flex-col sm:flex-row gap-4 justify-center">
+            <a href="/" class="inline-flex items-center px-8 py-3 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition-all duration-300 font-semibold shadow-lg hover:shadow-xl transform hover:scale-105">
+              <i class="fas fa-home mr-2"></i>
+              Back to Home
+            </a>
+            <a href="/tournament" class="inline-flex items-center px-8 py-3 bg-gray-600 text-white rounded-xl hover:bg-gray-700 transition-all duration-300 font-semibold shadow-lg hover:shadow-xl transform hover:scale-105">
+              <i class="fas fa-trophy mr-2"></i>
+              View Tournaments
+            </a>
+          </div>
+          
         </div>
-      <% } else { %>
-        <div class="bg-white bg-opacity-90 p-6 rounded-lg shadow-lg">
-          <p>No venues available at the moment.</p>
+        
+        <!-- Additional Info -->
+        <div class="text-center">
+          <p class="text-gray-600">
+            <i class="fas fa-envelope mr-2"></i>
+            Have questions? Contact us at 
+            <a href="mailto:info@malaysiaPickleball.com" class="text-blue-600 hover:text-blue-800 font-semibold">
+              info@malaysiaPickleball.com
+            </a>
+          </p>
         </div>
-      <% } %>
+        
+      </div>
     </div>
   </main>
 
