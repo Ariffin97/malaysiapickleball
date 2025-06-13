@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Player Dashboard - Malaysia Pickleball Association</title>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="/css/styles.css">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+  <style>
+    .dashboard-card {
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(10px);
+      transition: all 0.3s ease;
+    }
+    .dashboard-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+    }
+    .stat-card {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+    }
+    .action-card {
+      transition: all 0.3s ease;
+      cursor: pointer;
+    }
+    .action-card:hover {
+      transform: scale(1.05);
+    }
+  </style>
+</head>
+<%
+  const defaultBg = backgroundImage || '/images/defaultbg.png';
+%>
+<body class="bg-gray-100 bg-cover bg-center bg-fixed min-h-screen" style="background-image: url('<%= defaultBg %>')">
+  <%- include('../../partials/header') %>
+
+  <!-- Hero Section -->
+  <section class="pt-20 pb-8">
+    <div class="container mx-auto px-4">
+      <div class="dashboard-card rounded-2xl shadow-xl p-8 mb-8">
+        <div class="flex flex-col md:flex-row items-center justify-between">
+          <div class="flex items-center space-x-6 mb-6 md:mb-0">
+            <img src="<%= player.profilePicture || '/images/default-avatar.png' %>" 
+                 alt="<%= player.fullName %>" 
+                 class="w-24 h-24 rounded-full border-4 border-blue-500 shadow-lg">
+            <div>
+              <h1 class="text-3xl font-bold text-gray-800 mb-2">
+                Welcome back, <%= player.fullName %>!
+              </h1>
+              <div class="flex flex-wrap gap-4 text-sm text-gray-600">
+                <div><i class="fas fa-id-badge mr-2 text-blue-500"></i>Player ID: <span class="font-semibold text-blue-600"><%= player.playerId %></span></div>
+                <div><i class="fas fa-calendar-check mr-2 text-green-500"></i>Member since: <%= new Date(player.joinDate).toLocaleDateString('en-GB') %></div>
+                <div><i class="fas fa-check-circle mr-2 text-green-500"></i>Status: <span class="text-green-600 font-semibold">Active</span></div>
+              </div>
+            </div>
+          </div>
+          <div class="text-center">
+            <div class="stat-card rounded-xl p-6 shadow-lg">
+              <div class="text-2xl font-bold mb-1"><%= player.ranking?.points || 0 %></div>
+              <div class="text-sm opacity-90">Ranking Points</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Main Dashboard -->
+  <main class="pb-12">
+    <div class="container mx-auto px-4">
+      
+      <!-- Quick Stats -->
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+        <div class="dashboard-card rounded-xl shadow-lg p-6 text-center">
+          <div class="bg-blue-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+            <i class="fas fa-trophy text-2xl text-blue-600"></i>
+          </div>
+          <h3 class="text-xl font-bold text-gray-800 mb-2">Tournaments</h3>
+          <p class="text-3xl font-bold text-blue-600 mb-1"><%= player.tournaments?.length || 0 %></p>
+          <p class="text-sm text-gray-600">Registered</p>
+        </div>
+
+        <div class="dashboard-card rounded-xl shadow-lg p-6 text-center">
+          <div class="bg-green-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+            <i class="fas fa-chart-line text-2xl text-green-600"></i>
+          </div>
+          <h3 class="text-xl font-bold text-gray-800 mb-2">Ranking</h3>
+          <p class="text-3xl font-bold text-green-600 mb-1">#<%= player.ranking?.position || 'N/A' %></p>
+          <p class="text-sm text-gray-600">Current Position</p>
+        </div>
+
+        <div class="dashboard-card rounded-xl shadow-lg p-6 text-center">
+          <div class="bg-purple-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+            <i class="fas fa-medal text-2xl text-purple-600"></i>
+          </div>
+          <h3 class="text-xl font-bold text-gray-800 mb-2">Achievements</h3>
+          <p class="text-3xl font-bold text-purple-600 mb-1">0</p>
+          <p class="text-sm text-gray-600">Earned</p>
+        </div>
+      </div>
+
+      <!-- Quick Actions -->
+      <div class="dashboard-card rounded-2xl shadow-xl p-8 mb-8">
+        <h2 class="text-2xl font-bold text-gray-800 mb-6">
+          <i class="fas fa-bolt mr-3 text-yellow-500"></i>Quick Actions
+        </h2>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          
+          <div class="action-card bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl p-6 text-white text-center shadow-lg">
+            <i class="fas fa-calendar-plus text-3xl mb-4"></i>
+            <h3 class="font-bold mb-2">Register for Tournament</h3>
+            <p class="text-sm opacity-90">Join upcoming tournaments</p>
+          </div>
+
+          <div class="action-card bg-gradient-to-br from-green-500 to-green-600 rounded-xl p-6 text-white text-center shadow-lg">
+            <i class="fas fa-user-edit text-3xl mb-4"></i>
+            <h3 class="font-bold mb-2">Update Profile</h3>
+            <p class="text-sm opacity-90">Edit your information</p>
+          </div>
+
+          <div class="action-card bg-gradient-to-br from-purple-500 to-purple-600 rounded-xl p-6 text-white text-center shadow-lg">
+            <i class="fas fa-chart-bar text-3xl mb-4"></i>
+            <h3 class="font-bold mb-2">View Rankings</h3>
+            <p class="text-sm opacity-90">Check your position</p>
+          </div>
+
+          <div class="action-card bg-gradient-to-br from-orange-500 to-orange-600 rounded-xl p-6 text-white text-center shadow-lg">
+            <i class="fas fa-history text-3xl mb-4"></i>
+            <h3 class="font-bold mb-2">Match History</h3>
+            <p class="text-sm opacity-90">View past games</p>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- Recent Activity & Profile Info -->
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        
+        <!-- Recent Tournaments -->
+        <div class="dashboard-card rounded-2xl shadow-xl p-8">
+          <h2 class="text-2xl font-bold text-gray-800 mb-6">
+            <i class="fas fa-trophy mr-3 text-yellow-500"></i>Recent Tournaments
+          </h2>
+          <% if (player.tournaments && player.tournaments.length > 0) { %>
+            <div class="space-y-4">
+              <% player.tournaments.slice(0, 3).forEach(tournament => { %>
+                <div class="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                  <div>
+                    <h4 class="font-semibold text-gray-800">Tournament Name</h4>
+                    <p class="text-sm text-gray-600">
+                      <i class="fas fa-calendar mr-1"></i>
+                      <%= new Date(tournament.registrationDate).toLocaleDateString('en-GB') %>
+                    </p>
+                  </div>
+                  <span class="px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-xs font-medium">
+                    <%= tournament.status %>
+                  </span>
+                </div>
+              <% }) %>
+            </div>
+          <% } else { %>
+            <div class="text-center py-8">
+              <i class="fas fa-trophy text-4xl text-gray-300 mb-4"></i>
+              <p class="text-gray-600">No tournaments registered yet</p>
+              <button class="mt-4 bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors">
+                Browse Tournaments
+              </button>
+            </div>
+          <% } %>
+        </div>
+
+        <!-- Profile Information -->
+        <div class="dashboard-card rounded-2xl shadow-xl p-8">
+          <h2 class="text-2xl font-bold text-gray-800 mb-6">
+            <i class="fas fa-user mr-3 text-blue-500"></i>Profile Information
+          </h2>
+          <div class="space-y-4">
+            <div class="flex items-center justify-between py-3 border-b border-gray-200">
+              <span class="text-gray-600">Full Name</span>
+              <span class="font-semibold text-gray-800"><%= player.fullName %></span>
+            </div>
+            <div class="flex items-center justify-between py-3 border-b border-gray-200">
+              <span class="text-gray-600">Email</span>
+              <span class="font-semibold text-gray-800"><%= player.email %></span>
+            </div>
+            <div class="flex items-center justify-between py-3 border-b border-gray-200">
+              <span class="text-gray-600">Phone</span>
+              <span class="font-semibold text-gray-800"><%= player.phoneNumber %></span>
+            </div>
+            <div class="flex items-center justify-between py-3 border-b border-gray-200">
+              <span class="text-gray-600">Age</span>
+              <span class="font-semibold text-gray-800"><%= player.age %> years</span>
+            </div>
+            <div class="flex items-center justify-between py-3">
+              <span class="text-gray-600">IC Number</span>
+              <span class="font-semibold text-gray-800"><%= player.icNumber %></span>
+            </div>
+          </div>
+          <div class="mt-6">
+            <button class="w-full bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700 transition-colors font-semibold">
+              <i class="fas fa-edit mr-2"></i>Edit Profile
+            </button>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+  </main>
+
+  <%- include('../../partials/footer') %>
+  <script src="/js/script.js"></script>
+  <script>
+    // Add interactivity to action cards
+    document.querySelectorAll('.action-card').forEach(card => {
+      card.addEventListener('click', function() {
+        const title = this.querySelector('h3').textContent;
+        alert(`${title} feature coming soon!`);
+      });
+    });
+  </script>
+</body>
+</html> 
