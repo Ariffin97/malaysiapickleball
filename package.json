@@ -7,8 +7,7 @@
     "start": "node server-new.js",
     "dev": "nodemon server-new.js",
     "local": "node server.js",
-    "setup": "node quick-start.js",
-    "heroku-postbuild": "node scripts/setup-fresh-database.js"
+    "setup": "node quick-start.js"
   },
   "dependencies": {
     "bcryptjs": "^2.4.3",
