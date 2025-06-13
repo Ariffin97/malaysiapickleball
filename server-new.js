@@ -4,7 +4,6 @@ const helmet = require('helmet');
 const { body, validationResult } = require('express-validator');
 const session = require('express-session');
 const path = require('path');
-const puppeteer = require('puppeteer');
 
 // Load environment variables
 require('dotenv').config();
