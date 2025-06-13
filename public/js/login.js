@@ -83,7 +83,12 @@ document.addEventListener('DOMContentLoaded', function() {
     if (input.hasAttribute('data-validate')) {
       if (input.getAttribute('data-validate').includes('required') && !value) {
         isValid = false;
-        errorMessage = `${input.previousElementSibling.textContent.replace(/[^\w\s]/gi, '').trim()} is required`;
+        // Get field name from the label (which comes after the input in this form)
+        const label = input.nextElementSibling;
+        const fieldName = label && label.tagName === 'LABEL' ? 
+          label.textContent.replace(/[^\w\s]/gi, '').trim() : 
+          input.getAttribute('placeholder') || 'Field';
+        errorMessage = `${fieldName} is required`;
       }
     }
 
