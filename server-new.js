@@ -66,13 +66,23 @@ app.use(session({
 
 // Enhanced admin authentication middleware
 const adminAuth = async (req, res, next) => {
+  console.log('🔍 Admin Auth Check:', {
+    isAuthenticated: req.session.isAuthenticated,
+    adminId: req.session.adminId,
+    username: req.session.username
+  });
+  
   if (!req.session.isAuthenticated || !req.session.adminId) {
+    console.log('❌ Admin auth failed: No session or adminId');
     return res.redirect('/login');
   }
   
   try {
     const admin = await DatabaseService.getAdminByUsername(req.session.username);
+    console.log('👤 Admin lookup result:', admin ? 'Found' : 'Not found', admin?.isActive);
+    
     if (!admin || !admin.isActive) {
+      console.log('❌ Admin auth failed: Admin not found or inactive');
       req.session.destroy(() => {
         res.redirect('/login?reason=unauthorized');
       });
