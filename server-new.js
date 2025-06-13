@@ -59,7 +59,8 @@ app.use(session({
   resave: false,
   saveUninitialized: false,
   cookie: { 
-    secure: process.env.NODE_ENV === 'production',
+    secure: false, // Temporarily disable for debugging
+    httpOnly: true,
     maxAge: parseInt(process.env.SESSION_TIMEOUT) || 7200000 // 2 hours
   }
 }));
@@ -301,8 +302,11 @@ app.post('/login', checkRateLimit, [
     await admin.resetLoginAttempts();
     await DatabaseService.updateAdminLastLogin(admin._id);
     
+    console.log('🎯 Login successful, setting session...');
+    
     req.session.regenerate((err) => {
       if (err) {
+        console.log('❌ Session regenerate error:', err);
         return res.render('pages/login', { error: 'Authentication error', session: req.session });
       }
       
@@ -313,7 +317,20 @@ app.post('/login', checkRateLimit, [
       req.session.userAgent = req.get('User-Agent');
       req.session.ipAddress = req.clientIP;
       
-      res.redirect('/admin/dashboard');
+      console.log('✅ Session set:', {
+        isAuthenticated: req.session.isAuthenticated,
+        adminId: req.session.adminId,
+        username: req.session.username
+      });
+      
+      req.session.save((saveErr) => {
+        if (saveErr) {
+          console.log('❌ Session save error:', saveErr);
+          return res.render('pages/login', { error: 'Session save error', session: req.session });
+        }
+        console.log('✅ Session saved, redirecting to dashboard');
+        res.redirect('/admin/dashboard');
+      });
     });
     
   } catch (error) {
