@@ -80,6 +80,73 @@
       display: flex !important;
     }
     
+    /* General modal scrolling for all screen sizes */
+    #modal-content {
+      max-height: 90vh;
+      overflow-y: auto;
+    }
+    
+    /* Custom scrollbar styling for desktop */
+    #modal-content::-webkit-scrollbar {
+      width: 8px;
+    }
+    #modal-content::-webkit-scrollbar-track {
+      background: #f1f5f9;
+      border-radius: 4px;
+    }
+    #modal-content::-webkit-scrollbar-thumb {
+      background: #cbd5e0;
+      border-radius: 4px;
+    }
+    #modal-content::-webkit-scrollbar-thumb:hover {
+      background: #94a3b8;
+    }
+    
+    /* Firefox scrollbar */
+    #modal-content {
+      scrollbar-width: thin;
+      scrollbar-color: #cbd5e0 #f1f5f9;
+    }
+    
+    /* Mobile-specific modal fixes */
+    @media (max-width: 768px) {
+      #tournament-modal {
+        align-items: flex-start;
+        padding: 1rem;
+      }
+      
+      #modal-content {
+        max-height: 90vh;
+        margin-top: 2rem;
+        margin-bottom: 2rem;
+      }
+      
+      #modal-body {
+        padding: 1rem;
+      }
+      
+      /* Thinner scrollbar for mobile */
+      #modal-content::-webkit-scrollbar {
+        width: 4px;
+      }
+      #modal-content::-webkit-scrollbar-thumb {
+        border-radius: 2px;
+      }
+    }
+    
+    @media (max-height: 700px) {
+      #modal-content {
+        max-height: 85vh;
+      }
+    }
+    
+    /* Very tall content handling */
+    @media (min-height: 900px) {
+      #modal-content {
+        max-height: 85vh;
+      }
+    }
+    
     /* Mobile responsive adjustments for navbar */
     @media (max-width: 640px) {
       .tournament-hero {
@@ -325,11 +392,11 @@
             <i class="fas fa-calendar-check mr-3"></i>Tournament Calendar
           </h2>
         </div>
-        <div class="overflow-x-auto">
-          <table class="w-full">
+                <div class="overflow-x-auto">
+          <table class="w-full calendar-table">
             <thead class="bg-gray-50">
               <tr>
-                <th rowspan="2" class="p-4 text-left font-semibold text-gray-700 border-r border-gray-200 sticky left-0 bg-gray-50 z-10">
+                <th rowspan="2" class="tournament-header p-4 text-left font-semibold text-gray-700 border-r border-gray-200 position-sticky" aria-label="Tournament Name Column (Fixed)">
                   <i class="fas fa-tournament mr-2"></i>Tournament
                 </th>
                 <% const months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']; %>
@@ -377,26 +444,43 @@
               <% if (tournamentData && tournamentData.length) { %>
                 <% tournamentData.forEach((t, index) => { %>
                   <tr class="tournament-row border-b border-gray-100 hover:bg-gray-50 transition-colors" data-type="<%= t.type %>">
-                    <td class="tournament-name p-4 border-r border-gray-200 sticky left-0 bg-white cursor-pointer hover:bg-blue-50" onclick="openTournamentModal(<%= index %>)">
+                    <td class="tournament-name p-4 border-r border-gray-200 cursor-pointer hover:bg-blue-50" onclick="openTournamentModal(<%= index %>)">
                       <div class="flex items-start">
                         <i class="fas fa-trophy mr-3 text-yellow-500 mt-1"></i>
                         <div>
                           <div class="font-medium text-gray-800 text-sm leading-tight">
-                            <%= t.name %>
+                            <%
+                              // Function to create shortform using first letters only
+                              function createShortform(name) {
+                                if (!name) return '';
+                                
+                                // Split name into words and take first letter of each
+                                const words = name.split(/\s+/).filter(word => word.length > 0);
+                                
+                                // Create acronym from first letters
+                                const acronym = words.map(word => {
+                                  // Remove common punctuation and take first letter
+                                  const cleanWord = word.replace(/[^\w]/g, '');
+                                  return cleanWord.charAt(0).toUpperCase();
+                                }).join('');
+                                
+                                return acronym;
+                              }
+                            %>
+                            <span title="<%= t.name %>"><%= createShortform(t.name) %></span>
                           </div>
                           <div class="text-xs text-gray-500 mt-1">
                             <% if (t.startDate) { %>
-                              <%= new Date(t.startDate).toLocaleDateString('en-US', { 
-                                month: 'short', 
-                                day: 'numeric',
-                                year: 'numeric'
-                              }) %>
-                              <% if (t.endDate && t.endDate !== t.startDate) { %>
-                                - <%= new Date(t.endDate).toLocaleDateString('en-US', { 
-                                  month: 'short', 
-                                  day: 'numeric',
-                                  year: 'numeric'
-                                }) %>
+                              <% const startDate = new Date(t.startDate); %>
+                              <% const endDate = t.endDate ? new Date(t.endDate) : null; %>
+                              <% const startDay = startDate.getDate(); %>
+                              <% const startMonth = startDate.toLocaleDateString('en-US', { month: 'short' }); %>
+                              <% const startYear = startDate.getFullYear(); %>
+                              <% if (endDate && endDate.getTime() !== startDate.getTime()) { %>
+                                <% const endDay = endDate.getDate(); %>
+                                <%= startDay %> - <%= endDay %> <%= startMonth %> <%= startYear %>
+                              <% } else { %>
+                                <%= startDay %> <%= startMonth %> <%= startYear %>
                               <% } %>
                             <% } else { %>
                               Date TBD
@@ -409,15 +493,15 @@
                       <% for (let q = 1; q <= 4; q++) { %>
                         <% 
                           let cellClass = "calendar-cell p-3 text-center border-r border-gray-200 relative";
-                          if (t.schedule?.[m]?.includes(q)) {
+                          if (t.schedule && t.schedule[m] && t.schedule[m].includes(q)) {
                             cellClass += ` ${t.color} rounded-lg m-1`;
                           }
                         %>
-                        <td class="<%= cellClass %>" <% if (t.schedule?.[m]?.includes(q)) { %>
+                        <td class="<%= cellClass %>" <% if (t.schedule && t.schedule[m] && t.schedule[m].includes(q)) { %>
                           onclick="openTournamentModal(<%= index %>)"
                           title="<%= t.name %>"
                         <% } %>>
-                          <% if (t.schedule?.[m]?.includes(q)) { %>
+                          <% if (t.schedule && t.schedule[m] && t.schedule[m].includes(q)) { %>
                             <i class="fas fa-circle text-white text-xs"></i>
                           <% } %>
                         </td>
@@ -431,7 +515,8 @@
                     <i class="fas fa-calendar-times text-4xl mb-4 block"></i>
                     No tournaments scheduled.
                   </td>
-                <% } %>
+                </tr>
+              <% } %>
             </tbody>
           </table>
         </div>
@@ -459,10 +544,63 @@
   </div>
 
   <%- include('../partials/footer') %>
+  
+  <style>
+    /* Simple sticky positioning for tournament column */
+    .tournament-name {
+      position: sticky !important;
+      position: -webkit-sticky !important;
+      left: 0 !important;
+      background: white !important;
+      z-index: 10 !important;
+      min-width: 200px !important;
+      max-width: 200px !important;
+    }
+    
+    /* Tournament header sticky */
+    .tournament-header {
+      position: sticky !important;
+      position: -webkit-sticky !important;
+      left: 0 !important;
+      background: #f9fafb !important;
+      z-index: 20 !important;
+      min-width: 200px !important;
+      max-width: 200px !important;
+    }
+    
+    /* Ensure the table has proper layout */
+    .calendar-table {
+      border-collapse: separate !important;
+      border-spacing: 0 !important;
+    }
+    
+    /* Ensure the container allows horizontal scrolling */
+    .overflow-x-auto {
+      position: relative !important;
+      overflow-x: auto !important;
+    }
+    
+    /* Fix for table layout */
+    .calendar-table th:first-child,
+    .calendar-table td:first-child {
+      position: sticky !important;
+      position: -webkit-sticky !important;
+      left: 0 !important;
+      z-index: 10 !important;
+    }
+    
+    /* Ensure header has higher z-index */
+    .calendar-table thead th:first-child {
+      z-index: 20 !important;
+    }
+  </style>
+  
   <script src="/js/script.js"></script>
   <script>
-    // Tournament data for JavaScript
+    // Tournament data for JavaScript (simplified for calendar)
     const tournamentData = <%- JSON.stringify(tournamentData) %>;
+    // Full tournament data with all fields for modal
+    const fullTournamentData = <%- JSON.stringify(tournaments) %>;
     
     // Wait for DOM to be fully loaded
     document.addEventListener('DOMContentLoaded', function() {
@@ -544,7 +682,8 @@
 
     // Tournament modal functionality
     function openTournamentModal(index) {
-      const tournament = tournamentData[index];
+      // Use full tournament data instead of simplified tournamentData
+      const tournament = fullTournamentData[index];
       const modal = document.getElementById('tournament-modal');
       const modalContent = document.getElementById('modal-content');
       const modalTitle = document.getElementById('modal-title');
@@ -560,18 +699,26 @@
         wmalaysia: 'orange'
       };
       
+      // Calculate duration
+      const duration = tournament.startDate && tournament.endDate ? 
+        Math.ceil((new Date(tournament.endDate) - new Date(tournament.startDate)) / (1000 * 60 * 60 * 24)) + 1 : null;
+      
+      const tournamentType = tournament.type || 'local';
+      const colorClass = typeColors[tournamentType] || 'blue';
+      
       modalBody.innerHTML = `
         <div class="space-y-6">
-          <div class="bg-gradient-to-r from-${typeColors[tournament.type]}-400 to-${typeColors[tournament.type]}-600 text-white p-6 rounded-xl">
+          <div class="bg-gradient-to-r from-${colorClass}-400 to-${colorClass}-600 text-white p-6 rounded-xl">
             <div class="flex items-center justify-between">
               <div>
                 <h3 class="text-2xl font-bold">${tournament.name}</h3>
-                <p class="text-lg opacity-90 capitalize">${tournament.type} Tournament</p>
+                <p class="text-lg opacity-90 capitalize">${tournament.type || 'general'} Tournament</p>
               </div>
               <i class="fas fa-trophy text-4xl opacity-80"></i>
             </div>
           </div>
           
+          <!-- Date and Duration Information -->
           <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div class="space-y-4">
               <div class="flex items-center text-gray-700">
@@ -600,7 +747,7 @@
                 <i class="fas fa-tag mr-3 text-purple-500"></i>
                 <div>
                   <div class="font-semibold">Tournament Type</div>
-                  <div class="capitalize">${tournament.type}</div>
+                  <div class="capitalize">${tournament.type || 'general'}</div>
                 </div>
               </div>
               
@@ -608,35 +755,114 @@
                 <i class="fas fa-clock mr-3 text-orange-500"></i>
                 <div>
                   <div class="font-semibold">Duration</div>
-                  <div>${tournament.startDate && tournament.endDate ? 
-                    Math.ceil((new Date(tournament.endDate) - new Date(tournament.startDate)) / (1000 * 60 * 60 * 24)) + ' days' : 
-                    'TBD'}</div>
+                  <div>${duration ? duration + ' day' + (duration > 1 ? 's' : '') : 'TBD'}</div>
                 </div>
               </div>
             </div>
           </div>
           
+          <!-- Venue and Location Information -->
+          ${tournament.venue || tournament.city ? `
+          <div class="bg-blue-50 p-4 rounded-xl">
+            <h4 class="font-semibold text-gray-800 mb-3 flex items-center">
+              <i class="fas fa-map-marker-alt mr-2 text-blue-500"></i>Location Details
+            </h4>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              ${tournament.venue ? `
+              <div class="flex items-center text-gray-700">
+                <i class="fas fa-building mr-3 text-green-500"></i>
+                <div>
+                  <div class="font-semibold">Venue</div>
+                  <div>${tournament.venue}</div>
+                </div>
+              </div>
+              ` : ''}
+              ${tournament.city ? `
+              <div class="flex items-center text-gray-700">
+                <i class="fas fa-city mr-3 text-blue-500"></i>
+                <div>
+                  <div class="font-semibold">City</div>
+                  <div>${tournament.city}</div>
+                </div>
+              </div>
+              ` : ''}
+            </div>
+          </div>
+          ` : ''}
+          
+          <!-- Organizer and Contact Information -->
+          ${tournament.organizer || tournament.personInCharge || tournament.phoneNumber ? `
+          <div class="bg-green-50 p-4 rounded-xl">
+            <h4 class="font-semibold text-gray-800 mb-3 flex items-center">
+              <i class="fas fa-users mr-2 text-green-500"></i>Contact Information
+            </h4>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              ${tournament.organizer ? `
+              <div class="flex items-center text-gray-700">
+                <i class="fas fa-handshake mr-3 text-purple-500"></i>
+                <div>
+                  <div class="font-semibold">Organizer</div>
+                  <div>${tournament.organizer}</div>
+                </div>
+              </div>
+              ` : ''}
+              ${tournament.personInCharge ? `
+              <div class="flex items-center text-gray-700">
+                <i class="fas fa-user-tie mr-3 text-indigo-500"></i>
+                <div>
+                  <div class="font-semibold">Person In Charge</div>
+                  <div>${tournament.personInCharge}</div>
+                </div>
+              </div>
+              ` : ''}
+              ${tournament.phoneNumber ? `
+              <div class="flex items-center text-gray-700 md:col-span-2">
+                <i class="fas fa-phone mr-3 text-orange-500"></i>
+                <div>
+                  <div class="font-semibold">Phone Number</div>
+                  <div><a href="tel:${tournament.phoneNumber}" class="text-blue-600 hover:text-blue-800">${tournament.phoneNumber}</a></div>
+                </div>
+              </div>
+              ` : ''}
+            </div>
+          </div>
+          ` : ''}
+          
+          <!-- Tournament Information -->
           <div class="bg-gray-50 p-4 rounded-xl">
             <h4 class="font-semibold text-gray-800 mb-2">
               <i class="fas fa-info-circle mr-2 text-blue-500"></i>Tournament Information
             </h4>
-            <p class="text-gray-600">
-              This ${tournament.type} level tournament is part of Malaysia's 2025 pickleball calendar. 
-              ${tournament.type === 'local' ? 'Perfect for community players looking to compete locally.' :
-                tournament.type === 'state' ? 'State-level competition for advancing players.' :
-                tournament.type === 'national' ? 'National championship level tournament.' :
-                tournament.type === 'sarawak' ? 'Miscellaneous pickleball events in Sarawak region.' :
+            <p class="text-gray-600 mb-3">
+              This ${tournament.type || 'general'} level tournament is part of Malaysia's 2025 pickleball calendar. 
+              ${(tournament.type || 'local') === 'local' ? 'Perfect for community players looking to compete locally.' :
+                (tournament.type || 'local') === 'state' ? 'State-level competition for advancing players.' :
+                (tournament.type || 'local') === 'national' ? 'National championship level tournament.' :
+                (tournament.type || 'local') === 'sarawak' ? 'Miscellaneous pickleball events in Sarawak region.' :
                 'Miscellaneous events in West Malaysia region.'}
             </p>
+            ${tournament.startDate && tournament.endDate ? `
+            <div class="text-sm text-gray-500">
+              <i class="fas fa-calendar mr-1"></i>
+              Scheduled from ${new Date(tournament.startDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} 
+              to ${new Date(tournament.endDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+            </div>
+            ` : ''}
           </div>
           
+          <!-- Action Buttons -->
           <div class="flex flex-col sm:flex-row gap-3">
-            <button class="flex-1 bg-gradient-to-r from-green-500 to-green-600 text-white py-3 px-6 rounded-xl font-semibold hover:from-green-600 hover:to-green-700 transition-all duration-300">
+            <button class="flex-1 bg-gradient-to-r from-green-500 to-green-600 text-white py-3 px-6 rounded-xl font-semibold hover:from-green-600 hover:to-green-700 transition-all duration-300 transform hover:scale-105">
               <i class="fas fa-user-plus mr-2"></i>Register Now
             </button>
-            <button class="flex-1 bg-gradient-to-r from-blue-500 to-blue-600 text-white py-3 px-6 rounded-xl font-semibold hover:from-blue-600 hover:to-blue-700 transition-all duration-300">
+            <button class="flex-1 bg-gradient-to-r from-blue-500 to-blue-600 text-white py-3 px-6 rounded-xl font-semibold hover:from-blue-600 hover:to-blue-700 transition-all duration-300 transform hover:scale-105">
               <i class="fas fa-download mr-2"></i>Download Info
             </button>
+            ${tournament.phoneNumber ? `
+            <button onclick="window.open('tel:${tournament.phoneNumber}')" class="bg-gradient-to-r from-orange-500 to-orange-600 text-white py-3 px-6 rounded-xl font-semibold hover:from-orange-600 hover:to-orange-700 transition-all duration-300 transform hover:scale-105">
+              <i class="fas fa-phone mr-2"></i>Call
+            </button>
+            ` : ''}
           </div>
         </div>
       `;

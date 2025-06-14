@@ -89,4 +89,15 @@ playerRegistrationSchema.statics.generateRegistrationId = async function() {
   return `REG${String(nextNumber).padStart(4, '0')}`;
 };
 
+// Check if IC number is already in registration system (pending or approved)
+playerRegistrationSchema.statics.isIcNumberInSystem = async function(icNumber) {
+  try {
+    const existingRegistration = await this.findOne({ icNumber });
+    return !!existingRegistration;
+  } catch (error) {
+    console.error('Error checking IC number in registration system:', error);
+    throw error;
+  }
+};
+
 module.exports = mongoose.model('PlayerRegistration', playerRegistrationSchema); 

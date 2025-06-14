@@ -158,7 +158,18 @@
                      pattern="[0-9]{6}-[0-9]{2}-[0-9]{4}"
                      class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                      placeholder="123456-78-9012">
-              <p class="text-xs text-gray-500 mt-1">Format: 123456-78-9012</p>
+              <div id="icValidation" class="mt-1 text-xs hidden">
+                <div id="icLoading" class="text-blue-600 hidden">
+                  <i class="fas fa-spinner fa-spin mr-1"></i>Checking availability...
+                </div>
+                <div id="icAvailable" class="text-green-600 hidden">
+                  <i class="fas fa-check-circle mr-1"></i>IC number is available for registration
+                </div>
+                <div id="icUnavailable" class="text-red-600 hidden">
+                  <i class="fas fa-times-circle mr-1"></i><span id="icErrorMessage"></span>
+                </div>
+              </div>
+              <p class="text-xs text-gray-500 mt-1">Format: 123456-78-9012. Each IC number can only be registered once.</p>
             </div>
 
             <!-- Age -->
@@ -312,7 +323,7 @@
               <i class="fas fa-id-badge text-2xl text-blue-600"></i>
             </div>
             <h4 class="font-semibold text-gray-800 mb-2">Unique Player ID</h4>
-            <p class="text-sm text-gray-600">Get your official Malaysia Pickleball ID (MP####)</p>
+            <p class="text-sm text-gray-600">Get your unique 5-character Player ID linked to your IC number</p>
           </div>
           <div class="text-center">
             <div class="bg-green-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
@@ -431,6 +442,94 @@
       }
     });
 
+    // IC Number validation
+    let icCheckTimeout;
+    let isIcValid = false;
+    
+    document.getElementById('icNumber').addEventListener('input', function() {
+      const icNumber = this.value.trim();
+      const icRegex = /^[0-9]{6}-[0-9]{2}-[0-9]{4}$/;
+      
+      // Clear previous timeout
+      if (icCheckTimeout) {
+        clearTimeout(icCheckTimeout);
+      }
+      
+      // Hide all validation messages
+      hideAllIcMessages();
+      
+      // If empty or invalid format, don't check
+      if (!icNumber || !icRegex.test(icNumber)) {
+        isIcValid = false;
+        updateSubmitButton();
+        return;
+      }
+      
+      // Show loading message
+      showIcMessage('loading');
+      
+      // Debounce the API call
+      icCheckTimeout = setTimeout(() => {
+        checkIcAvailability(icNumber);
+      }, 500);
+    });
+    
+    async function checkIcAvailability(icNumber) {
+      try {
+        const response = await fetch(`/api/check-ic/${encodeURIComponent(icNumber)}`);
+        const result = await response.json();
+        
+        hideAllIcMessages();
+        
+        if (result.available) {
+          showIcMessage('available');
+          isIcValid = true;
+        } else {
+          showIcMessage('unavailable', result.message);
+          isIcValid = false;
+        }
+        
+        updateSubmitButton();
+      } catch (error) {
+        console.error('Error checking IC availability:', error);
+        hideAllIcMessages();
+        showIcMessage('unavailable', 'Error checking IC number availability');
+        isIcValid = false;
+        updateSubmitButton();
+      }
+    }
+    
+    function hideAllIcMessages() {
+      document.getElementById('icValidation').classList.add('hidden');
+      document.getElementById('icLoading').classList.add('hidden');
+      document.getElementById('icAvailable').classList.add('hidden');
+      document.getElementById('icUnavailable').classList.add('hidden');
+    }
+    
+    function showIcMessage(type, message = '') {
+      document.getElementById('icValidation').classList.remove('hidden');
+      
+      if (type === 'loading') {
+        document.getElementById('icLoading').classList.remove('hidden');
+      } else if (type === 'available') {
+        document.getElementById('icAvailable').classList.remove('hidden');
+      } else if (type === 'unavailable') {
+        document.getElementById('icErrorMessage').textContent = message;
+        document.getElementById('icUnavailable').classList.remove('hidden');
+      }
+    }
+    
+    function updateSubmitButton() {
+      const submitBtn = document.getElementById('submitBtn');
+      if (isIcValid) {
+        submitBtn.disabled = false;
+        submitBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+      } else {
+        submitBtn.disabled = true;
+        submitBtn.classList.add('opacity-50', 'cursor-not-allowed');
+      }
+    }
+
     // Username availability check (placeholder for future implementation)
     document.getElementById('username').addEventListener('blur', function() {
       // Could add AJAX call to check username availability
@@ -440,6 +539,7 @@
     // Initialize
     document.addEventListener('DOMContentLoaded', function() {
       console.log('Player registration form loaded');
+      updateSubmitButton(); // Initially disable submit button
     });
   </script>
 </body>

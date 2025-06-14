@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs');
+const crypto = require('crypto');
 
 const playerSchema = new mongoose.Schema({
   playerId: {
@@ -115,17 +116,46 @@ playerSchema.methods.comparePassword = async function(candidatePassword) {
   return bcrypt.compare(candidatePassword, this.password);
 };
 
-// Generate unique player ID
-playerSchema.statics.generatePlayerId = async function() {
-  const lastPlayer = await this.findOne({}, {}, { sort: { 'playerId': -1 } });
-  
-  if (!lastPlayer) {
-    return 'MP0001';
+// Generate unique 5-character alphanumeric player ID based on IC number
+playerSchema.statics.generatePlayerId = async function(icNumber) {
+  try {
+    // Create a hash from the IC number
+    const hash = crypto.createHash('sha256').update(icNumber).digest('hex');
+    
+    // Extract first 5 characters and convert to alphanumeric
+    let playerId = '';
+    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+    
+    // Use hash bytes to generate 5-character ID
+    for (let i = 0; i < 5; i++) {
+      const byte = parseInt(hash.substr(i * 2, 2), 16);
+      playerId += chars[byte % chars.length];
+    }
+    
+    // Check if this ID already exists (very unlikely but safety check)
+    const existingPlayer = await this.findOne({ playerId });
+    if (existingPlayer) {
+      // If collision occurs, add a random suffix
+      const randomSuffix = Math.floor(Math.random() * 10);
+      playerId = playerId.substr(0, 4) + randomSuffix;
+    }
+    
+    return playerId;
+  } catch (error) {
+    console.error('Error generating player ID:', error);
+    throw error;
   }
-  
-  const lastNumber = parseInt(lastPlayer.playerId.substring(2));
-  const nextNumber = lastNumber + 1;
-  return `MP${String(nextNumber).padStart(4, '0')}`;
+};
+
+// Check if IC number is already registered
+playerSchema.statics.isIcNumberRegistered = async function(icNumber) {
+  try {
+    const existingPlayer = await this.findOne({ icNumber });
+    return !!existingPlayer;
+  } catch (error) {
+    console.error('Error checking IC number:', error);
+    throw error;
+  }
 };
 
 module.exports = mongoose.model('Player', playerSchema); 
