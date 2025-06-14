@@ -367,6 +367,23 @@
       </thead>
       <tbody>
         <% 
+          // Function to create shortform using first letters only
+          function createShortform(name) {
+            if (!name) return '';
+            
+            // Split name into words and take first letter of each
+            const words = name.split(/\s+/).filter(word => word.length > 0);
+            
+            // Create acronym from first letters
+            const acronym = words.map(word => {
+              // Remove common punctuation and take first letter
+              const cleanWord = word.replace(/[^\w]/g, '');
+              return cleanWord.charAt(0).toUpperCase();
+            }).join('');
+            
+            return acronym;
+          }
+          
           // Transform tournaments for display
           const tournamentData = tournaments.map(t => {
             const schedule = Array(12).fill().map(() => []);
@@ -385,6 +402,7 @@
             }
             return {
               name: t.name,
+              shortName: createShortform(t.name),
               type: t.type,
               startDate: t.startDate,
               endDate: t.endDate,
@@ -397,13 +415,34 @@
         <% if (tournamentData && tournamentData.length) { %>
           <% tournamentData.forEach((t, index) => { %>
             <tr>
-              <td class="tournament-name">
-                <%= t.name %>
+              <td class="tournament-name" title="<%= t.name %>">
+                <div class="font-bold text-sm"><%= t.shortName %></div>
+                <div class="text-xs text-gray-600 mt-1">
+                  <% if (t.startDate) { %>
+                    <% const startDate = new Date(t.startDate); %>
+                    <% const endDate = t.endDate ? new Date(t.endDate) : null; %>
+                    <% const startDay = startDate.getDate(); %>
+                    <% const startMonth = startDate.toLocaleDateString('en-US', { month: 'short' }); %>
+                    <% const startYear = startDate.getFullYear(); %>
+                    <% if (endDate && endDate.getTime() !== startDate.getTime()) { %>
+                      <% const endDay = endDate.getDate(); %>
+                      <%= startDay %>-<%= endDay %> <%= startMonth %> <%= startYear %>
+                    <% } else { %>
+                      <%= startDay %> <%= startMonth %> <%= startYear %>
+                    <% } %>
+                  <% } else { %>
+                    Date TBD
+                  <% } %>
+                </div>
               </td>
               <% for (let m = 0; m < months.length; m++) { %>
                 <% for (let q = 1; q <= 4; q++) { %>
-                  <td class="calendar-cell <%= t.schedule?.[m]?.includes(q) ? t.color : '' %>">
-                    <% if (t.schedule?.[m]?.includes(q)) { %>
+                  <% 
+                    const hasEvent = t.schedule && t.schedule[m] && t.schedule[m].includes(q);
+                    const cellClass = hasEvent ? t.color : '';
+                  %>
+                  <td class="calendar-cell <%= cellClass %>">
+                    <% if (hasEvent) { %>
                       <div class="tournament-dot"></div>
                     <% } %>
                   </td>
@@ -426,30 +465,79 @@
       <h3>Tournament Details</h3>
       <% if (tournaments && tournaments.length) { %>
         <% tournaments.forEach(tournament => { %>
-          <div class="tournament-item">
-            <div class="tournament-info">
-              <div class="tournament-title"><%= tournament.name %></div>
-              <div class="tournament-type">
-                <%= tournament.type.charAt(0).toUpperCase() + tournament.type.slice(1) %> Tournament
+          <div class="tournament-item" style="display: block; padding: 15px 0; border-bottom: 1px solid #e5e7eb;">
+            <div style="margin-bottom: 8px;">
+              <div class="tournament-title" style="font-size: 16px; font-weight: bold; color: #1f2937; margin-bottom: 4px;">
+                <%= tournament.name %>
+              </div>
+              <div class="tournament-type" style="font-size: 12px; color: #6b7280; text-transform: capitalize;">
+                <%= tournament.type ? (tournament.type.charAt(0).toUpperCase() + tournament.type.slice(1)) : 'General' %> Tournament
               </div>
             </div>
-            <div class="tournament-dates">
-              <% if (tournament.startDate) { %>
-                <%= new Date(tournament.startDate).toLocaleDateString('en-GB', { 
-                  day: 'numeric',
-                  month: 'short',
-                  year: 'numeric'
-                }) %>
-                <% if (tournament.endDate && tournament.endDate !== tournament.startDate) { %>
-                  - <%= new Date(tournament.endDate).toLocaleDateString('en-GB', { 
-                    day: 'numeric',
-                    month: 'short',
-                    year: 'numeric'
-                  }) %>
+            
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 10px;">
+              <!-- Left Column -->
+              <div>
+                <div style="margin-bottom: 8px;">
+                  <strong style="font-size: 11px; color: #374151;">📅 Date:</strong>
+                  <span style="font-size: 11px; color: #6b7280;">
+                    <% if (tournament.startDate) { %>
+                      <%= new Date(tournament.startDate).toLocaleDateString('en-GB', { 
+                        day: 'numeric',
+                        month: 'short',
+                        year: 'numeric'
+                      }) %>
+                      <% if (tournament.endDate && tournament.endDate !== tournament.startDate) { %>
+                        - <%= new Date(tournament.endDate).toLocaleDateString('en-GB', { 
+                          day: 'numeric',
+                          month: 'short',
+                          year: 'numeric'
+                        }) %>
+                      <% } %>
+                    <% } else { %>
+                      TBD
+                    <% } %>
+                  </span>
+                </div>
+                
+                <% if (tournament.venue) { %>
+                <div style="margin-bottom: 8px;">
+                  <strong style="font-size: 11px; color: #374151;">🏟️ Venue:</strong>
+                  <span style="font-size: 11px; color: #6b7280;"><%= tournament.venue %></span>
+                </div>
                 <% } %>
-              <% } else { %>
-                TBD
-              <% } %>
+                
+                <% if (tournament.city) { %>
+                <div style="margin-bottom: 8px;">
+                  <strong style="font-size: 11px; color: #374151;">🏙️ City:</strong>
+                  <span style="font-size: 11px; color: #6b7280;"><%= tournament.city %></span>
+                </div>
+                <% } %>
+              </div>
+              
+              <!-- Right Column -->
+              <div>
+                <% if (tournament.organizer) { %>
+                <div style="margin-bottom: 8px;">
+                  <strong style="font-size: 11px; color: #374151;">🏢 Organizer:</strong>
+                  <span style="font-size: 11px; color: #6b7280;"><%= tournament.organizer %></span>
+                </div>
+                <% } %>
+                
+                <% if (tournament.personInCharge) { %>
+                <div style="margin-bottom: 8px;">
+                  <strong style="font-size: 11px; color: #374151;">👤 Contact Person:</strong>
+                  <span style="font-size: 11px; color: #6b7280;"><%= tournament.personInCharge %></span>
+                </div>
+                <% } %>
+                
+                <% if (tournament.phoneNumber) { %>
+                <div style="margin-bottom: 8px;">
+                  <strong style="font-size: 11px; color: #374151;">📞 Phone:</strong>
+                  <span style="font-size: 11px; color: #6b7280;"><%= tournament.phoneNumber %></span>
+                </div>
+                <% } %>
+              </div>
             </div>
           </div>
         <% }) %>

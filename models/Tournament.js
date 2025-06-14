@@ -40,6 +40,31 @@ const tournamentSchema = new mongoose.Schema({
     type: String,
     required: false
   },
+  venue: {
+    type: String,
+    required: false,
+    trim: true
+  },
+  city: {
+    type: String,
+    required: false,
+    trim: true
+  },
+  organizer: {
+    type: String,
+    required: false,
+    trim: true
+  },
+  personInCharge: {
+    type: String,
+    required: false,
+    trim: true
+  },
+  phoneNumber: {
+    type: String,
+    required: false,
+    trim: true
+  },
   registrationOpen: {
     type: Boolean,
     default: true

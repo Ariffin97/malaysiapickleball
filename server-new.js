@@ -386,7 +386,12 @@ app.post('/admin/tournaments', adminAuth, [
   body('name').notEmpty().trim().withMessage('Tournament name is required'),
   body('startDate').notEmpty().withMessage('Start date is required'),
   body('endDate').notEmpty().withMessage('End date is required'),
-  body('type').notEmpty().withMessage('Tournament type is required')
+  body('type').notEmpty().withMessage('Tournament type is required'),
+  body('venue').optional().trim(),
+  body('city').optional().trim(),
+  body('organizer').optional().trim(),
+  body('personInCharge').optional().trim(),
+  body('phoneNumber').optional().trim().matches(/^[0-9+\-\s\(\)]+$/).withMessage('Phone number contains invalid characters')
 ], async (req, res) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
@@ -415,6 +420,73 @@ app.post('/admin/tournaments/delete/:id', adminAuth, async (req, res) => {
   } catch (error) {
     console.error('Delete tournament error:', error);
     res.redirect('/admin/tournaments?error=delete_failed');
+  }
+});
+
+// Tournament update route
+app.post('/admin/tournaments/update/:id', adminAuth, [
+  body('name').notEmpty().trim().withMessage('Tournament name is required'),
+  body('type').isIn(['local', 'state', 'national', 'sarawak', 'wmalaysia']).withMessage('Valid tournament type is required'),
+  body('startDate').optional({ checkFalsy: true }).isISO8601().withMessage('Valid start date is required'),
+  body('endDate').optional({ checkFalsy: true }).isISO8601().withMessage('Valid end date is required'),
+  body('venue').optional().trim(),
+  body('city').optional().trim(),
+  body('organizer').optional().trim(),
+  body('personInCharge').optional().trim(),
+  body('phoneNumber').optional().trim().matches(/^[0-9+\-\s()]+$/).withMessage('Valid phone number format required')
+], async (req, res) => {
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    return res.status(400).json({
+      success: false,
+      message: 'Validation failed',
+      errors: errors.array()
+    });
+  }
+
+  try {
+    const tournamentId = req.params.id;
+    const updateData = {
+      name: req.body.name,
+      type: req.body.type,
+      startDate: req.body.startDate || null,
+      endDate: req.body.endDate || null,
+      venue: req.body.venue || null,
+      city: req.body.city || null,
+      organizer: req.body.organizer || null,
+      personInCharge: req.body.personInCharge || null,
+      phoneNumber: req.body.phoneNumber || null
+    };
+
+    // Calculate months if dates are provided
+    if (updateData.startDate && updateData.endDate) {
+      const start = new Date(updateData.startDate);
+      const end = new Date(updateData.endDate);
+      const months = [];
+      
+      const current = new Date(start);
+      while (current <= end) {
+        months.push(current.getMonth());
+        current.setMonth(current.getMonth() + 1);
+      }
+      
+      updateData.months = [...new Set(months)]; // Remove duplicates
+    } else if (updateData.startDate) {
+      updateData.months = [new Date(updateData.startDate).getMonth()];
+    }
+
+    await DatabaseService.updateTournament(tournamentId, updateData);
+    
+    res.json({
+      success: true,
+      message: 'Tournament updated successfully'
+    });
+  } catch (error) {
+    console.error('Update tournament error:', error);
+    res.status(500).json({
+      success: false,
+      message: error.message || 'Failed to update tournament'
+    });
   }
 });
 
@@ -460,8 +532,9 @@ app.post('/admin/players/approve/:id', adminAuth, async (req, res) => {
     
     res.json({ 
       success: true, 
-      message: 'Player registration approved successfully',
-      player: result.player 
+      message: `Player registration approved successfully! Player ID: ${result.player.playerId}`,
+      player: result.player,
+      playerId: result.player.playerId
     });
   } catch (error) {
     console.error('Error approving player:', error);
@@ -562,6 +635,23 @@ app.post('/player/register', [
   }
   
   try {
+    // Check if IC number is already registered or in the system
+    const icAvailability = await DatabaseService.checkIcNumberAvailability(req.body.icNumber);
+    if (!icAvailability.available) {
+      let errorMessage = '';
+      if (icAvailability.isPlayerRegistered) {
+        errorMessage = 'This IC number is already registered as an active player. Each IC number can only be registered once.';
+      } else if (icAvailability.isInRegistrationSystem) {
+        errorMessage = 'This IC number already has a registration in the system. Please check your registration status or contact admin.';
+      }
+      return res.render('pages/player-register', {
+        error: errorMessage,
+        success: null,
+        session: req.session,
+        backgroundImage: await DatabaseService.getSetting('background_image', '/images/defaultbg.png')
+      });
+    }
+
     // Check if username or email already exists
     const existingPlayer = await DatabaseService.getPlayerByUsername(req.body.username);
     if (existingPlayer) {
@@ -619,15 +709,30 @@ app.post('/player/register', [
 
     res.render('pages/player-register', {
       error: null,
-      success: 'Registration submitted successfully! Your application has been received and will be reviewed by our admin team within 24-48 hours. You will receive an email notification once your application is processed.',
+      success: 'Registration submitted successfully! Your application has been received and will be reviewed by our admin team within 24-48 hours. Once approved, you will receive a unique 5-character Player ID linked to your IC number. You will receive an email notification once your application is processed.',
       session: req.session,
       backgroundImage: await DatabaseService.getSetting('background_image', '/images/defaultbg.png')
     });
 
   } catch (error) {
     console.error('Player registration error:', error);
+    
+    // Handle specific error messages
+    let errorMessage = 'Registration failed. Please try again later.';
+    if (error.message.includes('IC number')) {
+      errorMessage = error.message;
+    } else if (error.message.includes('duplicate key')) {
+      if (error.message.includes('email')) {
+        errorMessage = 'Email address is already registered. Please use a different email.';
+      } else if (error.message.includes('username')) {
+        errorMessage = 'Username is already taken. Please choose a different username.';
+      } else if (error.message.includes('icNumber')) {
+        errorMessage = 'This IC number is already registered. Each IC number can only be registered once.';
+      }
+    }
+    
     res.render('pages/player-register', {
-      error: 'Registration failed. Please try again later.',
+      error: errorMessage,
       success: null,
       session: req.session,
       backgroundImage: await DatabaseService.getSetting('background_image', '/images/defaultbg.png')
@@ -1058,6 +1163,44 @@ app.get('/services/section-36', async (req, res) => {
   }
 });
 
+// Tournament PDF Download Routes
+app.get('/tournament/download-pdf', async (req, res) => {
+  // Redirect to enhanced version with fallback
+  res.redirect('/tournament/download-pdf-enhanced');
+});
+
+app.get('/tournament/download-pdf-enhanced', async (req, res) => {
+  try {
+    console.log('Enhanced PDF download requested - redirecting to print version');
+    
+    // For now, redirect to the print version as a fallback
+    // In the future, you can implement full PDF generation with puppeteer
+    res.redirect('/tournament/print-pdf');
+    
+  } catch (error) {
+    console.error('Enhanced PDF generation error:', error);
+    
+    // Final fallback - redirect to print version
+    if (!res.headersSent) {
+      console.log('Redirecting to print version as final fallback');
+      res.redirect('/tournament/print-pdf');
+    }
+  }
+});
+
+app.get('/tournament/download-pdf-simple', async (req, res) => {
+  try {
+    console.log('Simple PDF download requested - redirecting to print version');
+    res.redirect('/tournament/print-pdf');
+  } catch (error) {
+    console.error('Simple PDF generation error:', error);
+    res.status(500).json({ 
+      error: 'Failed to generate PDF', 
+      details: error.message 
+    });
+  }
+});
+
 // Tournament PDF Print Route
 app.get('/tournament/print-pdf', async (req, res) => {
   try {
@@ -1065,20 +1208,18 @@ app.get('/tournament/print-pdf', async (req, res) => {
     
     // Get tournaments from database
     const tournaments = await DatabaseService.getAllTournaments();
-    
-    // Define tournament types with colors (similar to old server.js)
+    // Define tournament types with colors (matching actual database types)
     const tournamentTypes = {
-      'singles': { color: 'blue' },
-      'doubles': { color: 'green' },
-      'mixed': { color: 'purple' },
-      'team': { color: 'orange' },
-      'junior': { color: 'pink' },
-      'senior': { color: 'teal' }
+      'local': { color: 'green' },
+      'state': { color: 'red' },
+      'national': { color: 'blue' },
+      'sarawak': { color: 'yellow' },
+      'wmalaysia': { color: 'purple' }
     };
     
     // Format tournaments for PDF
     const formattedTournaments = tournaments.map(t => ({
-      ...t,
+      ...t.toObject(),
       color: tournamentTypes[t.type]?.color || 'green'
     }));
     
@@ -1091,6 +1232,46 @@ app.get('/tournament/print-pdf', async (req, res) => {
     res.status(500).json({ 
       error: 'Failed to generate printable version', 
       details: error.message 
+    });
+  }
+});
+
+// API endpoint to check IC number availability
+app.get('/api/check-ic/:icNumber', async (req, res) => {
+  try {
+    const icNumber = req.params.icNumber;
+    
+    // Validate IC number format
+    const icRegex = /^[0-9]{6}-[0-9]{2}-[0-9]{4}$/;
+    if (!icRegex.test(icNumber)) {
+      return res.json({
+        available: false,
+        message: 'Invalid IC number format. Please use format: 123456-78-9012'
+      });
+    }
+
+    const availability = await DatabaseService.checkIcNumberAvailability(icNumber);
+    
+    let message = '';
+    if (availability.available) {
+      message = 'IC number is available for registration';
+    } else if (availability.isPlayerRegistered) {
+      message = 'This IC number is already registered as an active player';
+    } else if (availability.isInRegistrationSystem) {
+      message = 'This IC number already has a pending registration';
+    }
+
+    res.json({
+      available: availability.available,
+      message: message,
+      isPlayerRegistered: availability.isPlayerRegistered,
+      isInRegistrationSystem: availability.isInRegistrationSystem
+    });
+  } catch (error) {
+    console.error('Error checking IC availability:', error);
+    res.status(500).json({
+      available: false,
+      message: 'Error checking IC number availability'
     });
   }
 });

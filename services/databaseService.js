@@ -100,8 +100,8 @@ class DatabaseService {
 
   static async createPlayer(playerData) {
     try {
-      // Generate unique player ID
-      const playerId = await Player.generatePlayerId();
+      // Generate unique player ID based on IC number
+      const playerId = await Player.generatePlayerId(playerData.icNumber);
       const player = new Player({ ...playerData, playerId });
       return await player.save();
     } catch (error) {
@@ -158,6 +158,18 @@ class DatabaseService {
 
   static async createPlayerRegistration(registrationData) {
     try {
+      // Check if IC number is already registered as a player
+      const isPlayerRegistered = await Player.isIcNumberRegistered(registrationData.icNumber);
+      if (isPlayerRegistered) {
+        throw new Error('This IC number is already registered as an active player');
+      }
+
+      // Check if IC number already has a pending/approved registration
+      const isInRegistrationSystem = await PlayerRegistration.isIcNumberInSystem(registrationData.icNumber);
+      if (isInRegistrationSystem) {
+        throw new Error('This IC number already has a registration in the system');
+      }
+
       // Generate unique registration ID
       const registrationId = await PlayerRegistration.generateRegistrationId();
       const registration = new PlayerRegistration({ ...registrationData, registrationId });
@@ -363,6 +375,23 @@ class DatabaseService {
       };
     } catch (error) {
       console.error('Error getting statistics:', error);
+      throw error;
+    }
+  }
+
+  // Add method to check IC number availability
+  static async checkIcNumberAvailability(icNumber) {
+    try {
+      const isPlayerRegistered = await Player.isIcNumberRegistered(icNumber);
+      const isInRegistrationSystem = await PlayerRegistration.isIcNumberInSystem(icNumber);
+      
+      return {
+        available: !isPlayerRegistered && !isInRegistrationSystem,
+        isPlayerRegistered,
+        isInRegistrationSystem
+      };
+    } catch (error) {
+      console.error('Error checking IC number availability:', error);
       throw error;
     }
   }

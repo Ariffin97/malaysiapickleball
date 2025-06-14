@@ -226,7 +226,7 @@
                     <div class="flex-1">
                       <h4 class="text-lg font-bold text-gray-800 mb-1"><%= player.fullName %></h4>
                       <div class="text-sm text-gray-600 space-y-1">
-                        <div><i class="fas fa-id-badge mr-2"></i>Player ID: <span class="font-medium text-blue-600"><%= player.id %></span></div>
+                        <div><i class="fas fa-id-badge mr-2"></i>Player ID: <span class="font-medium text-blue-600"><%= player.playerId %></span></div>
                         <div><i class="fas fa-envelope mr-2"></i><%= player.email %></div>
                         <div><i class="fas fa-phone mr-2"></i><%= player.phoneNumber %></div>
                         <div><i class="fas fa-calendar-check mr-2"></i>Joined: <%= new Date(player.joinDate).toLocaleDateString('en-GB') %></div>
@@ -312,7 +312,7 @@
         const result = await response.json();
         
         if (result.success) {
-          alert('Player approved successfully!');
+          alert(result.message || 'Player approved successfully!');
           location.reload();
         } else {
           alert('Error: ' + result.message);
