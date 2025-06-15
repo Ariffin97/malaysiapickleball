@@ -2,6 +2,7 @@ const Tournament = require('../models/Tournament');
 const Player = require('../models/Player');
 const PlayerRegistration = require('../models/PlayerRegistration');
 const Admin = require('../models/Admin');
+const Message = require('../models/Message');
 const Settings = require('../models/Settings');
 
 class DatabaseService {
@@ -34,9 +35,42 @@ class DatabaseService {
     }
   }
 
-  static async updateTournament(id, updateData) {
+  static async updateTournament(id, updateData, currentVersion = null, modifiedBy = null) {
     try {
-      return await Tournament.findByIdAndUpdate(id, updateData, { new: true });
+      // Add modification tracking
+      if (modifiedBy) {
+        updateData.lastModifiedBy = modifiedBy;
+      }
+
+      // If version is provided, use optimistic locking
+      if (currentVersion !== null) {
+        const tournament = await Tournament.findOneAndUpdate(
+          { 
+            _id: id, 
+            version: currentVersion // Only update if version matches
+          },
+          updateData,
+          { 
+            new: true,
+            runValidators: true
+          }
+        );
+
+        if (!tournament) {
+          // Check if tournament exists but version doesn't match
+          const existingTournament = await Tournament.findById(id);
+          if (existingTournament) {
+            throw new Error(`Conflict detected: Tournament was modified by ${existingTournament.lastModifiedBy || 'another admin'} at ${existingTournament.updatedAt}. Please refresh and try again.`);
+          } else {
+            throw new Error('Tournament not found');
+          }
+        }
+
+        return tournament;
+      } else {
+        // Fallback to regular update (less safe)
+        return await Tournament.findByIdAndUpdate(id, updateData, { new: true });
+      }
     } catch (error) {
       console.error('Error updating tournament:', error);
       throw error;
@@ -182,9 +216,25 @@ class DatabaseService {
 
   static async approvePlayerRegistration(id, processedBy) {
     try {
-      const registration = await PlayerRegistration.findById(id);
+      // Use atomic operation to prevent race conditions
+      const registration = await PlayerRegistration.findOneAndUpdate(
+        { 
+          _id: id, 
+          status: 'pending' // Only update if still pending
+        },
+        {
+          status: 'approved',
+          processedAt: new Date(),
+          processedBy: processedBy
+        },
+        { 
+          new: true,
+          runValidators: true
+        }
+      );
+
       if (!registration) {
-        throw new Error('Registration not found');
+        throw new Error('Registration not found or already processed');
       }
 
       // Create player from registration
@@ -202,15 +252,23 @@ class DatabaseService {
 
       const player = await this.createPlayer(playerData);
 
-      // Update registration status
-      registration.status = 'approved';
-      registration.processedAt = new Date();
-      registration.processedBy = processedBy;
-      await registration.save();
+      // Send welcome message to the new player
+      try {
+        await this.sendWelcomeMessage(player.playerId, player.fullName);
+      } catch (messageError) {
+        console.error('Failed to send welcome message:', messageError);
+        // Don't fail the approval process if message sending fails
+      }
 
       return { player, registration };
     } catch (error) {
       console.error('Error approving player registration:', error);
+      
+      // Handle specific MongoDB errors
+      if (error.code === 11000) {
+        throw new Error('Player with this IC number, email, or username already exists');
+      }
+      
       throw error;
     }
   }
@@ -392,6 +450,93 @@ class DatabaseService {
       };
     } catch (error) {
       console.error('Error checking IC number availability:', error);
+      throw error;
+    }
+  }
+
+  // Message operations
+  static async createMessage(messageData) {
+    try {
+      const messageId = await Message.generateMessageId();
+      const message = new Message({ ...messageData, messageId });
+      return await message.save();
+    } catch (error) {
+      console.error('Error creating message:', error);
+      throw error;
+    }
+  }
+
+  static async getPlayerMessages(playerId, page = 1, limit = 10) {
+    try {
+      return await Message.getPlayerMessages(playerId, page, limit);
+    } catch (error) {
+      console.error('Error getting player messages:', error);
+      throw error;
+    }
+  }
+
+  static async getUnreadMessageCount(playerId) {
+    try {
+      return await Message.getUnreadCount(playerId);
+    } catch (error) {
+      console.error('Error getting unread count:', error);
+      return 0;
+    }
+  }
+
+  static async markMessageAsRead(messageId) {
+    try {
+      const message = await Message.findById(messageId);
+      if (message) {
+        return await message.markAsRead();
+      }
+      return null;
+    } catch (error) {
+      console.error('Error marking message as read:', error);
+      throw error;
+    }
+  }
+
+  static async getMessageById(messageId) {
+    try {
+      return await Message.findById(messageId);
+    } catch (error) {
+      console.error('Error getting message by ID:', error);
+      throw error;
+    }
+  }
+
+  static async sendWelcomeMessage(playerId, playerName) {
+    try {
+      const messageData = {
+        recipientId: playerId,
+        recipientType: 'player',
+        senderType: 'system',
+        senderName: 'Malaysia Pickleball Association',
+        subject: 'Welcome to Malaysia Pickleball Association!',
+        content: `Dear ${playerName},
+
+Welcome to the Malaysia Pickleball Association! Your player registration has been approved and you are now an official member.
+
+Your Player ID: ${playerId}
+
+What you can do now:
+• Register for tournaments
+• View your ranking and statistics
+• Connect with other players
+• Access exclusive member benefits
+
+We're excited to have you as part of our growing pickleball community!
+
+Best regards,
+Malaysia Pickleball Association Team`,
+        type: 'approval',
+        priority: 'normal'
+      };
+
+      return await this.createMessage(messageData);
+    } catch (error) {
+      console.error('Error sending welcome message:', error);
       throw error;
     }
   }

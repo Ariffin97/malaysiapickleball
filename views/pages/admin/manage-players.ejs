@@ -42,28 +42,8 @@
 <body class="bg-gray-100">
   <%- include('../../partials/header') %>
   
-  <!-- IMMEDIATE TEST SCRIPT -->
-  <script>
-    console.log('IMMEDIATE TEST: JavaScript is loading...');
-    function immediateTest() {
-      alert('IMMEDIATE TEST WORKS!');
-      console.log('Immediate test function called');
-    }
-  </script>
-  
   <main class="pt-24 p-6 min-h-screen">
     <div class="container mx-auto max-w-7xl">
-      
-      <!-- IMMEDIATE TEST -->
-      <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
-        <strong>DEBUG TEST:</strong>
-        <button onclick="immediateTest()" class="bg-red-500 text-white px-3 py-1 rounded ml-2">
-          Click Me First
-        </button>
-        <button onclick="alert('Direct alert works!')" class="bg-blue-500 text-white px-3 py-1 rounded ml-2">
-          Direct Alert
-        </button>
-      </div>
       
       <!-- Header -->
       <div class="flex flex-col md:flex-row md:items-center md:justify-between mb-8">
@@ -81,8 +61,8 @@
           <button onclick="refreshData()" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors">
             <i class="fas fa-sync-alt mr-2"></i>Refresh
           </button>
-          <button onclick="testButtons()" class="bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 transition-colors">
-            <i class="fas fa-bug mr-2"></i>Test JS
+          <button onclick="downloadPDF()" class="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition-colors">
+            <i class="fas fa-file-pdf mr-2"></i>Download PDF
           </button>
         </div>
       </div>
@@ -139,10 +119,18 @@
 
         <!-- Pending Registrations Tab -->
         <div id="pending-tab" class="tab-content">
-          <h3 class="text-xl font-bold text-gray-800 mb-6">
-            <i class="fas fa-clock text-yellow-500 mr-3"></i>
-            Pending Player Registrations
-          </h3>
+          <div class="flex flex-col md:flex-row md:items-center md:justify-between mb-6">
+            <h3 class="text-xl font-bold text-gray-800 mb-4 md:mb-0">
+              <i class="fas fa-clock text-yellow-500 mr-3"></i>
+              Pending Player Registrations
+            </h3>
+            <div class="flex items-center space-x-3">
+              <div class="bg-blue-50 border border-blue-200 rounded-lg px-4 py-2 text-sm text-blue-700">
+                <i class="fas fa-info-circle mr-2"></i>
+                Use the buttons above to download or print the registration report
+              </div>
+            </div>
+          </div>
           
           <% if (pendingRegistrations.length === 0) { %>
             <div class="text-center py-12">
@@ -282,14 +270,7 @@
       }
     }
 
-    // Test function - simple alert
-    function testButtons() {
-      alert('JavaScript is working! Check console for more details.');
-      console.log('=== BUTTON TEST ===');
-      console.log('Approve buttons:', document.querySelectorAll('[data-action="approve"]').length);
-      console.log('Reject buttons:', document.querySelectorAll('[data-action="reject"]').length);
-      console.log('All action buttons:', document.querySelectorAll('.action-btn').length);
-    }
+
 
     // Refresh page
     function refreshData() {
@@ -365,13 +346,78 @@
       console.log('=== INITIALIZATION COMPLETE ===');
     });
 
+    // Download PDF report
+    async function downloadPDF() {
+      try {
+        console.log('Downloading PDF report...');
+        
+        // Show loading state
+        const downloadBtn = document.querySelector('button[onclick="downloadPDF()"]');
+        const originalText = downloadBtn.innerHTML;
+        downloadBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Generating PDF...';
+        downloadBtn.disabled = true;
+        
+        // Try to fetch the PDF
+        const response = await fetch('/admin/players/pdf');
+        
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        
+        // Check if response is actually a PDF
+        const contentType = response.headers.get('content-type');
+        if (!contentType || !contentType.includes('application/pdf')) {
+          // If not PDF, show fallback option
+          const result = await response.json();
+          throw new Error(result.message || 'PDF generation failed');
+        }
+        
+        // Create blob and download
+        const blob = await response.blob();
+        const url = window.URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = `Pending_Registrations_${new Date().toISOString().split('T')[0]}.pdf`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        window.URL.revokeObjectURL(url);
+        
+        // Reset button after a short delay
+        setTimeout(() => {
+          downloadBtn.innerHTML = originalText;
+          downloadBtn.disabled = false;
+        }, 2000);
+        
+      } catch (error) {
+        console.error('Error downloading PDF:', error);
+        
+        // Reset button
+        const downloadBtn = document.querySelector('button[onclick="downloadPDF()"]');
+        downloadBtn.innerHTML = originalText;
+        downloadBtn.disabled = false;
+        
+        // Show fallback option
+        const useHtmlReport = confirm(
+          'PDF generation failed. Would you like to open a printable HTML report instead?\n\n' +
+          'Click OK to open HTML report, or Cancel to try PDF again later.'
+        );
+        
+        if (useHtmlReport) {
+          window.open('/admin/players/report', '_blank');
+        }
+      }
+    }
+
+
+
     // Make functions globally accessible for onclick handlers
     window.showTab = showTab;
-    window.testButtons = testButtons;
     window.refreshData = refreshData;
     window.approvePlayer = approvePlayer;
     window.rejectPlayer = rejectPlayer;
     window.viewPlayerDetails = viewPlayerDetails;
+    window.downloadPDF = downloadPDF;
 
     console.log('Script loaded successfully');
   </script>

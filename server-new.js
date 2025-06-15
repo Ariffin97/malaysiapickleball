@@ -4,6 +4,7 @@ const helmet = require('helmet');
 const { body, validationResult } = require('express-validator');
 const session = require('express-session');
 const path = require('path');
+const pdf = require('html-pdf');
 
 // Load environment variables
 require('dotenv').config();
@@ -475,7 +476,11 @@ app.post('/admin/tournaments/update/:id', adminAuth, [
       updateData.months = [new Date(updateData.startDate).getMonth()];
     }
 
-    await DatabaseService.updateTournament(tournamentId, updateData);
+    // Get current version for conflict detection
+    const currentVersion = req.body.version ? parseInt(req.body.version) : null;
+    const modifiedBy = req.session.username || 'admin';
+
+    await DatabaseService.updateTournament(tournamentId, updateData, currentVersion, modifiedBy);
     
     res.json({
       success: true,
@@ -799,15 +804,166 @@ app.get('/player/dashboard', playerAuth, async (req, res) => {
   try {
     const player = await DatabaseService.getPlayerById(req.session.playerId);
     const backgroundImage = await DatabaseService.getSetting('background_image', '/images/defaultbg.png');
+    const unreadCount = await DatabaseService.getUnreadMessageCount(player.playerId);
     
     res.render('pages/player/dashboard', {
       player: player,
+      unreadCount: unreadCount,
       session: req.session,
       backgroundImage
     });
   } catch (error) {
     console.error('Player dashboard error:', error);
     res.redirect('/player/login?error=dashboard_failed');
+  }
+});
+
+// Player inbox routes
+app.get('/player/inbox', playerAuth, async (req, res) => {
+  try {
+    const player = await DatabaseService.getPlayerById(req.session.playerId);
+    const page = parseInt(req.query.page) || 1;
+    const limit = 10;
+    
+    const messagesData = await DatabaseService.getPlayerMessages(player.playerId, page, limit);
+    const unreadCount = await DatabaseService.getUnreadMessageCount(player.playerId);
+    const backgroundImage = await DatabaseService.getSetting('background_image', '/images/defaultbg.png');
+    
+    res.render('pages/player/inbox', {
+      player: player,
+      messages: messagesData.messages,
+      pagination: {
+        page: messagesData.page,
+        pages: messagesData.pages,
+        total: messagesData.total,
+        hasNext: messagesData.hasNext,
+        hasPrev: messagesData.hasPrev
+      },
+      unreadCount: unreadCount,
+      session: req.session,
+      backgroundImage
+    });
+  } catch (error) {
+    console.error('Player inbox error:', error);
+    res.redirect('/player/dashboard?error=inbox_failed');
+  }
+});
+
+app.get('/player/message/:id', playerAuth, async (req, res) => {
+  try {
+    const player = await DatabaseService.getPlayerById(req.session.playerId);
+    const message = await DatabaseService.getMessageById(req.params.id);
+    
+    if (!message || message.recipientId !== player.playerId) {
+      return res.redirect('/player/inbox?error=message_not_found');
+    }
+    
+    // Mark message as read
+    await DatabaseService.markMessageAsRead(req.params.id);
+    
+    const backgroundImage = await DatabaseService.getSetting('background_image', '/images/defaultbg.png');
+    
+    res.render('pages/player/message', {
+      player: player,
+      message: message,
+      session: req.session,
+      backgroundImage
+    });
+  } catch (error) {
+    console.error('Player message view error:', error);
+    res.redirect('/player/inbox?error=message_failed');
+  }
+});
+
+app.post('/player/message/:id/mark-read', playerAuth, async (req, res) => {
+  try {
+    const player = await DatabaseService.getPlayerById(req.session.playerId);
+    const message = await DatabaseService.getMessageById(req.params.id);
+    
+    if (!message || message.recipientId !== player.playerId) {
+      return res.json({ success: false, message: 'Message not found' });
+    }
+    
+    await DatabaseService.markMessageAsRead(req.params.id);
+    res.json({ success: true });
+  } catch (error) {
+    console.error('Mark message as read error:', error);
+    res.json({ success: false, message: 'Failed to mark message as read' });
+  }
+});
+
+// Admin message routes
+app.get('/admin/messages', adminAuth, async (req, res) => {
+  try {
+    const players = await DatabaseService.getAllPlayers();
+    const backgroundImage = await DatabaseService.getSetting('background_image', '/images/defaultbg.png');
+    
+    res.render('pages/admin/messages', {
+      players: players,
+      session: req.session,
+      backgroundImage
+    });
+  } catch (error) {
+    console.error('Admin messages error:', error);
+    res.redirect('/admin/dashboard?error=messages_failed');
+  }
+});
+
+app.post('/admin/messages/send', adminAuth, async (req, res) => {
+  try {
+    const { recipients, subject, content, type, priority } = req.body;
+    
+    if (!recipients || !subject || !content) {
+      return res.json({ success: false, message: 'Missing required fields' });
+    }
+
+    const recipientList = Array.isArray(recipients) ? recipients : [recipients];
+    const messagePromises = [];
+
+    for (const recipientId of recipientList) {
+      if (recipientId === 'all') {
+        // Send to all players
+        const allPlayers = await DatabaseService.getAllPlayers();
+        for (const player of allPlayers) {
+          messagePromises.push(
+            DatabaseService.createMessage({
+              recipientId: player.playerId,
+              recipientType: 'player',
+              senderType: 'admin',
+              senderName: req.session.adminName || 'Admin',
+              subject: subject,
+              content: content,
+              type: type || 'general',
+              priority: priority || 'normal'
+            })
+          );
+        }
+      } else {
+        // Send to specific player
+        messagePromises.push(
+          DatabaseService.createMessage({
+            recipientId: recipientId,
+            recipientType: 'player',
+            senderType: 'admin',
+            senderName: req.session.adminName || 'Admin',
+            subject: subject,
+            content: content,
+            type: type || 'general',
+            priority: priority || 'normal'
+          })
+        );
+      }
+    }
+
+    await Promise.all(messagePromises);
+    
+    res.json({ 
+      success: true, 
+      message: `Message sent to ${recipientList.includes('all') ? 'all players' : recipientList.length + ' player(s)'}` 
+    });
+  } catch (error) {
+    console.error('Send message error:', error);
+    res.json({ success: false, message: 'Failed to send message' });
   }
 });
 
@@ -1273,6 +1429,322 @@ app.get('/api/check-ic/:icNumber', async (req, res) => {
       available: false,
       message: 'Error checking IC number availability'
     });
+  }
+});
+
+// API endpoint to check for conflicts before updates
+app.get('/api/admin/check-conflicts/:type/:id', adminAuth, async (req, res) => {
+  try {
+    const { type, id } = req.params;
+    const { version } = req.query;
+
+    let result = { hasConflict: false, currentData: null };
+
+    if (type === 'tournament') {
+      const tournament = await DatabaseService.getTournamentById(id);
+      if (!tournament) {
+        return res.status(404).json({ error: 'Tournament not found' });
+      }
+
+      if (version && parseInt(version) !== tournament.version) {
+        result.hasConflict = true;
+        result.conflictInfo = {
+          lastModifiedBy: tournament.lastModifiedBy,
+          lastModifiedAt: tournament.updatedAt,
+          currentVersion: tournament.version
+        };
+      }
+      result.currentData = tournament;
+    }
+
+    res.json(result);
+  } catch (error) {
+    console.error('Error checking conflicts:', error);
+    res.status(500).json({ error: 'Failed to check conflicts' });
+  }
+});
+
+// API endpoint to get current admin activity
+app.get('/api/admin/activity', adminAuth, async (req, res) => {
+  try {
+    // This would typically come from a session store or Redis
+    // For now, return basic info
+    res.json({
+      activeAdmins: [
+        {
+          username: req.session.username,
+          lastActivity: new Date(),
+          currentPage: req.headers.referer || 'dashboard'
+        }
+      ],
+      totalSessions: 1 // In production, count active sessions
+    });
+  } catch (error) {
+    console.error('Error getting admin activity:', error);
+    res.status(500).json({ error: 'Failed to get activity data' });
+  }
+});
+
+// PDF Generation Route for Pending Registrations
+app.get('/admin/players/pdf', adminAuth, async (req, res) => {
+  try {
+    console.log('Starting PDF generation...');
+    const pendingRegistrations = await DatabaseService.getPendingPlayerRegistrations();
+    console.log(`Found ${pendingRegistrations.length} pending registrations`);
+    
+    // Generate HTML content for PDF
+    const htmlContent = `
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <meta charset="UTF-8">
+      <title>Pending Player Registrations Report</title>
+      <style>
+        body { 
+          font-family: Arial, sans-serif; 
+          margin: 20px;
+          font-size: 12px;
+        }
+        .header {
+          text-align: center;
+          margin-bottom: 30px;
+          border-bottom: 2px solid #333;
+          padding-bottom: 15px;
+        }
+        .header h1 {
+          margin: 0;
+          color: #333;
+          font-size: 24px;
+        }
+        .header p {
+          margin: 5px 0;
+          color: #666;
+        }
+        table {
+          width: 100%;
+          border-collapse: collapse;
+          margin-top: 20px;
+        }
+        th, td {
+          border: 1px solid #ddd;
+          padding: 8px;
+          text-align: left;
+          vertical-align: top;
+        }
+        th {
+          background-color: #f5f5f5;
+          font-weight: bold;
+          text-align: center;
+        }
+        .no-data {
+          text-align: center;
+          padding: 40px;
+          color: #666;
+          font-style: italic;
+        }
+        .footer {
+          margin-top: 30px;
+          border-top: 1px solid #ddd;
+          padding-top: 15px;
+          font-size: 10px;
+          color: #666;
+        }
+        .approval-section {
+          margin-top: 40px;
+          border: 1px solid #ddd;
+          padding: 15px;
+          background-color: #f9f9f9;
+        }
+        .approval-section h3 {
+          margin-top: 0;
+          color: #333;
+        }
+        .approval-fields {
+          display: flex;
+          flex-wrap: wrap;
+          gap: 20px;
+          margin-top: 15px;
+        }
+        .approval-field {
+          flex: 1;
+          min-width: 200px;
+        }
+        .approval-field label {
+          display: block;
+          font-weight: bold;
+          margin-bottom: 5px;
+        }
+        .approval-field .line {
+          border-bottom: 1px solid #333;
+          height: 20px;
+          min-width: 150px;
+        }
+      </style>
+    </head>
+    <body>
+      <div class="header">
+        <h1>Malaysia Pickleball Association</h1>
+        <p>Pending Player Registrations Report</p>
+        <p>Generated on: ${new Date().toLocaleDateString('en-GB')} at ${new Date().toLocaleTimeString('en-GB')}</p>
+        <p>Total Pending Registrations: ${pendingRegistrations.length}</p>
+      </div>
+
+      ${pendingRegistrations.length === 0 ? `
+        <div class="no-data">
+          <h3>No Pending Registrations</h3>
+          <p>All player registrations have been processed.</p>
+        </div>
+      ` : `
+        <table>
+          <thead>
+            <tr>
+              <th style="width: 5%;">No.</th>
+              <th style="width: 25%;">Full Name</th>
+              <th style="width: 15%;">IC Number</th>
+              <th style="width: 8%;">Age</th>
+              <th style="width: 15%;">Phone</th>
+              <th style="width: 20%;">Email</th>
+              <th style="width: 12%;">Submitted Date</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${pendingRegistrations.map((registration, index) => `
+              <tr>
+                <td style="text-align: center;">${index + 1}</td>
+                <td><strong>${registration.fullName || 'N/A'}</strong></td>
+                <td>${registration.icNumber || 'N/A'}</td>
+                <td style="text-align: center;">${registration.age || 'N/A'}</td>
+                <td>${registration.phoneNumber || 'N/A'}</td>
+                <td style="font-size: 10px;">${registration.email || 'N/A'}</td>
+                <td style="text-align: center;">${registration.submittedAt ? new Date(registration.submittedAt).toLocaleDateString('en-GB') : 'N/A'}</td>
+              </tr>
+              <tr>
+                <td></td>
+                <td colspan="6" style="font-size: 10px; color: #666; padding-left: 15px;">
+                  <strong>Username:</strong> ${registration.username || 'N/A'} | 
+                  <strong>Address:</strong> ${registration.address || 'N/A'}
+                </td>
+              </tr>
+            `).join('')}
+          </tbody>
+        </table>
+      `}
+
+      <div class="approval-section">
+        <h3>Approval Section</h3>
+        <table style="margin-top: 0;">
+          <thead>
+            <tr>
+              <th style="width: 5%;">No.</th>
+              <th style="width: 35%;">List Name Pending Registration</th>
+              <th style="width: 15%;">Accept</th>
+              <th style="width: 15%;">Reject</th>
+              <th style="width: 30%;">Remark</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${Array.from({length: Math.max(5, pendingRegistrations.length)}, (_, i) => `
+              <tr style="height: 40px;">
+                <td style="text-align: center;">${i < pendingRegistrations.length ? i + 1 : ''}</td>
+                <td>${i < pendingRegistrations.length ? (pendingRegistrations[i].fullName || '') : ''}</td>
+                <td></td>
+                <td></td>
+                <td></td>
+              </tr>
+            `).join('')}
+          </tbody>
+        </table>
+
+        <div class="approval-fields">
+          <div class="approval-field">
+            <label>Approve By:</label>
+            <div class="line"></div>
+          </div>
+          <div class="approval-field">
+            <label>Sign:</label>
+            <div class="line"></div>
+          </div>
+          <div class="approval-field">
+            <label>Name:</label>
+            <div class="line"></div>
+          </div>
+          <div class="approval-field">
+            <label>Position:</label>
+            <div class="line"></div>
+          </div>
+          <div class="approval-field">
+            <label>Date:</label>
+            <div class="line"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="footer">
+        <p>This report was generated automatically by the Malaysia Pickleball Association Management System.</p>
+        <p>For any queries, please contact the administration team.</p>
+      </div>
+    </body>
+    </html>
+    `;
+
+    console.log('Generating PDF with html-pdf...');
+    
+    // PDF generation options
+    const options = {
+      format: 'A4',
+      orientation: 'portrait',
+      border: {
+        top: '20mm',
+        right: '15mm',
+        bottom: '20mm',
+        left: '15mm'
+      },
+      timeout: 30000
+    };
+
+    // Generate PDF using html-pdf (more reliable on Windows)
+    pdf.create(htmlContent, options).toBuffer((err, buffer) => {
+      if (err) {
+        console.error('Error generating PDF:', err);
+        return res.status(500).json({ 
+          success: false, 
+          message: 'Failed to generate PDF report: ' + err.message 
+        });
+      }
+
+      console.log('PDF generated successfully, size:', buffer.length);
+
+      // Set response headers for PDF download
+      const filename = `Pending_Registrations_${new Date().toISOString().split('T')[0]}.pdf`;
+      res.setHeader('Content-Type', 'application/pdf');
+      res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
+      res.setHeader('Content-Length', buffer.length);
+      
+      res.send(buffer);
+    });
+
+  } catch (error) {
+    console.error('Error in PDF generation route:', error);
+    res.status(500).json({ 
+      success: false, 
+      message: 'Failed to generate PDF report: ' + error.message 
+    });
+  }
+});
+
+// Fallback HTML Report Route (printable version)
+app.get('/admin/players/report', adminAuth, async (req, res) => {
+  try {
+    const pendingRegistrations = await DatabaseService.getPendingPlayerRegistrations();
+    
+    res.render('pages/admin/players-report', {
+      pendingRegistrations,
+      generatedAt: new Date(),
+      session: req.session
+    });
+  } catch (error) {
+    console.error('Error generating HTML report:', error);
+    res.status(500).send('Failed to generate report');
   }
 });
 

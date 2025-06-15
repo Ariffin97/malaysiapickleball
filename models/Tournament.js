@@ -68,9 +68,26 @@ const tournamentSchema = new mongoose.Schema({
   registrationOpen: {
     type: Boolean,
     default: true
+  },
+  lastModifiedBy: {
+    type: String,
+    required: false
+  },
+  version: {
+    type: Number,
+    default: 0
   }
 }, {
-  timestamps: true
+  timestamps: true,
+  optimisticConcurrency: true
+});
+
+// Pre-save middleware to increment version
+tournamentSchema.pre('save', function(next) {
+  if (this.isModified() && !this.isNew) {
+    this.increment();
+  }
+  next();
 });
 
 module.exports = mongoose.model('Tournament', tournamentSchema); 

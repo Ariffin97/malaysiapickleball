@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title><%= message.subject %> - Malaysia Pickleball Association</title>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="/css/styles.css">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+  <style>
+    .dashboard-card {
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(10px);
+      transition: all 0.3s ease;
+    }
+    .message-content {
+      line-height: 1.8;
+      white-space: pre-wrap;
+    }
+    .priority-badge {
+      display: inline-flex;
+      align-items: center;
+      padding: 0.5rem 1rem;
+      border-radius: 9999px;
+      font-size: 0.875rem;
+      font-weight: 500;
+    }
+    .priority-high {
+      background-color: #fef3c7;
+      color: #d97706;
+    }
+    .priority-urgent {
+      background-color: #fee2e2;
+      color: #dc2626;
+    }
+    .priority-normal {
+      background-color: #f3f4f6;
+      color: #6b7280;
+    }
+  </style>
+</head>
+<%
+  const defaultBg = backgroundImage || '/images/defaultbg.png';
+%>
+<body class="bg-gray-100 bg-cover bg-center bg-fixed min-h-screen" style="background-image: url('<%= defaultBg %>')">
+  <%- include('../../partials/header') %>
+
+  <!-- Header Section -->
+  <section class="pt-20 pb-8">
+    <div class="container mx-auto px-4">
+      <div class="dashboard-card rounded-2xl shadow-xl p-8 mb-8">
+        <div class="flex flex-col md:flex-row items-start justify-between">
+          <div class="flex items-center space-x-4 mb-6 md:mb-0">
+            <div class="bg-blue-100 w-12 h-12 rounded-full flex items-center justify-center">
+              <i class="fas fa-envelope-open text-xl text-blue-600"></i>
+            </div>
+            <div>
+              <h1 class="text-2xl font-bold text-gray-800 mb-1">Message Details</h1>
+              <p class="text-gray-600">From: <%= message.senderName %></p>
+            </div>
+          </div>
+          <div class="flex items-center space-x-4">
+            <a href="/player/inbox" class="bg-gray-600 text-white px-6 py-3 rounded-lg hover:bg-gray-700 transition-colors">
+              <i class="fas fa-arrow-left mr-2"></i>Back to Inbox
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Message Content -->
+  <main class="pb-12">
+    <div class="container mx-auto px-4">
+      
+      <div class="dashboard-card rounded-2xl shadow-xl p-8">
+        
+        <!-- Message Header -->
+        <div class="border-b border-gray-200 pb-6 mb-8">
+          <div class="flex flex-col md:flex-row md:items-start md:justify-between mb-4">
+            <div class="flex-1">
+              <h2 class="text-3xl font-bold text-gray-800 mb-4"><%= message.subject %></h2>
+              
+              <div class="flex flex-wrap items-center gap-3 mb-4">
+                <!-- Message Type Badge -->
+                <% if (message.type === 'announcement') { %>
+                  <span class="bg-purple-100 text-purple-800 px-3 py-1 rounded-full text-sm font-medium">
+                    <i class="fas fa-bullhorn mr-2"></i>Announcement
+                  </span>
+                <% } else if (message.type === 'tournament') { %>
+                  <span class="bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm font-medium">
+                    <i class="fas fa-trophy mr-2"></i>Tournament
+                  </span>
+                <% } else if (message.type === 'approval') { %>
+                  <span class="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm font-medium">
+                    <i class="fas fa-check-circle mr-2"></i>Approval
+                  </span>
+                <% } else { %>
+                  <span class="bg-gray-100 text-gray-800 px-3 py-1 rounded-full text-sm font-medium">
+                    <i class="fas fa-envelope mr-2"></i>General
+                  </span>
+                <% } %>
+                
+                <!-- Priority Badge -->
+                <% if (message.priority === 'high') { %>
+                  <span class="priority-badge priority-high">
+                    <i class="fas fa-exclamation mr-2"></i>High Priority
+                  </span>
+                <% } else if (message.priority === 'urgent') { %>
+                  <span class="priority-badge priority-urgent">
+                    <i class="fas fa-exclamation-triangle mr-2"></i>Urgent
+                  </span>
+                <% } else { %>
+                  <span class="priority-badge priority-normal">
+                    <i class="fas fa-info-circle mr-2"></i>Normal
+                  </span>
+                <% } %>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Message Meta Information -->
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6 text-sm text-gray-600">
+            <div class="space-y-2">
+              <div class="flex items-center">
+                <i class="fas fa-user mr-3 text-gray-400 w-4"></i>
+                <span class="font-medium">From:</span>
+                <span class="ml-2"><%= message.senderName %></span>
+              </div>
+              <div class="flex items-center">
+                <i class="fas fa-calendar mr-3 text-gray-400 w-4"></i>
+                <span class="font-medium">Sent:</span>
+                <span class="ml-2"><%= new Date(message.createdAt).toLocaleDateString('en-GB', { 
+                  weekday: 'long', 
+                  year: 'numeric', 
+                  month: 'long', 
+                  day: 'numeric' 
+                }) %></span>
+              </div>
+            </div>
+            <div class="space-y-2">
+              <div class="flex items-center">
+                <i class="fas fa-clock mr-3 text-gray-400 w-4"></i>
+                <span class="font-medium">Time:</span>
+                <span class="ml-2"><%= new Date(message.createdAt).toLocaleTimeString('en-GB', { 
+                  hour: '2-digit', 
+                  minute: '2-digit' 
+                }) %></span>
+              </div>
+              <% if (message.isRead && message.readAt) { %>
+                <div class="flex items-center">
+                  <i class="fas fa-check-double mr-3 text-green-500 w-4"></i>
+                  <span class="font-medium">Read:</span>
+                  <span class="ml-2"><%= new Date(message.readAt).toLocaleDateString('en-GB') %> at <%= new Date(message.readAt).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' }) %></span>
+                </div>
+              <% } %>
+            </div>
+          </div>
+        </div>
+
+        <!-- Message Content -->
+        <div class="mb-8">
+          <div class="bg-gray-50 rounded-xl p-6">
+            <div class="message-content text-gray-800 text-lg leading-relaxed">
+              <%= message.content %>
+            </div>
+          </div>
+        </div>
+
+        <!-- Attachments (if any) -->
+        <% if (message.attachments && message.attachments.length > 0) { %>
+          <div class="border-t border-gray-200 pt-6">
+            <h3 class="text-lg font-semibold text-gray-800 mb-4">
+              <i class="fas fa-paperclip mr-2 text-gray-500"></i>Attachments
+            </h3>
+            <div class="space-y-3">
+              <% message.attachments.forEach(attachment => { %>
+                <div class="flex items-center justify-between bg-gray-50 rounded-lg p-4">
+                  <div class="flex items-center space-x-3">
+                    <i class="fas fa-file text-gray-500"></i>
+                    <div>
+                      <div class="font-medium text-gray-800"><%= attachment.filename %></div>
+                      <div class="text-sm text-gray-600">
+                        <%= (attachment.size / 1024).toFixed(1) %> KB
+                      </div>
+                    </div>
+                  </div>
+                  <a href="<%= attachment.url %>" 
+                     class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors text-sm"
+                     download>
+                    <i class="fas fa-download mr-2"></i>Download
+                  </a>
+                </div>
+              <% }) %>
+            </div>
+          </div>
+        <% } %>
+
+        <!-- Message Actions -->
+        <div class="border-t border-gray-200 pt-6 mt-8">
+          <div class="flex flex-col md:flex-row items-center justify-between space-y-4 md:space-y-0">
+            <div class="text-sm text-gray-600">
+              Message ID: <%= message.messageId %>
+            </div>
+            <div class="flex items-center space-x-4">
+              <a href="/player/inbox" class="bg-gray-600 text-white px-6 py-3 rounded-lg hover:bg-gray-700 transition-colors">
+                <i class="fas fa-list mr-2"></i>Back to Inbox
+              </a>
+              <button onclick="window.print()" class="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors">
+                <i class="fas fa-print mr-2"></i>Print Message
+              </button>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+  </main>
+
+  <%- include('../../partials/footer') %>
+  <script src="/js/script.js"></script>
+  <script>
+    // Mark message as read when page loads (if not already read)
+    <% if (!message.isRead) { %>
+      fetch('/player/message/<%= message._id %>/mark-read', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      }).catch(error => {
+        console.error('Error marking message as read:', error);
+      });
+    <% } %>
+
+    // Add print styles
+    const printStyles = `
+      @media print {
+        body * {
+          visibility: hidden;
+        }
+        .dashboard-card, .dashboard-card * {
+          visibility: visible;
+        }
+        .dashboard-card {
+          position: absolute;
+          left: 0;
+          top: 0;
+          width: 100%;
+          background: white !important;
+          box-shadow: none !important;
+        }
+        header, footer, .bg-gray-600, .bg-blue-600 {
+          display: none !important;
+        }
+      }
+    `;
+    
+    const styleSheet = document.createElement('style');
+    styleSheet.textContent = printStyles;
+    document.head.appendChild(styleSheet);
+  </script>
+</body>
+</html> 
