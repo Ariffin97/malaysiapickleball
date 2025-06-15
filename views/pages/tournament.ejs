@@ -392,133 +392,134 @@
             <i class="fas fa-calendar-check mr-3"></i>Tournament Calendar
           </h2>
         </div>
-                <div class="overflow-x-auto">
-          <table class="w-full calendar-table">
-            <thead class="bg-gray-50">
-              <tr>
-                <th rowspan="2" class="tournament-header p-4 text-left font-semibold text-gray-700 border-r border-gray-200 position-sticky" aria-label="Tournament Name Column (Fixed)">
-                  <i class="fas fa-tournament mr-2"></i>Tournament
-                </th>
-                <% const months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']; %>
-                <% months.forEach(month => { %>
-                  <th class="p-3 text-center font-semibold text-gray-700 border-r border-gray-200" colspan="4"><%= month %></th>
-                <% }); %>
-              </tr>
-              <tr class="bg-gray-100">
-                <% for (let i = 0; i < months.length; i++) { %>
-                  <th class="p-2 text-xs text-gray-600 border-r border-gray-200">Q1</th>
-                  <th class="p-2 text-xs text-gray-600 border-r border-gray-200">Q2</th>
-                  <th class="p-2 text-xs text-gray-600 border-r border-gray-200">Q3</th>
-                  <th class="p-2 text-xs text-gray-600 border-r border-gray-200">Q4</th>
-                <% } %>
-              </tr>
-            </thead>
-            <tbody>
-              <% 
-                // Transform tournaments to tournamentData format
-                const tournamentData = tournaments.map(t => {
-                  const schedule = Array(12).fill().map(() => []);
-                  if (t.startDate) {
-                    const start = new Date(t.startDate);
-                    const month = start.getMonth();
-                    const day = start.getDate();
-                    let quarter = 0;
-                    if (day >= 1 && day <= 7) quarter = 1;
-                    else if (day >= 8 && day <= 14) quarter = 2;
-                    else if (day >= 15 && day <= 21) quarter = 3;
-                    else if (day >= 22) quarter = 4;
-                    if (quarter > 0) {
-                      schedule[month] = [quarter];
-                    }
+        <div class="calendar-grid-wrapper">
+          <div class="calendar-grid">
+            <!-- Header Row -->
+            <div class="grid-header-corner">
+              <i class="fas fa-trophy mr-2"></i>Tournament
+            </div>
+            <% const months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']; %>
+            <% months.forEach(month => { %>
+              <div class="grid-month-header"><%= month %></div>
+            <% }); %>
+            
+            <!-- Sub-header Row -->
+            <div class="grid-subheader-corner"></div>
+            <% for (let i = 0; i < months.length; i++) { %>
+              <div class="grid-quarter-header">
+                <span>Q1</span>
+                <span>Q2</span>
+                <span>Q3</span>
+                <span>Q4</span>
+              </div>
+            <% } %>
+            
+            <!-- Tournament Rows -->
+            <% 
+              // Transform tournaments to tournamentData format
+              const tournamentData = tournaments.map(t => {
+                const schedule = Array(12).fill().map(() => []);
+                if (t.startDate) {
+                  const start = new Date(t.startDate);
+                  const month = start.getMonth();
+                  const day = start.getDate();
+                  let quarter = 0;
+                  if (day >= 1 && day <= 7) quarter = 1;
+                  else if (day >= 8 && day <= 14) quarter = 2;
+                  else if (day >= 15 && day <= 21) quarter = 3;
+                  else if (day >= 22) quarter = 4;
+                  if (quarter > 0) {
+                    schedule[month] = [quarter];
                   }
-                  return {
-                    name: t.name,
-                    type: t.type,
-                    startDate: t.startDate,
-                    endDate: t.endDate,
-                    color: `filled-${t.color}`,
-                    schedule
-                  };
-                });
-              %>
-              <% if (tournamentData && tournamentData.length) { %>
-                <% tournamentData.forEach((t, index) => { %>
-                  <tr class="tournament-row border-b border-gray-100 hover:bg-gray-50 transition-colors" data-type="<%= t.type %>">
-                    <td class="tournament-name p-4 border-r border-gray-200 cursor-pointer hover:bg-blue-50" onclick="openTournamentModal(<%= index %>)">
-                      <div class="flex items-start">
-                        <i class="fas fa-trophy mr-3 text-yellow-500 mt-1"></i>
-                        <div>
-                          <div class="font-medium text-gray-800 text-sm leading-tight">
-                            <%
-                              // Function to create shortform using first letters only
-                              function createShortform(name) {
-                                if (!name) return '';
-                                
-                                // Split name into words and take first letter of each
-                                const words = name.split(/\s+/).filter(word => word.length > 0);
-                                
-                                // Create acronym from first letters
-                                const acronym = words.map(word => {
-                                  // Remove common punctuation and take first letter
-                                  const cleanWord = word.replace(/[^\w]/g, '');
-                                  return cleanWord.charAt(0).toUpperCase();
-                                }).join('');
-                                
-                                return acronym;
-                              }
-                            %>
-                            <span title="<%= t.name %>"><%= createShortform(t.name) %></span>
-                          </div>
-                          <div class="text-xs text-gray-500 mt-1">
-                            <% if (t.startDate) { %>
-                              <% const startDate = new Date(t.startDate); %>
-                              <% const endDate = t.endDate ? new Date(t.endDate) : null; %>
-                              <% const startDay = startDate.getDate(); %>
-                              <% const startMonth = startDate.toLocaleDateString('en-US', { month: 'short' }); %>
-                              <% const startYear = startDate.getFullYear(); %>
-                              <% if (endDate && endDate.getTime() !== startDate.getTime()) { %>
-                                <% const endDay = endDate.getDate(); %>
-                                <%= startDay %> - <%= endDay %> <%= startMonth %> <%= startYear %>
-                              <% } else { %>
-                                <%= startDay %> <%= startMonth %> <%= startYear %>
-                              <% } %>
-                            <% } else { %>
-                              Date TBD
-                            <% } %>
-                          </div>
-                        </div>
-                      </div>
-                    </td>
-                    <% for (let m = 0; m < months.length; m++) { %>
-                      <% for (let q = 1; q <= 4; q++) { %>
-                        <% 
-                          let cellClass = "calendar-cell p-3 text-center border-r border-gray-200 relative";
-                          if (t.schedule && t.schedule[m] && t.schedule[m].includes(q)) {
-                            cellClass += ` ${t.color} rounded-lg m-1`;
+                }
+                return {
+                  name: t.name,
+                  type: t.type,
+                  startDate: t.startDate,
+                  endDate: t.endDate,
+                  color: `filled-${t.color}`,
+                  schedule
+                };
+              });
+            %>
+            <% if (tournamentData && tournamentData.length) { %>
+              <% tournamentData.forEach((t, index) => { %>
+                <!-- Tournament Name Cell -->
+                <div class="grid-tournament-name" data-type="<%= t.type %>" onclick="openTournamentModal(<%= index %>)">
+                  <div class="flex items-start">
+                    <i class="fas fa-trophy mr-3 text-yellow-500 mt-1"></i>
+                    <div>
+                      <div class="font-medium text-gray-800 text-sm leading-tight">
+                        <%
+                          // Function to create shortform using first letters only
+                          function createShortform(name) {
+                            if (!name) return '';
+                            
+                            // Split name into words and take first letter of each
+                            const words = name.split(/\s+/).filter(word => word.length > 0);
+                            
+                            // Create acronym from first letters
+                            const acronym = words.map(word => {
+                              // Remove common punctuation and take first letter
+                              const cleanWord = word.replace(/[^\w]/g, '');
+                              return cleanWord.charAt(0).toUpperCase();
+                            }).join('');
+                            
+                            return acronym;
                           }
                         %>
-                        <td class="<%= cellClass %>" <% if (t.schedule && t.schedule[m] && t.schedule[m].includes(q)) { %>
-                          onclick="openTournamentModal(<%= index %>)"
-                          title="<%= t.name %>"
-                        <% } %>>
-                          <% if (t.schedule && t.schedule[m] && t.schedule[m].includes(q)) { %>
-                            <i class="fas fa-circle text-white text-xs"></i>
+                        <span title="<%= t.name %>"><%= createShortform(t.name) %></span>
+                      </div>
+                      <div class="text-xs text-gray-500 mt-1">
+                        <% if (t.startDate) { %>
+                          <% const startDate = new Date(t.startDate); %>
+                          <% const endDate = t.endDate ? new Date(t.endDate) : null; %>
+                          <% const startDay = startDate.getDate(); %>
+                          <% const startMonth = startDate.toLocaleDateString('en-US', { month: 'short' }); %>
+                          <% const startYear = startDate.getFullYear(); %>
+                          <% if (endDate && endDate.getTime() !== startDate.getTime()) { %>
+                            <% const endDay = endDate.getDate(); %>
+                            <%= startDay %> - <%= endDay %> <%= startMonth %> <%= startYear %>
+                          <% } else { %>
+                            <%= startDay %> <%= startMonth %> <%= startYear %>
                           <% } %>
-                        </td>
-                      <% } %>
+                        <% } else { %>
+                          Date TBD
+                        <% } %>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                
+                <!-- Month Cells -->
+                <% for (let m = 0; m < months.length; m++) { %>
+                  <div class="grid-month-cell">
+                    <% for (let q = 1; q <= 4; q++) { %>
+                      <% 
+                        let cellClass = "grid-quarter-cell";
+                        if (t.schedule && t.schedule[m] && t.schedule[m].includes(q)) {
+                          cellClass += ` ${t.color}`;
+                        }
+                      %>
+                      <div class="<%= cellClass %>" <% if (t.schedule && t.schedule[m] && t.schedule[m].includes(q)) { %>
+                        onclick="openTournamentModal(<%= index %>)"
+                        title="<%= t.name %>"
+                      <% } %>>
+                        <% if (t.schedule && t.schedule[m] && t.schedule[m].includes(q)) { %>
+                          <i class="fas fa-circle text-white text-xs"></i>
+                        <% } %>
+                      </div>
                     <% } %>
-                  </tr>
-                <% }) %>
-              <% } else { %>
-                <tr>
-                  <td colspan="49" class="p-8 text-center text-gray-500">
-                    <i class="fas fa-calendar-times text-4xl mb-4 block"></i>
-                    No tournaments scheduled.
-                  </td>
-                </tr>
-              <% } %>
-            </tbody>
-          </table>
+                  </div>
+                <% } %>
+              <% }) %>
+            <% } else { %>
+              <div class="grid-no-tournaments">
+                <i class="fas fa-calendar-times text-4xl mb-4 block"></i>
+                No tournaments scheduled.
+              </div>
+            <% } %>
+          </div>
         </div>
       </div>
 
@@ -546,52 +547,206 @@
   <%- include('../partials/footer') %>
   
   <style>
-    /* Simple sticky positioning for tournament column */
-    .tournament-name {
-      position: sticky !important;
-      position: -webkit-sticky !important;
-      left: 0 !important;
-      background: white !important;
-      z-index: 10 !important;
-      min-width: 200px !important;
-      max-width: 200px !important;
+    /* Calendar Grid Wrapper */
+    .calendar-grid-wrapper {
+      overflow: auto;
+      max-height: 80vh;
+      position: relative;
+      border: 1px solid #e5e7eb;
     }
     
-    /* Tournament header sticky */
-    .tournament-header {
-      position: sticky !important;
-      position: -webkit-sticky !important;
-      left: 0 !important;
-      background: #f9fafb !important;
-      z-index: 20 !important;
-      min-width: 200px !important;
-      max-width: 200px !important;
+    /* CSS Grid Layout */
+    .calendar-grid {
+      display: grid;
+      grid-template-columns: 200px repeat(12, 1fr);
+      min-width: 1400px;
     }
     
-    /* Ensure the table has proper layout */
-    .calendar-table {
-      border-collapse: separate !important;
-      border-spacing: 0 !important;
+    /* Header Corner */
+    .grid-header-corner {
+      position: sticky;
+      top: 0;
+      left: 0;
+      z-index: 40;
+      background: #f9fafb;
+      padding: 16px;
+      font-weight: 600;
+      color: #374151;
+      border-right: 2px solid #e5e7eb;
+      border-bottom: 1px solid #e5e7eb;
+      display: flex;
+      align-items: center;
     }
     
-    /* Ensure the container allows horizontal scrolling */
-    .overflow-x-auto {
-      position: relative !important;
-      overflow-x: auto !important;
+    /* Month Headers */
+    .grid-month-header {
+      position: sticky;
+      top: 0;
+      z-index: 30;
+      background: #f9fafb;
+      padding: 12px 8px;
+      text-align: center;
+      font-weight: 600;
+      color: #374151;
+      border-right: 1px solid #e5e7eb;
+      border-bottom: 1px solid #e5e7eb;
     }
     
-    /* Fix for table layout */
-    .calendar-table th:first-child,
-    .calendar-table td:first-child {
-      position: sticky !important;
-      position: -webkit-sticky !important;
-      left: 0 !important;
-      z-index: 10 !important;
+    /* Subheader Corner */
+    .grid-subheader-corner {
+      position: sticky;
+      top: 48px;
+      left: 0;
+      z-index: 35;
+      background: #f3f4f6;
+      border-right: 2px solid #e5e7eb;
+      border-bottom: 2px solid #e5e7eb;
     }
     
-    /* Ensure header has higher z-index */
-    .calendar-table thead th:first-child {
-      z-index: 20 !important;
+    /* Quarter Headers */
+    .grid-quarter-header {
+      position: sticky;
+      top: 48px;
+      z-index: 25;
+      background: #f3f4f6;
+      padding: 8px 4px;
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 1px;
+      border-right: 1px solid #e5e7eb;
+      border-bottom: 2px solid #e5e7eb;
+    }
+    
+    .grid-quarter-header span {
+      text-align: center;
+      font-size: 0.75rem;
+      color: #6b7280;
+      border-right: 1px solid #e5e7eb;
+    }
+    
+    .grid-quarter-header span:last-child {
+      border-right: none;
+    }
+    
+    /* Tournament Name Cells */
+    .grid-tournament-name {
+      position: sticky;
+      left: 0;
+      z-index: 20;
+      background: white;
+      padding: 16px;
+      border-right: 2px solid #e5e7eb;
+      border-bottom: 1px solid #e5e7eb;
+      cursor: pointer;
+      transition: background-color 0.2s;
+    }
+    
+    .grid-tournament-name:hover {
+      background-color: #eff6ff;
+    }
+    
+    /* Month Cells */
+    .grid-month-cell {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 1px;
+      border-right: 1px solid #e5e7eb;
+      border-bottom: 1px solid #e5e7eb;
+      padding: 2px;
+    }
+    
+    /* Quarter Cells */
+    .grid-quarter-cell {
+      padding: 8px;
+      text-align: center;
+      position: relative;
+      transition: all 0.2s ease;
+      cursor: pointer;
+      min-height: 40px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    
+    .grid-quarter-cell:hover {
+      transform: scale(1.1);
+      z-index: 10;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    }
+    
+    /* Color classes for tournament types */
+    .filled-green {
+      background-color: #10b981;
+      color: white;
+      border-radius: 6px;
+    }
+    
+    .filled-red {
+      background-color: #ef4444;
+      color: white;
+      border-radius: 6px;
+    }
+    
+    .filled-blue {
+      background-color: #3b82f6;
+      color: white;
+      border-radius: 6px;
+    }
+    
+    .filled-purple {
+      background-color: #8b5cf6;
+      color: white;
+      border-radius: 6px;
+    }
+    
+    .filled-orange {
+      background-color: #f97316;
+      color: white;
+      border-radius: 6px;
+    }
+    
+    /* No tournaments message */
+    .grid-no-tournaments {
+      grid-column: 1 / -1;
+      padding: 32px;
+      text-align: center;
+      color: #9ca3af;
+    }
+    
+    /* Shadow effects for sticky elements */
+    .grid-header-corner::after,
+    .grid-subheader-corner::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      right: -5px;
+      bottom: 0;
+      width: 5px;
+      background: linear-gradient(to right, rgba(0,0,0,0.1), transparent);
+      pointer-events: none;
+    }
+    
+    .grid-tournament-name::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      right: -5px;
+      bottom: 0;
+      width: 5px;
+      background: linear-gradient(to right, rgba(0,0,0,0.08), transparent);
+      pointer-events: none;
+    }
+    
+    /* Row highlighting on hover */
+    .grid-tournament-name:hover ~ .grid-month-cell,
+    .grid-month-cell:hover {
+      background-color: #fafbfc;
+    }
+    
+    /* Hide tournaments based on filter */
+    .grid-tournament-name.hidden,
+    .grid-tournament-name.hidden ~ .grid-month-cell {
+      display: none;
     }
   </style>
   
@@ -634,50 +789,64 @@
           const filter = this.dataset.filter;
           console.log('Applying filter:', filter);
         
-        // Improved filter functionality with better animation
-        const filterElements = (selector, filter) => {
-          document.querySelectorAll(selector).forEach(element => {
-            const shouldShow = filter === 'all' || element.dataset.type === filter;
+        // Filter grid elements
+        const filterGridElements = (filter) => {
+          const tournamentNames = document.querySelectorAll('.grid-tournament-name');
+          let visibleCount = 0;
+          
+          tournamentNames.forEach((nameCell, index) => {
+            const shouldShow = filter === 'all' || nameCell.dataset.type === filter;
+            
+            // Get all month cells for this tournament (next 12 siblings)
+            const monthCells = [];
+            let sibling = nameCell.nextElementSibling;
+            for (let i = 0; i < 12 && sibling; i++) {
+              if (sibling.classList.contains('grid-month-cell')) {
+                monthCells.push(sibling);
+              }
+              sibling = sibling.nextElementSibling;
+            }
             
             if (shouldShow) {
-              // Show element
-              element.style.display = '';
-              element.style.transition = 'all 0.3s ease';
-              element.style.opacity = '1';
-              element.style.transform = 'translateY(0)';
-              element.classList.remove('hidden');
+              // Show tournament
+              nameCell.classList.remove('hidden');
+              nameCell.style.display = '';
+              monthCells.forEach(cell => {
+                cell.classList.remove('hidden');
+                cell.style.display = '';
+              });
+              visibleCount++;
             } else {
-              // Hide element
-              element.style.transition = 'all 0.3s ease';
-              element.style.opacity = '0';
-              element.style.transform = 'translateY(-10px)';
-              
-              setTimeout(() => {
-                element.style.display = 'none';
-                element.classList.add('hidden');
-              }, 300);
+              // Hide tournament
+              nameCell.classList.add('hidden');
+              nameCell.style.display = 'none';
+              monthCells.forEach(cell => {
+                cell.classList.add('hidden');
+                cell.style.display = 'none';
+              });
             }
           });
+          
+          // Show/hide no tournaments message
+          const noTournamentsMsg = document.querySelector('.grid-no-tournaments');
+          if (noTournamentsMsg) {
+            if (visibleCount === 0) {
+              noTournamentsMsg.style.display = '';
+            } else {
+              noTournamentsMsg.style.display = 'none';
+            }
+          }
         };
         
-        // Filter tournament rows and cards
-        filterElements('.tournament-row', filter);
-        filterElements('.tournament-card', filter);
-        
-          // Update filter count (optional visual feedback)
-          setTimeout(() => {
-            const visibleRows = document.querySelectorAll('.tournament-row[style*="opacity: 1"], .tournament-row:not([style*="display: none"])').length;
-            console.log(`Showing ${visibleRows} tournaments for filter: ${filter}`);
-          }, 350);
+        // Apply filter
+        filterGridElements(filter);
         });
       });
       
       // Initialize filters - show all by default
       console.log('Initializing filters...');
-      const allRows = document.querySelectorAll('.tournament-row');
-      const allCards = document.querySelectorAll('.tournament-card');
-      console.log('Found tournament rows:', allRows.length);
-      console.log('Found tournament cards:', allCards.length);
+      const allTournamentNames = document.querySelectorAll('.grid-tournament-name');
+      console.log('Found tournaments:', allTournamentNames.length);
     });
 
     // Tournament modal functionality
