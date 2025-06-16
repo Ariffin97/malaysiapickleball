@@ -609,39 +609,48 @@
     }
 
     function removeReferee(index, name) {
-      if (confirm(`Are you sure you want to remove ${name} as a referee? This action cannot be undone.`)) {
-        showNotification('Removing referee...', 'info');
-        
-        fetch(`/admin/referees/${index}`, {
-          method: 'DELETE',
-          headers: {
-            'Content-Type': 'application/json',
-          }
-        })
-        .then(response => {
-          if (!response.ok) {
-            throw new Error('Network response was not ok');
-          }
-          return response.json();
-        })
-        .then(data => {
-          if (data.success) {
-            showNotification('Referee removed successfully', 'success');
-            // Remove the card from DOM
-            const card = document.querySelector(`[data-referee-index="${index}"]`);
-            if (card) {
-              card.remove();
-              updateStats();
-              searchReferees(); // Update search results
+      if (window.ajaxHandler) {
+        window.ajaxHandler.deleteItem(
+          `/admin/referees/${index}`,
+          name,
+          `[data-referee-index="${index}"]`
+        );
+      } else {
+        // Fallback to original method
+        if (confirm(`Are you sure you want to remove ${name} as a referee? This action cannot be undone.`)) {
+          showNotification('Removing referee...', 'info');
+          
+          fetch(`/admin/referees/${index}`, {
+            method: 'DELETE',
+            headers: {
+              'Content-Type': 'application/json',
             }
-          } else {
-            showNotification(data.message || 'Error removing referee', 'error');
-          }
-        })
-        .catch(error => {
-          console.error('Error:', error);
-          showNotification('Error removing referee. Please try again.', 'error');
-        });
+          })
+          .then(response => {
+            if (!response.ok) {
+              throw new Error('Network response was not ok');
+            }
+            return response.json();
+          })
+          .then(data => {
+            if (data.success) {
+              showNotification('Referee removed successfully', 'success');
+              // Remove the card from DOM
+              const card = document.querySelector(`[data-referee-index="${index}"]`);
+              if (card) {
+                card.remove();
+                updateStats();
+                searchReferees(); // Update search results
+              }
+            } else {
+              showNotification(data.message || 'Error removing referee', 'error');
+            }
+          })
+          .catch(error => {
+            console.error('Error:', error);
+            showNotification('Error removing referee. Please try again.', 'error');
+          });
+        }
       }
     }
 

@@ -104,6 +104,8 @@
     .legend-color.green { background-color: #10b981; }
     .legend-color.red { background-color: #ef4444; }
     .legend-color.blue { background-color: #3b82f6; }
+    .legend-color.purple { background-color: #8b5cf6; }
+    .legend-color.orange { background-color: #f97316; }
     .legend-color.yellow { background-color: #f59e0b; }
 
     .calendar-table {
@@ -146,8 +148,10 @@
       padding: 8px 12px;
       font-weight: bold;
       background: #f9fafb;
-      max-width: 150px;
+      max-width: 250px;
       word-wrap: break-word;
+      overflow-wrap: break-word;
+      hyphens: auto;
     }
 
     .calendar-cell {
@@ -167,6 +171,8 @@
     .filled-green .tournament-dot { background-color: #10b981; }
     .filled-red .tournament-dot { background-color: #ef4444; }
     .filled-blue .tournament-dot { background-color: #3b82f6; }
+    .filled-purple .tournament-dot { background-color: #8b5cf6; }
+    .filled-orange .tournament-dot { background-color: #f97316; }
     .filled-yellow .tournament-dot { background-color: #f59e0b; }
 
     .tournament-list {
@@ -338,8 +344,12 @@
           <span>National Tournaments</span>
         </div>
         <div class="legend-item">
-          <div class="legend-color yellow"></div>
-          <span>International/Major</span>
+          <div class="legend-color purple"></div>
+          <span>Sarawak Events</span>
+        </div>
+        <div class="legend-item">
+          <div class="legend-color orange"></div>
+          <span>W. Malaysia Events</span>
         </div>
       </div>
     </div>
@@ -367,42 +377,36 @@
       </thead>
       <tbody>
         <% 
-          // Function to create shortform using first letters only
-          function createShortform(name) {
-            if (!name) return '';
-            
-            // Split name into words and take first letter of each
-            const words = name.split(/\s+/).filter(word => word.length > 0);
-            
-            // Create acronym from first letters
-            const acronym = words.map(word => {
-              // Remove common punctuation and take first letter
-              const cleanWord = word.replace(/[^\w]/g, '');
-              return cleanWord.charAt(0).toUpperCase();
-            }).join('');
-            
-            return acronym;
-          }
+
           
           // Transform tournaments for display
           const tournamentData = tournaments.map(t => {
             const schedule = Array(12).fill().map(() => []);
             if (t.startDate) {
               const start = new Date(t.startDate);
-              const month = start.getMonth();
-              const day = start.getDate();
-              let quarter = 0;
-              if (day >= 1 && day <= 7) quarter = 1;
-              else if (day >= 8 && day <= 14) quarter = 2;
-              else if (day >= 15 && day <= 21) quarter = 3;
-              else if (day >= 22) quarter = 4;
-              if (quarter > 0) {
-                schedule[month] = [quarter];
+              const end = t.endDate ? new Date(t.endDate) : start;
+              
+              // Handle tournaments that span multiple days/months
+              let currentDate = new Date(start);
+              while (currentDate <= end) {
+                const month = currentDate.getMonth();
+                const day = currentDate.getDate();
+                
+                // Better quarter calculation based on actual weeks
+                let quarter = Math.ceil(day / 7.75); // More accurate quarter division
+                if (quarter > 4) quarter = 4; // Cap at quarter 4
+                
+                if (!schedule[month]) schedule[month] = [];
+                if (!schedule[month].includes(quarter)) {
+                  schedule[month].push(quarter);
+                }
+                
+                // Move to next day
+                currentDate.setDate(currentDate.getDate() + 1);
               }
             }
             return {
               name: t.name,
-              shortName: createShortform(t.name),
               type: t.type,
               startDate: t.startDate,
               endDate: t.endDate,
@@ -416,7 +420,7 @@
           <% tournamentData.forEach((t, index) => { %>
             <tr>
               <td class="tournament-name" title="<%= t.name %>">
-                <div class="font-bold text-sm"><%= t.shortName %></div>
+                <div class="font-bold text-sm"><%= t.name %></div>
                 <div class="text-xs text-gray-600 mt-1">
                   <% if (t.startDate) { %>
                     <% const startDate = new Date(t.startDate); %>

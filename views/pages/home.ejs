@@ -8,6 +8,74 @@
   <link rel="stylesheet" href="/css/styles.css">
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
   <style>
+    /* Smooth scrolling optimizations for all devices */
+    * {
+      -webkit-overflow-scrolling: touch;
+    }
+    
+    html {
+      scroll-behavior: smooth;
+      -webkit-text-size-adjust: 100%;
+      -ms-text-size-adjust: 100%;
+    }
+    
+    body {
+      -webkit-overflow-scrolling: touch;
+      overscroll-behavior: contain;
+      scroll-behavior: smooth;
+    }
+    
+    /* Mobile-specific smooth scrolling improvements */
+    @media (max-width: 768px) {
+      * {
+        -webkit-transform: translateZ(0);
+        transform: translateZ(0);
+        -webkit-backface-visibility: hidden;
+        backface-visibility: hidden;
+        -webkit-perspective: 1000;
+        perspective: 1000;
+      }
+      
+      body {
+        -webkit-overflow-scrolling: touch;
+        overflow-x: hidden;
+        overscroll-behavior-y: contain;
+        scroll-behavior: smooth;
+      }
+      
+      /* Reduce animations on mobile for better performance */
+      .video-container:hover {
+        transform: translateY(-4px) scale(1.01);
+      }
+      
+      .feature-card:hover {
+        transform: translateY(-6px) scale(1.01);
+      }
+      
+      /* Optimize floating elements for mobile */
+      .floating-element {
+        will-change: transform;
+        animation-duration: 8s;
+      }
+      
+      /* Reduce backdrop blur on mobile for better performance */
+      .backdrop-blur-md {
+        backdrop-filter: blur(4px);
+      }
+      
+      .backdrop-blur-sm {
+        backdrop-filter: blur(2px);
+      }
+    }
+    
+    /* Ultra-smooth scrolling for iOS Safari */
+    @supports (-webkit-overflow-scrolling: touch) {
+      body {
+        -webkit-overflow-scrolling: touch;
+        -webkit-transform: translate3d(0, 0, 0);
+        transform: translate3d(0, 0, 0);
+      }
+    }
     .hero-section {
       background: linear-gradient(135deg, rgba(0,0,0,0.7), rgba(0,0,0,0.4));
       position: relative;
@@ -142,6 +210,151 @@
         margin-left: 0 !important;
       }
     }
+    
+    /* Enhanced Video Section Styles */
+    .video-container {
+      transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+      position: relative;
+    }
+    
+    .video-container:hover {
+      transform: translateY(-8px) scale(1.02);
+    }
+    
+    .video-container::before {
+      content: '';
+      position: absolute;
+      top: -3px;
+      left: -3px;
+      right: -3px;
+      bottom: -3px;
+      background: linear-gradient(45deg, #3b82f6, #8b5cf6, #06b6d4, #10b981);
+      border-radius: 1.75rem;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+      z-index: -1;
+      filter: blur(8px);
+    }
+    
+    .video-container:hover::before {
+      opacity: 0.6;
+    }
+    
+    .video-placeholder {
+      transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .video-placeholder::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+      transition: left 0.8s ease;
+    }
+    
+    .video-placeholder:hover::before {
+      left: 100%;
+    }
+    
+    /* Enhanced responsive video aspect ratio */
+    .aspect-w-16 {
+      position: relative;
+      padding-bottom: 56.25%; /* 16:9 aspect ratio */
+      overflow: hidden;
+    }
+    
+    .aspect-w-16 iframe {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      border: none;
+      border-radius: 1.5rem 1.5rem 0 0;
+      z-index: 10;
+      pointer-events: auto;
+    }
+    
+    /* Custom animations */
+    @keyframes float-gentle {
+      0%, 100% { transform: translateY(0px) rotate(0deg); }
+      50% { transform: translateY(-8px) rotate(2deg); }
+    }
+    
+    .animate-float-gentle {
+      animation: float-gentle 4s ease-in-out infinite;
+    }
+    
+    /* Gradient background animation */
+    @keyframes gradient-shift {
+      0%, 100% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+    }
+    
+    .animate-gradient-bg {
+      background-size: 200% 200%;
+      animation: gradient-shift 8s ease infinite;
+    }
+    
+    /* Enhanced shadows */
+    .shadow-video {
+      box-shadow: 
+        0 20px 25px -5px rgba(0, 0, 0, 0.1),
+        0 10px 10px -5px rgba(0, 0, 0, 0.04),
+        0 0 0 1px rgba(255, 255, 255, 0.05);
+    }
+    
+    .shadow-video-hover {
+      box-shadow: 
+        0 25px 50px -12px rgba(0, 0, 0, 0.25),
+        0 0 0 1px rgba(255, 255, 255, 0.1),
+        0 0 20px rgba(59, 130, 246, 0.15);
+    }
+    
+    /* Mobile video adjustments */
+    @media (max-width: 1024px) {
+      .video-container {
+        will-change: transform;
+      }
+      
+      .video-container:hover {
+        transform: translateY(-4px) scale(1.01);
+      }
+      
+      .video-container::before {
+        display: none;
+      }
+    }
+    
+    @media (max-width: 640px) {
+      .video-container {
+        will-change: transform;
+        transition: transform 0.3s ease;
+      }
+      
+      .video-container:hover {
+        transform: translateY(-2px);
+      }
+      
+      .aspect-w-16 iframe {
+        border-radius: 1rem 1rem 0 0;
+      }
+      
+      /* Optimize all animations for mobile */
+      .feature-card {
+        will-change: transform;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+      }
+      
+      .hero-content {
+        animation-duration: 0.8s;
+      }
+    }
   </style>
 </head>
 <%
@@ -179,9 +392,9 @@
               <i class="fas fa-calendar-alt mr-2"></i>
               View Calendar
             </a>
-            <a href="/tournament" class="bg-yellow-500 hover:bg-yellow-600 text-gray-900 px-8 py-3 rounded-full font-semibold transition-all duration-300 flex items-center justify-center shadow-lg">
+            <a href="/events" class="bg-yellow-500 hover:bg-yellow-600 text-gray-900 px-8 py-3 rounded-full font-semibold transition-all duration-300 flex items-center justify-center shadow-lg">
               <i class="fas fa-trophy mr-2"></i>
-              Browse Tournaments
+              Tournament Event
             </a>
             <a href="/player/login" class="bg-green-500 hover:bg-green-600 text-white px-8 py-3 rounded-full font-semibold transition-all duration-300 flex items-center justify-center shadow-lg">
               <i class="fas fa-sign-in-alt mr-2"></i>
@@ -192,40 +405,115 @@
       </div>
     </section>
 
-    <div class="container mx-auto px-4 space-y-16">
-      <!-- Statistics Section -->
-      <section class="text-center">
-        <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
-          <div class="feature-card p-8 rounded-2xl">
-            <div class="feature-icon text-5xl text-green-600 mb-4">
-              <i class="fas fa-trophy"></i>
+    <!-- Enhanced Video Section -->
+    <% if (video1 || video2) { %>
+    <section class="py-16 bg-white bg-opacity-5 backdrop-blur-sm relative overflow-hidden">
+      <!-- Decorative Background Elements -->
+      <div class="absolute top-0 left-0 w-full h-full">
+        <div class="absolute top-10 left-10 w-32 h-32 bg-gradient-to-r from-white to-blue-200 rounded-full opacity-10 animate-pulse"></div>
+        <div class="absolute bottom-10 right-10 w-24 h-24 bg-gradient-to-r from-white to-green-200 rounded-full opacity-10 animate-pulse" style="animation-delay: 1s;"></div>
+        <div class="absolute top-1/2 left-1/3 w-16 h-16 bg-gradient-to-r from-white to-purple-200 rounded-full opacity-10 animate-pulse" style="animation-delay: 2s;"></div>
+      </div>
+      
+      <div class="container mx-auto px-4 relative z-10">
+
+
+        <!-- Videos Grid -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-10 max-w-6xl mx-auto">
+          <!-- Video 1 -->
+          <% if (video1) { %>
+          <div class="video-container group">
+            <div class="bg-white bg-opacity-10 backdrop-blur-md rounded-3xl shadow-xl overflow-hidden transform hover:scale-105 transition-all duration-500 hover:shadow-2xl border border-white border-opacity-20">
+              <!-- Video Wrapper -->
+              <div class="relative aspect-w-16 aspect-h-9 bg-gray-900 rounded-t-3xl overflow-hidden">
+                <%- video1 %>
+                <!-- Hover Overlay - Non-interactive -->
+                <div class="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none"></div>
+              </div>
+              
+              <!-- Video Info -->
+              <div class="p-6 bg-white bg-opacity-10 backdrop-blur-sm">
+                <div class="flex items-center justify-between">
+                  <div class="flex items-center space-x-3">
+                    <div class="w-12 h-12 bg-white bg-opacity-20 backdrop-blur-md border border-white border-opacity-30 rounded-xl flex items-center justify-center shadow-md group-hover:scale-110 transition-transform duration-300">
+                      <i class="fas fa-play-circle text-white text-lg drop-shadow-lg"></i>
+                    </div>
+                    <div>
+                      <h3 class="text-xl font-bold text-white mb-1 drop-shadow-md"><%= video1Type || 'Featured Video' %></h3>
+                      <p class="text-sm text-white text-opacity-80">Pickleball Content</p>
+                    </div>
+                  </div>
+                  <div class="flex items-center space-x-2 bg-white bg-opacity-20 backdrop-blur-md px-3 py-1 rounded-full shadow-sm border border-white border-opacity-30">
+                    <i class="fab fa-youtube text-red-400 text-sm"></i>
+                    <span class="text-xs font-medium text-white">YouTube</span>
+                  </div>
+                </div>
+              </div>
             </div>
-            <div class="stat-number text-4xl font-bold text-gray-800 mb-2">50+</div>
-            <div class="text-gray-600 font-semibold">Active Tournaments</div>
           </div>
-          <div class="feature-card p-8 rounded-2xl">
-            <div class="feature-icon text-5xl text-blue-600 mb-4">
-              <i class="fas fa-users"></i>
+          <% } else { %>
+          <div class="video-placeholder group">
+            <div class="bg-white bg-opacity-5 backdrop-blur-md rounded-3xl border-2 border-dashed border-white border-opacity-30 p-12 text-center transition-all duration-300 hover:border-white hover:border-opacity-50 hover:bg-white hover:bg-opacity-10">
+              <div class="w-16 h-16 bg-white bg-opacity-20 backdrop-blur-md rounded-2xl flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform duration-300 border border-white border-opacity-30">
+                <i class="fas fa-video text-white text-2xl drop-shadow-lg"></i>
+              </div>
+              <h3 class="text-xl font-bold text-white mb-2 drop-shadow-md"><%= video1Type || 'Featured Video' %></h3>
+              <p class="text-white text-opacity-80">No video configured yet</p>
             </div>
-            <div class="stat-number text-4xl font-bold text-gray-800 mb-2">200+</div>
-            <div class="text-gray-600 font-semibold">Certified Coaches</div>
           </div>
-          <div class="feature-card p-8 rounded-2xl">
-            <div class="feature-icon text-5xl text-purple-600 mb-4">
-              <i class="fas fa-map-marker-alt"></i>
+          <% } %>
+
+          <!-- Video 2 -->
+          <% if (video2) { %>
+          <div class="video-container group">
+            <div class="bg-white bg-opacity-10 backdrop-blur-md rounded-3xl shadow-xl overflow-hidden transform hover:scale-105 transition-all duration-500 hover:shadow-2xl border border-white border-opacity-20">
+              <!-- Video Wrapper -->
+              <div class="relative aspect-w-16 aspect-h-9 bg-gray-900 rounded-t-3xl overflow-hidden">
+                <%- video2 %>
+                <!-- Hover Overlay - Non-interactive -->
+                <div class="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none"></div>
+              </div>
+              
+              <!-- Video Info -->
+              <div class="p-6 bg-white bg-opacity-10 backdrop-blur-sm">
+                <div class="flex items-center justify-between">
+                  <div class="flex items-center space-x-3">
+                    <div class="w-12 h-12 bg-white bg-opacity-20 backdrop-blur-md border border-white border-opacity-30 rounded-xl flex items-center justify-center shadow-md group-hover:scale-110 transition-transform duration-300">
+                      <i class="fas fa-play-circle text-white text-lg drop-shadow-lg"></i>
+                    </div>
+                    <div>
+                      <h3 class="text-xl font-bold text-white mb-1 drop-shadow-md"><%= video2Type || 'Featured Video' %></h3>
+                      <p class="text-sm text-white text-opacity-80">Pickleball Content</p>
+                    </div>
+                  </div>
+                  <div class="flex items-center space-x-2 bg-white bg-opacity-20 backdrop-blur-md px-3 py-1 rounded-full shadow-sm border border-white border-opacity-30">
+                    <i class="fab fa-youtube text-red-400 text-sm"></i>
+                    <span class="text-xs font-medium text-white">YouTube</span>
+                  </div>
+                </div>
+              </div>
             </div>
-            <div class="stat-number text-4xl font-bold text-gray-800 mb-2">100+</div>
-            <div class="text-gray-600 font-semibold">Partner Venues</div>
           </div>
-          <div class="feature-card p-8 rounded-2xl">
-            <div class="feature-icon text-5xl text-red-600 mb-4">
-              <i class="fas fa-medal"></i>
+          <% } else { %>
+          <div class="video-placeholder group">
+            <div class="bg-white bg-opacity-5 backdrop-blur-md rounded-3xl border-2 border-dashed border-white border-opacity-30 p-12 text-center transition-all duration-300 hover:border-white hover:border-opacity-50 hover:bg-white hover:bg-opacity-10">
+              <div class="w-16 h-16 bg-white bg-opacity-20 backdrop-blur-md rounded-2xl flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform duration-300 border border-white border-opacity-30">
+                <i class="fas fa-video text-white text-2xl drop-shadow-lg"></i>
+              </div>
+              <h3 class="text-xl font-bold text-white mb-2 drop-shadow-md"><%= video2Type || 'Featured Video' %></h3>
+              <p class="text-white text-opacity-80">No video configured yet</p>
             </div>
-            <div class="stat-number text-4xl font-bold text-gray-800 mb-2">5K+</div>
-            <div class="text-gray-600 font-semibold">Active Players</div>
           </div>
+          <% } %>
         </div>
-      </section>
+
+
+      </div>
+    </section>
+    <% } %>
+
+    <div class="container mx-auto px-4 space-y-16">
+
 
       <!-- Quick Access Features -->
       <section>
@@ -235,14 +523,14 @@
           </span>
         </h2>
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          <div class="feature-card p-8 rounded-2xl cursor-pointer group" data-href="/tournament">
+          <div class="feature-card p-8 rounded-2xl cursor-pointer group" data-href="/events">
             <div class="feature-icon text-4xl text-green-600 mb-6 group-hover:text-green-700">
               <i class="fas fa-calendar-check"></i>
             </div>
-            <h3 class="text-2xl font-bold mb-4 text-gray-800">Tournament Calendar</h3>
-            <p class="text-gray-600 mb-6">View upcoming tournaments, register for events, and track your participation.</p>
+            <h3 class="text-2xl font-bold mb-4 text-gray-800">Tournament Events</h3>
+            <p class="text-gray-600 mb-6">View ongoing and upcoming tournaments, register for events, and track your participation.</p>
             <div class="text-green-600 font-semibold flex items-center">
-              Explore Tournaments <i class="fas fa-arrow-right ml-2 transition-transform group-hover:translate-x-2"></i>
+              View Events <i class="fas fa-arrow-right ml-2 transition-transform group-hover:translate-x-2"></i>
             </div>
           </div>
 
@@ -314,46 +602,14 @@
         </div>
       </section>
 
-      <!-- News & Updates -->
-      <section class="pb-16">
-        <h2 class="text-4xl font-bold text-center mb-12 text-white">
-          <span class="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-500">
-            Latest News
-          </span>
-        </h2>
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-          <div class="news-card p-6 rounded-2xl">
-            <div class="w-full h-48 bg-gradient-to-r from-green-400 to-blue-500 rounded-xl mb-6 flex items-center justify-center">
-              <i class="fas fa-trophy text-white text-4xl"></i>
-            </div>
-            <h3 class="text-xl font-bold mb-3 text-gray-800">National Championship 2025</h3>
-            <p class="text-gray-600 mb-4">Registration now open for Malaysia's biggest pickleball tournament of the year.</p>
-            <div class="text-green-600 font-semibold text-sm">March 15, 2025</div>
-          </div>
 
-          <div class="news-card p-6 rounded-2xl">
-            <div class="w-full h-48 bg-gradient-to-r from-purple-400 to-pink-500 rounded-xl mb-6 flex items-center justify-center">
-              <i class="fas fa-users text-white text-4xl"></i>
-            </div>
-            <h3 class="text-xl font-bold mb-3 text-gray-800">Coach Certification Program</h3>
-            <p class="text-gray-600 mb-4">New batch of coach certification starting next month. Limited seats available.</p>
-            <div class="text-purple-600 font-semibold text-sm">April 1, 2025</div>
-          </div>
-
-          <div class="news-card p-6 rounded-2xl">
-            <div class="w-full h-48 bg-gradient-to-r from-yellow-400 to-orange-500 rounded-xl mb-6 flex items-center justify-center">
-              <i class="fas fa-map-marker-alt text-white text-4xl"></i>
-            </div>
-            <h3 class="text-xl font-bold mb-3 text-gray-800">New Venue Partnerships</h3>
-            <p class="text-gray-600 mb-4">We've partnered with 10 new venues across Klang Valley for better accessibility.</p>
-            <div class="text-orange-600 font-semibold text-sm">February 28, 2025</div>
-          </div>
-        </div>
-      </section>
     </div>
   </main>
   
   <%- include('../partials/footer') %>
+  
+  <!-- Mobile Scroll Optimization -->
+  <script src="/js/mobile-scroll-optimizer.js"></script>
   
   <!-- Debug Info (temporary) -->
   <!-- 

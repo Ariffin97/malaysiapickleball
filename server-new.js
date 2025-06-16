@@ -43,9 +43,20 @@ app.use(helmet({
       connectSrc: ["'self'"],
       objectSrc: ["'none'"],
       mediaSrc: ["'self'"],
-      frameSrc: ["'none'"],
+      frameSrc: [
+        "'self'",
+        "https://www.youtube.com",
+        "https://youtube.com", 
+        "https://player.vimeo.com",
+        "https://vimeo.com",
+        "https://www.dailymotion.com",
+        "https://dailymotion.com",
+        "https://www.twitch.tv",
+        "https://player.twitch.tv"
+      ],
     },
   },
+  crossOriginEmbedderPolicy: false, // Disable COEP to allow third-party video embeds
 }));
 
 app.use(express.urlencoded({ extended: true }));
@@ -157,11 +168,23 @@ app.get('/', async (req, res) => {
     const popupContent = await DatabaseService.getSetting('popup_content', '');
     const popupImage = await DatabaseService.getSetting('popup_image', null);
     
+    // Get video URLs and types from database
+    const video1 = await DatabaseService.getSetting('homepage_video_1', null);
+    const video2 = await DatabaseService.getSetting('homepage_video_2', null);
+    const video1Type = await DatabaseService.getSetting('homepage_video_1_type', 'Featured Video');
+    const video2Type = await DatabaseService.getSetting('homepage_video_2_type', 'Featured Video');
+    
     console.log('Homepage popup data:', { popupActive, popupTitle, popupContent, popupImage }); // Debug log
+    console.log('Homepage video data:', { video1: video1 ? 'Present' : 'Null', video2: video2 ? 'Present' : 'Null' }); // Debug log
+    console.log('Video types:', { video1Type, video2Type }); // Debug log
     
     res.render('pages/home', { 
       session: req.session, 
       backgroundImage,
+      video1: video1,
+      video2: video2,
+      video1Type: video1Type,
+      video2Type: video2Type,
       popupMessage: {
         active: popupActive,
         title: popupTitle,
@@ -174,6 +197,10 @@ app.get('/', async (req, res) => {
     res.render('pages/home', { 
       session: req.session, 
       backgroundImage: '/images/defaultbg.png',
+      video1: null,
+      video2: null,
+      video1Type: 'Featured Video',
+      video2Type: 'Featured Video',
       popupMessage: { active: false, title: '', content: '', image: null }
     });
   }
@@ -198,6 +225,54 @@ app.get('/tournament', async (req, res) => {
     console.error('Tournament page error:', error);
     res.render('pages/tournament', { 
       tournaments: [], 
+      session: req.session, 
+      backgroundImage: '/images/defaultbg.png'
+    });
+  }
+});
+
+// Events page route
+app.get('/events', async (req, res) => {
+  try {
+    const tournaments = await DatabaseService.getAllTournaments();
+    const backgroundImage = await DatabaseService.getSetting('background_image', '/images/defaultbg.png');
+    
+    let formattedTournaments = tournaments.map(t => ({
+      ...t.toObject(),
+      color: tournamentTypes[t.type]?.color || 'green'
+    }));
+    
+    // If no tournaments in database, add sample data for demonstration
+    if (formattedTournaments.length === 0) {
+      formattedTournaments = [
+        { name: 'KGM Autumn Tournament', startDate: '2025-01-15', endDate: '2025-01-17', type: 'local', color: 'green' },
+        { name: 'MPR@KL (SUKMA)', startDate: '2025-02-26', endDate: '2025-02-28', type: 'state', color: 'red' },
+        { name: 'SPA Grand Finals', startDate: '2025-03-10', endDate: '2025-03-12', type: 'national', color: 'blue' },
+        { name: 'IOP Johor', startDate: '2025-04-20', endDate: '2025-04-22', type: 'wmalaysia', color: 'orange' },
+        { name: 'Sarawak Open Championship', startDate: '2025-05-15', endDate: '2025-05-17', type: 'sarawak', color: 'purple' },
+        { name: 'Penang Masters Tournament', startDate: '2025-06-10', endDate: '2025-06-12', type: 'local', color: 'green' }
+      ];
+    }
+    
+    res.render('pages/events', { 
+      tournaments: formattedTournaments, 
+      session: req.session, 
+      backgroundImage 
+    });
+  } catch (error) {
+    console.error('Events page error:', error);
+    // Fallback sample data in case of error
+    const sampleTournaments = [
+      { name: 'KGM Autumn Tournament', startDate: '2025-01-15', endDate: '2025-01-17', type: 'local', color: 'green' },
+      { name: 'MPR@KL (SUKMA)', startDate: '2025-02-26', endDate: '2025-02-28', type: 'state', color: 'red' },
+      { name: 'SPA Grand Finals', startDate: '2025-03-10', endDate: '2025-03-12', type: 'national', color: 'blue' },
+      { name: 'IOP Johor', startDate: '2025-04-20', endDate: '2025-04-22', type: 'wmalaysia', color: 'orange' },
+      { name: 'Sarawak Open Championship', startDate: '2025-05-15', endDate: '2025-05-17', type: 'sarawak', color: 'purple' },
+      { name: 'Penang Masters Tournament', startDate: '2025-06-10', endDate: '2025-06-12', type: 'local', color: 'green' }
+    ];
+    
+    res.render('pages/events', { 
+      tournaments: sampleTournaments, 
       session: req.session, 
       backgroundImage: '/images/defaultbg.png'
     });
@@ -396,6 +471,15 @@ app.post('/admin/tournaments', adminAuth, [
 ], async (req, res) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
+    // Check if it's an AJAX request
+    if (req.headers['x-requested-with'] === 'XMLHttpRequest') {
+      return res.status(400).json({
+        success: false,
+        message: 'Validation failed',
+        errors: errors.array()
+      });
+    }
+    
     const tournaments = await DatabaseService.getAllTournaments();
     return res.render('pages/admin/manage-tournaments', { 
       tournaments: tournaments || [], 
@@ -406,10 +490,30 @@ app.post('/admin/tournaments', adminAuth, [
   }
   
   try {
-    await DatabaseService.createTournament(req.body);
+    const tournament = await DatabaseService.createTournament(req.body);
+    
+    // Check if it's an AJAX request
+    if (req.headers['x-requested-with'] === 'XMLHttpRequest') {
+      return res.json({
+        success: true,
+        message: 'Tournament created successfully!',
+        tournament: tournament,
+        reload: true
+      });
+    }
+    
     res.redirect('/admin/tournaments?success=tournament_added');
   } catch (error) {
     console.error('Add tournament error:', error);
+    
+    // Check if it's an AJAX request
+    if (req.headers['x-requested-with'] === 'XMLHttpRequest') {
+      return res.status(500).json({
+        success: false,
+        message: error.message || 'Failed to create tournament'
+      });
+    }
+    
     res.redirect('/admin/tournaments?error=add_failed');
   }
 });
@@ -417,10 +521,16 @@ app.post('/admin/tournaments', adminAuth, [
 app.post('/admin/tournaments/delete/:id', adminAuth, async (req, res) => {
   try {
     await DatabaseService.deleteTournament(req.params.id);
-    res.redirect('/admin/tournaments?success=tournament_deleted');
+    res.json({
+      success: true,
+      message: 'Tournament deleted successfully'
+    });
   } catch (error) {
     console.error('Delete tournament error:', error);
-    res.redirect('/admin/tournaments?error=delete_failed');
+    res.status(500).json({
+      success: false,
+      message: error.message || 'Failed to delete tournament'
+    });
   }
 });
 
@@ -972,10 +1082,22 @@ app.get('/admin/home', adminAuth, async (req, res) => {
   try {
     const backgroundImage = await DatabaseService.getSetting('background_image', null);
     const popupImage = await DatabaseService.getSetting('popup_image', null);
+    const video1 = await DatabaseService.getSetting('homepage_video_1', null);
+    const video2 = await DatabaseService.getSetting('homepage_video_2', null);
+    const video1Original = await DatabaseService.getSetting('homepage_video_1_original', null);
+    const video2Original = await DatabaseService.getSetting('homepage_video_2_original', null);
+    const video1Type = await DatabaseService.getSetting('homepage_video_1_type', 'Featured Video');
+    const video2Type = await DatabaseService.getSetting('homepage_video_2_type', 'Featured Video');
     
     res.render('pages/admin/manage-home', { 
       backgroundImage: backgroundImage,
       popupImage: popupImage,
+      video1: video1,
+      video2: video2,
+      video1Original: video1Original,
+      video2Original: video2Original,
+      video1Type: video1Type,
+      video2Type: video2Type,
       session: req.session 
     });
   } catch (error) {
@@ -983,6 +1105,12 @@ app.get('/admin/home', adminAuth, async (req, res) => {
     res.render('pages/admin/manage-home', {
       backgroundImage: null,
       popupImage: null,
+      video1: null,
+      video2: null,
+      video1Original: null,
+      video2Original: null,
+      video1Type: 'Featured Video',
+      video2Type: 'Featured Video',
       session: req.session
     });
   }
@@ -1008,9 +1136,26 @@ app.post('/admin/home', adminAuth, async (req, res) => {
       await DatabaseService.setSetting('background_image', imagePath);
     }
     
+    // Check if it's an AJAX request
+    if (req.headers['x-requested-with'] === 'XMLHttpRequest') {
+      return res.json({
+        success: true,
+        message: 'Background image updated successfully!'
+      });
+    }
+    
     res.redirect('/admin/home');
   } catch (error) {
     console.error('Background image upload error:', error);
+    
+    // Check if it's an AJAX request
+    if (req.headers['x-requested-with'] === 'XMLHttpRequest') {
+      return res.status(500).json({
+        success: false,
+        message: error.message || 'Failed to update background image'
+      });
+    }
+    
     res.redirect('/admin/home');
   }
 });
@@ -1036,9 +1181,26 @@ app.post('/admin/popup-image', adminAuth, async (req, res) => {
       await DatabaseService.setSetting('popup_image', imagePath);
     }
     
+    // Check if it's an AJAX request
+    if (req.headers['x-requested-with'] === 'XMLHttpRequest') {
+      return res.json({
+        success: true,
+        message: 'Popup image updated successfully!'
+      });
+    }
+    
     res.redirect('/admin/home');
   } catch (error) {
     console.error('Popup image upload error:', error);
+    
+    // Check if it's an AJAX request
+    if (req.headers['x-requested-with'] === 'XMLHttpRequest') {
+      return res.status(500).json({
+        success: false,
+        message: error.message || 'Failed to update popup image'
+      });
+    }
+    
     res.redirect('/admin/home');
   }
 });
@@ -1093,6 +1255,139 @@ app.post('/admin/popup/remove-image', adminAuth, async (req, res) => {
   } catch (error) {
     console.error('Error removing popup image:', error);
     res.status(500).json({ success: false, error: 'Failed to remove image' });
+  }
+});
+
+// Video Embed Code Management Routes
+app.post('/admin/video-urls', adminAuth, async (req, res) => {
+  try {
+    const { videoNumber, embedCode, videoType } = req.body;
+    
+    if (!videoNumber || !embedCode) {
+      throw new Error('Video number and embed code are required');
+    }
+    
+    // Basic validation for embed code (should contain iframe)
+    if (!embedCode.includes('<iframe') || !embedCode.includes('</iframe>')) {
+      throw new Error('Please provide a valid embed code with iframe tags');
+    }
+    
+    // Sanitize embed code - ensure it's safe
+    const sanitizedEmbedCode = sanitizeEmbedCode(embedCode);
+    
+    // Save to database
+    const settingKey = `homepage_video_${videoNumber}`;
+    await DatabaseService.setSetting(settingKey, sanitizedEmbedCode);
+    await DatabaseService.setSetting(`${settingKey}_original`, embedCode);
+    await DatabaseService.setSetting(`${settingKey}_type`, videoType || 'Featured Video');
+    
+    // Check if it's an AJAX request
+    if (req.headers['x-requested-with'] === 'XMLHttpRequest') {
+      return res.json({
+        success: true,
+        message: `Video ${videoNumber} updated successfully!`,
+        embedCode: sanitizedEmbedCode,
+        videoType: videoType || 'Featured Video'
+      });
+    }
+    
+    res.redirect('/admin/home?success=video_updated');
+  } catch (error) {
+    console.error('Video embed code update error:', error);
+    
+    // Check if it's an AJAX request
+    if (req.headers['x-requested-with'] === 'XMLHttpRequest') {
+      return res.status(400).json({
+        success: false,
+        message: error.message || 'Failed to update video embed code'
+      });
+    }
+    
+    res.redirect('/admin/home?error=video_update_failed');
+  }
+});
+
+// Function to sanitize embed code
+function sanitizeEmbedCode(embedCode) {
+  // Remove any script tags for security
+  let sanitized = embedCode.replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '');
+  
+  // Handle YouTube specific fixes
+  if (sanitized.includes('youtube.com/embed/')) {
+    // Extract video ID
+    const videoIdMatch = sanitized.match(/youtube\.com\/embed\/([a-zA-Z0-9_-]{11})/);
+    if (videoIdMatch) {
+      const videoId = videoIdMatch[1];
+      
+      // Create a new embed URL with all necessary parameters to bypass restrictions and enable interaction
+      const embedParams = [
+        'autoplay=0',
+        'controls=1',
+        'rel=0',
+        'modestbranding=1',
+        'playsinline=1',
+        'enablejsapi=1',
+        'fs=1', // Enable fullscreen
+        'cc_load_policy=0', // Don't show captions by default
+        'iv_load_policy=3', // Hide video annotations
+        'origin=' + encodeURIComponent(process.env.SITE_URL || 'http://localhost:3000'),
+        'widget_referrer=' + encodeURIComponent(process.env.SITE_URL || 'http://localhost:3000')
+      ].join('&');
+      
+      // Replace the entire src with optimized URL
+      const newSrc = `https://www.youtube.com/embed/${videoId}?${embedParams}`;
+      sanitized = sanitized.replace(/src="[^"]*"/i, `src="${newSrc}"`);
+    }
+  }
+  
+  // Ensure iframe has proper attributes for responsive design, security, and interaction
+  sanitized = sanitized.replace(/<iframe/gi, '<iframe class="w-full h-full" loading="lazy" referrerpolicy="no-referrer-when-downgrade" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"');
+  
+  // Add allowfullscreen if not present
+  if (!sanitized.includes('allowfullscreen')) {
+    sanitized = sanitized.replace('></iframe>', ' allowfullscreen></iframe>');
+  }
+  
+  // Ensure proper sandbox permissions for interaction
+  if (!sanitized.includes('sandbox')) {
+    sanitized = sanitized.replace('<iframe', '<iframe sandbox="allow-scripts allow-same-origin allow-presentation allow-forms"');
+  }
+  
+  // Remove any potentially dangerous attributes
+  sanitized = sanitized.replace(/on\w+="[^"]*"/gi, ''); // Remove onclick, onload, etc.
+  sanitized = sanitized.replace(/javascript:/gi, ''); // Remove javascript: protocols
+  
+  return sanitized;
+}
+
+// Get current video embed codes for admin page
+app.get('/admin/video-urls', adminAuth, async (req, res) => {
+  try {
+    const video1 = await DatabaseService.getSetting('homepage_video_1', null);
+    const video2 = await DatabaseService.getSetting('homepage_video_2', null);
+    const video1Original = await DatabaseService.getSetting('homepage_video_1_original', null);
+    const video2Original = await DatabaseService.getSetting('homepage_video_2_original', null);
+    const video1Type = await DatabaseService.getSetting('homepage_video_1_type', 'Featured Video');
+    const video2Type = await DatabaseService.getSetting('homepage_video_2_type', 'Featured Video');
+    
+    res.json({
+      success: true,
+      videos: {
+        video1: {
+          embedCode: video1,
+          originalCode: video1Original,
+          type: video1Type
+        },
+        video2: {
+          embedCode: video2,
+          originalCode: video2Original,
+          type: video2Type
+        }
+      }
+    });
+  } catch (error) {
+    console.error('Error getting video embed codes:', error);
+    res.status(500).json({ success: false, error: 'Failed to get video embed codes' });
   }
 });
 
@@ -1163,6 +1458,22 @@ app.get('/services/ranking', async (req, res) => {
     console.error('Ranking page error:', error);
     res.render('pages/services/ranking', { 
       rankings: [], 
+      session: req.session, 
+      backgroundImage: '/images/defaultbg.png' 
+    });
+  }
+});
+
+app.get('/shop', async (req, res) => {
+  try {
+    const backgroundImage = await DatabaseService.getSetting('background_image', '/images/defaultbg.png');
+    res.render('pages/shop', { 
+      session: req.session, 
+      backgroundImage 
+    });
+  } catch (error) {
+    console.error('Shop page error:', error);
+    res.render('pages/shop', { 
       session: req.session, 
       backgroundImage: '/images/defaultbg.png' 
     });
@@ -1369,8 +1680,8 @@ app.get('/tournament/print-pdf', async (req, res) => {
       'local': { color: 'green' },
       'state': { color: 'red' },
       'national': { color: 'blue' },
-      'sarawak': { color: 'yellow' },
-      'wmalaysia': { color: 'purple' }
+      'sarawak': { color: 'purple' },
+      'wmalaysia': { color: 'orange' }
     };
     
     // Format tournaments for PDF

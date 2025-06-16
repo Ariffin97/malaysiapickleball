@@ -6,6 +6,26 @@
   <title>Manage Home Page - Malaysia Pickleball Association</title>
   <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
   <link rel="stylesheet" href="/css/styles.css">
+  <style>
+    .embed-textarea {
+      resize: vertical;
+      min-height: 100px;
+    }
+    .embed-textarea:focus {
+      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+    }
+    .aspect-w-16 {
+      position: relative;
+      padding-bottom: 56.25%; /* 16:9 aspect ratio */
+    }
+    .aspect-w-16 > * {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+    }
+  </style>
 </head>
 <body class="bg-gray-100">
   <%- include('../../partials/header') %>
@@ -31,6 +51,210 @@
           <img src="<%= backgroundImage %>" alt="Current Background" class="w-full max-w-md rounded">
         </div>
       <% } %>
+
+      <!-- Video Management Section -->
+      <div class="bg-white p-6 rounded-lg shadow-lg mt-6">
+        <div class="flex items-center justify-between mb-4">
+          <h2 class="text-2xl font-bold text-gray-800">
+            <i class="fas fa-video mr-2 text-red-500"></i>
+            Homepage Video Management
+          </h2>
+        </div>
+        
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <!-- Video 1 -->
+          <div class="space-y-4">
+            <h3 class="text-lg font-semibold text-gray-700 border-b pb-2">
+              <i class="fas fa-play-circle mr-2 text-blue-500"></i>
+              Video 1
+            </h3>
+            <form action="/admin/video-urls" method="POST" class="space-y-4">
+              <input type="hidden" name="videoNumber" value="1">
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Video Type</label>
+                <select name="videoType" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-300 mb-4">
+                  <option value="News" <%= (video1Type === 'News') ? 'selected' : '' %>>📰 News</option>
+                  <option value="Info" <%= (video1Type === 'Info') ? 'selected' : '' %>>ℹ️ Info</option>
+                  <option value="Update" <%= (video1Type === 'Update') ? 'selected' : '' %>>🔄 Update</option>
+                  <option value="Tutorial" <%= (video1Type === 'Tutorial') ? 'selected' : '' %>>🎓 Tutorial</option>
+                  <option value="Highlights" <%= (video1Type === 'Highlights') ? 'selected' : '' %>>⭐ Highlights</option>
+                  <option value="Event" <%= (video1Type === 'Event') ? 'selected' : '' %>>📅 Event</option>
+                  <option value="Training" <%= (video1Type === 'Training') ? 'selected' : '' %>>💪 Training</option>
+                  <option value="Featured Video" <%= (video1Type === 'Featured Video' || !video1Type) ? 'selected' : '' %>>🎬 Featured Video</option>
+                </select>
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Video Embed Code</label>
+                <textarea name="embedCode" id="video1-embed" rows="4" placeholder="Paste your video embed code here (e.g., <iframe src=&quot;...&quot;></iframe>)" 
+                          class="embed-textarea w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-300 font-mono text-sm"><%= video1Original || '' %></textarea>
+                <p class="text-xs text-gray-500 mt-1">Paste the complete embed code from YouTube, Vimeo, or any video platform</p>
+                <div class="mt-2 space-y-2">
+                  <div class="flex items-center text-xs text-gray-600">
+                    <i class="fas fa-info-circle mr-1"></i>
+                    <span>Example: &lt;iframe src="https://www.youtube.com/embed/VIDEO_ID" width="560" height="315"&gt;&lt;/iframe&gt;</span>
+                  </div>
+                  <div class="bg-blue-50 p-3 rounded-lg border border-blue-200">
+                    <div class="flex items-center mb-2">
+                      <i class="fab fa-youtube text-red-600 mr-2"></i>
+                      <strong class="text-blue-800 text-sm">YouTube Quick Helper:</strong>
+                    </div>
+                    <div class="space-y-2">
+                      <input type="text" id="youtube-url-1" placeholder="Paste YouTube URL here (e.g., https://www.youtube.com/watch?v=...)" class="w-full p-2 text-sm border border-blue-300 rounded focus:ring-2 focus:ring-blue-500">
+                      <button type="button" onclick="convertToEmbed(1)" class="w-full bg-blue-500 text-white px-3 py-2 rounded text-sm hover:bg-blue-600 transition-colors">
+                        <i class="fas fa-magic mr-1"></i>
+                        Convert to Embed Code
+                      </button>
+                      <button type="button" onclick="testEmbed(1)" class="w-full bg-purple-500 text-white px-3 py-2 rounded text-sm hover:bg-purple-600 transition-colors mt-1">
+                        <i class="fas fa-play mr-1"></i>
+                        Test Embed Code
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <button type="submit" class="w-full bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 transition-colors duration-300 font-medium">
+                <i class="fas fa-save mr-2"></i>
+                Update Video 1
+              </button>
+            </form>
+            
+            <!-- Current Video 1 Preview -->
+            <div id="video1-preview" class="mt-4">
+              <h4 class="text-sm font-medium text-gray-700 mb-2">Current Video 1</h4>
+              <% if (video1) { %>
+                <div class="bg-white rounded-lg border overflow-hidden">
+                  <div class="aspect-w-16 aspect-h-9">
+                    <%- video1 %>
+                  </div>
+                  <div class="p-2 text-xs text-gray-600 bg-gray-50">
+                    <i class="fas fa-code mr-1"></i>
+                    <span class="font-mono">Embed code active</span>
+                  </div>
+                </div>
+              <% } else { %>
+                <div class="bg-gray-100 rounded-lg p-4 text-center text-gray-500">
+                  <i class="fas fa-video text-2xl mb-2"></i>
+                  <p>No video set</p>
+                </div>
+              <% } %>
+            </div>
+          </div>
+
+          <!-- Video 2 -->
+          <div class="space-y-4">
+            <h3 class="text-lg font-semibold text-gray-700 border-b pb-2">
+              <i class="fas fa-play-circle mr-2 text-green-500"></i>
+              Video 2
+            </h3>
+            <form action="/admin/video-urls" method="POST" class="space-y-4">
+              <input type="hidden" name="videoNumber" value="2">
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Video Type</label>
+                <select name="videoType" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-300 mb-4">
+                  <option value="News" <%= (video2Type === 'News') ? 'selected' : '' %>>📰 News</option>
+                  <option value="Info" <%= (video2Type === 'Info') ? 'selected' : '' %>>ℹ️ Info</option>
+                  <option value="Update" <%= (video2Type === 'Update') ? 'selected' : '' %>>🔄 Update</option>
+                  <option value="Tutorial" <%= (video2Type === 'Tutorial') ? 'selected' : '' %>>🎓 Tutorial</option>
+                  <option value="Highlights" <%= (video2Type === 'Highlights') ? 'selected' : '' %>>⭐ Highlights</option>
+                  <option value="Event" <%= (video2Type === 'Event') ? 'selected' : '' %>>📅 Event</option>
+                  <option value="Training" <%= (video2Type === 'Training') ? 'selected' : '' %>>💪 Training</option>
+                  <option value="Featured Video" <%= (video2Type === 'Featured Video' || !video2Type) ? 'selected' : '' %>>🎬 Featured Video</option>
+                </select>
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Video Embed Code</label>
+                <textarea name="embedCode" id="video2-embed" rows="4" placeholder="Paste your video embed code here (e.g., <iframe src=&quot;...&quot;></iframe>)" 
+                          class="embed-textarea w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-300 font-mono text-sm"><%= video2Original || '' %></textarea>
+                <p class="text-xs text-gray-500 mt-1">Paste the complete embed code from YouTube, Vimeo, or any video platform</p>
+                <div class="mt-2 space-y-2">
+                  <div class="flex items-center text-xs text-gray-600">
+                    <i class="fas fa-info-circle mr-1"></i>
+                    <span>Example: &lt;iframe src="https://www.youtube.com/embed/VIDEO_ID" width="560" height="315"&gt;&lt;/iframe&gt;</span>
+                  </div>
+                  <div class="bg-green-50 p-3 rounded-lg border border-green-200">
+                    <div class="flex items-center mb-2">
+                      <i class="fab fa-youtube text-red-600 mr-2"></i>
+                      <strong class="text-green-800 text-sm">YouTube Quick Helper:</strong>
+                    </div>
+                    <div class="space-y-2">
+                      <input type="text" id="youtube-url-2" placeholder="Paste YouTube URL here (e.g., https://www.youtube.com/watch?v=...)" class="w-full p-2 text-sm border border-green-300 rounded focus:ring-2 focus:ring-green-500">
+                      <button type="button" onclick="convertToEmbed(2)" class="w-full bg-green-500 text-white px-3 py-2 rounded text-sm hover:bg-green-600 transition-colors">
+                        <i class="fas fa-magic mr-1"></i>
+                        Convert to Embed Code
+                      </button>
+                      <button type="button" onclick="testEmbed(2)" class="w-full bg-purple-500 text-white px-3 py-2 rounded text-sm hover:bg-purple-600 transition-colors mt-1">
+                        <i class="fas fa-play mr-1"></i>
+                        Test Embed Code
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <button type="submit" class="w-full bg-green-600 text-white py-2 px-4 rounded-lg hover:bg-green-700 transition-colors duration-300 font-medium">
+                <i class="fas fa-save mr-2"></i>
+                Update Video 2
+              </button>
+            </form>
+            
+            <!-- Current Video 2 Preview -->
+            <div id="video2-preview" class="mt-4">
+              <h4 class="text-sm font-medium text-gray-700 mb-2">Current Video 2</h4>
+              <% if (video2) { %>
+                <div class="bg-white rounded-lg border overflow-hidden">
+                  <div class="aspect-w-16 aspect-h-9">
+                    <%- video2 %>
+                  </div>
+                  <div class="p-2 text-xs text-gray-600 bg-gray-50">
+                    <i class="fas fa-code mr-1"></i>
+                    <span class="font-mono">Embed code active</span>
+                  </div>
+                </div>
+              <% } else { %>
+                <div class="bg-gray-100 rounded-lg p-4 text-center text-gray-500">
+                  <i class="fas fa-video text-2xl mb-2"></i>
+                  <p>No video set</p>
+                </div>
+              <% } %>
+            </div>
+          </div>
+        </div>
+
+        <!-- Instructions -->
+        <div class="mt-6 p-4 bg-yellow-50 rounded-lg border border-yellow-200">
+                      <div class="flex items-start">
+              <i class="fas fa-info-circle text-yellow-600 mt-1 mr-3"></i>
+              <div>
+                <h4 class="text-sm font-medium text-yellow-800 mb-1">Video Embed Instructions:</h4>
+                <ul class="text-sm text-yellow-700 space-y-1">
+                  <li>• Paste complete embed codes from any video platform (YouTube, Vimeo, etc.)</li>
+                  <li>• Make sure the embed code includes proper iframe tags</li>
+                  <li>• Videos will be displayed as embedded players on the homepage</li>
+                  <li>• The system will automatically make videos responsive</li>
+                  <li>• Videos will appear in a side-by-side layout under the main header</li>
+                </ul>
+                <div class="mt-3 p-3 bg-red-50 border border-red-200 rounded">
+                  <h5 class="text-sm font-medium text-red-800 mb-1">🚫 If Video is Still Blocked:</h5>
+                  <ul class="text-xs text-red-700 space-y-1">
+                    <li>• <strong>Use the YouTube Quick Helper above</strong> - it generates optimized embed codes</li>
+                    <li>• Check if the video allows embedding: Go to YouTube → Video Settings → Allow Embedding</li>
+                    <li>• Try a different video that allows embedding</li>
+                    <li>• Use videos from your own YouTube channel for guaranteed embedding</li>
+                    <li>• Consider using Vimeo or other platforms that are more embed-friendly</li>
+                  </ul>
+                </div>
+                <div class="mt-2 p-3 bg-blue-50 border border-blue-200 rounded">
+                  <h5 class="text-sm font-medium text-blue-800 mb-1">💡 Alternative Solutions:</h5>
+                  <ul class="text-xs text-blue-700 space-y-1">
+                    <li>• <strong>Vimeo:</strong> Generally more embed-friendly than YouTube</li>
+                    <li>• <strong>Direct MP4:</strong> Upload video files directly to your server</li>
+                    <li>• <strong>YouTube Shorts:</strong> Often have fewer embedding restrictions</li>
+                    <li>• <strong>Unlisted Videos:</strong> Sometimes work better than public ones</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+        </div>
+      </div>
 
       <!-- Popup Message Settings -->
       <div class="bg-white p-6 rounded-lg shadow-lg mt-6">
@@ -154,6 +378,7 @@
   <%- include('../../partials/footer') %>
   <script src="/js/script.js"></script>
   <script src="/js/popup-manager.js"></script>
+  <script src="/js/video-manager.js"></script>
   
   <!-- Font Awesome for icons -->
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">

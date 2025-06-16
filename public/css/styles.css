@@ -531,10 +531,19 @@ html, body {
   height: 100%;
   margin: 0;
   padding: 0;
+  scroll-behavior: smooth;
+  -webkit-overflow-scrolling: touch;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+  -ms-text-size-adjust: 100%;
 }
 
 body {
   overflow-x: hidden; /* Prevent horizontal scroll issues */
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
 }
 
 main {
@@ -547,6 +556,44 @@ main {
 /* Override any potential conflicts */
 * {
   box-sizing: border-box;
+}
+
+/* Mobile-specific smooth scrolling optimizations */
+@media (max-width: 768px) {
+  html, body {
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior-y: contain;
+    scroll-behavior: smooth;
+  }
+  
+  * {
+    -webkit-transform: translateZ(0);
+    transform: translateZ(0);
+    -webkit-backface-visibility: hidden;
+    backface-visibility: hidden;
+  }
+  
+  /* Optimize animations for mobile performance */
+  .card:hover {
+    transform: translateY(-3px) scale(1.01);
+  }
+  
+  .dashboard-card:hover {
+    transform: translateY(-3px) scale(1.01);
+  }
+  
+  /* Reduce complex animations on mobile */
+  .card::before,
+  .dashboard-card::before {
+    display: none;
+  }
+  
+  /* Optimize sidebar transitions for mobile */
+  .sidebar {
+    -webkit-transform: translateZ(0);
+    transform: translateZ(0);
+    will-change: transform;
+  }
 }
 
 /* Tournament page specific spacing adjustments */

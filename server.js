@@ -62,9 +62,20 @@ app.use(helmet({
       connectSrc: ["'self'"],
       objectSrc: ["'none'"],
       mediaSrc: ["'self'"],
-      frameSrc: ["'none'"],
+      frameSrc: [
+        "'self'",
+        "https://www.youtube.com",
+        "https://youtube.com", 
+        "https://player.vimeo.com",
+        "https://vimeo.com",
+        "https://www.dailymotion.com",
+        "https://dailymotion.com",
+        "https://www.twitch.tv",
+        "https://player.twitch.tv"
+      ],
     },
   },
+  crossOriginEmbedderPolicy: false, // Disable COEP to allow third-party video embeds
 })); // Security headers with CSP allowing inline scripts
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json()); // Parse JSON bodies
@@ -127,6 +138,16 @@ app.get('/tournament', (req, res) => {
     color: tournamentTypes[t.type]?.color || 'green'
   }));
   res.render('pages/tournament', { tournaments: formattedTournaments, session: req.session, backgroundImage: dataStore.backgroundImage });
+});
+
+// Events page route
+app.get('/events', (req, res) => {
+  console.log('Events Tournaments:', dataStore.tournaments); // Debug log
+  const formattedTournaments = dataStore.tournaments.map(t => ({
+    ...t,
+    color: tournamentTypes[t.type]?.color || 'green'
+  }));
+  res.render('pages/events', { tournaments: formattedTournaments, session: req.session, backgroundImage: dataStore.backgroundImage });
 });
 
 // Test PDF Template Route (for debugging)
@@ -406,6 +427,10 @@ app.get('/services/section-33', (req, res) => res.render('pages/services/section
 app.get('/services/section-34', (req, res) => res.render('pages/services/section-34', { session: req.session, backgroundImage: dataStore.backgroundImage }));
 app.get('/services/section-36', (req, res) => res.render('pages/services/section-36', { session: req.session, backgroundImage: dataStore.backgroundImage }));
 app.get('/services/ranking', (req, res) => res.render('pages/services/ranking', { rankings: dataStore.rankings, session: req.session, backgroundImage: dataStore.backgroundImage }));
+app.get('/shop', (req, res) => res.render('pages/shop', { 
+  session: req.session, 
+  backgroundImage: dataStore.backgroundImage || '/images/defaultbg.png' 
+}));
 
 // Login Routes
 app.get('/login', (req, res) => {
@@ -570,6 +595,12 @@ app.get('/admin/dashboard', adminAuth, (req, res) => res.render('pages/admin/das
 app.get('/admin/home', adminAuth, (req, res) => res.render('pages/admin/manage-home', { 
   backgroundImage: dataStore.backgroundImage, 
   popupImage: dataStore.popupMessage.image,
+  video1: dataStore.video1 || null,
+  video2: dataStore.video2 || null,
+  video1Original: dataStore.video1Original || null,
+  video2Original: dataStore.video2Original || null,
+  video1Type: dataStore.video1Type || 'Featured Video',
+  video2Type: dataStore.video2Type || 'Featured Video',
   session: req.session 
 }));
 app.get('/admin/registrations', adminAuth, (req, res) => res.render('pages/admin/registrations', { pendingRegistrations: dataStore.pendingRegistrations, session: req.session }));

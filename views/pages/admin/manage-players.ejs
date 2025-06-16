@@ -143,7 +143,7 @@
           <% } else { %>
             <div class="space-y-6">
               <% pendingRegistrations.forEach(registration => { %>
-                <div class="registration-card pending bg-white rounded-xl shadow-md p-6">
+                <div class="registration-card pending bg-white rounded-xl shadow-md p-6" data-registration-id="<%= registration.id %>">
                   <div class="flex flex-col lg:flex-row lg:items-center justify-between">
                     <!-- Player Info -->
                     <div class="flex items-start space-x-4 mb-4 lg:mb-0">
@@ -282,25 +282,34 @@
     async function approvePlayer(id, name) {
       console.log('Approving player:', id, name);
       
-      if (!confirm(`Approve ${name}?`)) return;
+      if (window.ajaxHandler) {
+        await window.ajaxHandler.approveItem(
+          `/admin/players/approve/${id}`,
+          name,
+          `[data-registration-id="${id}"]`
+        );
+      } else {
+        // Fallback to original method
+        if (!confirm(`Approve ${name}?`)) return;
 
-      try {
-        const response = await fetch(`/admin/players/approve/${id}`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' }
-        });
+        try {
+          const response = await fetch(`/admin/players/approve/${id}`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' }
+          });
 
-        const result = await response.json();
-        
-        if (result.success) {
-          alert(result.message || 'Player approved successfully!');
-          location.reload();
-        } else {
-          alert('Error: ' + result.message);
+          const result = await response.json();
+          
+          if (result.success) {
+            alert(result.message || 'Player approved successfully!');
+            location.reload();
+          } else {
+            alert('Error: ' + result.message);
+          }
+        } catch (error) {
+          console.error('Error:', error);
+          alert('Failed to approve player: ' + error.message);
         }
-      } catch (error) {
-        console.error('Error:', error);
-        alert('Failed to approve player: ' + error.message);
       }
     }
 
@@ -308,25 +317,34 @@
     async function rejectPlayer(id, name) {
       console.log('Rejecting player:', id, name);
       
-      if (!confirm(`Reject ${name}? This cannot be undone.`)) return;
+      if (window.ajaxHandler) {
+        await window.ajaxHandler.rejectItem(
+          `/admin/players/reject/${id}`,
+          name,
+          `[data-registration-id="${id}"]`
+        );
+      } else {
+        // Fallback to original method
+        if (!confirm(`Reject ${name}? This cannot be undone.`)) return;
 
-      try {
-        const response = await fetch(`/admin/players/reject/${id}`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' }
-        });
+        try {
+          const response = await fetch(`/admin/players/reject/${id}`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' }
+          });
 
-        const result = await response.json();
-        
-        if (result.success) {
-          alert('Player rejected successfully!');
-          location.reload();
-        } else {
-          alert('Error: ' + result.message);
+          const result = await response.json();
+          
+          if (result.success) {
+            alert('Player rejected successfully!');
+            location.reload();
+          } else {
+            alert('Error: ' + result.message);
+          }
+        } catch (error) {
+          console.error('Error:', error);
+          alert('Failed to reject player: ' + error.message);
         }
-      } catch (error) {
-        console.error('Error:', error);
-        alert('Failed to reject player: ' + error.message);
       }
     }
 

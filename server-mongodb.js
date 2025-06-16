@@ -41,9 +41,20 @@ app.use(helmet({
       connectSrc: ["'self'"],
       objectSrc: ["'none'"],
       mediaSrc: ["'self'"],
-      frameSrc: ["'none'"],
+      frameSrc: [
+        "'self'",
+        "https://www.youtube.com",
+        "https://youtube.com", 
+        "https://player.vimeo.com",
+        "https://vimeo.com",
+        "https://www.dailymotion.com",
+        "https://dailymotion.com",
+        "https://www.twitch.tv",
+        "https://player.twitch.tv"
+      ],
     },
   },
+  crossOriginEmbedderPolicy: false, // Disable COEP to allow third-party video embeds
 }));
 
 app.use(express.urlencoded({ extended: true }));

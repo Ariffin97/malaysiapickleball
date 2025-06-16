@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tournament Events - Malaysia Pickleball Association</title>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="/css/styles.css">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+  <style>
+    .event-card {
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+      min-height: 280px; /* Reduced minimum height */
+      height: 100%; /* Take full height of grid item */
+      display: flex;
+      flex-direction: column;
+    }
+    
+    .event-card:hover {
+      box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+      background: rgba(255, 255, 255, 0.98);
+    }
+    
+    .card-content {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+    
+    .card-button-container {
+      margin-top: auto;
+      flex-shrink: 0;
+    }
+    
+    /* Ensure tournament name text wraps properly */
+    .tournament-name {
+      word-wrap: break-word;
+      overflow-wrap: break-word;
+      hyphens: auto;
+      line-height: 1.4;
+    }
+    
+    .event-status {
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    
+    .status-ongoing {
+      background: linear-gradient(135deg, #10b981, #059669);
+      color: white;
+    }
+    
+    .status-upcoming {
+      background: linear-gradient(135deg, #f59e0b, #d97706);
+      color: white;
+    }
+    
+    .live-score-btn {
+      background: linear-gradient(135deg, #ef4444, #dc2626);
+      color: white;
+      border: none;
+      padding: 6px 12px;
+      border-radius: 16px;
+      font-size: 11px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+    
+    .live-score-btn:hover {
+      background: linear-gradient(135deg, #dc2626, #b91c1c);
+      transform: translateY(-2px);
+      box-shadow: 0 5px 15px rgba(239, 68, 68, 0.4);
+    }
+    
+
+    
+    .hero-section {
+      background: linear-gradient(135deg, rgba(0,0,0,0.7), rgba(0,0,0,0.4));
+      position: relative;
+      overflow: hidden;
+      margin-top: 0;
+      padding-top: 2rem;
+    }
+  </style>
+</head>
+<%
+  const defaultBg = backgroundImage || '/images/defaultbg.png';
+%>
+<body class="bg-gray-100 bg-cover bg-center bg-fixed min-h-screen" style="background-image: url('<%= defaultBg %>')">
+  <%- include('../partials/header') %>
+  
+  <main class="min-h-screen relative z-10" style="padding-top: var(--navbar-height);">
+    <!-- Hero Section -->
+    <section class="hero-section py-16 mb-8">
+      <div class="container mx-auto px-4">
+        <div class="text-center text-white">
+          <h1 class="text-4xl md:text-6xl font-bold mb-4 leading-tight">
+            <span class="text-transparent bg-clip-text bg-gradient-to-r from-yellow-400 to-green-400">
+              Tournament Events
+            </span>
+          </h1>
+          <p class="text-lg md:text-xl mb-6 text-gray-200 max-w-2xl mx-auto">
+            Stay updated with all ongoing and upcoming pickleball tournaments across Malaysia
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <div class="container mx-auto px-4 pb-16">
+      <!-- Tournament Events Table -->
+      <section class="mb-12">
+        <div class="flex flex-col sm:flex-row justify-between items-center mb-8">
+          <h2 class="text-3xl font-bold text-center text-white mb-4 sm:mb-0">
+            <span class="text-transparent bg-clip-text bg-gradient-to-r from-green-400 to-blue-500">
+              <i class="fas fa-calendar-alt mr-2"></i>Tournament Events
+            </span>
+          </h2>
+          <a href="/tournament" class="bg-gray-600 hover:bg-gray-700 text-white px-6 py-3 rounded-lg font-semibold transition-all duration-300 flex items-center shadow-lg">
+            <i class="fas fa-history mr-2"></i>
+            Tournament History
+          </a>
+        </div>
+        
+        <% 
+          // Filter tournaments to only show ongoing and upcoming (exclude past tournaments)
+          const currentTournaments = tournaments.filter(tournament => {
+            const now = new Date();
+            const endDate = new Date(tournament.endDate);
+            const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+            const tournamentEnd = new Date(endDate.getFullYear(), endDate.getMonth(), endDate.getDate());
+            
+            // Only show tournaments that haven't ended yet
+            return today <= tournamentEnd;
+          });
+        %>
+        
+        <% if (currentTournaments.length === 0) { %>
+          <div class="text-center text-white">
+            <i class="fas fa-calendar-xmark text-6xl mb-4 opacity-50"></i>
+            <p class="text-xl">No ongoing or upcoming tournaments</p>
+            <p class="text-lg mt-2 opacity-75">Check tournament history for past events</p>
+          </div>
+        <% } else { %>
+          <!-- Tournament Table -->
+          <div class="overflow-x-auto">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 items-stretch">
+              <% currentTournaments.forEach(tournament => { 
+                const now = new Date();
+                const startDate = new Date(tournament.startDate);
+                
+                // Set time to start of day for proper date comparison
+                const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+                const tournamentStart = new Date(startDate.getFullYear(), startDate.getMonth(), startDate.getDate());
+                
+                const isOngoing = today >= tournamentStart;
+                const isUpcoming = today < tournamentStart;
+              %>
+                <div class="event-card border border-gray-300 rounded-lg overflow-hidden bg-white">
+                  <div class="card-content">
+                    <!-- Status Row -->
+                    <div class="bg-gray-50 px-3 py-2 border-b border-gray-300 text-center">
+                      <div class="mb-1">
+                        <span class="font-semibold text-gray-700 text-sm">Status: </span>
+                        <span class="<%= isOngoing ? 'event-status status-ongoing' : 'event-status status-upcoming' %>">
+                          <%= isOngoing ? 'Ongoing Event' : 'Upcoming Event' %>
+                        </span>
+                      </div>
+                    </div>
+                    
+                    <!-- Tournament Name Row -->
+                    <div class="px-3 py-2 border-b border-gray-300 text-center">
+                      <div class="mb-1">
+                        <div class="font-semibold text-gray-700 text-sm mb-1">Tournament Name:</div>
+                        <a href="/tournament" class="text-blue-600 font-medium tournament-name text-sm hover:text-blue-800 hover:underline cursor-pointer">
+                          <%= tournament.name %>
+                        </a>
+                      </div>
+                    </div>
+                    
+                    <!-- Date Row -->
+                    <div class="px-3 py-2 border-b border-gray-300 text-center">
+                      <div class="mb-1">
+                        <div class="font-semibold text-gray-700 text-sm mb-1">Date:</div>
+                        <a href="/tournament" class="text-blue-600 text-sm hover:text-blue-800 hover:underline cursor-pointer">
+                          <%= new Date(tournament.startDate).toLocaleDateString('en-US', { 
+                            year: 'numeric', 
+                            month: 'short', 
+                            day: 'numeric' 
+                          }) %> - 
+                          <%= new Date(tournament.endDate).toLocaleDateString('en-US', { 
+                            year: 'numeric', 
+                            month: 'short', 
+                            day: 'numeric' 
+                          }) %>
+                        </a>
+                      </div>
+                    </div>
+                    
+                    <!-- Venue Row -->
+                    <div class="px-3 py-2 border-b border-gray-300 text-center">
+                      <div class="mb-1">
+                        <div class="font-semibold text-gray-700 text-sm mb-1">Venue & Location:</div>
+                        <% if (tournament.venue || tournament.city) { %>
+                          <a href="/venue" class="text-blue-600 text-sm hover:text-blue-800 hover:underline cursor-pointer">
+                            <% if (tournament.venue && tournament.city) { %>
+                              <%= tournament.venue %>, <%= tournament.city %>
+                            <% } else if (tournament.venue) { %>
+                              <%= tournament.venue %>
+                            <% } else if (tournament.city) { %>
+                              <%= tournament.city %>
+                            <% } %>
+                          </a>
+                        <% } else { %>
+                          <span class="text-gray-500 text-sm">TBD</span>
+                        <% } %>
+                      </div>
+                    </div>
+                    
+
+                  </div>
+                  
+                  <!-- Live Score Button Row -->
+                  <div class="card-button-container px-3 py-2 bg-gray-50">
+                    <button class="live-score-btn w-full <%= !isOngoing ? 'opacity-60 cursor-not-allowed' : '' %>" 
+                            <%= !isOngoing ? 'disabled' : '' %>>
+                      <i class="fas fa-<%= isOngoing ? 'play' : 'hourglass-half' %> mr-2"></i>
+                      Click For Live Score
+                    </button>
+                  </div>
+                </div>
+              <% }); %>
+            </div>
+          </div>
+        <% } %>
+      </section>
+    </div>
+  </main>
+  
+  <%- include('../partials/footer') %>
+  
+  <script src="/js/script.js"></script>
+  <script>
+    // Add click handlers for live score buttons
+    document.querySelectorAll('.live-score-btn:not(:disabled)').forEach(button => {
+      button.addEventListener('click', function() {
+        // Add your live score functionality here
+        alert('Live score feature coming soon!');
+      });
+    });
+    
+
+  </script>
+</body>
+</html> 

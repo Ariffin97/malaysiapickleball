@@ -517,7 +517,7 @@
         <% if (tournaments.length) { %>
           <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             <% tournaments.forEach((tournament, index) => { %>
-              <div class="tournament-card">
+              <div class="tournament-card" data-tournament-id="<%= tournament._id %>">
                 <div class="flex justify-between items-start mb-4">
                   <h3 class="text-xl font-bold text-gray-800 flex-1"><%= tournament.name %></h3>
                   <span class="px-3 py-1 rounded-full text-xs font-semibold
@@ -602,14 +602,12 @@
                     </svg>
                     Edit
                   </button>
-                  <form action="/admin/tournaments/delete/<%= tournament._id %>" method="POST" onsubmit="return confirmDelete('<%= tournament.name %>')" class="inline">
-                    <button type="submit" class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg transition-all duration-300 flex items-center text-sm font-semibold">
-                      <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
-                      </svg>
-                      Delete
-                    </button>
-                  </form>
+                  <button onclick="deleteTournament('<%= tournament._id %>', '<%= tournament.name %>')" class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg transition-all duration-300 flex items-center text-sm font-semibold" id="delete-btn-<%= tournament._id %>">
+                    <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                    </svg>
+                    Delete
+                  </button>
                 </div>
               </div>
             <% }) %>
@@ -840,38 +838,112 @@
        }, 4000);
      }
     
-         // Confirm delete with better styling
-     function confirmDelete(tournamentName) {
+         // Delete tournament with AJAX
+     async function deleteTournament(tournamentId, tournamentName) {
        const confirmed = confirm(`🗑️ Are you sure you want to delete the tournament "${tournamentName}"?\n\nThis action cannot be undone.`);
-       if (confirmed) {
-         // Store scroll position flag for after page reload
-         sessionStorage.setItem('scrollToTop', 'true');
-         sessionStorage.setItem('deletedTournament', tournamentName);
+       if (!confirmed) return;
+
+       const deleteBtn = document.getElementById(`delete-btn-${tournamentId}`);
+       const originalText = deleteBtn.innerHTML;
+       
+       // Show loading state
+       deleteBtn.disabled = true;
+       deleteBtn.innerHTML = `
+         <svg class="w-4 h-4 mr-1 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+         </svg>
+         Deleting...
+       `;
+
+       try {
+         const response = await fetch(`/admin/tournaments/delete/${tournamentId}`, {
+           method: 'POST',
+           headers: {
+             'Content-Type': 'application/json',
+           }
+         });
+
+         const result = await response.json();
+
+         if (result.success) {
+           // Find and remove the tournament card with animation
+           const tournamentCard = deleteBtn.closest('.tournament-card');
+           if (tournamentCard) {
+             tournamentCard.style.transition = 'all 0.5s ease';
+             tournamentCard.style.transform = 'translateX(-100%)';
+             tournamentCard.style.opacity = '0';
+             
+             setTimeout(() => {
+               tournamentCard.remove();
+               
+               // Check if no tournaments left and show empty state
+               const remainingCards = document.querySelectorAll('.tournament-card');
+               if (remainingCards.length === 0) {
+                 const tournamentsGrid = document.querySelector('.grid');
+                 if (tournamentsGrid) {
+                   tournamentsGrid.innerHTML = `
+                     <div class="col-span-full text-center py-12">
+                       <div class="text-6xl mb-4">🏆</div>
+                       <h3 class="text-xl font-semibold text-gray-600 mb-2">No tournaments yet</h3>
+                       <p class="text-gray-500">Create your first tournament to get started!</p>
+                     </div>
+                   `;
+                 }
+               }
+             }, 500);
+           }
+           
+           // Show success message
+           showSuccessMessage(`Tournament "${tournamentName}" has been deleted successfully! 🗑️`);
+         } else {
+           throw new Error(result.message || 'Failed to delete tournament');
+         }
+       } catch (error) {
+         console.error('Delete error:', error);
+         
+         // Restore button state
+         deleteBtn.disabled = false;
+         deleteBtn.innerHTML = originalText;
+         
+         // Show error message
+         showErrorMessage(`Failed to delete tournament: ${error.message}`);
        }
-       return confirmed;
+     }
+
+     // Helper function to show error messages
+     function showErrorMessage(message) {
+       const errorDiv = document.createElement('div');
+       errorDiv.className = 'fixed top-4 right-4 bg-red-500 text-white px-6 py-3 rounded-lg shadow-lg z-50 transform translate-x-full transition-transform duration-300';
+       errorDiv.innerHTML = `
+         <div class="flex items-center">
+           <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+           </svg>
+           <span>${message}</span>
+         </div>
+       `;
+       
+       document.body.appendChild(errorDiv);
+       
+       // Animate in
+       setTimeout(() => {
+         errorDiv.style.transform = 'translateX(0)';
+       }, 100);
+       
+       // Auto remove after 5 seconds
+       setTimeout(() => {
+         errorDiv.style.transform = 'translateX(full)';
+         setTimeout(() => {
+           if (errorDiv.parentNode) {
+             errorDiv.parentNode.removeChild(errorDiv);
+           }
+         }, 300);
+       }, 5000);
      }
     
          // Initialize all functionality
      document.addEventListener('DOMContentLoaded', function() {
-       // Check if we need to scroll to top after delete
-       if (sessionStorage.getItem('scrollToTop') === 'true') {
-         const deletedTournament = sessionStorage.getItem('deletedTournament');
-         
-         // Clear the flags
-         sessionStorage.removeItem('scrollToTop');
-         sessionStorage.removeItem('deletedTournament');
-         
-         // Smooth scroll to top
-         window.scrollTo({
-           top: 0,
-           behavior: 'smooth'
-         });
-         
-         // Show success message
-         if (deletedTournament) {
-           showSuccessMessage(`Tournament "${deletedTournament}" has been deleted successfully! 🗑️`);
-         }
-       }
+       // Initialization code (session storage handling removed since we now use AJAX)
        
        // Set up date change listeners
        document.getElementById('startDate').addEventListener('change', updateMonthsFromDates);
