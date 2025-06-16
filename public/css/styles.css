@@ -844,3 +844,64 @@ footer button:hover {
 .dashboard-card:nth-child(2) { animation-delay: 0.2s; }
 .dashboard-card:nth-child(3) { animation-delay: 0.3s; }
 .dashboard-card:nth-child(4) { animation-delay: 0.4s; }
+
+/* ====================================
+   MOBILE BACKGROUND FIX
+   ==================================== */
+
+/* Fix background scrolling issues on mobile devices */
+@media (max-width: 768px) {
+  /* Override Tailwind's bg-fixed class on mobile */
+  .bg-fixed {
+    background-attachment: scroll !important;
+  }
+  
+  /* Improve scrolling performance */
+  body {
+    -webkit-overflow-scrolling: touch;
+  }
+  
+  /* Prevent background from moving during scroll */
+  body.bg-fixed {
+    background-attachment: scroll !important;
+    background-size: cover !important;
+    background-position: center center !important;
+    background-repeat: no-repeat !important;
+  }
+  
+  /* Fix for all elements with bg-fixed class */
+  .bg-fixed {
+    background-attachment: scroll !important;
+    background-size: cover !important;
+    background-position: center !important;
+    background-repeat: no-repeat !important;
+  }
+}
+
+/* Target touch devices specifically */
+@media (hover: none) and (pointer: coarse) {
+  .bg-fixed {
+    background-attachment: scroll !important;
+  }
+}
+
+/* Additional mobile optimizations */
+@media (max-width: 480px) {
+  /* Ensure background covers small screens properly */
+  .bg-cover {
+    background-size: cover !important;
+    background-position: center !important;
+  }
+  
+  /* Prevent iOS zoom on input focus */
+  input, select, textarea {
+    font-size: 16px !important;
+  }
+}
+
+/* Optimize for mobile Safari specifically */
+@supports (-webkit-touch-callout: none) {
+  .bg-fixed {
+    background-attachment: scroll !important;
+  }
+}
