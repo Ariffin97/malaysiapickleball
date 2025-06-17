@@ -2,6 +2,7 @@ const Tournament = require('../models/Tournament');
 const Player = require('../models/Player');
 const PlayerRegistration = require('../models/PlayerRegistration');
 const Admin = require('../models/Admin');
+const PendingAdmin = require('../models/PendingAdmin');
 const Message = require('../models/Message');
 const Settings = require('../models/Settings');
 
@@ -320,6 +321,207 @@ class DatabaseService {
       );
     } catch (error) {
       console.error('Error updating admin last login:', error);
+      throw error;
+    }
+  }
+
+  // Admin update operations
+  static async updateAdminUsername(adminId, newUsername, currentPassword) {
+    try {
+      const admin = await Admin.findById(adminId);
+      if (!admin) {
+        throw new Error('Admin not found');
+      }
+
+      // Verify current password
+      const isValidPassword = await admin.comparePassword(currentPassword);
+      if (!isValidPassword) {
+        throw new Error('Current password is incorrect');
+      }
+
+      // Check if username already exists
+      const existingAdmin = await Admin.findOne({ username: newUsername, _id: { $ne: adminId } });
+      if (existingAdmin) {
+        throw new Error('Username already exists');
+      }
+
+      // Update username
+      admin.username = newUsername;
+      return await admin.save();
+    } catch (error) {
+      console.error('Error updating admin username:', error);
+      throw error;
+    }
+  }
+
+  static async updateAdminPassword(adminId, currentPassword, newPassword) {
+    try {
+      const admin = await Admin.findById(adminId);
+      if (!admin) {
+        throw new Error('Admin not found');
+      }
+
+      // Verify current password
+      const isValidPassword = await admin.comparePassword(currentPassword);
+      if (!isValidPassword) {
+        throw new Error('Current password is incorrect');
+      }
+
+      // Update password (will be hashed by the pre-save middleware)
+      admin.password = newPassword;
+      return await admin.save();
+    } catch (error) {
+      console.error('Error updating admin password:', error);
+      throw error;
+    }
+  }
+
+  static async updateAdminProfile(adminId, profileData) {
+    try {
+      const admin = await Admin.findById(adminId);
+      if (!admin) {
+        throw new Error('Admin not found');
+      }
+
+      // Update profile fields
+      if (profileData.fullName !== undefined) {
+        admin.fullName = profileData.fullName;
+      }
+      if (profileData.email !== undefined) {
+        admin.email = profileData.email;
+      }
+
+      return await admin.save();
+    } catch (error) {
+      console.error('Error updating admin profile:', error);
+      throw error;
+    }
+  }
+
+  // Pending Admin operations
+  static async createPendingAdmin(adminData, requestedByAdminId, requestedByUsername) {
+    try {
+      // Check if username or email already exists in Admin collection
+      const existingAdmin = await Admin.findOne({ 
+        $or: [
+          { username: adminData.username },
+          { email: adminData.email }
+        ]
+      });
+      if (existingAdmin) {
+        throw new Error('Username or email already exists in active admins');
+      }
+
+      // Check if username or email already exists in PendingAdmin collection
+      const existingPending = await PendingAdmin.findOne({ 
+        $or: [
+          { username: adminData.username },
+          { email: adminData.email }
+        ],
+        status: 'pending'
+      });
+      if (existingPending) {
+        throw new Error('Username or email already has a pending registration');
+      }
+
+      const pendingAdmin = new PendingAdmin({
+        ...adminData,
+        requestedBy: requestedByAdminId,
+        requestedByUsername: requestedByUsername
+      });
+
+      return await pendingAdmin.save();
+    } catch (error) {
+      console.error('Error creating pending admin:', error);
+      throw error;
+    }
+  }
+
+  static async getAllPendingAdmins() {
+    try {
+      return await PendingAdmin.find({ status: 'pending' })
+        .populate('requestedBy', 'username fullName')
+        .sort({ createdAt: -1 });
+    } catch (error) {
+      console.error('Error getting pending admins:', error);
+      throw error;
+    }
+  }
+
+  static async getPendingAdminById(id) {
+    try {
+      return await PendingAdmin.findById(id)
+        .populate('requestedBy', 'username fullName');
+    } catch (error) {
+      console.error('Error getting pending admin by id:', error);
+      throw error;
+    }
+  }
+
+  static async approvePendingAdmin(pendingAdminId, approvedByAdminId) {
+    try {
+      const pendingAdmin = await PendingAdmin.findById(pendingAdminId);
+      if (!pendingAdmin) {
+        throw new Error('Pending admin not found');
+      }
+
+      if (pendingAdmin.status !== 'pending') {
+        throw new Error('Admin registration has already been processed');
+      }
+
+      // Create the actual admin account with already hashed password
+      const admin = new Admin({
+        username: pendingAdmin.username,
+        password: pendingAdmin.password, // Already hashed in PendingAdmin
+        email: pendingAdmin.email,
+        fullName: pendingAdmin.fullName,
+        role: pendingAdmin.role,
+        permissions: pendingAdmin.permissions,
+        isActive: true
+      });
+
+      // Mark password as not modified to skip hashing
+      admin.markModified('password');
+      admin.isModified = function(path) {
+        if (path === 'password') return false;
+        return mongoose.Document.prototype.isModified.call(this, path);
+      };
+      
+      await admin.save();
+
+      // Update pending admin status
+      await pendingAdmin.approve(approvedByAdminId);
+
+      return admin;
+    } catch (error) {
+      console.error('Error approving pending admin:', error);
+      throw error;
+    }
+  }
+
+  static async rejectPendingAdmin(pendingAdminId, rejectedByAdminId, rejectionReason = '') {
+    try {
+      const pendingAdmin = await PendingAdmin.findById(pendingAdminId);
+      if (!pendingAdmin) {
+        throw new Error('Pending admin not found');
+      }
+
+      if (pendingAdmin.status !== 'pending') {
+        throw new Error('Admin registration has already been processed');
+      }
+
+      return await pendingAdmin.reject(rejectedByAdminId, rejectionReason);
+    } catch (error) {
+      console.error('Error rejecting pending admin:', error);
+      throw error;
+    }
+  }
+
+  static async getAllAdmins() {
+    try {
+      return await Admin.find({ isActive: true }).select('-password').sort({ createdAt: -1 });
+    } catch (error) {
+      console.error('Error getting all admins:', error);
       throw error;
     }
   }

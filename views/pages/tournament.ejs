@@ -493,25 +493,18 @@
                 const schedule = Array(12).fill().map(() => []);
                 if (t.startDate) {
                   const start = new Date(t.startDate);
-                  const end = t.endDate ? new Date(t.endDate) : start;
                   
-                  // Handle tournaments that span multiple days/months
-                  let currentDate = new Date(start);
-                  while (currentDate <= end) {
-                    const month = currentDate.getMonth();
-                    const day = currentDate.getDate();
-                    
-                    // Better quarter calculation based on actual weeks
-                    let quarter = Math.ceil(day / 7.75); // More accurate quarter division
-                    if (quarter > 4) quarter = 4; // Cap at quarter 4
-                    
-                    if (!schedule[month]) schedule[month] = [];
-                    if (!schedule[month].includes(quarter)) {
-                      schedule[month].push(quarter);
-                    }
-                    
-                    // Move to next day
-                    currentDate.setDate(currentDate.getDate() + 1);
+                  // Only show dot on start date, not the entire duration
+                  const month = start.getMonth();
+                  const day = start.getDate();
+                  
+                  // Better quarter calculation based on actual weeks
+                  let quarter = Math.ceil(day / 7.75); // More accurate quarter division
+                  if (quarter > 4) quarter = 4; // Cap at quarter 4
+                  
+                  if (!schedule[month]) schedule[month] = [];
+                  if (!schedule[month].includes(quarter)) {
+                    schedule[month].push(quarter);
                   }
                 }
                 return {

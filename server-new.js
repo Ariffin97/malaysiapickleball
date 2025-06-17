@@ -2059,6 +2059,221 @@ app.get('/admin/players/report', adminAuth, async (req, res) => {
   }
 });
 
+// Admin Settings Routes
+app.get('/admin/settings', adminAuth, async (req, res) => {
+  try {
+    const admin = await DatabaseService.getAdminByUsername(req.session.username);
+    
+    // Get pending admin count for super admins
+    let pendingCount = 0;
+    if (admin.role === 'super_admin') {
+      const pendingAdmins = await DatabaseService.getAllPendingAdmins();
+      pendingCount = pendingAdmins.length;
+    }
+    
+    res.render('pages/admin/admin-settings', {
+      admin: admin,
+      session: req.session,
+      success: req.query.success,
+      error: req.query.error,
+      pendingCount: pendingCount
+    });
+  } catch (error) {
+    console.error('Admin settings page error:', error);
+    res.redirect('/admin/dashboard?error=settings_failed');
+  }
+});
+
+app.post('/admin/settings/change-username', adminAuth, [
+  body('newUsername')
+    .notEmpty()
+    .withMessage('New username is required')
+    .trim()
+    .isLength({ min: 3, max: 30 })
+    .withMessage('Username must be between 3-30 characters')
+    .matches(/^[a-zA-Z0-9_]+$/)
+    .withMessage('Username can only contain letters, numbers, and underscores'),
+  body('currentPassword')
+    .notEmpty()
+    .withMessage('Current password is required')
+], async (req, res) => {
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    return res.json({ success: false, message: errors.array()[0].msg });
+  }
+
+  const { newUsername, currentPassword } = req.body;
+
+  try {
+    await DatabaseService.updateAdminUsername(req.session.adminId, newUsername, currentPassword);
+    
+    // Log security event
+    console.log(`Admin username changed: ${req.session.username} -> ${newUsername} from IP: ${req.ip}`);
+    
+    res.json({ success: true, message: 'Username updated successfully' });
+  } catch (error) {
+    console.error('Change username error:', error);
+    res.json({ success: false, message: error.message });
+  }
+});
+
+app.post('/admin/settings/change-password', adminAuth, [
+  body('currentPassword')
+    .notEmpty()
+    .withMessage('Current password is required'),
+  body('newPassword')
+    .isLength({ min: 8 })
+    .withMessage('New password must be at least 8 characters')
+], async (req, res) => {
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    return res.json({ success: false, message: errors.array()[0].msg });
+  }
+
+  const { currentPassword, newPassword } = req.body;
+
+  try {
+    await DatabaseService.updateAdminPassword(req.session.adminId, currentPassword, newPassword);
+    
+    // Log security event
+    console.log(`Admin password changed for: ${req.session.username} from IP: ${req.ip}`);
+    
+    res.json({ success: true, message: 'Password updated successfully' });
+  } catch (error) {
+    console.error('Change password error:', error);
+    res.json({ success: false, message: error.message });
+  }
+});
+
+app.post('/admin/settings/update-profile', adminAuth, [
+  body('email')
+    .optional()
+    .isEmail()
+    .withMessage('Please provide a valid email address'),
+  body('fullName')
+    .optional()
+    .trim()
+    .isLength({ max: 100 })
+    .withMessage('Full name cannot exceed 100 characters')
+], async (req, res) => {
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    return res.json({ success: false, message: errors.array()[0].msg });
+  }
+
+  const { fullName, email } = req.body;
+
+  try {
+    await DatabaseService.updateAdminProfile(req.session.adminId, { fullName, email });
+    
+    res.json({ success: true, message: 'Profile updated successfully' });
+  } catch (error) {
+    console.error('Update profile error:', error);
+    res.json({ success: false, message: error.message });
+  }
+});
+
+// Admin Registration Routes (Only accessible by any admin, but approval requires super_admin)
+app.post('/admin/settings/register-admin', adminAuth, [
+  body('username')
+    .notEmpty()
+    .withMessage('Username is required')
+    .isLength({ min: 3 })
+    .withMessage('Username must be at least 3 characters'),
+  body('fullName')
+    .notEmpty()
+    .withMessage('Full name is required'),
+  body('email')
+    .isEmail()
+    .withMessage('Please provide a valid email'),
+  body('password')
+    .isLength({ min: 8 })
+    .withMessage('Password must be at least 8 characters'),
+  body('role')
+    .isIn(['admin', 'moderator'])
+    .withMessage('Invalid role selected')
+], async (req, res) => {
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    return res.json({ success: false, message: errors.array()[0].msg });
+  }
+
+  const { username, fullName, email, password, role, permissions, reason } = req.body;
+
+  try {
+    await DatabaseService.createPendingAdmin(
+      { username, fullName, email, password, role, permissions, reason },
+      req.session.adminId,
+      req.session.username
+    );
+    
+    console.log(`New admin registration submitted by ${req.session.username} for user ${username}`);
+    
+    res.json({ success: true, message: 'Admin registration submitted successfully' });
+  } catch (error) {
+    console.error('Register admin error:', error);
+    res.json({ success: false, message: error.message });
+  }
+});
+
+// Get pending admin registrations (Super Admin only)
+app.get('/admin/settings/pending-admins', adminAuth, async (req, res) => {
+  try {
+    const admin = await DatabaseService.getAdminByUsername(req.session.username);
+    
+    if (admin.role !== 'super_admin') {
+      return res.status(403).json({ error: 'Access denied. Super Admin role required.' });
+    }
+    
+    const pendingAdmins = await DatabaseService.getAllPendingAdmins();
+    res.json(pendingAdmins);
+  } catch (error) {
+    console.error('Get pending admins error:', error);
+    res.status(500).json({ error: 'Failed to load pending admin registrations' });
+  }
+});
+
+// Approve pending admin (Super Admin only)
+app.post('/admin/settings/approve-admin/:id', adminAuth, async (req, res) => {
+  try {
+    const admin = await DatabaseService.getAdminByUsername(req.session.username);
+    
+    if (admin.role !== 'super_admin') {
+      return res.json({ success: false, message: 'Access denied. Super Admin role required.' });
+    }
+    
+    await DatabaseService.approvePendingAdmin(req.params.id, req.session.adminId);
+    
+    console.log(`Admin registration approved by ${req.session.username} for pending admin ID: ${req.params.id}`);
+    
+    res.json({ success: true, message: 'Admin registration approved successfully' });
+  } catch (error) {
+    console.error('Approve admin error:', error);
+    res.json({ success: false, message: error.message });
+  }
+});
+
+// Reject pending admin (Super Admin only)
+app.post('/admin/settings/reject-admin/:id', adminAuth, async (req, res) => {
+  try {
+    const admin = await DatabaseService.getAdminByUsername(req.session.username);
+    
+    if (admin.role !== 'super_admin') {
+      return res.json({ success: false, message: 'Access denied. Super Admin role required.' });
+    }
+    
+    const { reason } = req.body;
+    await DatabaseService.rejectPendingAdmin(req.params.id, req.session.adminId, reason);
+    
+    console.log(`Admin registration rejected by ${req.session.username} for pending admin ID: ${req.params.id}`);
+    
+    res.json({ success: true, message: 'Admin registration rejected' });
+  } catch (error) {
+    console.error('Reject admin error:', error);
+    res.json({ success: false, message: error.message });
+  }
+});
+
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   console.log(`🚀 Server running on port ${PORT}`);

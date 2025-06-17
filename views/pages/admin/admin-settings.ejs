@@ -1,0 +1,698 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Settings - Malaysia Pickleball Association</title>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="/css/styles.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+  <style>
+    .settings-card {
+      transition: all 0.3s ease;
+      border: 2px solid transparent;
+    }
+    .settings-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+      border-color: #3b82f6;
+    }
+    .security-indicator {
+      background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+    }
+    .success-indicator {
+      background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    }
+    .modal {
+      backdrop-filter: blur(10px);
+      animation: fadeIn 0.3s ease-out;
+    }
+    .modal-content {
+      animation: slideIn 0.3s ease-out;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+    @keyframes slideIn {
+      from { transform: translateY(-50px); opacity: 0; }
+      to { transform: translateY(0); opacity: 1; }
+    }
+  </style>
+</head>
+<body class="bg-gray-50">
+  <%- include('../../partials/header') %>
+  
+  <main class="pt-20 p-6 pb-20">
+    <div class="container mx-auto max-w-4xl">
+      <!-- Page Header -->
+      <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-8">
+        <div>
+          <h1 class="text-4xl font-bold text-gray-800 mb-2">
+            <i class="fas fa-cog mr-3 text-blue-600"></i>Admin Settings
+          </h1>
+          <p class="text-gray-600">Manage your admin account and security settings</p>
+        </div>
+        <div class="mt-4 md:mt-0 flex space-x-3">
+          <a href="/admin/dashboard" class="bg-gray-600 text-white px-6 py-3 rounded-lg hover:bg-gray-700 transition-colors">
+            <i class="fas fa-arrow-left mr-2"></i>Back to Dashboard
+          </a>
+        </div>
+      </div>
+
+      <!-- Success/Error Messages -->
+      <% if (typeof success !== 'undefined' && success) { %>
+        <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded-lg mb-6 flex items-center">
+          <i class="fas fa-check-circle mr-3"></i>
+          <span><%= success %></span>
+        </div>
+      <% } %>
+
+      <% if (typeof error !== 'undefined' && error) { %>
+        <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-lg mb-6 flex items-center">
+          <i class="fas fa-exclamation-triangle mr-3"></i>
+          <span><%= error %></span>
+        </div>
+      <% } %>
+
+      <!-- Current Admin Info -->
+      <div class="settings-card bg-white rounded-xl shadow-lg p-6 mb-8">
+        <h2 class="text-2xl font-bold text-gray-800 mb-6 flex items-center">
+          <i class="fas fa-user-shield mr-3 text-green-500"></i>Current Admin Account
+        </h2>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div class="space-y-4">
+            <div>
+              <label class="block text-sm font-medium text-gray-600 mb-1">Username</label>
+              <p class="text-lg font-semibold text-gray-800 bg-gray-50 p-3 rounded-lg">
+                <i class="fas fa-user mr-2 text-blue-500"></i><%= admin.username %>
+              </p>
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-600 mb-1">Full Name</label>
+              <p class="text-lg font-semibold text-gray-800 bg-gray-50 p-3 rounded-lg">
+                <i class="fas fa-id-card mr-2 text-purple-500"></i><%= admin.fullName || 'Not set' %>
+              </p>
+            </div>
+          </div>
+          <div class="space-y-4">
+            <div>
+              <label class="block text-sm font-medium text-gray-600 mb-1">Email</label>
+              <p class="text-lg font-semibold text-gray-800 bg-gray-50 p-3 rounded-lg">
+                <i class="fas fa-envelope mr-2 text-green-500"></i><%= admin.email || 'Not set' %>
+              </p>
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-600 mb-1">Role</label>
+              <p class="text-lg font-semibold text-gray-800 bg-gray-50 p-3 rounded-lg">
+                <i class="fas fa-crown mr-2 text-yellow-500"></i><%= admin.role.charAt(0).toUpperCase() + admin.role.slice(1).replace('_', ' ') %>
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <div class="mt-6 p-4 security-indicator rounded-lg text-white">
+          <div class="flex items-center justify-between">
+            <div>
+              <h3 class="font-semibold">Security Status</h3>
+              <p class="text-sm opacity-90">Last login: <%= admin.lastLogin ? new Date(admin.lastLogin).toLocaleString() : 'Unknown' %></p>
+            </div>
+            <i class="fas fa-shield-alt text-2xl"></i>
+          </div>
+        </div>
+      </div>
+
+      <!-- Settings Actions -->
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        
+        <!-- Change Credentials -->
+        <div class="settings-card bg-white rounded-xl shadow-lg p-6">
+          <h3 class="text-xl font-bold text-gray-800 mb-4 flex items-center">
+            <i class="fas fa-key mr-3 text-blue-500"></i>Change Credentials
+          </h3>
+          <p class="text-gray-600 mb-6">Update your username and password for enhanced security</p>
+          
+          <div class="space-y-4">
+            <button onclick="openChangeUsernameModal()" class="w-full bg-blue-600 text-white py-3 px-4 rounded-lg hover:bg-blue-700 transition-colors font-semibold">
+              <i class="fas fa-user-edit mr-2"></i>Change Username
+            </button>
+            <button onclick="openChangePasswordModal()" class="w-full bg-green-600 text-white py-3 px-4 rounded-lg hover:bg-green-700 transition-colors font-semibold">
+              <i class="fas fa-lock mr-2"></i>Change Password
+            </button>
+          </div>
+        </div>
+
+        <!-- Profile Information -->
+        <div class="settings-card bg-white rounded-xl shadow-lg p-6">
+          <h3 class="text-xl font-bold text-gray-800 mb-4 flex items-center">
+            <i class="fas fa-user-cog mr-3 text-purple-500"></i>Profile Information
+          </h3>
+          <p class="text-gray-600 mb-6">Update your profile details and contact information</p>
+          
+          <button onclick="openProfileModal()" class="w-full bg-purple-600 text-white py-3 px-4 rounded-lg hover:bg-purple-700 transition-colors font-semibold">
+            <i class="fas fa-edit mr-2"></i>Edit Profile
+          </button>
+        </div>
+
+        <!-- Admin Management (Only for Super Admin) -->
+        <% if (admin.role === 'super_admin') { %>
+        <div class="settings-card bg-white rounded-xl shadow-lg p-6">
+          <h3 class="text-xl font-bold text-gray-800 mb-4 flex items-center">
+            <i class="fas fa-users-cog mr-3 text-red-500"></i>Admin Management
+          </h3>
+          <p class="text-gray-600 mb-6">Register new admin accounts</p>
+          
+          <button onclick="openRegisterAdminModal()" class="w-full bg-red-600 text-white py-3 px-4 rounded-lg hover:bg-red-700 transition-colors font-semibold">
+            <i class="fas fa-user-plus mr-2"></i>Register New Admin
+          </button>
+        </div>
+
+        <!-- Pending Registrations (Only for Super Admin) -->
+        <div class="settings-card bg-white rounded-xl shadow-lg p-6">
+          <h3 class="text-xl font-bold text-gray-800 mb-4 flex items-center">
+            <i class="fas fa-clock mr-3 text-orange-500"></i>Pending Registrations
+          </h3>
+          <p class="text-gray-600 mb-6">Review and approve pending admin registrations</p>
+          
+          <button onclick="viewPendingAdmins()" class="w-full bg-orange-600 text-black py-3 px-4 rounded-lg hover:bg-orange-700 transition-colors font-semibold">
+            <i class="fas fa-eye mr-2"></i>View Pending Registrations
+            <% if (typeof pendingCount !== 'undefined' && pendingCount > 0) { %>
+              <span class="bg-white text-orange-600 px-2 py-1 rounded-full text-sm ml-2"><%= pendingCount %></span>
+            <% } %>
+          </button>
+        </div>
+        <% } %>
+
+      </div>
+
+      <!-- Security Notice -->
+      <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-6 mt-8">
+        <div class="flex items-start">
+          <i class="fas fa-exclamation-triangle text-yellow-600 text-xl mr-4 mt-1"></i>
+          <div>
+            <h3 class="text-lg font-semibold text-yellow-800 mb-2">Security Recommendations</h3>
+            <ul class="text-yellow-700 space-y-1 text-sm">
+              <li>• Use a strong password with at least 8 characters including letters, numbers, and symbols</li>
+              <li>• Avoid using default credentials (admin/admin123)</li>
+              <li>• Change your password regularly</li>
+              <li>• Keep your login credentials secure and never share them</li>
+              <li>• Log out when finished using the admin panel</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- Change Username Modal -->
+  <div id="usernameModal" class="modal fixed inset-0 bg-black bg-opacity-50 z-50 hidden items-center justify-center p-4">
+    <div class="modal-content bg-white rounded-2xl max-w-md w-full">
+      <div class="p-6 border-b border-gray-200">
+        <div class="flex justify-between items-center">
+          <h2 class="text-xl font-bold text-gray-800">Change Username</h2>
+          <button onclick="closeUsernameModal()" class="text-gray-500 hover:text-gray-700 text-2xl">
+            <i class="fas fa-times"></i>
+          </button>
+        </div>
+      </div>
+      <form id="usernameForm" class="p-6">
+        <div class="mb-4">
+          <label class="block text-sm font-medium text-gray-700 mb-2">Current Username</label>
+          <input type="text" value="<%= admin.username %>" readonly class="w-full px-4 py-3 border border-gray-300 rounded-lg bg-gray-50 text-gray-600">
+        </div>
+        <div class="mb-6">
+          <label class="block text-sm font-medium text-gray-700 mb-2">New Username</label>
+          <input type="text" name="newUsername" required minlength="3" maxlength="30" pattern="[a-zA-Z0-9_]+"
+                 class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                 placeholder="Enter new username">
+          <p class="text-xs text-gray-500 mt-1">3-30 characters, letters, numbers, and underscores only</p>
+        </div>
+        <div class="mb-6">
+          <label class="block text-sm font-medium text-gray-700 mb-2">Confirm Current Password</label>
+          <input type="password" name="currentPassword" required
+                 class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                 placeholder="Enter current password">
+        </div>
+        <div class="flex justify-end gap-4">
+          <button type="button" onclick="closeUsernameModal()" class="px-6 py-3 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
+            Cancel
+          </button>
+          <button type="submit" class="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
+            <i class="fas fa-save mr-2"></i>Update Username
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Change Password Modal -->
+  <div id="passwordModal" class="modal fixed inset-0 bg-black bg-opacity-50 z-50 hidden items-center justify-center p-4">
+    <div class="modal-content bg-white rounded-2xl max-w-md w-full">
+      <div class="p-6 border-b border-gray-200">
+        <div class="flex justify-between items-center">
+          <h2 class="text-xl font-bold text-gray-800">Change Password</h2>
+          <button onclick="closePasswordModal()" class="text-gray-500 hover:text-gray-700 text-2xl">
+            <i class="fas fa-times"></i>
+          </button>
+        </div>
+      </div>
+      <form id="passwordForm" class="p-6">
+        <div class="mb-4">
+          <label class="block text-sm font-medium text-gray-700 mb-2">Current Password</label>
+          <input type="password" name="currentPassword" required
+                 class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                 placeholder="Enter current password">
+        </div>
+        <div class="mb-4">
+          <label class="block text-sm font-medium text-gray-700 mb-2">New Password</label>
+          <input type="password" name="newPassword" required minlength="8"
+                 class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                 placeholder="Enter new password">
+          <p class="text-xs text-gray-500 mt-1">Minimum 8 characters</p>
+        </div>
+        <div class="mb-6">
+          <label class="block text-sm font-medium text-gray-700 mb-2">Confirm New Password</label>
+          <input type="password" name="confirmPassword" required
+                 class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                 placeholder="Confirm new password">
+        </div>
+        <div class="flex justify-end gap-4">
+          <button type="button" onclick="closePasswordModal()" class="px-6 py-3 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
+            Cancel
+          </button>
+          <button type="submit" class="px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors">
+            <i class="fas fa-save mr-2"></i>Update Password
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Profile Information Modal -->
+  <div id="profileModal" class="modal fixed inset-0 bg-black bg-opacity-50 z-50 hidden items-center justify-center p-4">
+    <div class="modal-content bg-white rounded-2xl max-w-md w-full">
+      <div class="p-6 border-b border-gray-200">
+        <div class="flex justify-between items-center">
+          <h2 class="text-xl font-bold text-gray-800">Edit Profile</h2>
+          <button onclick="closeProfileModal()" class="text-gray-500 hover:text-gray-700 text-2xl">
+            <i class="fas fa-times"></i>
+          </button>
+        </div>
+      </div>
+      <form id="profileForm" class="p-6">
+        <div class="mb-4">
+          <label class="block text-sm font-medium text-gray-700 mb-2">Full Name</label>
+          <input type="text" name="fullName" value="<%= admin.fullName || '' %>"
+                 class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
+                 placeholder="Enter your full name">
+        </div>
+        <div class="mb-6">
+          <label class="block text-sm font-medium text-gray-700 mb-2">Email</label>
+          <input type="email" name="email" value="<%= admin.email || '' %>"
+                 class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
+                 placeholder="Enter your email address">
+        </div>
+        <div class="flex justify-end gap-4">
+          <button type="button" onclick="closeProfileModal()" class="px-6 py-3 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
+            Cancel
+          </button>
+          <button type="submit" class="px-6 py-3 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors">
+            <i class="fas fa-save mr-2"></i>Update Profile
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Register Admin Modal -->
+  <div id="registerAdminModal" class="modal fixed inset-0 bg-black bg-opacity-50 z-50 hidden items-center justify-center p-4">
+    <div class="modal-content bg-white rounded-2xl max-w-lg w-full max-h-[90vh] overflow-y-auto">
+      <div class="p-6 border-b border-gray-200">
+        <div class="flex justify-between items-center">
+          <h2 class="text-xl font-bold text-gray-800">Register New Admin</h2>
+          <button onclick="closeRegisterAdminModal()" class="text-gray-500 hover:text-gray-700 text-2xl">
+            <i class="fas fa-times"></i>
+          </button>
+        </div>
+      </div>
+      <form id="registerAdminForm" class="p-6">
+        <div class="mb-4">
+          <label class="block text-sm font-medium text-gray-700 mb-2">Username *</label>
+          <input type="text" name="username" required
+                 class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500"
+                 placeholder="Enter username">
+        </div>
+        <div class="mb-4">
+          <label class="block text-sm font-medium text-gray-700 mb-2">Full Name *</label>
+          <input type="text" name="fullName" required
+                 class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500"
+                 placeholder="Enter full name">
+        </div>
+        <div class="mb-4">
+          <label class="block text-sm font-medium text-gray-700 mb-2">Email *</label>
+          <input type="email" name="email" required
+                 class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500"
+                 placeholder="Enter email address">
+        </div>
+        <div class="mb-4">
+          <label class="block text-sm font-medium text-gray-700 mb-2">Password *</label>
+          <input type="password" name="password" required minlength="8"
+                 class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500"
+                 placeholder="Enter password (min 8 characters)">
+        </div>
+        <div class="mb-4">
+          <label class="block text-sm font-medium text-gray-700 mb-2">Role *</label>
+          <select name="role" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500">
+            <option value="admin">Admin</option>
+            <option value="moderator">Moderator</option>
+          </select>
+        </div>
+        <div class="mb-4">
+          <label class="block text-sm font-medium text-gray-700 mb-2">Permissions</label>
+          <div class="space-y-2">
+            <label class="flex items-center">
+              <input type="checkbox" name="permissions" value="manage_tournaments" class="mr-2">
+              <span class="text-sm">Manage Tournaments</span>
+            </label>
+            <label class="flex items-center">
+              <input type="checkbox" name="permissions" value="manage_players" class="mr-2">
+              <span class="text-sm">Manage Players</span>
+            </label>
+            <label class="flex items-center">
+              <input type="checkbox" name="permissions" value="manage_coaches" class="mr-2">
+              <span class="text-sm">Manage Coaches</span>
+            </label>
+            <label class="flex items-center">
+              <input type="checkbox" name="permissions" value="manage_referees" class="mr-2">
+              <span class="text-sm">Manage Referees</span>
+            </label>
+            <label class="flex items-center">
+              <input type="checkbox" name="permissions" value="view_analytics" class="mr-2">
+              <span class="text-sm">View Analytics</span>
+            </label>
+          </div>
+        </div>
+
+        <div class="flex justify-end gap-4">
+          <button type="button" onclick="closeRegisterAdminModal()" class="px-6 py-3 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
+            Cancel
+          </button>
+          <button type="submit" class="px-6 py-3 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors">
+            <i class="fas fa-user-plus mr-2"></i>Submit Registration
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Pending Admins Modal -->
+  <div id="pendingAdminsModal" class="modal fixed inset-0 bg-black bg-opacity-50 z-50 hidden items-center justify-center p-4">
+    <div class="modal-content bg-white rounded-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+      <div class="p-6 border-b border-gray-200">
+        <div class="flex justify-between items-center">
+          <h2 class="text-xl font-bold text-gray-800">Pending Admin Registrations</h2>
+          <button onclick="closePendingAdminsModal()" class="text-gray-500 hover:text-gray-700 text-2xl">
+            <i class="fas fa-times"></i>
+          </button>
+        </div>
+      </div>
+      <div class="p-6">
+        <div id="pendingAdminsList">
+          <!-- Pending admins will be loaded here -->
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <%- include('../../partials/footer') %>
+  <script src="/js/script.js"></script>
+  <script>
+    // Modal functions
+    function openChangeUsernameModal() {
+      document.getElementById('usernameModal').classList.remove('hidden');
+      document.getElementById('usernameModal').classList.add('flex');
+    }
+
+    function closeUsernameModal() {
+      document.getElementById('usernameModal').classList.add('hidden');
+      document.getElementById('usernameModal').classList.remove('flex');
+    }
+
+    function openChangePasswordModal() {
+      document.getElementById('passwordModal').classList.remove('hidden');
+      document.getElementById('passwordModal').classList.add('flex');
+    }
+
+    function closePasswordModal() {
+      document.getElementById('passwordModal').classList.add('hidden');
+      document.getElementById('passwordModal').classList.remove('flex');
+    }
+
+    function openProfileModal() {
+      document.getElementById('profileModal').classList.remove('hidden');
+      document.getElementById('profileModal').classList.add('flex');
+    }
+
+    function closeProfileModal() {
+      document.getElementById('profileModal').classList.add('hidden');
+      document.getElementById('profileModal').classList.remove('flex');
+    }
+
+    // Admin Management Functions
+    function openRegisterAdminModal() {
+      document.getElementById('registerAdminModal').classList.remove('hidden');
+      document.getElementById('registerAdminModal').classList.add('flex');
+    }
+
+    function closeRegisterAdminModal() {
+      document.getElementById('registerAdminModal').classList.add('hidden');
+      document.getElementById('registerAdminModal').classList.remove('flex');
+    }
+
+    function openPendingAdminsModal() {
+      document.getElementById('pendingAdminsModal').classList.remove('hidden');
+      document.getElementById('pendingAdminsModal').classList.add('flex');
+    }
+
+    function closePendingAdminsModal() {
+      document.getElementById('pendingAdminsModal').classList.add('hidden');
+      document.getElementById('pendingAdminsModal').classList.remove('flex');
+    }
+
+    async function viewPendingAdmins() {
+      openPendingAdminsModal();
+      
+      try {
+        const response = await fetch('/admin/settings/pending-admins');
+        const pendingAdmins = await response.json();
+        
+        console.log('Pending admins data:', pendingAdmins); // Debug log
+        
+        const listContainer = document.getElementById('pendingAdminsList');
+        
+        if (!Array.isArray(pendingAdmins) || pendingAdmins.length === 0) {
+          listContainer.innerHTML = '<p class="text-gray-500 text-center py-8">No pending admin registrations</p>';
+          return;
+        }
+        
+        listContainer.innerHTML = pendingAdmins.map(admin => `
+          <div class="bg-gray-50 rounded-lg p-6 mb-4">
+            <div class="flex justify-between items-start mb-4">
+              <div>
+                <h3 class="text-lg font-semibold text-gray-800">${admin.fullName || 'N/A'}</h3>
+                <p class="text-gray-600">@${admin.username || 'N/A'} • ${admin.email || 'N/A'}</p>
+                <p class="text-sm text-gray-500">Requested by: ${admin.requestedByUsername || 'Unknown'}</p>
+                <p class="text-sm text-gray-500">Role: ${admin.role ? admin.role.charAt(0).toUpperCase() + admin.role.slice(1) : 'N/A'}</p>
+              </div>
+              <div class="flex gap-2">
+                <button onclick="approvePendingAdmin('${admin._id}')" 
+                        class="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors">
+                  <i class="fas fa-check mr-1"></i>Approve
+                </button>
+                <button onclick="rejectPendingAdmin('${admin._id}')" 
+                        class="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition-colors">
+                  <i class="fas fa-times mr-1"></i>Reject
+                </button>
+              </div>
+            </div>
+            <div class="text-sm text-gray-500">
+              <p>Permissions: ${admin.permissions && admin.permissions.length > 0 ? admin.permissions.join(', ') : 'None selected'}</p>
+              <p>Requested: ${admin.createdAt ? new Date(admin.createdAt).toLocaleDateString() : 'Unknown'}</p>
+            </div>
+          </div>
+        `).join('');
+        
+      } catch (error) {
+        console.error('Error loading pending admins:', error);
+        document.getElementById('pendingAdminsList').innerHTML = '<p class="text-red-500 text-center py-8">Error loading pending registrations</p>';
+      }
+    }
+
+    async function approvePendingAdmin(adminId) {
+      if (!confirm('Are you sure you want to approve this admin registration?')) return;
+      
+      try {
+        const response = await fetch(`/admin/settings/approve-admin/${adminId}`, {
+          method: 'POST'
+        });
+        
+        const result = await response.json();
+        
+        if (result.success) {
+          alert('Admin registration approved successfully!');
+          viewPendingAdmins(); // Refresh the list
+        } else {
+          alert('Error: ' + result.message);
+        }
+      } catch (error) {
+        alert('Error approving admin registration');
+      }
+    }
+
+    async function rejectPendingAdmin(adminId) {
+      const reason = prompt('Please provide a reason for rejection (optional):');
+      if (reason === null) return; // User cancelled
+      
+      try {
+        const response = await fetch(`/admin/settings/reject-admin/${adminId}`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ reason: reason || '' })
+        });
+        
+        const result = await response.json();
+        
+        if (result.success) {
+          alert('Admin registration rejected');
+          viewPendingAdmins(); // Refresh the list
+        } else {
+          alert('Error: ' + result.message);
+        }
+      } catch (error) {
+        alert('Error rejecting admin registration');
+      }
+    }
+
+    // Form submissions
+    document.getElementById('registerAdminForm').addEventListener('submit', async function(e) {
+      e.preventDefault();
+      const formData = new FormData(this);
+      
+      // Get all selected permissions
+      const permissions = [];
+      document.querySelectorAll('input[name="permissions"]:checked').forEach(checkbox => {
+        permissions.push(checkbox.value);
+      });
+      
+             // Create the request data
+       const requestData = {
+         username: formData.get('username'),
+         fullName: formData.get('fullName'),
+         email: formData.get('email'),
+         password: formData.get('password'),
+         role: formData.get('role'),
+         permissions: permissions
+       };
+      
+      try {
+        const response = await fetch('/admin/settings/register-admin', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(requestData)
+        });
+        
+        const result = await response.json();
+        
+        if (result.success) {
+          alert('Admin registration submitted successfully! It will be reviewed by a Super Admin.');
+          closeRegisterAdminModal();
+          this.reset();
+        } else {
+          alert('Error: ' + result.message);
+        }
+      } catch (error) {
+        alert('Error submitting admin registration. Please try again.');
+      }
+    });
+
+    document.getElementById('usernameForm').addEventListener('submit', async function(e) {
+      e.preventDefault();
+      const formData = new FormData(this);
+      
+      try {
+        const response = await fetch('/admin/settings/change-username', {
+          method: 'POST',
+          body: formData
+        });
+        
+        const result = await response.json();
+        
+        if (result.success) {
+          alert('Username updated successfully! You will be logged out for security.');
+          window.location.href = '/logout';
+        } else {
+          alert('Error: ' + result.message);
+        }
+      } catch (error) {
+        alert('Error updating username. Please try again.');
+      }
+    });
+
+    document.getElementById('passwordForm').addEventListener('submit', async function(e) {
+      e.preventDefault();
+      const formData = new FormData(this);
+      
+      if (formData.get('newPassword') !== formData.get('confirmPassword')) {
+        alert('New passwords do not match!');
+        return;
+      }
+      
+      try {
+        const response = await fetch('/admin/settings/change-password', {
+          method: 'POST',
+          body: formData
+        });
+        
+        const result = await response.json();
+        
+        if (result.success) {
+          alert('Password updated successfully! You will be logged out for security.');
+          window.location.href = '/logout';
+        } else {
+          alert('Error: ' + result.message);
+        }
+      } catch (error) {
+        alert('Error updating password. Please try again.');
+      }
+    });
+
+    document.getElementById('profileForm').addEventListener('submit', async function(e) {
+      e.preventDefault();
+      const formData = new FormData(this);
+      
+      try {
+        const response = await fetch('/admin/settings/update-profile', {
+          method: 'POST',
+          body: formData
+        });
+        
+        const result = await response.json();
+        
+        if (result.success) {
+          alert('Profile updated successfully!');
+          location.reload();
+        } else {
+          alert('Error: ' + result.message);
+        }
+      } catch (error) {
+        alert('Error updating profile. Please try again.');
+      }
+    });
+  </script>
+</body>
+</html> 
