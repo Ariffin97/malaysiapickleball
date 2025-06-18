@@ -2596,11 +2596,16 @@ app.post('/admin/settings/reject-admin/:id', adminAuth, async (req, res) => {
   }
 });
 
+// Add API routes
+const apiRoutes = require('./routes/api');
+app.use('/api', apiRoutes);
+
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   console.log(`🚀 Server running on port ${PORT}`);
   console.log(`🌐 Access your application at: http://localhost:${PORT}`);
   console.log(`🔧 Admin panel: http://localhost:${PORT}/admin/dashboard`);
+  console.log(`📡 API endpoints available at: http://localhost:${PORT}/api`);
 });
 
 module.exports = app; 
