@@ -77,7 +77,7 @@ app.use(cors({
     
     // return callback(new Error('Not allowed by CORS'));
   },
-  credentials: false, // Set to true if you need to send cookies
+  credentials: true, // Enable credentials for API and session support
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With']
 }));
@@ -2578,9 +2578,10 @@ app.post('/admin/settings/reject-admin/:id', adminAuth, async (req, res) => {
   }
 });
 
-// Add API routes - TEMPORARILY DISABLED FOR TROUBLESHOOTING
-// const apiRoutes = require('./routes/api');
-// app.use('/api', apiRoutes);
+// Add API routes
+const apiRoutes = require('./routes/api');
+app.use('/api', apiRoutes);
+console.log('✅ API routes enabled at /api endpoint');
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
