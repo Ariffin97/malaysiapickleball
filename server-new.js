@@ -72,29 +72,26 @@ app.use(cors({
   allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With']
 }));
 
-// Completely disable helmet CSP and add permissive CSP headers
+// Completely disable ALL security headers for troubleshooting
 app.use((req, res, next) => {
-  // Remove any existing CSP headers
+  // Remove ALL security headers
   res.removeHeader('Content-Security-Policy');
   res.removeHeader('Content-Security-Policy-Report-Only');
-  
-  // Set very permissive CSP to allow all fonts and resources
-  res.setHeader('Content-Security-Policy', 
-    "default-src * 'unsafe-inline' 'unsafe-eval' data: blob:; " +
-    "font-src * data: blob: 'unsafe-inline'; " +
-    "style-src * 'unsafe-inline' data: blob:; " +
-    "script-src * 'unsafe-inline' 'unsafe-eval' data: blob:; " +
-    "img-src * data: blob: 'unsafe-inline'; " +
-    "connect-src * data: blob: 'unsafe-inline';"
-  );
+  res.removeHeader('X-Frame-Options');
+  res.removeHeader('X-Content-Type-Options');
+  res.removeHeader('X-DNS-Prefetch-Control');
+  res.removeHeader('Strict-Transport-Security');
+  res.removeHeader('X-Download-Options');
+  res.removeHeader('X-Permitted-Cross-Domain-Policies');
+  res.removeHeader('Referrer-Policy');
   next();
 });
 
-// Use helmet with CSP completely disabled
-app.use(helmet({
-  contentSecurityPolicy: false,
-  crossOriginEmbedderPolicy: false
-}));
+// Don't use helmet at all for now
+// app.use(helmet({
+//   contentSecurityPolicy: false,
+//   crossOriginEmbedderPolicy: false
+// }));
 
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
