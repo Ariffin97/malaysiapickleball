@@ -72,8 +72,27 @@ app.use(cors({
   allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With']
 }));
 
+// Completely disable helmet CSP and add permissive CSP headers
+app.use((req, res, next) => {
+  // Remove any existing CSP headers
+  res.removeHeader('Content-Security-Policy');
+  res.removeHeader('Content-Security-Policy-Report-Only');
+  
+  // Set very permissive CSP to allow all fonts and resources
+  res.setHeader('Content-Security-Policy', 
+    "default-src * 'unsafe-inline' 'unsafe-eval' data: blob:; " +
+    "font-src * data: blob: 'unsafe-inline'; " +
+    "style-src * 'unsafe-inline' data: blob:; " +
+    "script-src * 'unsafe-inline' 'unsafe-eval' data: blob:; " +
+    "img-src * data: blob: 'unsafe-inline'; " +
+    "connect-src * data: blob: 'unsafe-inline';"
+  );
+  next();
+});
+
+// Use helmet with CSP completely disabled
 app.use(helmet({
-  contentSecurityPolicy: false, // Temporarily disable CSP to fix font loading issues
+  contentSecurityPolicy: false,
   crossOriginEmbedderPolicy: false
 }));
 
