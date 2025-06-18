@@ -2589,9 +2589,9 @@ app.post('/admin/settings/reject-admin/:id', adminAuth, async (req, res) => {
   }
 });
 
-// Add API routes
-const apiRoutes = require('./routes/api');
-app.use('/api', apiRoutes);
+// Add API routes - TEMPORARILY DISABLED FOR TROUBLESHOOTING
+// const apiRoutes = require('./routes/api');
+// app.use('/api', apiRoutes);
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
