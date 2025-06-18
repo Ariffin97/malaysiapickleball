@@ -838,6 +838,161 @@ router.get('/mobile/player/tournaments', async (req, res) => {
   }
 });
 
+// =============================================================================
+// PROFILE PICTURE UPLOAD APIS
+// =============================================================================
+
+// Upload/Update Player Profile Picture
+router.post('/player/profile/picture', checkApiRateLimit, async (req, res) => {
+  if (!req.session?.isPlayerAuthenticated || !req.session?.playerId) {
+    return res.status(401).json({
+      success: false,
+      message: 'Player authentication required'
+    });
+  }
+
+  try {
+    // Check if file was uploaded
+    if (!req.files || !req.files.profilePicture) {
+      return res.status(400).json({
+        success: false,
+        message: 'Profile picture file is required'
+      });
+    }
+
+    const profilePicture = req.files.profilePicture;
+    
+    // Validate file type
+    const allowedMimeTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif'];
+    if (!allowedMimeTypes.includes(profilePicture.mimetype)) {
+      return res.status(400).json({
+        success: false,
+        message: 'Invalid file type. Only JPEG, PNG, and GIF are allowed'
+      });
+    }
+
+    // Validate file size (5MB max)
+    const maxSize = 5 * 1024 * 1024; // 5MB
+    if (profilePicture.size > maxSize) {
+      return res.status(400).json({
+        success: false,
+        message: 'File size too large. Maximum 5MB allowed'
+      });
+    }
+
+    // Generate unique filename
+    const fileExtension = profilePicture.name.split('.').pop();
+    const fileName = `profile_${req.session.playerId}_${Date.now()}.${fileExtension}`;
+    const uploadPath = `public/images/profiles/${fileName}`;
+
+    // Create profiles directory if it doesn't exist
+    const fs = require('fs');
+    const path = require('path');
+    const profilesDir = path.join(__dirname, '..', 'public', 'images', 'profiles');
+    
+    if (!fs.existsSync(profilesDir)) {
+      fs.mkdirSync(profilesDir, { recursive: true });
+    }
+
+    // Move file to upload directory
+    await profilePicture.mv(path.join(__dirname, '..', uploadPath));
+
+    // Update player profile picture in database
+    const profilePictureUrl = `/images/profiles/${fileName}`;
+    await Player.findByIdAndUpdate(req.session.playerId, {
+      profilePicture: profilePictureUrl
+    });
+
+    res.json({
+      success: true,
+      message: 'Profile picture updated successfully',
+      data: {
+        profilePicture: profilePictureUrl
+      }
+    });
+
+  } catch (error) {
+    console.error('Profile picture upload API error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to upload profile picture'
+    });
+  }
+});
+
+// Update Player Profile (including profile picture URL)
+router.put('/player/profile', checkApiRateLimit, [
+  body('fullName').optional().trim().isLength({ min: 2, max: 100 }),
+  body('phoneNumber').optional().trim().matches(/^[0-9+\-\s\(\)]+$/),
+  body('email').optional().isEmail().normalizeEmail(),
+  body('profilePicture').optional().isURL()
+], async (req, res) => {
+  if (!req.session?.isPlayerAuthenticated || !req.session?.playerId) {
+    return res.status(401).json({
+      success: false,
+      message: 'Player authentication required'
+    });
+  }
+
+  try {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({
+        success: false,
+        message: 'Validation failed',
+        errors: errors.array()
+      });
+    }
+
+    const { fullName, phoneNumber, email, profilePicture, address } = req.body;
+    const updateData = {};
+
+    // Only update provided fields
+    if (fullName) updateData.fullName = fullName;
+    if (phoneNumber) updateData.phoneNumber = phoneNumber;
+    if (email) updateData.email = email;
+    if (profilePicture) updateData.profilePicture = profilePicture;
+    if (address) updateData.address = address;
+
+    // Update player in database
+    const updatedPlayer = await Player.findByIdAndUpdate(
+      req.session.playerId, 
+      updateData, 
+      { new: true, select: '-password' }
+    );
+
+    if (!updatedPlayer) {
+      return res.status(404).json({
+        success: false,
+        message: 'Player not found'
+      });
+    }
+
+    res.json({
+      success: true,
+      message: 'Profile updated successfully',
+      data: {
+        player: {
+          playerId: updatedPlayer.playerId,
+          fullName: updatedPlayer.fullName,
+          email: updatedPlayer.email,
+          phoneNumber: updatedPlayer.phoneNumber,
+          address: updatedPlayer.address,
+          profilePicture: updatedPlayer.profilePicture,
+          status: updatedPlayer.status
+        }
+      }
+    });
+
+  } catch (error) {
+    console.error('Update player profile API error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to update profile'
+    });
+  }
+});
+
 // Check API Health
 router.get('/health', (req, res) => {
   res.json({
