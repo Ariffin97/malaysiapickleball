@@ -993,6 +993,607 @@ router.put('/player/profile', checkApiRateLimit, [
   }
 });
 
+// =============================================================================
+// DASHBOARD STATS APIS
+// =============================================================================
+
+// Get Player Dashboard Stats
+router.get('/player/dashboard/stats', async (req, res) => {
+  if (!req.session?.isPlayerAuthenticated || !req.session?.playerId) {
+    return res.status(401).json({
+      success: false,
+      message: 'Player authentication required'
+    });
+  }
+
+  try {
+    const player = await Player.findById(req.session.playerId);
+    if (!player) {
+      return res.status(404).json({
+        success: false,
+        message: 'Player not found'
+      });
+    }
+
+    // Get unread message count
+    const Message = require('../models/Message');
+    const unreadCount = await Message.getUnreadCount(player._id);
+
+    // Calculate achievements (placeholder - you can extend this)
+    const achievements = 0; // TODO: Implement achievement system
+
+    const stats = {
+      tournaments: {
+        total: player.tournaments?.length || 0,
+        registered: player.tournaments?.filter(t => t.status === 'registered').length || 0,
+        confirmed: player.tournaments?.filter(t => t.status === 'confirmed').length || 0
+      },
+      ranking: {
+        points: player.ranking?.points || 0,
+        position: player.ranking?.position || null,
+        lastUpdated: player.ranking?.lastUpdated || null
+      },
+      achievements: {
+        total: achievements
+      },
+      messages: {
+        unreadCount: unreadCount
+      },
+      profile: {
+        completeness: calculateProfileCompleteness(player)
+      }
+    };
+
+    res.json({
+      success: true,
+      data: { stats }
+    });
+
+  } catch (error) {
+    console.error('Get dashboard stats API error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to fetch dashboard stats'
+    });
+  }
+});
+
+// Helper function to calculate profile completeness
+function calculateProfileCompleteness(player) {
+  let completed = 0;
+  let total = 8;
+
+  if (player.fullName) completed++;
+  if (player.email) completed++;
+  if (player.phoneNumber) completed++;
+  if (player.address) completed++;
+  if (player.icNumber) completed++;
+  if (player.age) completed++;
+  if (player.username) completed++;
+  if (player.profilePicture) completed++;
+
+  return Math.round((completed / total) * 100);
+}
+
+// =============================================================================
+// TOURNAMENT APIS
+// =============================================================================
+
+// Get All Available Tournaments
+router.get('/tournaments', checkApiRateLimit, async (req, res) => {
+  try {
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 20;
+    const skip = (page - 1) * limit;
+    const type = req.query.type || 'all';
+
+    let query = { registrationOpen: true };
+    
+    if (type !== 'all') {
+      query.type = type;
+    }
+
+    const tournaments = await DatabaseService.getAllTournaments();
+    
+    // Filter tournaments
+    let filteredTournaments = tournaments.filter(tournament => {
+      if (type !== 'all' && tournament.type !== type) return false;
+      return tournament.registrationOpen !== false;
+    });
+
+    // Pagination
+    const total = filteredTournaments.length;
+    const paginatedTournaments = filteredTournaments.slice(skip, skip + limit);
+
+    res.json({
+      success: true,
+      data: {
+        tournaments: paginatedTournaments,
+        pagination: {
+          current: page,
+          pages: Math.ceil(total / limit),
+          total: total,
+          hasNext: page < Math.ceil(total / limit),
+          hasPrev: page > 1
+        }
+      }
+    });
+
+  } catch (error) {
+    console.error('Get tournaments API error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to fetch tournaments'
+    });
+  }
+});
+
+// Register for Tournament
+router.post('/tournaments/:tournamentId/register', checkApiRateLimit, async (req, res) => {
+  if (!req.session?.isPlayerAuthenticated || !req.session?.playerId) {
+    return res.status(401).json({
+      success: false,
+      message: 'Player authentication required'
+    });
+  }
+
+  try {
+    const { tournamentId } = req.params;
+    const playerId = req.session.playerId;
+
+    const player = await Player.findById(playerId);
+    if (!player) {
+      return res.status(404).json({
+        success: false,
+        message: 'Player not found'
+      });
+    }
+
+    // Check if already registered
+    const alreadyRegistered = player.tournaments?.some(
+      t => t.tournamentId.toString() === tournamentId
+    );
+
+    if (alreadyRegistered) {
+      return res.status(400).json({
+        success: false,
+        message: 'Already registered for this tournament'
+      });
+    }
+
+    // Add tournament to player's tournaments
+    player.tournaments.push({
+      tournamentId: tournamentId,
+      registrationDate: new Date(),
+      status: 'registered'
+    });
+
+    await player.save();
+
+    res.json({
+      success: true,
+      message: 'Successfully registered for tournament',
+      data: {
+        tournamentId: tournamentId,
+        registrationDate: new Date(),
+        status: 'registered'
+      }
+    });
+
+  } catch (error) {
+    console.error('Tournament registration API error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to register for tournament'
+    });
+  }
+});
+
+// Get Player's Tournament History
+router.get('/player/tournaments', async (req, res) => {
+  if (!req.session?.isPlayerAuthenticated || !req.session?.playerId) {
+    return res.status(401).json({
+      success: false,
+      message: 'Player authentication required'
+    });
+  }
+
+  try {
+    const player = await Player.findById(req.session.playerId).populate('tournaments.tournamentId');
+    
+    if (!player) {
+      return res.status(404).json({
+        success: false,
+        message: 'Player not found'
+      });
+    }
+
+    const tournaments = player.tournaments || [];
+
+    res.json({
+      success: true,
+      data: {
+        tournaments: tournaments,
+        totalCount: tournaments.length
+      }
+    });
+
+  } catch (error) {
+    console.error('Get player tournaments API error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to fetch player tournaments'
+    });
+  }
+});
+
+// =============================================================================
+// RANKING APIS
+// =============================================================================
+
+// Get Player Rankings/Leaderboard
+router.get('/rankings', checkApiRateLimit, async (req, res) => {
+  try {
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 50;
+    const skip = (page - 1) * limit;
+
+    const players = await Player.find({ status: 'active' })
+      .select('playerId fullName ranking profilePicture')
+      .sort({ 'ranking.points': -1 })
+      .skip(skip)
+      .limit(limit);
+
+    // Add position numbers
+    const rankings = players.map((player, index) => ({
+      position: skip + index + 1,
+      playerId: player.playerId,
+      fullName: player.fullName,
+      points: player.ranking?.points || 0,
+      profilePicture: player.profilePicture
+    }));
+
+    const total = await Player.countDocuments({ status: 'active' });
+
+    res.json({
+      success: true,
+      data: {
+        rankings: rankings,
+        pagination: {
+          current: page,
+          pages: Math.ceil(total / limit),
+          total: total
+        }
+      }
+    });
+
+  } catch (error) {
+    console.error('Get rankings API error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to fetch rankings'
+    });
+  }
+});
+
+// Get Player's Ranking Position
+router.get('/player/ranking', async (req, res) => {
+  if (!req.session?.isPlayerAuthenticated || !req.session?.playerId) {
+    return res.status(401).json({
+      success: false,
+      message: 'Player authentication required'
+    });
+  }
+
+  try {
+    const player = await Player.findById(req.session.playerId);
+    
+    if (!player) {
+      return res.status(404).json({
+        success: false,
+        message: 'Player not found'
+      });
+    }
+
+    // Calculate position by counting players with higher points
+    const higherRankedCount = await Player.countDocuments({
+      status: 'active',
+      'ranking.points': { $gt: player.ranking?.points || 0 }
+    });
+
+    const position = higherRankedCount + 1;
+
+    res.json({
+      success: true,
+      data: {
+        ranking: {
+          position: position,
+          points: player.ranking?.points || 0,
+          lastUpdated: player.ranking?.lastUpdated || null
+        }
+      }
+    });
+
+  } catch (error) {
+    console.error('Get player ranking API error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to fetch player ranking'
+    });
+  }
+});
+
+// =============================================================================
+// MESSAGING APIS
+// =============================================================================
+
+// Get Player Messages (Inbox)
+router.get('/player/messages', checkApiRateLimit, async (req, res) => {
+  if (!req.session?.isPlayerAuthenticated || !req.session?.playerId) {
+    return res.status(401).json({
+      success: false,
+      message: 'Player authentication required'
+    });
+  }
+
+  try {
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 20;
+    const unreadOnly = req.query.unreadOnly === 'true';
+
+    const Message = require('../models/Message');
+    
+    let query = { 
+      recipientId: req.session.playerId, 
+      recipientType: 'player' 
+    };
+
+    if (unreadOnly) {
+      query.isRead = false;
+    }
+
+    const skip = (page - 1) * limit;
+    
+    const messages = await Message.find(query)
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(limit);
+    
+    const total = await Message.countDocuments(query);
+    const unreadCount = await Message.countDocuments({
+      recipientId: req.session.playerId,
+      recipientType: 'player',
+      isRead: false
+    });
+
+    res.json({
+      success: true,
+      data: {
+        messages: messages,
+        unreadCount: unreadCount,
+        pagination: {
+          current: page,
+          pages: Math.ceil(total / limit),
+          total: total,
+          hasNext: page < Math.ceil(total / limit),
+          hasPrev: page > 1
+        }
+      }
+    });
+
+  } catch (error) {
+    console.error('Get player messages API error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to fetch messages'
+    });
+  }
+});
+
+// Get Single Message
+router.get('/player/messages/:messageId', async (req, res) => {
+  if (!req.session?.isPlayerAuthenticated || !req.session?.playerId) {
+    return res.status(401).json({
+      success: false,
+      message: 'Player authentication required'
+    });
+  }
+
+  try {
+    const { messageId } = req.params;
+    const Message = require('../models/Message');
+    
+    const message = await Message.findOne({
+      messageId: messageId,
+      recipientId: req.session.playerId,
+      recipientType: 'player'
+    });
+
+    if (!message) {
+      return res.status(404).json({
+        success: false,
+        message: 'Message not found'
+      });
+    }
+
+    res.json({
+      success: true,
+      data: { message }
+    });
+
+  } catch (error) {
+    console.error('Get message API error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to fetch message'
+    });
+  }
+});
+
+// Mark Message as Read
+router.put('/player/messages/:messageId/read', async (req, res) => {
+  if (!req.session?.isPlayerAuthenticated || !req.session?.playerId) {
+    return res.status(401).json({
+      success: false,
+      message: 'Player authentication required'
+    });
+  }
+
+  try {
+    const { messageId } = req.params;
+    const Message = require('../models/Message');
+    
+    const message = await Message.findOne({
+      messageId: messageId,
+      recipientId: req.session.playerId,
+      recipientType: 'player'
+    });
+
+    if (!message) {
+      return res.status(404).json({
+        success: false,
+        message: 'Message not found'
+      });
+    }
+
+    await message.markAsRead();
+
+    res.json({
+      success: true,
+      message: 'Message marked as read',
+      data: { 
+        messageId: messageId,
+        isRead: true,
+        readAt: message.readAt 
+      }
+    });
+
+  } catch (error) {
+    console.error('Mark message as read API error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to mark message as read'
+    });
+  }
+});
+
+// Mark All Messages as Read
+router.put('/player/messages/mark-all-read', async (req, res) => {
+  if (!req.session?.isPlayerAuthenticated || !req.session?.playerId) {
+    return res.status(401).json({
+      success: false,
+      message: 'Player authentication required'
+    });
+  }
+
+  try {
+    const Message = require('../models/Message');
+    
+    const result = await Message.updateMany(
+      {
+        recipientId: req.session.playerId,
+        recipientType: 'player',
+        isRead: false
+      },
+      {
+        $set: {
+          isRead: true,
+          readAt: new Date()
+        }
+      }
+    );
+
+    res.json({
+      success: true,
+      message: 'All messages marked as read',
+      data: {
+        modifiedCount: result.modifiedCount
+      }
+    });
+
+  } catch (error) {
+    console.error('Mark all messages as read API error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to mark all messages as read'
+    });
+  }
+});
+
+// Delete Message
+router.delete('/player/messages/:messageId', async (req, res) => {
+  if (!req.session?.isPlayerAuthenticated || !req.session?.playerId) {
+    return res.status(401).json({
+      success: false,
+      message: 'Player authentication required'
+    });
+  }
+
+  try {
+    const { messageId } = req.params;
+    const Message = require('../models/Message');
+    
+    const result = await Message.deleteOne({
+      messageId: messageId,
+      recipientId: req.session.playerId,
+      recipientType: 'player'
+    });
+
+    if (result.deletedCount === 0) {
+      return res.status(404).json({
+        success: false,
+        message: 'Message not found'
+      });
+    }
+
+    res.json({
+      success: true,
+      message: 'Message deleted successfully'
+    });
+
+  } catch (error) {
+    console.error('Delete message API error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to delete message'
+    });
+  }
+});
+
+// =============================================================================
+// ACHIEVEMENT APIS (Placeholder for future implementation)
+// =============================================================================
+
+// Get Player Achievements
+router.get('/player/achievements', async (req, res) => {
+  if (!req.session?.isPlayerAuthenticated || !req.session?.playerId) {
+    return res.status(401).json({
+      success: false,
+      message: 'Player authentication required'
+    });
+  }
+
+  try {
+    // Placeholder - implement achievement system later
+    const achievements = [];
+
+    res.json({
+      success: true,
+      data: {
+        achievements: achievements,
+        totalCount: achievements.length
+      }
+    });
+
+  } catch (error) {
+    console.error('Get achievements API error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to fetch achievements'
+    });
+  }
+});
+
 // Check API Health
 router.get('/health', (req, res) => {
   res.json({
