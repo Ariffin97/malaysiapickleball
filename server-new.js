@@ -356,95 +356,74 @@ function checkRateLimit(req, res, next) {
   next();
 }
 
-app.post('/login', checkRateLimit, [
+app.post('/login', [
   body('username').notEmpty().trim().isLength({ min: 3, max: 30 }),
   body('password').notEmpty().isLength({ min: 6 })
 ], async (req, res) => {
-  const errors = validationResult(req);
-  if (!errors.isEmpty()) {
-    const clientIP = req.clientIP;
-    const attempts = loginAttempts.get(clientIP) || { count: 0, lastAttempt: 0 };
-    attempts.count++;
-    attempts.lastAttempt = Date.now();
-    loginAttempts.set(clientIP, attempts);
-    
-    return res.render('pages/login', { error: 'Invalid input', session: req.session });
-  }
-  
-  const { username, password } = req.body;
+  console.log('🔍 Login attempt started');
   
   try {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      console.log('❌ Validation errors:', errors.array());
+      return res.render('pages/login', { error: 'Invalid input', session: req.session });
+    }
+    
+    const { username, password } = req.body;
+    console.log('🔍 Login attempt for username:', username);
+    
     const admin = await DatabaseService.getAdminByUsername(username);
+    console.log('🔍 Admin found:', admin ? 'Yes' : 'No');
     
     if (!admin) {
-      const clientIP = req.clientIP;
-      const attempts = loginAttempts.get(clientIP) || { count: 0, lastAttempt: 0 };
-      attempts.count++;
-      attempts.lastAttempt = Date.now();
-      loginAttempts.set(clientIP, attempts);
-      
+      console.log('❌ Admin not found');
       return res.render('pages/login', { error: 'Invalid username or password', session: req.session });
     }
     
-    if (admin.isLocked()) {
+    console.log('🔍 Checking if admin is locked...');
+    if (admin.isLocked && admin.isLocked()) {
+      console.log('❌ Admin account is locked');
       return res.render('pages/login', { 
         error: 'Account is temporarily locked. Please try again later.',
         session: req.session 
       });
     }
     
+    console.log('🔍 Comparing password...');
     const isValidPassword = await admin.comparePassword(password);
+    console.log('🔍 Password valid:', isValidPassword);
     
     if (!isValidPassword) {
-      await admin.incLoginAttempts();
-      
-      const clientIP = req.clientIP;
-      const attempts = loginAttempts.get(clientIP) || { count: 0, lastAttempt: 0 };
-      attempts.count++;
-      attempts.lastAttempt = Date.now();
-      loginAttempts.set(clientIP, attempts);
-      
+      console.log('❌ Invalid password');
+      if (admin.incLoginAttempts) {
+        await admin.incLoginAttempts();
+      }
       return res.render('pages/login', { error: 'Invalid username or password', session: req.session });
     }
     
-    // Success
-    loginAttempts.delete(req.clientIP);
-    await admin.resetLoginAttempts();
+    console.log('✅ Login successful, setting up session...');
+    
+    // Reset login attempts on successful login
+    if (admin.resetLoginAttempts) {
+      await admin.resetLoginAttempts();
+    }
+    
+    // Update last login
     await DatabaseService.updateAdminLastLogin(admin._id);
     
-    console.log('🎯 Login successful, setting session...');
+    // Set session directly without regeneration for now
+    req.session.isAuthenticated = true;
+    req.session.adminId = admin._id;
+    req.session.username = admin.username;
+    req.session.loginTime = Date.now();
+    req.session.userAgent = req.get('User-Agent');
     
-    req.session.regenerate((err) => {
-      if (err) {
-        console.log('❌ Session regenerate error:', err);
-        return res.render('pages/login', { error: 'Authentication error', session: req.session });
-      }
-      
-      req.session.isAuthenticated = true;
-      req.session.adminId = admin._id;
-      req.session.username = admin.username;
-      req.session.loginTime = Date.now();
-      req.session.userAgent = req.get('User-Agent');
-      req.session.ipAddress = req.clientIP;
-      
-      console.log('✅ Session set:', {
-        isAuthenticated: req.session.isAuthenticated,
-        adminId: req.session.adminId,
-        username: req.session.username
-      });
-      
-      req.session.save((saveErr) => {
-        if (saveErr) {
-          console.log('❌ Session save error:', saveErr);
-          return res.render('pages/login', { error: 'Session save error', session: req.session });
-        }
-        console.log('✅ Session saved, redirecting to dashboard');
-        res.redirect('/admin/dashboard');
-      });
-    });
+    console.log('✅ Session set, redirecting to dashboard');
+    res.redirect('/admin/dashboard');
     
   } catch (error) {
-    console.error('Login error:', error);
+    console.error('❌ Login error:', error);
+    console.error('❌ Error stack:', error.stack);
     res.render('pages/login', { error: 'An error occurred during login', session: req.session });
   }
 });
