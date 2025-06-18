@@ -1,6 +1,7 @@
 const express = require('express');
 const fileUpload = require('express-fileupload');
 const helmet = require('helmet');
+const cors = require('cors');
 const { body, validationResult } = require('express-validator');
 const session = require('express-session');
 const path = require('path');
@@ -31,6 +32,46 @@ const tournamentTypes = {
 };
 
 // Middleware
+
+// CORS Configuration for external website access
+app.use(cors({
+  origin: function (origin, callback) {
+    // Allow requests with no origin (like mobile apps or curl requests)
+    if (!origin) return callback(null, true);
+    
+    // For development, allow localhost
+    if (origin.includes('localhost') || origin.includes('127.0.0.1')) {
+      return callback(null, true);
+    }
+    
+    // Add your allowed domains here (replace with your actual domains)
+    const allowedOrigins = [
+      'https://your-website.com',
+      'https://www.your-website.com',
+      'https://your-other-site.netlify.app',
+      'https://your-github-pages.github.io'
+      // Add more domains as needed
+    ];
+    
+    // For development/testing, you can allow all origins (NOT recommended for production)
+    if (process.env.NODE_ENV === 'development') {
+      return callback(null, true);
+    }
+    
+    if (allowedOrigins.includes(origin)) {
+      return callback(null, true);
+    }
+    
+    // Uncomment the line below to allow ALL origins (NOT secure for production)
+    // return callback(null, true);
+    
+    return callback(new Error('Not allowed by CORS'));
+  },
+  credentials: false, // Set to true if you need to send cookies
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With']
+}));
+
 app.use(helmet({
   contentSecurityPolicy: {
     directives: {
@@ -1895,6 +1936,65 @@ app.get('/api/tournaments', async (req, res) => {
   }
 });
 
+// Get upcoming tournaments - Public API endpoint (MUST be before /:id route)
+app.get('/api/tournaments/upcoming', async (req, res) => {
+  try {
+    const { limit = 10 } = req.query;
+    const tournaments = await DatabaseService.getAllTournaments();
+    
+    const now = new Date();
+    const upcomingTournaments = tournaments
+      .filter(t => t.startDate && new Date(t.startDate) > now)
+      .sort((a, b) => new Date(a.startDate) - new Date(b.startDate))
+      .slice(0, parseInt(limit));
+
+    const tournamentTypes = {
+      'local': { color: 'green', displayName: 'Local Tournament' },
+      'state': { color: 'red', displayName: 'State Tournament' },
+      'national': { color: 'blue', displayName: 'National Tournament' },
+      'sarawak': { color: 'purple', displayName: 'Sarawak Tournament' },
+      'wmalaysia': { color: 'orange', displayName: 'West Malaysia Tournament' }
+    };
+
+    const formattedTournaments = upcomingTournaments.map(tournament => {
+      const tournamentObj = tournament.toObject();
+      const typeInfo = tournamentTypes[tournamentObj.type] || { color: 'gray', displayName: 'Unknown' };
+      
+      return {
+        id: tournamentObj._id,
+        name: tournamentObj.name,
+        type: tournamentObj.type,
+        typeDisplayName: typeInfo.displayName,
+        color: typeInfo.color,
+        startDate: tournamentObj.startDate,
+        endDate: tournamentObj.endDate,
+        venue: tournamentObj.venue,
+        city: tournamentObj.city,
+        organizer: tournamentObj.organizer,
+        registrationOpen: tournamentObj.registrationOpen !== false,
+        status: 'upcoming'
+      };
+    });
+
+    res.json({
+      success: true,
+      data: formattedTournaments,
+      meta: {
+        total: formattedTournaments.length,
+        limit: parseInt(limit)
+      }
+    });
+
+  } catch (error) {
+    console.error('Upcoming tournaments API error:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to fetch upcoming tournaments',
+      message: error.message
+    });
+  }
+});
+
 // Get single tournament by ID - Public API endpoint
 app.get('/api/tournaments/:id', async (req, res) => {
   try {
@@ -1960,65 +2060,6 @@ app.get('/api/tournaments/:id', async (req, res) => {
     res.status(500).json({
       success: false,
       error: 'Failed to fetch tournament',
-      message: error.message
-    });
-  }
-});
-
-// Get upcoming tournaments - Public API endpoint
-app.get('/api/tournaments/upcoming', async (req, res) => {
-  try {
-    const { limit = 10 } = req.query;
-    const tournaments = await DatabaseService.getAllTournaments();
-    
-    const now = new Date();
-    const upcomingTournaments = tournaments
-      .filter(t => t.startDate && new Date(t.startDate) > now)
-      .sort((a, b) => new Date(a.startDate) - new Date(b.startDate))
-      .slice(0, parseInt(limit));
-
-    const tournamentTypes = {
-      'local': { color: 'green', displayName: 'Local Tournament' },
-      'state': { color: 'red', displayName: 'State Tournament' },
-      'national': { color: 'blue', displayName: 'National Tournament' },
-      'sarawak': { color: 'purple', displayName: 'Sarawak Tournament' },
-      'wmalaysia': { color: 'orange', displayName: 'West Malaysia Tournament' }
-    };
-
-    const formattedTournaments = upcomingTournaments.map(tournament => {
-      const tournamentObj = tournament.toObject();
-      const typeInfo = tournamentTypes[tournamentObj.type] || { color: 'gray', displayName: 'Unknown' };
-      
-      return {
-        id: tournamentObj._id,
-        name: tournamentObj.name,
-        type: tournamentObj.type,
-        typeDisplayName: typeInfo.displayName,
-        color: typeInfo.color,
-        startDate: tournamentObj.startDate,
-        endDate: tournamentObj.endDate,
-        venue: tournamentObj.venue,
-        city: tournamentObj.city,
-        organizer: tournamentObj.organizer,
-        registrationOpen: tournamentObj.registrationOpen !== false,
-        status: 'upcoming'
-      };
-    });
-
-    res.json({
-      success: true,
-      data: formattedTournaments,
-      meta: {
-        total: formattedTournaments.length,
-        limit: parseInt(limit)
-      }
-    });
-
-  } catch (error) {
-    console.error('Upcoming tournaments API error:', error);
-    res.status(500).json({
-      success: false,
-      error: 'Failed to fetch upcoming tournaments',
       message: error.message
     });
   }
