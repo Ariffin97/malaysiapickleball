@@ -73,34 +73,8 @@ app.use(cors({
 }));
 
 app.use(helmet({
-  contentSecurityPolicy: {
-    directives: {
-      defaultSrc: ["'self'"],
-      scriptSrc: ["'self'", "'unsafe-inline'", "'unsafe-eval'"],
-      scriptSrcAttr: ["'unsafe-inline'"],
-      styleSrc: ["'self'", "'unsafe-inline'", "https://cdn.jsdelivr.net", "https://cdnjs.cloudflare.com"],
-      fontSrc: ["'self'", "https://cdnjs.cloudflare.com", "https://cdn.jsdelivr.net", "data:", "blob:"],
-      imgSrc: ["'self'", "data:", "blob:", "https:"],
-      connectSrc: ["'self'"],
-      objectSrc: ["'none'"],
-      mediaSrc: ["'self'"],
-      childSrc: ["'self'"],
-      frameSrc: [
-        "'self'",
-        "https://www.youtube.com",
-        "https://youtube.com", 
-        "https://player.vimeo.com",
-        "https://vimeo.com",
-        "https://www.dailymotion.com",
-        "https://dailymotion.com",
-        "https://www.twitch.tv",
-        "https://player.twitch.tv"
-      ],
-      workerSrc: ["'self'", "blob:"],
-      manifestSrc: ["'self'"]
-    },
-  },
-  crossOriginEmbedderPolicy: false, // Disable COEP to allow third-party video embeds
+  contentSecurityPolicy: false, // Temporarily disable CSP to fix font loading issues
+  crossOriginEmbedderPolicy: false
 }));
 
 app.use(express.urlencoded({ extended: true }));
