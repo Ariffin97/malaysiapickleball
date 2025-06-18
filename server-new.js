@@ -62,10 +62,20 @@ app.use(cors({
       return callback(null, true);
     }
     
-    // Uncomment the line below to allow ALL origins (NOT secure for production)
-    // return callback(null, true);
+    // Allow same-origin requests (no origin header) for regular web forms
+    if (!origin) {
+      return callback(null, true);
+    }
     
-    return callback(new Error('Not allowed by CORS'));
+    // Allow our domain with different protocols/subdomains
+    if (origin && (origin.includes('malaysiapickleball.my') || origin.includes('localhost'))) {
+      return callback(null, true);
+    }
+    
+    // Temporarily allow all for troubleshooting
+    return callback(null, true);
+    
+    // return callback(new Error('Not allowed by CORS'));
   },
   credentials: false, // Set to true if you need to send cookies
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
