@@ -79,11 +79,12 @@ app.use(helmet({
       scriptSrc: ["'self'", "'unsafe-inline'", "'unsafe-eval'"],
       scriptSrcAttr: ["'unsafe-inline'"],
       styleSrc: ["'self'", "'unsafe-inline'", "https://cdn.jsdelivr.net", "https://cdnjs.cloudflare.com"],
-      fontSrc: ["'self'", "https://cdnjs.cloudflare.com", "data:"],
-      imgSrc: ["'self'", "data:", "https:"],
+      fontSrc: ["'self'", "https://cdnjs.cloudflare.com", "https://cdn.jsdelivr.net", "data:", "blob:"],
+      imgSrc: ["'self'", "data:", "blob:", "https:"],
       connectSrc: ["'self'"],
       objectSrc: ["'none'"],
       mediaSrc: ["'self'"],
+      childSrc: ["'self'"],
       frameSrc: [
         "'self'",
         "https://www.youtube.com",
@@ -95,6 +96,8 @@ app.use(helmet({
         "https://www.twitch.tv",
         "https://player.twitch.tv"
       ],
+      workerSrc: ["'self'", "blob:"],
+      manifestSrc: ["'self'"]
     },
   },
   crossOriginEmbedderPolicy: false, // Disable COEP to allow third-party video embeds
