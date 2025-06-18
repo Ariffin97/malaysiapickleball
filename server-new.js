@@ -1743,6 +1743,287 @@ app.get('/api/check-ic/:icNumber', async (req, res) => {
   }
 });
 
+// ========================
+// TOURNAMENT API ENDPOINTS
+// ========================
+
+// Get all tournaments - Public API endpoint
+app.get('/api/tournaments', async (req, res) => {
+  try {
+    // Get query parameters for filtering
+    const { 
+      type, 
+      upcoming, 
+      active, 
+      limit, 
+      offset,
+      sortBy = 'startDate',
+      sortOrder = 'asc'
+    } = req.query;
+
+    let tournaments = await DatabaseService.getAllTournaments();
+
+    // Define tournament types with colors
+    const tournamentTypes = {
+      'local': { color: 'green', displayName: 'Local Tournament' },
+      'state': { color: 'red', displayName: 'State Tournament' },
+      'national': { color: 'blue', displayName: 'National Tournament' },
+      'sarawak': { color: 'purple', displayName: 'Sarawak Tournament' },
+      'wmalaysia': { color: 'orange', displayName: 'West Malaysia Tournament' }
+    };
+
+    // Apply filters
+    if (type) {
+      tournaments = tournaments.filter(t => t.type === type);
+    }
+
+    if (upcoming === 'true') {
+      const now = new Date();
+      tournaments = tournaments.filter(t => t.startDate && new Date(t.startDate) > now);
+    }
+
+    if (active === 'true') {
+      const now = new Date();
+      tournaments = tournaments.filter(t => {
+        if (!t.startDate || !t.endDate) return false;
+        const start = new Date(t.startDate);
+        const end = new Date(t.endDate);
+        return start <= now && now <= end;
+      });
+    }
+
+    // Sort tournaments
+    tournaments.sort((a, b) => {
+      let aValue, bValue;
+      
+      switch (sortBy) {
+        case 'name':
+          aValue = a.name || '';
+          bValue = b.name || '';
+          break;
+        case 'type':
+          aValue = a.type || '';
+          bValue = b.type || '';
+          break;
+        case 'createdAt':
+          aValue = new Date(a.createdAt || 0);
+          bValue = new Date(b.createdAt || 0);
+          break;
+        default: // startDate
+          aValue = new Date(a.startDate || 0);
+          bValue = new Date(b.startDate || 0);
+      }
+
+      if (sortOrder === 'desc') {
+        return aValue < bValue ? 1 : aValue > bValue ? -1 : 0;
+      } else {
+        return aValue > bValue ? 1 : aValue < bValue ? -1 : 0;
+      }
+    });
+
+    // Apply pagination
+    const totalCount = tournaments.length;
+    let paginatedTournaments = tournaments;
+    
+    if (limit) {
+      const limitNum = parseInt(limit);
+      const offsetNum = parseInt(offset) || 0;
+      paginatedTournaments = tournaments.slice(offsetNum, offsetNum + limitNum);
+    }
+
+    // Format tournaments for API response
+    const formattedTournaments = paginatedTournaments.map(tournament => {
+      const tournamentObj = tournament.toObject ? tournament.toObject() : tournament;
+      const typeInfo = tournamentTypes[tournamentObj.type] || { color: 'gray', displayName: 'Unknown' };
+      
+      return {
+        id: tournamentObj._id,
+        name: tournamentObj.name,
+        type: tournamentObj.type,
+        typeDisplayName: typeInfo.displayName,
+        color: typeInfo.color,
+        startDate: tournamentObj.startDate,
+        endDate: tournamentObj.endDate,
+        venue: tournamentObj.venue,
+        city: tournamentObj.city,
+        organizer: tournamentObj.organizer,
+        personInCharge: tournamentObj.personInCharge,
+        phoneNumber: tournamentObj.phoneNumber,
+        description: tournamentObj.description,
+        registrationOpen: tournamentObj.registrationOpen !== false, // Default to true
+        months: tournamentObj.months || [],
+        createdAt: tournamentObj.createdAt,
+        updatedAt: tournamentObj.updatedAt,
+        // Status based on dates
+        status: (() => {
+          if (!tournamentObj.startDate) return 'draft';
+          const now = new Date();
+          const start = new Date(tournamentObj.startDate);
+          const end = tournamentObj.endDate ? new Date(tournamentObj.endDate) : null;
+          
+          if (start > now) return 'upcoming';
+          if (end && now > end) return 'completed';
+          return 'active';
+        })()
+      };
+    });
+
+    // Response with metadata
+    res.json({
+      success: true,
+      data: formattedTournaments,
+      meta: {
+        total: totalCount,
+        count: formattedTournaments.length,
+        offset: parseInt(offset) || 0,
+        limit: limit ? parseInt(limit) : null,
+        hasMore: limit ? (parseInt(offset) || 0) + parseInt(limit) < totalCount : false
+      },
+      filters: {
+        availableTypes: Object.keys(tournamentTypes),
+        typeDefinitions: tournamentTypes
+      }
+    });
+
+  } catch (error) {
+    console.error('Tournament API error:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to fetch tournaments',
+      message: error.message
+    });
+  }
+});
+
+// Get single tournament by ID - Public API endpoint
+app.get('/api/tournaments/:id', async (req, res) => {
+  try {
+    const tournament = await DatabaseService.getTournamentById(req.params.id);
+    
+    if (!tournament) {
+      return res.status(404).json({
+        success: false,
+        error: 'Tournament not found'
+      });
+    }
+
+    const tournamentTypes = {
+      'local': { color: 'green', displayName: 'Local Tournament' },
+      'state': { color: 'red', displayName: 'State Tournament' },
+      'national': { color: 'blue', displayName: 'National Tournament' },
+      'sarawak': { color: 'purple', displayName: 'Sarawak Tournament' },
+      'wmalaysia': { color: 'orange', displayName: 'West Malaysia Tournament' }
+    };
+
+    const tournamentObj = tournament.toObject();
+    const typeInfo = tournamentTypes[tournamentObj.type] || { color: 'gray', displayName: 'Unknown' };
+
+    // Calculate status
+    const status = (() => {
+      if (!tournamentObj.startDate) return 'draft';
+      const now = new Date();
+      const start = new Date(tournamentObj.startDate);
+      const end = tournamentObj.endDate ? new Date(tournamentObj.endDate) : null;
+      
+      if (start > now) return 'upcoming';
+      if (end && now > end) return 'completed';
+      return 'active';
+    })();
+
+    res.json({
+      success: true,
+      data: {
+        id: tournamentObj._id,
+        name: tournamentObj.name,
+        type: tournamentObj.type,
+        typeDisplayName: typeInfo.displayName,
+        color: typeInfo.color,
+        startDate: tournamentObj.startDate,
+        endDate: tournamentObj.endDate,
+        venue: tournamentObj.venue,
+        city: tournamentObj.city,
+        organizer: tournamentObj.organizer,
+        personInCharge: tournamentObj.personInCharge,
+        phoneNumber: tournamentObj.phoneNumber,
+        description: tournamentObj.description,
+        registrationOpen: tournamentObj.registrationOpen !== false,
+        months: tournamentObj.months || [],
+        status: status,
+        createdAt: tournamentObj.createdAt,
+        updatedAt: tournamentObj.updatedAt,
+        version: tournamentObj.version
+      }
+    });
+
+  } catch (error) {
+    console.error('Tournament API error:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to fetch tournament',
+      message: error.message
+    });
+  }
+});
+
+// Get upcoming tournaments - Public API endpoint
+app.get('/api/tournaments/upcoming', async (req, res) => {
+  try {
+    const { limit = 10 } = req.query;
+    const tournaments = await DatabaseService.getAllTournaments();
+    
+    const now = new Date();
+    const upcomingTournaments = tournaments
+      .filter(t => t.startDate && new Date(t.startDate) > now)
+      .sort((a, b) => new Date(a.startDate) - new Date(b.startDate))
+      .slice(0, parseInt(limit));
+
+    const tournamentTypes = {
+      'local': { color: 'green', displayName: 'Local Tournament' },
+      'state': { color: 'red', displayName: 'State Tournament' },
+      'national': { color: 'blue', displayName: 'National Tournament' },
+      'sarawak': { color: 'purple', displayName: 'Sarawak Tournament' },
+      'wmalaysia': { color: 'orange', displayName: 'West Malaysia Tournament' }
+    };
+
+    const formattedTournaments = upcomingTournaments.map(tournament => {
+      const tournamentObj = tournament.toObject();
+      const typeInfo = tournamentTypes[tournamentObj.type] || { color: 'gray', displayName: 'Unknown' };
+      
+      return {
+        id: tournamentObj._id,
+        name: tournamentObj.name,
+        type: tournamentObj.type,
+        typeDisplayName: typeInfo.displayName,
+        color: typeInfo.color,
+        startDate: tournamentObj.startDate,
+        endDate: tournamentObj.endDate,
+        venue: tournamentObj.venue,
+        city: tournamentObj.city,
+        organizer: tournamentObj.organizer,
+        registrationOpen: tournamentObj.registrationOpen !== false,
+        status: 'upcoming'
+      };
+    });
+
+    res.json({
+      success: true,
+      data: formattedTournaments,
+      meta: {
+        total: formattedTournaments.length,
+        limit: parseInt(limit)
+      }
+    });
+
+  } catch (error) {
+    console.error('Upcoming tournaments API error:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to fetch upcoming tournaments',
+      message: error.message
+    });
+  }
+});
+
 // API endpoint to check for conflicts before updates
 app.get('/api/admin/check-conflicts/:type/:id', adminAuth, async (req, res) => {
   try {
