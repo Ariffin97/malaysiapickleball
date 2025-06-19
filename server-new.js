@@ -40,12 +40,18 @@ const allowedOrigins = process.env.ALLOWED_ORIGINS ?
 
 app.use(cors({
   origin: function (origin, callback) {
-    // Allow requests with no origin (mobile apps, curl, Postman)
-    if (!origin) return callback(null, true);
+    console.log('🌐 CORS Check - Origin:', origin);
+    
+    // Allow requests with no origin (mobile apps, curl, Postman, same-origin requests)
+    if (!origin) {
+      console.log('✅ CORS Allow - No origin (same-origin request)');
+      return callback(null, true);
+    }
     
     // Development - allow localhost and common dev ports
     if (process.env.NODE_ENV === 'development') {
       if (origin.includes('localhost') || origin.includes('127.0.0.1')) {
+        console.log('✅ CORS Allow - Development localhost');
         return callback(null, true);
       }
     }
@@ -58,24 +64,22 @@ app.use(cors({
       'malaysiapickleball.my'
     ];
     
+    console.log('🔍 CORS Check - Request host:', requestHost, 'Allowed hosts:', allowedHosts);
+    
     if (allowedHosts.includes(requestHost)) {
+      console.log('✅ CORS Allow - Matched allowed host');
       return callback(null, true);
     }
     
     // Check allowed origins from environment
     if (allowedOrigins.includes(origin)) {
+      console.log('✅ CORS Allow - Matched environment origin');
       return callback(null, true);
     }
     
-    // For production, log the failed origin for debugging but allow temporarily
-    if (process.env.NODE_ENV === 'production') {
-      console.log('🚨 CORS would block origin:', origin);
-      console.log('📋 Allowed origins:', allowedOrigins);
-      // Temporarily allow all origins for debugging
-      return callback(null, true);
-    }
-    
-    // Development fallback - allow all (temporary)
+    // For production, log and allow all origins temporarily for debugging
+    console.log('⚠️ CORS Unknown origin - allowing temporarily:', origin);
+    console.log('📋 Environment allowed origins:', allowedOrigins);
     return callback(null, true);
   },
   credentials: true,
@@ -447,6 +451,13 @@ app.post('/login', [
   body('password').notEmpty().isLength({ min: 6 })
 ], async (req, res) => {
   console.log('🔍 Login attempt started');
+  console.log('🔍 Request headers:', {
+    origin: req.headers.origin,
+    referer: req.headers.referer,
+    host: req.headers.host,
+    'user-agent': req.headers['user-agent']?.substring(0, 50) + '...',
+    'content-type': req.headers['content-type']
+  });
   
   try {
     const errors = validationResult(req);

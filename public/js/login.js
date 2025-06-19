@@ -149,10 +149,9 @@ document.addEventListener('DOMContentLoaded', function() {
   // Form submission with enhanced security
   if (loginForm) {
     loginForm.addEventListener('submit', function(e) {
-      e.preventDefault();
-
-      // Check lockout again
+      // Check lockout first
       if (checkLockout()) {
+        e.preventDefault();
         return;
       }
 
@@ -161,35 +160,31 @@ document.addEventListener('DOMContentLoaded', function() {
       const passwordValid = validateInput(passwordInput);
 
       if (!usernameValid || !passwordValid) {
+        e.preventDefault();
         showError('Please correct the errors above');
         return;
       }
 
-      // Show loading state
-      setLoadingState(true);
-
       // Security: Rate limiting check
       const now = Date.now();
       if (now - lastAttemptTime < 1000) { // Prevent rapid submissions
-        setLoadingState(false);
+        e.preventDefault();
         showError('Please wait a moment before trying again');
         return;
       }
 
-             // Update attempt tracking
-       lastAttemptTime = now;
-       localStorage.setItem('lastAttemptTime', now.toString());
+      // Update attempt tracking
+      lastAttemptTime = now;
+      localStorage.setItem('lastAttemptTime', now.toString());
 
-       // Show loading state for user feedback
-       setTimeout(() => {
-         setLoadingState(false);
-         // Reset attempts on successful validation
-         loginAttempts = 0;
-         localStorage.setItem('loginAttempts', '0');
-         
-         // Submit form traditionally
-         loginForm.submit();
-       }, 800); // Give user visual feedback
+      // Show loading state but allow form to submit naturally
+      setLoadingState(true);
+      
+      // Reset attempts on successful validation
+      loginAttempts = 0;
+      localStorage.setItem('loginAttempts', '0');
+      
+      // Let the form submit naturally - don't prevent default
     });
   }
 
