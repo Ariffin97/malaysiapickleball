@@ -154,6 +154,19 @@ class DatabaseService {
     }
   }
 
+  static async updatePlayerLastLogin(id) {
+    try {
+      return await Player.findByIdAndUpdate(
+        id,
+        { lastLogin: new Date() },
+        { new: true }
+      );
+    } catch (error) {
+      console.error('Error updating player last login:', error);
+      throw error;
+    }
+  }
+
   static async deletePlayer(id) {
     try {
       return await Player.findByIdAndDelete(id);

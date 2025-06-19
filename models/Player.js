@@ -65,6 +65,10 @@ const playerSchema = new mongoose.Schema({
     type: Date,
     default: Date.now
   },
+  lastLogin: {
+    type: Date,
+    required: false
+  },
   tournaments: [{
     tournamentId: {
       type: mongoose.Schema.Types.ObjectId,
