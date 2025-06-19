@@ -84,10 +84,14 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
 app.use(session({
-  secret: 'pickleball_secret',
+  secret: process.env.SESSION_SECRET || 'change_this_in_production_immediately',
   resave: false,
   saveUninitialized: false,
-  cookie: { secure: false } // Set to true in production with HTTPS
+  cookie: { 
+    secure: process.env.NODE_ENV === 'production', // HTTPS only in production
+    httpOnly: true,
+    maxAge: 2 * 60 * 60 * 1000 // 2 hours
+  }
 }));
 
 // Enhanced admin authentication middleware

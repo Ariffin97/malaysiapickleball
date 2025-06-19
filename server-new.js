@@ -33,80 +33,98 @@ const tournamentTypes = {
 
 // Middleware
 
-// CORS Configuration for external website access
+// Enhanced CORS Configuration
+const allowedOrigins = process.env.ALLOWED_ORIGINS ? 
+  process.env.ALLOWED_ORIGINS.split(',') : 
+  ['http://localhost:3000', 'http://localhost:3001'];
+
 app.use(cors({
   origin: function (origin, callback) {
-    // Allow requests with no origin (like mobile apps or curl requests)
+    // Allow requests with no origin (mobile apps, curl, Postman)
     if (!origin) return callback(null, true);
     
-    // For development, allow localhost
-    if (origin.includes('localhost') || origin.includes('127.0.0.1')) {
-      return callback(null, true);
-    }
-    
-    // Add your allowed domains here (replace with your actual domains)
-    const allowedOrigins = [
-      'https://your-website.com',
-      'https://www.your-website.com',
-      'https://your-other-site.netlify.app',
-      'https://your-github-pages.github.io'
-      // Add more domains as needed
-    ];
-    
-    // For development/testing, you can allow all origins (NOT recommended for production)
+    // Development - allow localhost and common dev ports
     if (process.env.NODE_ENV === 'development') {
-      return callback(null, true);
+      if (origin.includes('localhost') || origin.includes('127.0.0.1')) {
+        return callback(null, true);
+      }
     }
     
+    // Check allowed origins from environment
     if (allowedOrigins.includes(origin)) {
       return callback(null, true);
     }
     
-    // Allow same-origin requests (no origin header) for regular web forms
-    if (!origin) {
-      return callback(null, true);
+    // Production - strict origin checking
+    if (process.env.NODE_ENV === 'production') {
+      return callback(new Error('Not allowed by CORS'));
     }
     
-    // Allow our domain with different protocols/subdomains
-    if (origin && (origin.includes('malaysiapickleball.my') || origin.includes('localhost'))) {
-      return callback(null, true);
-    }
-    
-    // Temporarily allow all for troubleshooting
+    // Development fallback - allow all (temporary)
     return callback(null, true);
-    
-    // return callback(new Error('Not allowed by CORS'));
   },
-  credentials: true, // Enable credentials for API and session support
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With']
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'X-API-Key'],
+  exposedHeaders: ['X-Total-Count', 'X-Page-Count']
 }));
 
-// Completely disable ALL security headers for troubleshooting
-app.use((req, res, next) => {
-  // Remove ALL security headers
-  res.removeHeader('Content-Security-Policy');
-  res.removeHeader('Content-Security-Policy-Report-Only');
-  res.removeHeader('X-Frame-Options');
-  res.removeHeader('X-Content-Type-Options');
-  res.removeHeader('X-DNS-Prefetch-Control');
-  res.removeHeader('Strict-Transport-Security');
-  res.removeHeader('X-Download-Options');
-  res.removeHeader('X-Permitted-Cross-Domain-Policies');
-  res.removeHeader('Referrer-Policy');
-  next();
-});
+// Proper security headers with helmet
+app.use(helmet({
+  contentSecurityPolicy: {
+    directives: {
+      defaultSrc: ["'self'"],
+      scriptSrc: ["'self'", "'unsafe-inline'"],
+      styleSrc: ["'self'", "'unsafe-inline'", "https://cdn.jsdelivr.net", "https://cdnjs.cloudflare.com"],
+      fontSrc: ["'self'", "https://cdnjs.cloudflare.com", "data:"],
+      imgSrc: ["'self'", "data:", "https:"],
+      connectSrc: ["'self'"],
+      objectSrc: ["'none'"],
+      mediaSrc: ["'self'"],
+      frameSrc: [
+        "'self'",
+        "https://www.youtube.com",
+        "https://youtube.com",
+        "https://player.vimeo.com"
+      ]
+    }
+  },
+  crossOriginEmbedderPolicy: false
+}));
 
-// Don't use helmet at all for now
-// app.use(helmet({
-//   contentSecurityPolicy: false,
-//   crossOriginEmbedderPolicy: false
-// }));
+// Enhanced middleware configuration
+const morgan = require('morgan');
 
-app.use(express.urlencoded({ extended: true }));
-app.use(express.json());
-app.use(fileUpload());
+// Logging middleware
+if (process.env.NODE_ENV === 'development') {
+  app.use(morgan('dev'));
+} else {
+  app.use(morgan('combined'));
+}
+
+// Body parsing middleware
+app.use(express.urlencoded({ extended: true, limit: '10mb' }));
+app.use(express.json({ limit: '10mb' }));
+
+// File upload middleware with enhanced options
+app.use(fileUpload({
+  limits: { 
+    fileSize: parseInt(process.env.MAX_FILE_SIZE) || 5 * 1024 * 1024, // 5MB
+    files: 5 // Maximum 5 files per request
+  },
+  abortOnLimit: true,
+  responseOnLimit: 'File size limit exceeded',
+  useTempFiles: true,
+  tempFileDir: process.env.UPLOAD_PATH || './public/uploads/temp',
+  safeFileNames: true,
+  preserveExtension: true,
+  createParentPath: true
+}));
+
+// Static files middleware
 app.use(express.static(path.join(__dirname, 'public')));
+
+// View engine configuration
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
 
@@ -115,7 +133,7 @@ app.use(session({
   resave: false,
   saveUninitialized: false,
   cookie: { 
-    secure: false, // Temporarily disable for debugging
+    secure: process.env.NODE_ENV === 'production', // Enable secure cookies in production
     httpOnly: true,
     maxAge: parseInt(process.env.SESSION_TIMEOUT) || 7200000 // 2 hours
   }
@@ -200,6 +218,43 @@ const playerAuth = async (req, res, next) => {
     });
   }
 };
+
+// Import and use API routes
+const apiRoutes = require('./routes/api');
+const mobileRoutes = require('./routes/mobile');
+
+app.use('/api', apiRoutes);
+app.use('/api/mobile', mobileRoutes);
+
+// Error handling middleware
+app.use((err, req, res, next) => {
+  console.error('Error:', err);
+  
+  // File upload error
+  if (err.code === 'LIMIT_FILE_SIZE') {
+    return res.status(413).json({
+      success: false,
+      message: 'File size too large',
+      errorCode: 'FILE_TOO_LARGE'
+    });
+  }
+  
+  // CORS error
+  if (err.message === 'Not allowed by CORS') {
+    return res.status(403).json({
+      success: false,
+      message: 'CORS policy violation',
+      errorCode: 'CORS_ERROR'
+    });
+  }
+  
+  // Default error
+  res.status(500).json({
+    success: false,
+    message: process.env.NODE_ENV === 'development' ? err.message : 'Internal server error',
+    errorCode: 'INTERNAL_ERROR'
+  });
+});
 
 // Routes
 app.get('/', async (req, res) => {

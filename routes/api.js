@@ -7,6 +7,11 @@ const Player = require('../models/Player');
 const Admin = require('../models/Admin');
 const PlayerRegistration = require('../models/PlayerRegistration');
 
+// Import utilities and middleware
+const JWTUtil = require('../utils/jwt');
+const APIResponse = require('../utils/apiResponse');
+const { authRateLimiter, apiRateLimiter, mobileRateLimiter } = require('../middleware/rateLimiter');
+
 // Rate limiting for API endpoints
 const rateLimit = new Map();
 const RATE_LIMIT_WINDOW = 15 * 60 * 1000; // 15 minutes
@@ -40,74 +45,153 @@ const checkApiRateLimit = (req, res, next) => {
   next();
 };
 
-// API Authentication middleware
-const apiAuth = async (req, res, next) => {
-  const token = req.headers.authorization?.replace('Bearer ', '');
-  
-  if (!token) {
-    return res.status(401).json({
-      success: false,
-      message: 'Authentication token required'
-    });
+// Enhanced Authentication middleware that supports both session and JWT
+const hybridAuth = async (req, res, next) => {
+  // Try JWT first (for mobile apps)
+  const authHeader = req.headers.authorization;
+  if (authHeader) {
+    try {
+      const token = JWTUtil.extractTokenFromHeader(authHeader);
+      if (token) {
+        const decoded = JWTUtil.verifyToken(token);
+        req.user = decoded;
+        req.authType = 'jwt';
+        return next();
+      }
+    } catch (error) {
+      // JWT failed, try session auth
+    }
   }
   
-  // For session-based auth, check if user is logged in
-  if (req.session?.isAuthenticated || req.session?.isPlayerAuthenticated) {
+  // Fall back to session auth (for web)
+  if (req.session?.isPlayerAuthenticated || req.session?.isAuthenticated) {
+    req.user = {
+      id: req.session.playerId || req.session.adminId,
+      type: req.session.isAuthenticated ? 'admin' : 'player',
+      username: req.session.username || req.session.playerUsername
+    };
+    req.authType = 'session';
     return next();
   }
   
-  return res.status(401).json({
-    success: false,
-    message: 'Invalid or expired token'
+  return APIResponse.unauthorized(res, 'Authentication required');
+};
+
+// Player-only authentication
+const playerAuth = async (req, res, next) => {
+  await hybridAuth(req, res, () => {
+    if (req.user.type !== 'player' && !req.session?.isPlayerAuthenticated) {
+      return APIResponse.forbidden(res, 'Player authentication required');
+    }
+    next();
   });
 };
 
-// Admin API Authentication
-const adminApiAuth = async (req, res, next) => {
-  if (!req.session?.isAuthenticated || !req.session?.adminId) {
-    return res.status(401).json({
-      success: false,
-      message: 'Admin authentication required'
-    });
-  }
-  
-  try {
-    const admin = await DatabaseService.getAdminByUsername(req.session.username);
-    if (!admin || !admin.isActive) {
-      return res.status(401).json({
-        success: false,
-        message: 'Unauthorized admin access'
-      });
+// Admin-only authentication  
+const adminAuth = async (req, res, next) => {
+  await hybridAuth(req, res, async () => {
+    if (req.user.type !== 'admin' && !req.session?.isAuthenticated) {
+      return APIResponse.forbidden(res, 'Admin authentication required');
     }
     
-    req.admin = admin;
-    next();
-  } catch (error) {
-    console.error('Admin API auth error:', error);
-    res.status(500).json({
-      success: false,
-      message: 'Authentication error'
-    });
-  }
+    try {
+      const admin = await DatabaseService.getAdminByUsername(req.user.username);
+      if (!admin || !admin.isActive) {
+        return APIResponse.unauthorized(res, 'Unauthorized admin access');
+      }
+      req.admin = admin;
+      next();
+    } catch (error) {
+      console.error('Admin auth error:', error);
+      return APIResponse.error(res, 'Authentication error', 500);
+    }
+  });
 };
 
 // =============================================================================
 // AUTHENTICATION APIs
 // =============================================================================
 
-// Admin Login API
-router.post('/admin/login', checkApiRateLimit, [
+// Enhanced Player Login API with JWT support
+router.post('/auth/player/login', authRateLimiter, [
   body('username').isLength({ min: 3 }).trim().escape(),
   body('password').isLength({ min: 6 })
 ], async (req, res) => {
   try {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      return res.status(400).json({
-        success: false,
-        message: 'Validation failed',
-        errors: errors.array()
-      });
+      return APIResponse.validationError(res, errors.array());
+    }
+
+    const { username, password } = req.body;
+    
+    // Get player from database
+    const player = await DatabaseService.getPlayerByUsername(username);
+    
+    if (!player) {
+      return APIResponse.unauthorized(res, 'Invalid username or password');
+    }
+
+    // Check if account is active
+    if (player.status !== 'active') {
+      return APIResponse.forbidden(res, 'Account is not active. Please contact admin.');
+    }
+
+    // Verify password
+    const isValidPassword = await player.comparePassword(password);
+    
+    if (!isValidPassword) {
+      return APIResponse.unauthorized(res, 'Invalid username or password');
+    }
+
+    // Generate JWT tokens for mobile
+    const tokenPayload = {
+      id: player._id,
+      playerId: player.playerId,
+      username: player.username,
+      type: 'player'
+    };
+    
+    const tokens = JWTUtil.generateTokens(tokenPayload);
+
+    // Also create session for web compatibility
+    req.session.isPlayerAuthenticated = true;
+    req.session.playerId = player._id;
+    req.session.playerUsername = player.username;
+    req.session.playerLoginTime = Date.now();
+
+    // Update last login
+    await DatabaseService.updatePlayerLastLogin(player._id);
+
+    return APIResponse.success(res, {
+      player: {
+        id: player._id,
+        playerId: player.playerId,
+        username: player.username,
+        fullName: player.fullName,
+        email: player.email,
+        status: player.status,
+        profilePicture: player.profilePicture
+      },
+      tokens,
+      sessionId: req.sessionID
+    }, 'Login successful');
+
+  } catch (error) {
+    console.error('Player login API error:', error);
+    return APIResponse.error(res, 'Login failed', 500);
+  }
+});
+
+// Enhanced Admin Login API
+router.post('/auth/admin/login', authRateLimiter, [
+  body('username').isLength({ min: 3 }).trim().escape(),
+  body('password').isLength({ min: 6 })
+], async (req, res) => {
+  try {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return APIResponse.validationError(res, errors.array());
     }
 
     const { username, password } = req.body;
@@ -116,18 +200,12 @@ router.post('/admin/login', checkApiRateLimit, [
     const admin = await DatabaseService.getAdminByUsername(username);
     
     if (!admin) {
-      return res.status(401).json({
-        success: false,
-        message: 'Invalid username or password'
-      });
+      return APIResponse.unauthorized(res, 'Invalid username or password');
     }
 
     // Check if account is locked
     if (admin.isLocked && admin.isLocked()) {
-      return res.status(423).json({
-        success: false,
-        message: 'Account temporarily locked due to multiple failed attempts'
-      });
+      return APIResponse.forbidden(res, 'Account temporarily locked due to multiple failed attempts');
     }
 
     // Verify password
@@ -136,11 +214,7 @@ router.post('/admin/login', checkApiRateLimit, [
     if (!isValidPassword) {
       // Increment login attempts
       await admin.incLoginAttempts();
-      
-      return res.status(401).json({
-        success: false,
-        message: 'Invalid username or password'
-      });
+      return APIResponse.unauthorized(res, 'Invalid username or password');
     }
 
     // Reset login attempts on successful login
@@ -148,8 +222,15 @@ router.post('/admin/login', checkApiRateLimit, [
       await admin.resetLoginAttempts();
     }
 
-    // Update last login
-    await DatabaseService.updateAdminLastLogin(admin._id);
+    // Generate JWT tokens
+    const tokenPayload = {
+      id: admin._id,
+      username: admin.username,
+      role: admin.role,
+      type: 'admin'
+    };
+    
+    const tokens = JWTUtil.generateTokens(tokenPayload);
 
     // Create session
     req.session.isAuthenticated = true;
@@ -159,119 +240,72 @@ router.post('/admin/login', checkApiRateLimit, [
     req.session.loginTime = Date.now();
     req.session.userAgent = req.get('User-Agent');
 
-    res.json({
-      success: true,
-      message: 'Login successful',
-      data: {
-        admin: {
-          id: admin._id,
-          username: admin.username,
-          fullName: admin.fullName,
-          role: admin.role,
-          permissions: admin.permissions
-        }
-      }
-    });
+    // Update last login
+    await DatabaseService.updateAdminLastLogin(admin._id);
+
+    return APIResponse.success(res, {
+      admin: {
+        id: admin._id,
+        username: admin.username,
+        fullName: admin.fullName,
+        role: admin.role,
+        permissions: admin.permissions
+      },
+      tokens,
+      sessionId: req.sessionID
+    }, 'Login successful');
 
   } catch (error) {
     console.error('Admin login API error:', error);
-    res.status(500).json({
-      success: false,
-      message: 'Internal server error'
-    });
+    return APIResponse.error(res, 'Login failed', 500);
   }
 });
 
-// Player Login API
-router.post('/player/login', checkApiRateLimit, [
-  body('username').isLength({ min: 3 }).trim().escape(),
-  body('password').isLength({ min: 6 })
-], async (req, res) => {
+// Token refresh endpoint
+router.post('/auth/refresh', apiRateLimiter, async (req, res) => {
   try {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-      return res.status(400).json({
-        success: false,
-        message: 'Validation failed',
-        errors: errors.array()
-      });
-    }
-
-    const { username, password } = req.body;
+    const { refreshToken } = req.body;
     
-    // Get player from database
-    const player = await DatabaseService.getPlayerByUsername(username);
+    if (!refreshToken) {
+      return APIResponse.unauthorized(res, 'Refresh token required');
+    }
+
+    const decoded = JWTUtil.verifyToken(refreshToken);
     
-    if (!player) {
-      return res.status(401).json({
-        success: false,
-        message: 'Invalid username or password'
-      });
-    }
-
-    // Check if player account is active
-    if (player.status !== 'active') {
-      return res.status(403).json({
-        success: false,
-        message: 'Account is not active. Please contact administrator.'
-      });
-    }
-
-    // Verify password
-    const isValidPassword = await player.comparePassword(password);
+    // Generate new tokens
+    const tokenPayload = {
+      id: decoded.id,
+      username: decoded.username,
+      type: decoded.type,
+      ...(decoded.playerId && { playerId: decoded.playerId }),
+      ...(decoded.role && { role: decoded.role })
+    };
     
-    if (!isValidPassword) {
-      return res.status(401).json({
-        success: false,
-        message: 'Invalid username or password'
-      });
-    }
+    const tokens = JWTUtil.generateTokens(tokenPayload);
 
-    // Create session
-    req.session.isPlayerAuthenticated = true;
-    req.session.playerId = player._id;
-    req.session.playerUsername = player.username;
-    req.session.playerLoginTime = Date.now();
+    return APIResponse.success(res, { tokens }, 'Tokens refreshed successfully');
 
-    res.json({
-      success: true,
-      message: 'Player login successful',
-      data: {
-        player: {
-          id: player._id,
-          playerId: player.playerId,
-          username: player.username,
-          fullName: player.fullName,
-          email: player.email,
-          status: player.status
-        }
+  } catch (error) {
+    console.error('Token refresh error:', error);
+    return APIResponse.unauthorized(res, 'Invalid refresh token');
+  }
+});
+
+// Logout endpoint
+router.post('/auth/logout', hybridAuth, (req, res) => {
+  try {
+    // Destroy session if exists
+    req.session.destroy((err) => {
+      if (err) {
+        console.error('Session destruction error:', err);
       }
     });
 
+    return APIResponse.success(res, null, 'Logout successful');
   } catch (error) {
-    console.error('Player login API error:', error);
-    res.status(500).json({
-      success: false,
-      message: 'Internal server error'
-    });
+    console.error('Logout error:', error);
+    return APIResponse.error(res, 'Logout failed', 500);
   }
-});
-
-// Logout API (works for both admin and player)
-router.post('/logout', (req, res) => {
-  req.session.destroy((err) => {
-    if (err) {
-      return res.status(500).json({
-        success: false,
-        message: 'Logout failed'
-      });
-    }
-    
-    res.json({
-      success: true,
-      message: 'Logout successful'
-    });
-  });
 });
 
 // =============================================================================
@@ -366,7 +400,7 @@ router.post('/player/register', checkApiRateLimit, [
 // =============================================================================
 
 // Get Pending Registrations API
-router.get('/admin/registrations/pending', adminApiAuth, async (req, res) => {
+router.get('/admin/registrations/pending', adminAuth, async (req, res) => {
   try {
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 10;
@@ -401,7 +435,7 @@ router.get('/admin/registrations/pending', adminApiAuth, async (req, res) => {
 });
 
 // Approve Registration API
-router.post('/admin/registrations/:id/approve', adminApiAuth, async (req, res) => {
+router.post('/admin/registrations/:id/approve', adminAuth, async (req, res) => {
   try {
     const { id } = req.params;
     const { notes } = req.body;
@@ -434,7 +468,7 @@ router.post('/admin/registrations/:id/approve', adminApiAuth, async (req, res) =
 });
 
 // Reject Registration API
-router.post('/admin/registrations/:id/reject', adminApiAuth, [
+router.post('/admin/registrations/:id/reject', adminAuth, [
   body('notes').isLength({ min: 10 }).withMessage('Rejection reason must be at least 10 characters')
 ], async (req, res) => {
   try {
@@ -530,7 +564,7 @@ router.get('/player/profile', async (req, res) => {
 });
 
 // Get Current Admin Profile
-router.get('/admin/profile', adminApiAuth, async (req, res) => {
+router.get('/admin/profile', adminAuth, async (req, res) => {
   try {
     const adminData = {
       id: req.admin._id,
@@ -557,7 +591,7 @@ router.get('/admin/profile', adminApiAuth, async (req, res) => {
 });
 
 // Get All Players (Admin Only)
-router.get('/admin/players', adminApiAuth, async (req, res) => {
+router.get('/admin/players', adminAuth, async (req, res) => {
   try {
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 20;
@@ -839,84 +873,73 @@ router.get('/mobile/player/tournaments', async (req, res) => {
 });
 
 // =============================================================================
-// PROFILE PICTURE UPLOAD APIS
+// PROFILE PICTURE APIS (Enhanced)
 // =============================================================================
 
-// Upload/Update Player Profile Picture
-router.post('/player/profile/picture', checkApiRateLimit, async (req, res) => {
-  if (!req.session?.isPlayerAuthenticated || !req.session?.playerId) {
-    return res.status(401).json({
-      success: false,
-      message: 'Player authentication required'
-    });
-  }
-
+// Upload/Update Player Profile Picture (Enhanced)
+router.post('/player/profile/picture', playerAuth, async (req, res) => {
   try {
     // Check if file was uploaded
     if (!req.files || !req.files.profilePicture) {
-      return res.status(400).json({
-        success: false,
-        message: 'Profile picture file is required'
-      });
+      return APIResponse.validationError(res, [{ msg: 'Profile picture file is required' }]);
     }
 
     const profilePicture = req.files.profilePicture;
     
     // Validate file type
-    const allowedMimeTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif'];
+    const allowedMimeTypes = process.env.ALLOWED_FILE_TYPES?.split(',') || 
+      ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
+    
     if (!allowedMimeTypes.includes(profilePicture.mimetype)) {
-      return res.status(400).json({
-        success: false,
-        message: 'Invalid file type. Only JPEG, PNG, and GIF are allowed'
-      });
+      return APIResponse.validationError(res, [{ 
+        msg: 'Invalid file type. Only JPEG, PNG, GIF, and WebP are allowed' 
+      }]);
     }
 
-    // Validate file size (5MB max)
-    const maxSize = 5 * 1024 * 1024; // 5MB
+    // Validate file size
+    const maxSize = parseInt(process.env.MAX_FILE_SIZE) || 5 * 1024 * 1024; // 5MB
     if (profilePicture.size > maxSize) {
-      return res.status(400).json({
-        success: false,
-        message: 'File size too large. Maximum 5MB allowed'
-      });
+      return APIResponse.validationError(res, [{ 
+        msg: `File size too large. Maximum ${Math.round(maxSize / 1024 / 1024)}MB allowed` 
+      }]);
     }
 
     // Generate unique filename
     const fileExtension = profilePicture.name.split('.').pop();
-    const fileName = `profile_${req.session.playerId}_${Date.now()}.${fileExtension}`;
-    const uploadPath = `public/images/profiles/${fileName}`;
-
-    // Create profiles directory if it doesn't exist
+    const userId = req.user.id;
+    const fileName = `profile_${userId}_${Date.now()}.${fileExtension}`;
+    
+    // Create upload directory if it doesn't exist
     const fs = require('fs');
     const path = require('path');
-    const profilesDir = path.join(__dirname, '..', 'public', 'images', 'profiles');
+    const uploadPath = process.env.UPLOAD_PATH || './public/uploads';
+    const profilesDir = path.join(__dirname, '..', uploadPath, 'profiles');
     
     if (!fs.existsSync(profilesDir)) {
       fs.mkdirSync(profilesDir, { recursive: true });
     }
 
+    const filePath = path.join(profilesDir, fileName);
+
     // Move file to upload directory
-    await profilePicture.mv(path.join(__dirname, '..', uploadPath));
+    await profilePicture.mv(filePath);
 
     // Update player profile picture in database
-    const profilePictureUrl = `/images/profiles/${fileName}`;
-    await Player.findByIdAndUpdate(req.session.playerId, {
+    const profilePictureUrl = `/uploads/profiles/${fileName}`;
+    await Player.findByIdAndUpdate(userId, {
       profilePicture: profilePictureUrl
     });
 
-    res.json({
-      success: true,
-      message: 'Profile picture updated successfully',
-      data: {
-        profilePicture: profilePictureUrl
-      }
-    });
+    return APIResponse.success(res, {
+      profilePicture: profilePictureUrl,
+      fileName: fileName,
+      size: profilePicture.size,
+      type: profilePicture.mimetype
+    }, 'Profile picture updated successfully');
 
   } catch (error) {
     console.error('Profile picture upload API error:', error);
-    res.status(500).json({
-      success: false,
-      message: 'Failed to upload profile picture'
-    });
+    return APIResponse.error(res, 'Failed to upload profile picture', 500);
   }
 });
 
