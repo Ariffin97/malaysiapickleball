@@ -206,7 +206,7 @@
               <a href="/player/inbox" class="bg-gray-600 text-white px-6 py-3 rounded-lg hover:bg-gray-700 transition-colors">
                 <i class="fas fa-list mr-2"></i>Back to Inbox
               </a>
-              <button onclick="window.print()" class="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors">
+              <button id="printMessageBtn" class="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors">
                 <i class="fas fa-print mr-2"></i>Print Message
               </button>
             </div>
@@ -221,6 +221,17 @@
   <%- include('../../partials/footer') %>
   <script src="/js/script.js"></script>
   <script>
+    // Event listeners for message functionality
+    document.addEventListener('DOMContentLoaded', function() {
+      // Print button functionality
+      const printBtn = document.getElementById('printMessageBtn');
+      if (printBtn) {
+        printBtn.addEventListener('click', function() {
+          window.print();
+        });
+      }
+    });
+
     // Mark message as read when page loads (if not already read)
     <% if (!message.isRead) { %>
       fetch('/player/message/<%= message._id %>/mark-read', {

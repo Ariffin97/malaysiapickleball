@@ -57,10 +57,14 @@
             </div>
           </div>
           <div class="text-center">
-            <div class="stat-card rounded-xl p-6 shadow-lg">
+            <div class="stat-card rounded-xl p-6 shadow-lg mb-4">
               <div class="text-2xl font-bold mb-1"><%= player.ranking?.points || 0 %></div>
               <div class="text-sm opacity-90">Ranking Points</div>
             </div>
+            <!-- Logout Button -->
+            <button id="logoutBtn" class="bg-red-600 text-white px-6 py-2 rounded-lg hover:bg-red-700 transition-colors font-semibold">
+              <i class="fas fa-sign-out-alt mr-2"></i>Logout
+            </button>
           </div>
         </div>
       </div>
@@ -126,7 +130,7 @@
             <p class="text-sm opacity-90">Check your position</p>
           </div>
 
-          <div class="action-card bg-gradient-to-br from-orange-500 to-orange-600 rounded-xl p-6 text-black text-center shadow-lg" onclick="window.location.href='/player/inbox'">
+          <div class="action-card bg-gradient-to-br from-orange-500 to-orange-600 rounded-xl p-6 text-black text-center shadow-lg" data-action="inbox">
             <i class="fas fa-envelope text-3xl mb-4"></i>
             <h3 class="font-bold mb-2">Inbox</h3>
             <p class="text-sm opacity-90">
@@ -223,8 +227,43 @@
     document.querySelectorAll('.action-card').forEach(card => {
       card.addEventListener('click', function() {
         const title = this.querySelector('h3').textContent;
-        alert(`${title} feature coming soon!`);
+        const action = this.getAttribute('data-action');
+        
+        // Handle specific actions
+        if (title.includes('Update Profile')) {
+          // Navigate to profile edit page or open modal
+          window.location.href = '/player/profile/edit';
+        } else if (title.includes('Register for Tournament')) {
+          // Navigate to tournaments page
+          window.location.href = '/tournament';
+        } else if (title.includes('View Rankings')) {
+          // Navigate to rankings page
+          window.location.href = '/services/ranking';
+        } else if (action === 'inbox' || title.includes('Inbox')) {
+          // Navigate to inbox
+          window.location.href = '/player/inbox';
+        } else if (action === 'logout' || title.includes('Logout')) {
+          // Handle logout with confirmation
+          if (confirm('Are you sure you want to logout?')) {
+            window.location.href = '/logout';
+          }
+        } else {
+          // For other features, show coming soon (if any)
+          alert(`${title} feature coming soon!`);
+        }
       });
+    });
+
+    // Logout button functionality
+    document.addEventListener('DOMContentLoaded', function() {
+      const logoutBtn = document.getElementById('logoutBtn');
+      if (logoutBtn) {
+        logoutBtn.addEventListener('click', function() {
+          if (confirm('Are you sure you want to logout?')) {
+            window.location.href = '/logout';
+          }
+        });
+      }
     });
   </script>
 </body>

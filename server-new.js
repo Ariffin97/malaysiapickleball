@@ -1139,6 +1139,93 @@ app.post('/player/message/:id/mark-read', playerAuth, async (req, res) => {
   }
 });
 
+// Player profile update route
+app.post('/player/update-profile', playerAuth, async (req, res) => {
+  try {
+    const { fullName, age, address, phoneNumber, email } = req.body;
+    
+    // Validate required fields
+    if (!fullName || !age || !address || !phoneNumber || !email) {
+      return res.json({ success: false, message: 'All fields are required' });
+    }
+    
+    // Validate age
+    const numAge = parseInt(age);
+    if (isNaN(numAge) || numAge < 12 || numAge > 100) {
+      return res.json({ success: false, message: 'Age must be between 12 and 100' });
+    }
+    
+    // Validate email format
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      return res.json({ success: false, message: 'Please enter a valid email address' });
+    }
+    
+    const player = await DatabaseService.getPlayerById(req.session.playerId);
+    if (!player) {
+      return res.json({ success: false, message: 'Player not found' });
+    }
+    
+    // Update player profile
+    const updateData = {
+      fullName: fullName.trim(),
+      age: numAge,
+      address: address.trim(),
+      phoneNumber: phoneNumber.trim(),
+      email: email.trim().toLowerCase()
+    };
+    
+    // Handle profile picture upload if provided
+    if (req.files && req.files.profilePicture) {
+      const file = req.files.profilePicture;
+      
+      // Validate file type
+      const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif'];
+      if (!allowedTypes.includes(file.mimetype)) {
+        return res.json({ success: false, message: 'Only JPEG, PNG and GIF images are allowed' });
+      }
+      
+      // Validate file size (5MB limit)
+      if (file.size > 5 * 1024 * 1024) {
+        return res.json({ success: false, message: 'Image size must be less than 5MB' });
+      }
+      
+      const fileName = `profile_${Date.now()}_${file.name}`;
+      const uploadPath = path.join(__dirname, 'public/uploads', fileName);
+      
+      // Create uploads directory if it doesn't exist
+      const fs = require('fs');
+      const uploadDir = path.dirname(uploadPath);
+      if (!fs.existsSync(uploadDir)) {
+        fs.mkdirSync(uploadDir, { recursive: true });
+      }
+      
+      await file.mv(uploadPath);
+      updateData.profilePicture = `/uploads/${fileName}`;
+    }
+    
+    await DatabaseService.updatePlayer(req.session.playerId, updateData);
+    
+    res.json({ success: true, message: 'Profile updated successfully!' });
+  } catch (error) {
+    console.error('Player profile update error:', error);
+    res.json({ success: false, message: 'Failed to update profile. Please try again.' });
+  }
+});
+
+// Player logout route
+app.post('/player/logout', (req, res) => {
+  req.session.destroy(() => {
+    res.redirect('/');
+  });
+});
+
+app.get('/logout', (req, res) => {
+  req.session.destroy(() => {
+    res.redirect('/');
+  });
+});
+
 // Admin message routes
 app.get('/admin/messages', adminAuth, async (req, res) => {
   try {

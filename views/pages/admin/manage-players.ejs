@@ -58,10 +58,10 @@
           <a href="/admin/dashboard" class="bg-gray-600 text-white px-4 py-2 rounded-lg hover:bg-gray-700 transition-colors">
             <i class="fas fa-arrow-left mr-2"></i>Back to Dashboard
           </a>
-          <button onclick="refreshData()" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors">
+          <button id="refreshBtn" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors">
             <i class="fas fa-sync-alt mr-2"></i>Refresh
           </button>
-          <button onclick="downloadPDF()" class="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition-colors">
+          <button id="downloadPdfBtn" class="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition-colors">
             <i class="fas fa-file-pdf mr-2"></i>Download PDF
           </button>
         </div>
@@ -109,10 +109,10 @@
       <!-- Tab Navigation -->
       <div class="bg-white rounded-xl shadow-lg p-6 mb-8">
         <div class="flex flex-wrap gap-2 mb-6">
-          <button class="tab-button active px-6 py-3 rounded-lg font-semibold" onclick="showTab('pending')">
+          <button id="pendingTabBtn" class="tab-button active px-6 py-3 rounded-lg font-semibold" data-tab="pending">
             <i class="fas fa-clock mr-2"></i>Pending Registrations (<%= pendingRegistrations.length %>)
           </button>
-          <button class="tab-button px-6 py-3 rounded-lg font-semibold bg-gray-100 text-gray-700" onclick="showTab('approved')">
+          <button id="approvedTabBtn" class="tab-button px-6 py-3 rounded-lg font-semibold bg-gray-100 text-gray-700" data-tab="approved">
             <i class="fas fa-check-circle mr-2"></i>Approved Players (<%= approvedPlayers.length %>)
           </button>
         </div>
@@ -169,16 +169,16 @@
 
                     <!-- Actions -->
                     <div class="flex flex-col sm:flex-row gap-3">
-                      <button onclick="viewPlayerDetails('<%= registration.id %>', '<%= registration.fullName %>')" 
-                              class="action-btn bg-blue-100 text-blue-700 px-4 py-2 rounded-lg hover:bg-blue-200 transition-colors font-medium">
-                        <i class="fas fa-eye mr-2"></i>View Details
-                      </button>
-                      <button onclick="approvePlayer('<%= registration.id %>', '<%= registration.fullName %>')" 
-                              class="action-btn bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors font-medium">
+                      <button data-action="approve" 
+                              data-player-id="<%= registration.id %>" 
+                              data-player-name="<%= registration.fullName %>"
+                              class="action-btn approve-btn bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors font-medium">
                         <i class="fas fa-check mr-2"></i>Approve
                       </button>
-                      <button onclick="rejectPlayer('<%= registration.id %>', '<%= registration.fullName %>')" 
-                              class="action-btn bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition-colors font-medium">
+                      <button data-action="reject" 
+                              data-player-id="<%= registration.id %>" 
+                              data-player-name="<%= registration.fullName %>"
+                              class="action-btn reject-btn bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition-colors font-medium">
                         <i class="fas fa-times mr-2"></i>Reject
                       </button>
                     </div>
@@ -280,80 +280,113 @@
 
     // Approve player
     async function approvePlayer(id, name) {
-      console.log('Approving player:', id, name);
+      console.log('=== APPROVE PLAYER ===');
+      console.log('Player ID:', id);
+      console.log('Player Name:', name);
+      console.log('AJAX Handler available:', !!window.ajaxHandler);
       
-      if (window.ajaxHandler) {
-        await window.ajaxHandler.approveItem(
-          `/admin/players/approve/${id}`,
-          name,
-          `[data-registration-id="${id}"]`
-        );
-      } else {
-        // Fallback to original method
-        if (!confirm(`Approve ${name}?`)) return;
-
-        try {
-          const response = await fetch(`/admin/players/approve/${id}`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' }
-          });
-
-          const result = await response.json();
-          
-          if (result.success) {
-            alert(result.message || 'Player approved successfully!');
-            location.reload();
-          } else {
-            alert('Error: ' + result.message);
+      if (!confirm(`Approve ${name}?`)) {
+        console.log('User cancelled approval');
+        return;
+      }
+      
+      try {
+        console.log('Making request to:', `/admin/players/approve/${id}`);
+        
+        const response = await fetch(`/admin/players/approve/${id}`, {
+          method: 'POST',
+          headers: { 
+            'Content-Type': 'application/json',
+            'X-Requested-With': 'XMLHttpRequest'
           }
-        } catch (error) {
-          console.error('Error:', error);
-          alert('Failed to approve player: ' + error.message);
+        });
+
+        console.log('Response status:', response.status);
+        console.log('Response ok:', response.ok);
+        
+        const result = await response.json();
+        console.log('Response data:', result);
+        
+        if (result.success) {
+          alert(result.message || 'Player approved successfully!');
+          
+          // Remove the card from the pending list
+          const card = document.querySelector(`[data-registration-id="${id}"]`);
+          if (card) {
+            card.style.transition = 'all 0.3s ease';
+            card.style.transform = 'translateX(-100%)';
+            card.style.opacity = '0';
+            setTimeout(() => {
+              card.remove();
+              // Update counters if needed
+              const pendingCount = document.querySelectorAll('[data-registration-id]').length;
+              console.log('Remaining pending registrations:', pendingCount);
+            }, 300);
+          }
+        } else {
+          alert('Error: ' + (result.message || 'Unknown error'));
         }
+      } catch (error) {
+        console.error('Approval error:', error);
+        alert('Failed to approve player: ' + error.message);
       }
     }
 
     // Reject player
     async function rejectPlayer(id, name) {
-      console.log('Rejecting player:', id, name);
+      console.log('=== REJECT PLAYER ===');
+      console.log('Player ID:', id);
+      console.log('Player Name:', name);
+      console.log('AJAX Handler available:', !!window.ajaxHandler);
       
-      if (window.ajaxHandler) {
-        await window.ajaxHandler.rejectItem(
-          `/admin/players/reject/${id}`,
-          name,
-          `[data-registration-id="${id}"]`
-        );
-      } else {
-        // Fallback to original method
-        if (!confirm(`Reject ${name}? This cannot be undone.`)) return;
+      if (!confirm(`Reject ${name}? This action cannot be undone.`)) {
+        console.log('User cancelled rejection');
+        return;
+      }
 
-        try {
-          const response = await fetch(`/admin/players/reject/${id}`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' }
-          });
-
-          const result = await response.json();
-          
-          if (result.success) {
-            alert('Player rejected successfully!');
-            location.reload();
-          } else {
-            alert('Error: ' + result.message);
+      try {
+        console.log('Making request to:', `/admin/players/reject/${id}`);
+        
+        const response = await fetch(`/admin/players/reject/${id}`, {
+          method: 'POST',
+          headers: { 
+            'Content-Type': 'application/json',
+            'X-Requested-With': 'XMLHttpRequest'
           }
-        } catch (error) {
-          console.error('Error:', error);
-          alert('Failed to reject player: ' + error.message);
+        });
+
+        console.log('Response status:', response.status);
+        console.log('Response ok:', response.ok);
+        
+        const result = await response.json();
+        console.log('Response data:', result);
+        
+        if (result.success) {
+          alert(result.message || 'Player rejected successfully!');
+          
+          // Remove the card from the pending list
+          const card = document.querySelector(`[data-registration-id="${id}"]`);
+          if (card) {
+            card.style.transition = 'all 0.3s ease';
+            card.style.transform = 'translateX(-100%)';
+            card.style.opacity = '0';
+            setTimeout(() => {
+              card.remove();
+              // Update counters if needed
+              const pendingCount = document.querySelectorAll('[data-registration-id]').length;
+              console.log('Remaining pending registrations:', pendingCount);
+            }, 300);
+          }
+        } else {
+          alert('Error: ' + (result.message || 'Unknown error'));
         }
+      } catch (error) {
+        console.error('Rejection error:', error);
+        alert('Failed to reject player: ' + error.message);
       }
     }
 
-    // View player details
-    function viewPlayerDetails(id, name) {
-      console.log('Viewing details for player:', id, name);
-      alert('View details for: ' + name + ' (ID: ' + id + ')');
-      // TODO: Implement proper details modal
-    }
+
 
     // Initialize when page loads
     document.addEventListener('DOMContentLoaded', function() {
@@ -361,8 +394,74 @@
       console.log('Pending registrations:', <%= playerRegistrations.length %>);
       console.log('Approved players:', <%= approvedPlayers.length %>);
       console.log('Action buttons found:', document.querySelectorAll('.action-btn').length);
+      
+      // Setup event listeners for all buttons
+      setupAllButtonListeners();
+      
       console.log('=== INITIALIZATION COMPLETE ===');
     });
+
+    // Setup event listeners for all buttons
+    function setupAllButtonListeners() {
+      console.log('Setting up all button listeners...');
+      
+      // Tab buttons
+      document.querySelectorAll('.tab-button').forEach(button => {
+        button.addEventListener('click', function(e) {
+          e.preventDefault();
+          const tabName = this.getAttribute('data-tab');
+          console.log('Tab button clicked:', tabName);
+          showTab(tabName);
+        });
+      });
+      
+      // Refresh button
+      const refreshBtn = document.getElementById('refreshBtn');
+      if (refreshBtn) {
+        refreshBtn.addEventListener('click', function(e) {
+          e.preventDefault();
+          console.log('Refresh button clicked');
+          refreshData();
+        });
+      }
+      
+      // Download PDF button
+      const downloadPdfBtn = document.getElementById('downloadPdfBtn');
+      if (downloadPdfBtn) {
+        downloadPdfBtn.addEventListener('click', function(e) {
+          e.preventDefault();
+          console.log('Download PDF button clicked');
+          downloadPDF();
+        });
+      }
+      
+      // Add event listeners for approve buttons
+      document.querySelectorAll('.approve-btn').forEach(button => {
+        button.addEventListener('click', function(e) {
+          e.preventDefault();
+          const playerId = this.getAttribute('data-player-id');
+          const playerName = this.getAttribute('data-player-name');
+          console.log('Approve button clicked:', playerId, playerName);
+          approvePlayer(playerId, playerName);
+        });
+      });
+      
+      // Add event listeners for reject buttons
+      document.querySelectorAll('.reject-btn').forEach(button => {
+        button.addEventListener('click', function(e) {
+          e.preventDefault();
+          const playerId = this.getAttribute('data-player-id');
+          const playerName = this.getAttribute('data-player-name');
+          console.log('Reject button clicked:', playerId, playerName);
+          rejectPlayer(playerId, playerName);
+        });
+      });
+      
+      console.log('Event listeners setup complete');
+      console.log('Tab buttons:', document.querySelectorAll('.tab-button').length);
+      console.log('Approve buttons:', document.querySelectorAll('.approve-btn').length);
+      console.log('Reject buttons:', document.querySelectorAll('.reject-btn').length);
+    }
 
     // Download PDF report
     async function downloadPDF() {
@@ -370,7 +469,7 @@
         console.log('Downloading PDF report...');
         
         // Show loading state
-        const downloadBtn = document.querySelector('button[onclick="downloadPDF()"]');
+        const downloadBtn = document.getElementById('downloadPdfBtn');
         const originalText = downloadBtn.innerHTML;
         downloadBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Generating PDF...';
         downloadBtn.disabled = true;
@@ -411,7 +510,7 @@
         console.error('Error downloading PDF:', error);
         
         // Reset button
-        const downloadBtn = document.querySelector('button[onclick="downloadPDF()"]');
+                  const downloadBtn = document.getElementById('downloadPdfBtn');
         downloadBtn.innerHTML = originalText;
         downloadBtn.disabled = false;
         

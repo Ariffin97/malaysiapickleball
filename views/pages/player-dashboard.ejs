@@ -90,12 +90,11 @@
           <img src="<%= player.profilePicture || '/images/default-avatar.png' %>" 
                alt="<%= player.fullName %>" class="profile-image mx-auto mb-4">
           <div class="flex flex-col sm:flex-row gap-3 justify-center">
-            <button onclick="openProfileModal()" 
+            <button id="editProfileBtn" 
                     class="bg-white bg-opacity-20 hover:bg-opacity-30 text-white px-6 py-2 rounded-full font-semibold transition-all duration-300">
               <i class="fas fa-edit mr-2"></i>Edit Profile
             </button>
-            <a href="/logout" 
-               onclick="return confirm('Are you sure you want to logout?')"
+            <a href="/logout" id="logoutBtn1"
                class="bg-red-500 bg-opacity-80 hover:bg-opacity-100 text-white px-6 py-2 rounded-full font-semibold transition-all duration-300">
               <i class="fas fa-sign-out-alt mr-2"></i>Logout
             </a>
@@ -163,21 +162,20 @@
       <div class="dashboard-card rounded-xl p-6 mb-8">
         <div class="flex flex-wrap justify-between items-center gap-2 mb-6">
           <div class="flex flex-wrap gap-2">
-            <button class="tab-button active px-6 py-3 rounded-lg font-semibold" onclick="showTab('tournaments')">
+            <button class="tab-button active px-6 py-3 rounded-lg font-semibold" data-tab="tournaments">
               <i class="fas fa-trophy mr-2"></i>Tournaments
             </button>
-            <button class="tab-button px-6 py-3 rounded-lg font-semibold bg-gray-100 text-gray-700" onclick="showTab('ranking')">
+            <button class="tab-button px-6 py-3 rounded-lg font-semibold bg-gray-100 text-gray-700" data-tab="ranking">
               <i class="fas fa-chart-line mr-2"></i>Ranking
             </button>
-            <button class="tab-button px-6 py-3 rounded-lg font-semibold bg-gray-100 text-gray-700" onclick="showTab('profile')">
+            <button class="tab-button px-6 py-3 rounded-lg font-semibold bg-gray-100 text-gray-700" data-tab="profile">
               <i class="fas fa-user mr-2"></i>Profile
             </button>
-            <button class="tab-button px-6 py-3 rounded-lg font-semibold bg-gray-100 text-gray-700" onclick="showTab('settings')">
+            <button class="tab-button px-6 py-3 rounded-lg font-semibold bg-gray-100 text-gray-700" data-tab="settings">
               <i class="fas fa-cog mr-2"></i>Settings
             </button>
           </div>
-          <a href="/logout" 
-             onclick="return confirm('Are you sure you want to logout?')"
+          <a href="/logout" id="logoutBtn2"
              class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg font-semibold transition-all duration-300 flex items-center">
             <i class="fas fa-sign-out-alt mr-2"></i>Logout
           </a>
@@ -333,7 +331,7 @@
       <div class="p-6 border-b border-gray-200">
         <div class="flex justify-between items-center">
           <h2 class="text-2xl font-bold text-gray-800">Edit Profile</h2>
-          <button onclick="closeProfileModal()" class="text-gray-500 hover:text-gray-700 text-2xl">
+          <button class="close-modal-btn text-gray-500 hover:text-gray-700 text-2xl">
             <i class="fas fa-times"></i>
           </button>
         </div>
@@ -373,8 +371,7 @@
             </div>
           </div>
           <div class="flex justify-end gap-4 mt-6">
-            <button type="button" onclick="closeProfileModal()" 
-                    class="px-6 py-3 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
+            <button type="button" class="close-modal-btn px-6 py-3 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
               Cancel
             </button>
             <button type="submit" 
@@ -453,6 +450,53 @@
       if (e.target === this) {
         closeProfileModal();
       }
+    });
+
+    // Setup all button event listeners when page loads
+    document.addEventListener('DOMContentLoaded', function() {
+      console.log('Setting up player dashboard event listeners...');
+      
+      // Edit Profile button
+      const editProfileBtn = document.getElementById('editProfileBtn');
+      if (editProfileBtn) {
+        editProfileBtn.addEventListener('click', function(e) {
+          e.preventDefault();
+          console.log('Edit profile button clicked');
+          openProfileModal();
+        });
+      }
+
+      // Tab buttons
+      document.querySelectorAll('.tab-button').forEach(button => {
+        button.addEventListener('click', function(e) {
+          e.preventDefault();
+          const tabName = this.getAttribute('data-tab');
+          console.log('Tab button clicked:', tabName);
+          showTab(tabName);
+        });
+      });
+
+      // Logout buttons with confirmation
+      const logoutBtns = document.querySelectorAll('#logoutBtn1, #logoutBtn2');
+      logoutBtns.forEach(btn => {
+        btn.addEventListener('click', function(e) {
+          e.preventDefault();
+          if (confirm('Are you sure you want to logout?')) {
+            window.location.href = '/logout';
+          }
+        });
+      });
+
+      // Close modal buttons
+      const closeModalBtns = document.querySelectorAll('.close-modal-btn');
+      closeModalBtns.forEach(btn => {
+        btn.addEventListener('click', function(e) {
+          e.preventDefault();
+          closeProfileModal();
+        });
+      });
+
+      console.log('Player dashboard event listeners setup complete');
     });
   </script>
 </body>

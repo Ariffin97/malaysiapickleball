@@ -73,7 +73,7 @@
             <a href="/player/dashboard" class="bg-gray-600 text-white px-6 py-3 rounded-lg hover:bg-gray-700 transition-colors">
               <i class="fas fa-arrow-left mr-2"></i>Back to Dashboard
             </a>
-            <button onclick="refreshInbox()" class="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors">
+            <button id="refreshInboxBtn" class="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors">
               <i class="fas fa-sync-alt mr-2"></i>Refresh
             </button>
           </div>
@@ -109,7 +109,7 @@
           <div class="space-y-4">
             <% messages.forEach(message => { %>
               <div class="message-card <%= message.isRead ? 'message-read' : 'message-unread' %> <%= message.priority === 'high' ? 'priority-high' : '' %> <%= message.priority === 'urgent' ? 'priority-urgent' : '' %> rounded-xl p-6 shadow-md" 
-                   onclick="openMessage('<%= message._id %>')">
+                   data-message-id="<%= message._id %>">
                 <div class="flex items-start justify-between">
                   <div class="flex-1">
                     <div class="flex items-center space-x-3 mb-2">
@@ -202,22 +202,33 @@
   <%- include('../../partials/footer') %>
   <script src="/js/script.js"></script>
   <script>
-    function openMessage(messageId) {
-      window.location.href = `/player/message/${messageId}`;
-    }
+    // Event listeners for message functionality
+    document.addEventListener('DOMContentLoaded', function() {
+      // Refresh inbox button
+      const refreshBtn = document.getElementById('refreshInboxBtn');
+      if (refreshBtn) {
+        refreshBtn.addEventListener('click', function() {
+          window.location.reload();
+        });
+      }
 
-    function refreshInbox() {
-      window.location.reload();
-    }
+      // Message card click handlers
+      document.querySelectorAll('.message-card').forEach(card => {
+        card.addEventListener('click', function() {
+          const messageId = this.dataset.messageId;
+          if (messageId) {
+            window.location.href = `/player/message/${messageId}`;
+          }
+        });
 
-    // Add some visual feedback for message interactions
-    document.querySelectorAll('.message-card').forEach(card => {
-      card.addEventListener('mouseenter', function() {
-        this.style.transform = 'translateY(-2px)';
-      });
-      
-      card.addEventListener('mouseleave', function() {
-        this.style.transform = 'translateY(0)';
+        // Visual feedback for message interactions
+        card.addEventListener('mouseenter', function() {
+          this.style.transform = 'translateY(-2px)';
+        });
+        
+        card.addEventListener('mouseleave', function() {
+          this.style.transform = 'translateY(0)';
+        });
       });
     });
   </script>
