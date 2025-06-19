@@ -67,11 +67,12 @@ app.use(cors({
       return callback(null, true);
     }
     
-    // For production, log the failed origin for debugging
+    // For production, log the failed origin for debugging but allow temporarily
     if (process.env.NODE_ENV === 'production') {
-      console.log('CORS blocked origin:', origin);
-      console.log('Allowed origins:', allowedOrigins);
-      return callback(new Error('Not allowed by CORS'));
+      console.log('🚨 CORS would block origin:', origin);
+      console.log('📋 Allowed origins:', allowedOrigins);
+      // Temporarily allow all origins for debugging
+      return callback(null, true);
     }
     
     // Development fallback - allow all (temporary)
@@ -255,6 +256,12 @@ app.use((err, req, res, next) => {
   
   // CORS error
   if (err.message === 'Not allowed by CORS') {
+    console.log('🚨 CORS Error Details:', {
+      origin: req.headers.origin,
+      referer: req.headers.referer,
+      host: req.headers.host,
+      userAgent: req.headers['user-agent']
+    });
     return res.status(403).json({
       success: false,
       message: 'CORS policy violation',
