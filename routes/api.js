@@ -653,7 +653,7 @@ router.get('/check-ic/:icNumber', checkApiRateLimit, async (req, res) => {
     const { icNumber } = req.params;
     console.log('🔍 API IC Check called for:', icNumber);
     
-    // Only accept dashed format: 970727-13-6097 (frontend auto-formats to this)
+    // Only accept dashed format: 123456-78-9012 (frontend auto-formats to this)
     const icRegex = /^[0-9]{6}-[0-9]{2}-[0-9]{4}$/;
     if (!icRegex.test(icNumber)) {
       console.log('❌ API IC format invalid:', icNumber);
