@@ -39,8 +39,6 @@ async function testConnection() {
     const startTime = Date.now();
     
     await mongoose.connect(mongoURI, {
-      useNewUrlParser: true,
-      useUnifiedTopology: true,
       serverSelectionTimeoutMS: 10000, // 10 second timeout
       connectTimeoutMS: 10000,
     });

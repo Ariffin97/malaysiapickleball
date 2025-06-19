@@ -6,10 +6,7 @@ const connectDB = async () => {
     // MongoDB connection string - you can change this to your MongoDB Compass connection
     const mongoURI = process.env.MONGODB_URI || 'mongodb://localhost:27017/malaysia-pickleball';
     
-    const conn = await mongoose.connect(mongoURI, {
-      useNewUrlParser: true,
-      useUnifiedTopology: true,
-    });
+    const conn = await mongoose.connect(mongoURI);
 
     console.log(`✅ MongoDB Connected: ${conn.connection.host}`);
     console.log(`📊 Database: ${conn.connection.name}`);
