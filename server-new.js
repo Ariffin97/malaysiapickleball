@@ -149,12 +149,13 @@ app.set('views', path.join(__dirname, 'views'));
 
 app.use(session({
   secret: process.env.SESSION_SECRET || 'pickleball_secret_change_in_production',
-  resave: false,
-  saveUninitialized: false,
+  resave: true, // Force session save to ensure persistence
+  saveUninitialized: true, // Save uninitialized sessions
   cookie: { 
-    secure: process.env.NODE_ENV === 'production', // Enable secure cookies in production
+    secure: false, // Temporarily disable secure cookies for debugging
     httpOnly: true,
-    maxAge: parseInt(process.env.SESSION_TIMEOUT) || 7200000 // 2 hours
+    maxAge: parseInt(process.env.SESSION_TIMEOUT) || 7200000, // 2 hours
+    sameSite: 'lax' // Allow cross-site cookies for redirects
   }
 }));
 
@@ -163,11 +164,15 @@ const adminAuth = async (req, res, next) => {
   console.log('🔍 Admin Auth Check:', {
     isAuthenticated: req.session.isAuthenticated,
     adminId: req.session.adminId,
-    username: req.session.username
+    username: req.session.username,
+    sessionId: req.sessionID,
+    hasSession: !!req.session,
+    sessionKeys: Object.keys(req.session || {})
   });
   
   if (!req.session.isAuthenticated || !req.session.adminId) {
     console.log('❌ Admin auth failed: No session or adminId');
+    console.log('🔍 Full session object:', req.session);
     return res.redirect('/login');
   }
   
@@ -515,8 +520,22 @@ app.post('/login', [
     req.session.loginTime = Date.now();
     req.session.userAgent = req.get('User-Agent');
     
-    console.log('✅ Session set, redirecting to dashboard');
-    res.redirect('/admin/dashboard');
+    console.log('✅ Session set:', {
+      isAuthenticated: req.session.isAuthenticated,
+      adminId: req.session.adminId,
+      username: req.session.username,
+      sessionId: req.sessionID
+    });
+    
+    // Force session save before redirect
+    req.session.save((err) => {
+      if (err) {
+        console.error('❌ Session save error:', err);
+        return res.render('pages/login', { error: 'Session error occurred', session: req.session });
+      }
+      console.log('✅ Session saved, redirecting to dashboard');
+      res.redirect('/admin/dashboard');
+    });
     
   } catch (error) {
     console.error('❌ Login error:', error);
