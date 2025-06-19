@@ -2633,9 +2633,7 @@ app.post('/admin/settings/reject-admin/:id', adminAuth, async (req, res) => {
   }
 });
 
-// Add API routes
-const apiRoutes = require('./routes/api');
-app.use('/api', apiRoutes);
+// API routes already added at the top of the file
 console.log('✅ API routes enabled at /api endpoint');
 
 const PORT = process.env.PORT || 3000;
