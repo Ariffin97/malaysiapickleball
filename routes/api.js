@@ -651,26 +651,51 @@ router.get('/admin/players', adminAuth, async (req, res) => {
 router.get('/check-ic/:icNumber', checkApiRateLimit, async (req, res) => {
   try {
     const { icNumber } = req.params;
+    console.log('🔍 API IC Check called for:', icNumber);
     
-    if (!/^\d{12}$/.test(icNumber)) {
-      return res.status(400).json({
+    // Accept both formats: 970727-13-6097 (with dashes) or 970727136097 (without dashes)
+    const icRegex = /^[0-9]{6}-[0-9]{2}-[0-9]{4}$|^[0-9]{12}$/;
+    if (!icRegex.test(icNumber)) {
+      console.log('❌ API IC format invalid:', icNumber);
+      return res.status(200).json({
         success: false,
-        message: 'Invalid IC number format'
+        available: false,
+        message: 'Invalid IC number format. Please use format: 123456-78-9012'
       });
     }
+    
+    console.log('✅ API IC format valid, checking availability...');
 
     const result = await DatabaseService.checkIcNumberAvailability(icNumber);
     
-    res.json({
+    let message = '';
+    if (result.available) {
+      message = 'IC number is available for registration';
+    } else if (result.isPlayerRegistered) {
+      message = 'This IC number is already registered as an active player';
+    } else if (result.isInRegistrationSystem) {
+      message = 'This IC number already has a pending registration';
+    }
+    
+    console.log('✅ API IC availability result:', {
+      available: result.available,
+      message: message
+    });
+    
+    res.status(200).json({
       success: true,
-      data: result
+      available: result.available,
+      message: message,
+      isPlayerRegistered: result.isPlayerRegistered,
+      isInRegistrationSystem: result.isInRegistrationSystem
     });
 
   } catch (error) {
-    console.error('IC check API error:', error);
-    res.status(500).json({
+    console.error('❌ API IC check error:', error);
+    res.status(200).json({
       success: false,
-      message: 'Failed to check IC number'
+      available: false,
+      message: 'Error checking IC number availability'
     });
   }
 });
