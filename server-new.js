@@ -1844,15 +1844,19 @@ app.get('/tournament/print-pdf', async (req, res) => {
 app.get('/api/check-ic/:icNumber', async (req, res) => {
   try {
     const icNumber = req.params.icNumber;
+    console.log('🔍 IC Check API called for:', icNumber);
     
     // Validate IC number format
     const icRegex = /^[0-9]{6}-[0-9]{2}-[0-9]{4}$/;
     if (!icRegex.test(icNumber)) {
-      return res.json({
+      console.log('❌ IC format invalid:', icNumber);
+      return res.status(200).json({
         available: false,
         message: 'Invalid IC number format. Please use format: 123456-78-9012'
       });
     }
+    
+    console.log('✅ IC format valid, checking availability...');
 
     const availability = await DatabaseService.checkIcNumberAvailability(icNumber);
     
@@ -1865,14 +1869,21 @@ app.get('/api/check-ic/:icNumber', async (req, res) => {
       message = 'This IC number already has a pending registration';
     }
 
-    res.json({
+    console.log('✅ IC availability check result:', {
+      available: availability.available,
+      message: message,
+      isPlayerRegistered: availability.isPlayerRegistered,
+      isInRegistrationSystem: availability.isInRegistrationSystem
+    });
+
+    res.status(200).json({
       available: availability.available,
       message: message,
       isPlayerRegistered: availability.isPlayerRegistered,
       isInRegistrationSystem: availability.isInRegistrationSystem
     });
   } catch (error) {
-    console.error('Error checking IC availability:', error);
+    console.error('❌ Error checking IC availability:', error);
     res.status(500).json({
       available: false,
       message: 'Error checking IC number availability'
