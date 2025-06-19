@@ -858,7 +858,7 @@ app.get('/player/register', async (req, res) => {
 // Player Registration POST
 app.post('/player/register', [
   body('fullName').notEmpty().trim().withMessage('Full name is required'),
-  body('icNumber').notEmpty().trim().matches(/[0-9]{6}-[0-9]{2}-[0-9]{4}/).withMessage('Valid IC number is required'),
+  body('icNumber').notEmpty().trim().matches(/^[0-9]{6}-[0-9]{2}-[0-9]{4}$/).withMessage('Valid IC number is required'),
   body('age').isInt({ min: 12, max: 100 }).withMessage('Age must be between 12 and 100'),
   body('phoneNumber').notEmpty().trim().withMessage('Phone number is required'),
   body('email').isEmail().withMessage('Valid email is required'),
@@ -867,8 +867,16 @@ app.post('/player/register', [
   body('password').isLength({ min: 6 }).withMessage('Password must be at least 6 characters'),
   body('terms').equals('on').withMessage('You must accept the terms and conditions')
 ], async (req, res) => {
+  console.log('🔍 Player registration attempt:', {
+    fullName: req.body.fullName,
+    icNumber: req.body.icNumber,
+    age: req.body.age,
+    email: req.body.email
+  });
+  
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
+    console.log('❌ Validation errors:', errors.array());
     const errorMessages = errors.array().map(err => err.msg).join(', ');
     return res.render('pages/player-register', {
       error: `Please correct the following: ${errorMessages}`,
