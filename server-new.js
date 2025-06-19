@@ -52,9 +52,13 @@ app.use(cors({
     
     // Allow same-origin requests for admin interface
     const requestHost = origin.replace(/^https?:\/\//, '');
-    const appHost = 'malaysiapickleball-fbab5112dbaf.herokuapp.com';
+    const allowedHosts = [
+      'malaysiapickleball-fbab5112dbaf.herokuapp.com',
+      'www.malaysiapickleball.my',
+      'malaysiapickleball.my'
+    ];
     
-    if (requestHost === appHost) {
+    if (allowedHosts.includes(requestHost)) {
       return callback(null, true);
     }
     
