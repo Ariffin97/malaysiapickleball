@@ -50,13 +50,23 @@ app.use(cors({
       }
     }
     
+    // Allow same-origin requests for admin interface
+    const requestHost = origin.replace(/^https?:\/\//, '');
+    const appHost = 'malaysiapickleball-fbab5112dbaf.herokuapp.com';
+    
+    if (requestHost === appHost) {
+      return callback(null, true);
+    }
+    
     // Check allowed origins from environment
     if (allowedOrigins.includes(origin)) {
       return callback(null, true);
     }
     
-    // Production - strict origin checking
+    // For production, log the failed origin for debugging
     if (process.env.NODE_ENV === 'production') {
+      console.log('CORS blocked origin:', origin);
+      console.log('Allowed origins:', allowedOrigins);
       return callback(new Error('Not allowed by CORS'));
     }
     
