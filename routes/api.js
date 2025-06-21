@@ -1642,6 +1642,285 @@ router.get('/player/achievements', async (req, res) => {
   }
 });
 
+// =============================================================================
+// MISSING MOBILE APP ENDPOINTS
+// =============================================================================
+
+// Get Messages (Missing /api/messages endpoint)
+router.get('/messages', checkApiRateLimit, hybridAuth, async (req, res) => {
+  try {
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
+    
+    const result = await DatabaseService.getPlayerMessages(req.user.id, page, limit);
+    const unreadCount = await DatabaseService.getUnreadMessageCount(req.user.id);
+    
+    // Format messages for mobile app
+    const messages = result.messages.map(message => ({
+      id: message._id,
+      messageId: message.messageId,
+      title: message.subject,
+      content: message.content,
+      type: message.type,
+      priority: message.priority,
+      isRead: message.isRead,
+      readAt: message.readAt,
+      createdAt: message.createdAt,
+      senderName: message.senderName
+    }));
+
+    return APIResponse.success(res, {
+      messages: messages,
+      unreadCount: unreadCount,
+      pagination: result.pagination || {
+        page: result.page,
+        pages: result.pages,
+        total: result.total,
+        hasNext: result.hasNext,
+        hasPrev: result.hasPrev
+      }
+    }, 'Messages retrieved successfully');
+
+  } catch (error) {
+    console.error('Get messages API error:', error);
+    return APIResponse.error(res, 'Failed to retrieve messages', 500);
+  }
+});
+
+// Mark Message as Read (for /api/messages/{messageId}/read)
+router.post('/messages/:messageId/read', checkApiRateLimit, hybridAuth, async (req, res) => {
+  try {
+    const { messageId } = req.params;
+    
+    const message = await DatabaseService.markMessageAsRead(messageId);
+    
+    if (!message) {
+      return APIResponse.notFound(res, 'Message not found');
+    }
+
+    return APIResponse.success(res, {
+      messageId: messageId,
+      isRead: true,
+      readAt: message.readAt
+    }, 'Message marked as read');
+
+  } catch (error) {
+    console.error('Mark message as read API error:', error);
+    return APIResponse.error(res, 'Failed to mark message as read', 500);
+  }
+});
+
+// Get Notifications (Missing /api/notifications endpoint)
+router.get('/notifications', checkApiRateLimit, hybridAuth, async (req, res) => {
+  try {
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
+    const userType = req.user.type || 'player';
+    
+    const result = await DatabaseService.getNotificationsForUser(req.user.id, userType, page, limit);
+    
+    // Format notifications for mobile app
+    const notifications = result.notifications.map(notification => ({
+      id: notification._id,
+      notificationId: notification.notificationId,
+      title: notification.title,
+      content: notification.content,
+      type: notification.type,
+      priority: notification.priority,
+      isRead: notification.readBy.some(r => r.userId === req.user.id),
+      createdAt: notification.createdAt,
+      expiresAt: notification.expiresAt,
+      metadata: notification.metadata
+    }));
+
+    return APIResponse.success(res, {
+      notifications: notifications,
+      pagination: {
+        page: result.page,
+        pages: result.pages,
+        total: result.total,
+        hasNext: result.hasNext,
+        hasPrev: result.hasPrev
+      }
+    }, 'Notifications retrieved successfully');
+
+  } catch (error) {
+    console.error('Get notifications API error:', error);
+    return APIResponse.error(res, 'Failed to retrieve notifications', 500);
+  }
+});
+
+// Mark Notification as Read
+router.post('/notifications/:notificationId/read', checkApiRateLimit, hybridAuth, async (req, res) => {
+  try {
+    const { notificationId } = req.params;
+    
+    const notification = await DatabaseService.markNotificationAsRead(notificationId, req.user.id);
+    
+    if (!notification) {
+      return APIResponse.notFound(res, 'Notification not found');
+    }
+
+    return APIResponse.success(res, {
+      notificationId: notificationId,
+      isRead: true
+    }, 'Notification marked as read');
+
+  } catch (error) {
+    console.error('Mark notification as read API error:', error);
+    return APIResponse.error(res, 'Failed to mark notification as read', 500);
+  }
+});
+
+// Get Tournament Updates (Missing /api/tournament-updates endpoint)
+router.get('/tournament-updates', checkApiRateLimit, async (req, res) => {
+  try {
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
+    const tournamentId = req.query.tournamentId;
+    
+    const result = await DatabaseService.getTournamentUpdates(tournamentId, page, limit);
+    
+    // Format tournament updates for mobile app
+    const updates = result.updates.map(update => ({
+      id: update._id,
+      updateId: update.updateId,
+      tournamentId: update.tournamentId,
+      tournamentName: update.tournamentId?.name,
+      title: update.title,
+      content: update.content,
+      type: update.type,
+      priority: update.priority,
+      publishedAt: update.publishedAt,
+      publishedBy: update.publishedByName,
+      metadata: update.metadata
+    }));
+
+    return APIResponse.success(res, {
+      updates: updates,
+      pagination: {
+        page: result.page,
+        pages: result.pages,
+        total: result.total,
+        hasNext: result.hasNext,
+        hasPrev: result.hasPrev
+      }
+    }, 'Tournament updates retrieved successfully');
+
+  } catch (error) {
+    console.error('Get tournament updates API error:', error);
+    return APIResponse.error(res, 'Failed to retrieve tournament updates', 500);
+  }
+});
+
+// Get Announcements (Missing /api/announcements endpoint)
+router.get('/announcements', checkApiRateLimit, async (req, res) => {
+  try {
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
+    const targetAudience = req.query.audience || 'players';
+    
+    const result = await DatabaseService.getAnnouncements(targetAudience, page, limit);
+    const pinnedAnnouncements = await DatabaseService.getPinnedAnnouncements(targetAudience);
+    
+    // Format announcements for mobile app
+    const announcements = result.announcements.map(announcement => ({
+      id: announcement._id,
+      announcementId: announcement.announcementId,
+      title: announcement.title,
+      content: announcement.content,
+      type: announcement.type,
+      priority: announcement.priority,
+      isPinned: announcement.isPinned,
+      publishedAt: announcement.publishedAt,
+      publishedBy: announcement.publishedByName,
+      expiresAt: announcement.expiresAt,
+      attachments: announcement.attachments,
+      metadata: announcement.metadata
+    }));
+
+    const pinned = pinnedAnnouncements.map(announcement => ({
+      id: announcement._id,
+      announcementId: announcement.announcementId,
+      title: announcement.title,
+      content: announcement.content,
+      type: announcement.type,
+      priority: announcement.priority,
+      isPinned: true,
+      publishedAt: announcement.publishedAt,
+      publishedBy: announcement.publishedByName,
+      expiresAt: announcement.expiresAt,
+      metadata: announcement.metadata
+    }));
+
+    return APIResponse.success(res, {
+      announcements: announcements,
+      pinnedAnnouncements: pinned,
+      pagination: {
+        page: result.page,
+        pages: result.pages,
+        total: result.total,
+        hasNext: result.hasNext,
+        hasPrev: result.hasPrev
+      }
+    }, 'Announcements retrieved successfully');
+
+  } catch (error) {
+    console.error('Get announcements API error:', error);
+    return APIResponse.error(res, 'Failed to retrieve announcements', 500);
+  }
+});
+
+// =============================================================================
+// MOBILE-SPECIFIC ENDPOINTS
+// =============================================================================
+
+// Mobile Player Messages (Missing /api/mobile/player/messages endpoint)
+router.get('/mobile/player/messages', checkApiRateLimit, hybridAuth, async (req, res) => {
+  try {
+    // Ensure this is a player
+    if (req.user.type !== 'player') {
+      return APIResponse.forbidden(res, 'Player access required');
+    }
+
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
+    
+    const result = await DatabaseService.getPlayerMessages(req.user.id, page, limit);
+    const unreadCount = await DatabaseService.getUnreadMessageCount(req.user.id);
+    
+    // Format messages for mobile app (matching expected format)
+    const messages = result.messages.map(message => ({
+      id: message._id,
+      messageId: message.messageId,
+      title: message.subject,
+      content: message.content,
+      type: message.type,
+      priority: message.priority,
+      read: message.isRead,
+      createdAt: message.createdAt,
+      senderName: message.senderName,
+      metadata: message.metadata
+    }));
+
+    return APIResponse.success(res, {
+      messages: messages,
+      unreadCount: unreadCount,
+      pagination: {
+        page: result.page,
+        pages: result.pages,
+        total: result.total,
+        hasNext: result.hasNext,
+        hasPrev: result.hasPrev
+      }
+    }, 'Player messages retrieved successfully');
+
+  } catch (error) {
+    console.error('Get mobile player messages API error:', error);
+    return APIResponse.error(res, 'Failed to retrieve player messages', 500);
+  }
+});
+
 // Check API Health
 router.get('/health', (req, res) => {
   res.json({

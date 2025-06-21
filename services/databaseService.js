@@ -5,6 +5,9 @@ const Admin = require('../models/Admin');
 const PendingAdmin = require('../models/PendingAdmin');
 const Message = require('../models/Message');
 const Settings = require('../models/Settings');
+const Notification = require('../models/Notification');
+const TournamentUpdate = require('../models/TournamentUpdate');
+const Announcement = require('../models/Announcement');
 
 class DatabaseService {
   // Tournament operations
@@ -752,6 +755,95 @@ Malaysia Pickleball Association Team`,
       return await this.createMessage(messageData);
     } catch (error) {
       console.error('Error sending welcome message:', error);
+      throw error;
+    }
+  }
+
+  // Notification operations
+  static async createNotification(notificationData) {
+    try {
+      const notificationId = await Notification.generateNotificationId();
+      const notification = new Notification({ ...notificationData, notificationId });
+      return await notification.save();
+    } catch (error) {
+      console.error('Error creating notification:', error);
+      throw error;
+    }
+  }
+
+  static async getNotificationsForUser(userId, userType = 'player', page = 1, limit = 10) {
+    try {
+      return await Notification.getNotificationsForUser(userId, userType, page, limit);
+    } catch (error) {
+      console.error('Error getting notifications:', error);
+      throw error;
+    }
+  }
+
+  static async markNotificationAsRead(notificationId, userId) {
+    try {
+      const notification = await Notification.findById(notificationId);
+      if (notification) {
+        return await notification.markAsReadByUser(userId);
+      }
+      return null;
+    } catch (error) {
+      console.error('Error marking notification as read:', error);
+      throw error;
+    }
+  }
+
+  // Tournament Update operations
+  static async createTournamentUpdate(updateData) {
+    try {
+      const updateId = await TournamentUpdate.generateUpdateId();
+      const update = new TournamentUpdate({ ...updateData, updateId });
+      return await update.save();
+    } catch (error) {
+      console.error('Error creating tournament update:', error);
+      throw error;
+    }
+  }
+
+  static async getTournamentUpdates(tournamentId, page = 1, limit = 10) {
+    try {
+      if (tournamentId) {
+        return await TournamentUpdate.getUpdatesForTournament(tournamentId, page, limit);
+      } else {
+        return await TournamentUpdate.getAllActiveUpdates(page, limit);
+      }
+    } catch (error) {
+      console.error('Error getting tournament updates:', error);
+      throw error;
+    }
+  }
+
+  // Announcement operations
+  static async createAnnouncement(announcementData) {
+    try {
+      const announcementId = await Announcement.generateAnnouncementId();
+      const announcement = new Announcement({ ...announcementData, announcementId });
+      return await announcement.save();
+    } catch (error) {
+      console.error('Error creating announcement:', error);
+      throw error;
+    }
+  }
+
+  static async getAnnouncements(targetAudience = 'all', page = 1, limit = 10) {
+    try {
+      return await Announcement.getActiveAnnouncements(targetAudience, page, limit);
+    } catch (error) {
+      console.error('Error getting announcements:', error);
+      throw error;
+    }
+  }
+
+  static async getPinnedAnnouncements(targetAudience = 'all') {
+    try {
+      return await Announcement.getPinnedAnnouncements(targetAudience);
+    } catch (error) {
+      console.error('Error getting pinned announcements:', error);
       throw error;
     }
   }
