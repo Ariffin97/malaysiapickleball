@@ -1647,13 +1647,39 @@ router.get('/player/achievements', async (req, res) => {
 // =============================================================================
 
 // Get Messages (Missing /api/messages endpoint)
-router.get('/messages', checkApiRateLimit, hybridAuth, async (req, res) => {
+router.get('/messages', checkApiRateLimit, async (req, res) => {
+  // Extract user ID from JWT token if provided
+  let userId = null;
+  const authHeader = req.headers.authorization;
+  if (authHeader) {
+    try {
+      const token = JWTUtil.extractTokenFromHeader(authHeader);
+      if (token) {
+        const decoded = JWTUtil.verifyToken(token);
+        userId = decoded.id;
+      }
+    } catch (error) {
+      // If JWT fails, check session
+      if (req.session?.isPlayerAuthenticated) {
+        userId = req.session.playerId;
+      }
+    }
+  } else if (req.session?.isPlayerAuthenticated) {
+    userId = req.session.playerId;
+  }
+
+  if (!userId) {
+    return res.status(401).json({
+      success: false,
+      message: 'Player authentication required'
+    });
+  }
   try {
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 10;
     
-    const result = await DatabaseService.getPlayerMessages(req.user.id, page, limit);
-    const unreadCount = await DatabaseService.getUnreadMessageCount(req.user.id);
+    const result = await DatabaseService.getPlayerMessages(userId, page, limit);
+    const unreadCount = await DatabaseService.getUnreadMessageCount(userId);
     
     // Format messages for mobile app
     const messages = result.messages.map(message => ({
@@ -1688,7 +1714,33 @@ router.get('/messages', checkApiRateLimit, hybridAuth, async (req, res) => {
 });
 
 // Mark Message as Read (for /api/messages/{messageId}/read)
-router.post('/messages/:messageId/read', checkApiRateLimit, hybridAuth, async (req, res) => {
+router.post('/messages/:messageId/read', checkApiRateLimit, async (req, res) => {
+  // Extract user ID from JWT token if provided
+  let userId = null;
+  const authHeader = req.headers.authorization;
+  if (authHeader) {
+    try {
+      const token = JWTUtil.extractTokenFromHeader(authHeader);
+      if (token) {
+        const decoded = JWTUtil.verifyToken(token);
+        userId = decoded.id;
+      }
+    } catch (error) {
+      // If JWT fails, check session
+      if (req.session?.isPlayerAuthenticated) {
+        userId = req.session.playerId;
+      }
+    }
+  } else if (req.session?.isPlayerAuthenticated) {
+    userId = req.session.playerId;
+  }
+
+  if (!userId) {
+    return res.status(401).json({
+      success: false,
+      message: 'Player authentication required'
+    });
+  }
   try {
     const { messageId } = req.params;
     
@@ -1711,13 +1763,48 @@ router.post('/messages/:messageId/read', checkApiRateLimit, hybridAuth, async (r
 });
 
 // Get Notifications (Missing /api/notifications endpoint)
-router.get('/notifications', checkApiRateLimit, hybridAuth, async (req, res) => {
+router.get('/notifications', checkApiRateLimit, async (req, res) => {
+  // Extract user ID from JWT token if provided
+  let userId = null;
+  let userType = 'player';
+  const authHeader = req.headers.authorization;
+  if (authHeader) {
+    try {
+      const token = JWTUtil.extractTokenFromHeader(authHeader);
+      if (token) {
+        const decoded = JWTUtil.verifyToken(token);
+        userId = decoded.id;
+        userType = decoded.type || 'player';
+      }
+    } catch (error) {
+      // If JWT fails, check session
+      if (req.session?.isPlayerAuthenticated) {
+        userId = req.session.playerId;
+        userType = 'player';
+      } else if (req.session?.isAuthenticated) {
+        userId = req.session.adminId;
+        userType = 'admin';
+      }
+    }
+  } else if (req.session?.isPlayerAuthenticated) {
+    userId = req.session.playerId;
+    userType = 'player';
+  } else if (req.session?.isAuthenticated) {
+    userId = req.session.adminId;
+    userType = 'admin';
+  }
+
+  if (!userId) {
+    return res.status(401).json({
+      success: false,
+      message: 'Authentication required'
+    });
+  }
   try {
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 10;
-    const userType = req.user.type || 'player';
     
-    const result = await DatabaseService.getNotificationsForUser(req.user.id, userType, page, limit);
+    const result = await DatabaseService.getNotificationsForUser(userId, userType, page, limit);
     
     // Format notifications for mobile app
     const notifications = result.notifications.map(notification => ({
@@ -1727,7 +1814,7 @@ router.get('/notifications', checkApiRateLimit, hybridAuth, async (req, res) => 
       content: notification.content,
       type: notification.type,
       priority: notification.priority,
-      isRead: notification.readBy.some(r => r.userId === req.user.id),
+      isRead: notification.readBy.some(r => r.userId === userId),
       createdAt: notification.createdAt,
       expiresAt: notification.expiresAt,
       metadata: notification.metadata
@@ -1751,11 +1838,41 @@ router.get('/notifications', checkApiRateLimit, hybridAuth, async (req, res) => 
 });
 
 // Mark Notification as Read
-router.post('/notifications/:notificationId/read', checkApiRateLimit, hybridAuth, async (req, res) => {
+router.post('/notifications/:notificationId/read', checkApiRateLimit, async (req, res) => {
+  // Extract user ID from JWT token if provided
+  let userId = null;
+  const authHeader = req.headers.authorization;
+  if (authHeader) {
+    try {
+      const token = JWTUtil.extractTokenFromHeader(authHeader);
+      if (token) {
+        const decoded = JWTUtil.verifyToken(token);
+        userId = decoded.id;
+      }
+    } catch (error) {
+      // If JWT fails, check session
+      if (req.session?.isPlayerAuthenticated) {
+        userId = req.session.playerId;
+      } else if (req.session?.isAuthenticated) {
+        userId = req.session.adminId;
+      }
+    }
+  } else if (req.session?.isPlayerAuthenticated) {
+    userId = req.session.playerId;
+  } else if (req.session?.isAuthenticated) {
+    userId = req.session.adminId;
+  }
+
+  if (!userId) {
+    return res.status(401).json({
+      success: false,
+      message: 'Authentication required'
+    });
+  }
   try {
     const { notificationId } = req.params;
     
-    const notification = await DatabaseService.markNotificationAsRead(notificationId, req.user.id);
+    const notification = await DatabaseService.markNotificationAsRead(notificationId, userId);
     
     if (!notification) {
       return APIResponse.notFound(res, 'Notification not found');
@@ -1876,18 +1993,49 @@ router.get('/announcements', checkApiRateLimit, async (req, res) => {
 // =============================================================================
 
 // Mobile Player Messages (Missing /api/mobile/player/messages endpoint)
-router.get('/mobile/player/messages', checkApiRateLimit, hybridAuth, async (req, res) => {
+router.get('/mobile/player/messages', checkApiRateLimit, async (req, res) => {
+  // Extract user ID from JWT token if provided
+  let userId = null;
+  let userType = 'player';
+  const authHeader = req.headers.authorization;
+  if (authHeader) {
+    try {
+      const token = JWTUtil.extractTokenFromHeader(authHeader);
+      if (token) {
+        const decoded = JWTUtil.verifyToken(token);
+        userId = decoded.id;
+        userType = decoded.type || 'player';
+      }
+    } catch (error) {
+      // If JWT fails, check session
+      if (req.session?.isPlayerAuthenticated) {
+        userId = req.session.playerId;
+        userType = 'player';
+      }
+    }
+  } else if (req.session?.isPlayerAuthenticated) {
+    userId = req.session.playerId;
+    userType = 'player';
+  }
+
+  if (!userId) {
+    return res.status(401).json({
+      success: false,
+      message: 'Player authentication required'
+    });
+  }
+
   try {
     // Ensure this is a player
-    if (req.user.type !== 'player') {
+    if (userType !== 'player') {
       return APIResponse.forbidden(res, 'Player access required');
     }
 
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 10;
     
-    const result = await DatabaseService.getPlayerMessages(req.user.id, page, limit);
-    const unreadCount = await DatabaseService.getUnreadMessageCount(req.user.id);
+    const result = await DatabaseService.getPlayerMessages(userId, page, limit);
+    const unreadCount = await DatabaseService.getUnreadMessageCount(userId);
     
     // Format messages for mobile app (matching expected format)
     const messages = result.messages.map(message => ({
