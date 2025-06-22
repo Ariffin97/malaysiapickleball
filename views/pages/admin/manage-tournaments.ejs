@@ -596,13 +596,27 @@
                 <% } %>
                 
                 <div class="flex justify-end space-x-2">
-                  <button onclick="openEditModal('<%= tournament._id %>', '<%= tournament.name %>', '<%= tournament.startDate %>', '<%= tournament.endDate %>', '<%= tournament.type %>', '<%= tournament.venue || '' %>', '<%= tournament.city || '' %>', '<%= tournament.organizer || '' %>', '<%= tournament.personInCharge || '' %>', '<%= tournament.phoneNumber || '' %>', '<%= tournament.version || 0 %>')" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg transition-all duration-300 flex items-center text-sm font-semibold">
+                  <button class="edit-btn bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg transition-all duration-300 flex items-center text-sm font-semibold" 
+                          data-tournament-id="<%= tournament._id %>"
+                          data-tournament-name="<%= tournament.name %>"
+                          data-tournament-start="<%= tournament.startDate || '' %>"
+                          data-tournament-end="<%= tournament.endDate || '' %>"
+                          data-tournament-type="<%= tournament.type || '' %>"
+                          data-tournament-venue="<%= tournament.venue || '' %>"
+                          data-tournament-city="<%= tournament.city || '' %>"
+                          data-tournament-organizer="<%= tournament.organizer || '' %>"
+                          data-tournament-person="<%= tournament.personInCharge || '' %>"
+                          data-tournament-phone="<%= tournament.phoneNumber || '' %>"
+                          data-tournament-version="<%= tournament.version || 0 %>">
                     <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
                     </svg>
                     Edit
                   </button>
-                  <button onclick="deleteTournament('<%= tournament._id %>', '<%= tournament.name %>')" class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg transition-all duration-300 flex items-center text-sm font-semibold" id="delete-btn-<%= tournament._id %>">
+                  <button class="delete-btn bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg transition-all duration-300 flex items-center text-sm font-semibold" 
+                          data-tournament-id="<%= tournament._id %>"
+                          data-tournament-name="<%= tournament.name %>"
+                          id="delete-btn-<%= tournament._id %>">
                     <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
                     </svg>
@@ -636,7 +650,7 @@
           <h2 class="text-2xl font-bold text-gray-800">
             <i class="fas fa-edit mr-3 text-blue-500"></i>Edit Tournament
           </h2>
-          <button onclick="closeEditModal()" class="text-gray-500 hover:text-gray-700 text-2xl">
+          <button class="close-modal-btn text-gray-500 hover:text-gray-700 text-2xl">
             <i class="fas fa-times"></i>
           </button>
         </div>
@@ -708,7 +722,7 @@
           </div>
           
           <div class="flex justify-end space-x-4 mt-8">
-            <button type="button" onclick="closeEditModal()" class="px-6 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors">
+            <button type="button" class="cancel-btn px-6 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors">
               Cancel
             </button>
             <button type="submit" class="px-6 py-3 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors">
@@ -1103,7 +1117,7 @@
             <strong>Conflict Detected!</strong><br>
             This tournament was modified by <strong>${conflictInfo.lastModifiedBy}</strong> 
             at ${new Date(conflictInfo.lastModifiedAt).toLocaleString()}.<br>
-            <button type="button" onclick="refreshTournamentData()" class="text-red-800 underline">
+            <button type="button" class="refresh-data-btn text-red-800 underline">
               Click here to refresh and get the latest version
             </button>
           </div>
@@ -1211,6 +1225,94 @@
         modal.classList.remove('flex');
       }, 200);
     }
+
+         // Add event listeners after DOM is loaded
+     document.addEventListener('DOMContentLoaded', function() {
+       // Edit button event listeners
+       document.querySelectorAll('.edit-btn').forEach(button => {
+         button.addEventListener('click', function() {
+           const id = this.dataset.tournamentId;
+           const name = this.dataset.tournamentName;
+           const startDate = this.dataset.tournamentStart;
+           const endDate = this.dataset.tournamentEnd;
+           const type = this.dataset.tournamentType;
+           const venue = this.dataset.tournamentVenue;
+           const city = this.dataset.tournamentCity;
+           const organizer = this.dataset.tournamentOrganizer;
+           const personInCharge = this.dataset.tournamentPerson;
+           const phoneNumber = this.dataset.tournamentPhone;
+           const version = this.dataset.tournamentVersion;
+           
+           openEditModal(id, name, startDate, endDate, type, venue, city, organizer, personInCharge, phoneNumber, version);
+         });
+       });
+       
+       // Delete button event listeners
+       document.querySelectorAll('.delete-btn').forEach(button => {
+         button.addEventListener('click', function() {
+           const id = this.dataset.tournamentId;
+           const name = this.dataset.tournamentName;
+           deleteTournament(id, name);
+         });
+       });
+       
+       // Close modal button event listeners
+       document.querySelectorAll('.close-modal-btn, .cancel-btn').forEach(button => {
+         button.addEventListener('click', closeEditModal);
+       });
+       
+       // Refresh data button event listener (for conflict resolution)
+       document.addEventListener('click', function(e) {
+         if (e.target.classList.contains('refresh-data-btn')) {
+           refreshTournamentData();
+         }
+       });
+       
+       // Edit form submission
+       const editForm = document.getElementById('editTournamentForm');
+       if (editForm) {
+         editForm.addEventListener('submit', async function(e) {
+      e.preventDefault();
+      
+      const form = e.target;
+      const formData = new FormData(form);
+      const submitBtn = form.querySelector('button[type="submit"]');
+      const originalText = submitBtn.innerHTML;
+      
+      // Show loading state
+      submitBtn.disabled = true;
+      submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Updating...';
+      
+      try {
+        const response = await fetch(form.action, {
+          method: 'POST',
+          body: formData
+        });
+        
+        const result = await response.json();
+        
+        if (result.success) {
+          showSuccessMessage('Tournament updated successfully! ✅');
+          closeEditModal();
+          
+          // Reload page to show updated data
+          setTimeout(() => {
+            window.location.reload();
+          }, 1000);
+        } else {
+          throw new Error(result.message || 'Failed to update tournament');
+        }
+      } catch (error) {
+        console.error('Update error:', error);
+        showErrorMessage(`Failed to update tournament: ${error.message}`);
+                    } finally {
+         // Restore button state
+         submitBtn.disabled = false;
+         submitBtn.innerHTML = originalText;
+       }
+     });
+       }
+     });
   </script>
 </body>
 </html>
