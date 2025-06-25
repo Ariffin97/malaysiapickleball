@@ -408,6 +408,53 @@ app.get('/events', async (req, res) => {
   }
 });
 
+// Live Tournament public page route
+app.get('/live-tournament', async (req, res) => {
+  try {
+    // Get live tournament settings
+    const liveStatus = await DatabaseService.getSetting('liveStatus', 'inactive');
+    const tournamentTitle = await DatabaseService.getSetting('tournamentTitle', 'Live Tournament');
+    const maxStreams = await DatabaseService.getSetting('maxStreams', 2);
+    const backgroundImage = await DatabaseService.getSetting('background_image', '/images/defaultbg.png');
+    
+    // Get all live streams
+    const liveStreams = [];
+    for (let i = 1; i <= maxStreams; i++) {
+      const stream = await DatabaseService.getSetting(`liveStream${i}`, null);
+      const streamTitle = await DatabaseService.getSetting(`liveStream${i}Title`, `Live Stream ${i}`);
+      const streamStatus = await DatabaseService.getSetting(`liveStream${i}Status`, 'offline');
+      
+      if (stream && streamStatus === 'live') {
+        liveStreams.push({
+          number: i,
+          embed: stream,
+          title: streamTitle,
+          status: streamStatus
+        });
+      }
+    }
+    
+    res.render('pages/live-tournament', {
+      liveStatus,
+      tournamentTitle,
+      liveStreams,
+      maxStreams,
+      backgroundImage,
+      session: req.session
+    });
+  } catch (error) {
+    console.error('Live tournament page error:', error);
+    res.render('pages/live-tournament', {
+      liveStatus: 'inactive',
+      tournamentTitle: 'Live Tournament',
+      liveStreams: [],
+      maxStreams: 2,
+      backgroundImage: '/images/defaultbg.png',
+      session: req.session
+    });
+  }
+});
+
 // Login Routes
 app.get('/login', (req, res) => {
   let error = null;
@@ -1612,6 +1659,157 @@ app.get('/admin/video-urls', adminAuth, async (req, res) => {
   } catch (error) {
     console.error('Error getting video embed codes:', error);
     res.status(500).json({ success: false, error: 'Failed to get video embed codes' });
+  }
+});
+
+// Live Tournament Management Routes
+app.get('/admin/live-tournament', adminAuth, async (req, res) => {
+  try {
+    // Get live tournament settings
+    const maxStreams = await DatabaseService.getSetting('live_tournament_max_streams', 2);
+    const liveStatus = await DatabaseService.getSetting('live_tournament_status', 'inactive');
+    const tournamentTitle = await DatabaseService.getSetting('live_tournament_title', '');
+    
+    // Get all live streams data
+    const streamData = {};
+    for (let i = 1; i <= maxStreams; i++) {
+      streamData[`liveStream${i}`] = await DatabaseService.getSetting(`live_stream_${i}`, null);
+      streamData[`liveStream${i}Original`] = await DatabaseService.getSetting(`live_stream_${i}_original`, '');
+      streamData[`liveStream${i}Title`] = await DatabaseService.getSetting(`live_stream_${i}_title`, `Live Stream ${i}`);
+      streamData[`liveStream${i}Status`] = await DatabaseService.getSetting(`live_stream_${i}_status`, 'offline');
+    }
+    
+    res.render('pages/admin/manage-live-tournament', { 
+      maxStreams: maxStreams,
+      liveStatus: liveStatus,
+      tournamentTitle: tournamentTitle,
+      ...streamData,
+      session: req.session 
+    });
+  } catch (error) {
+    console.error('Live tournament page error:', error);
+    res.render('pages/admin/manage-live-tournament', {
+      maxStreams: 2,
+      liveStatus: 'inactive',
+      tournamentTitle: '',
+      session: req.session
+    });
+  }
+});
+
+// Live Tournament Settings Update
+app.post('/admin/live-tournament/settings', adminAuth, async (req, res) => {
+  try {
+    const { maxStreams, liveStatus, tournamentTitle } = req.body;
+    
+    await DatabaseService.setSetting('live_tournament_max_streams', parseInt(maxStreams) || 2);
+    await DatabaseService.setSetting('live_tournament_status', liveStatus || 'inactive');
+    await DatabaseService.setSetting('live_tournament_title', tournamentTitle || '');
+    
+    // Check if it's an AJAX request
+    if (req.headers['x-requested-with'] === 'XMLHttpRequest') {
+      return res.json({
+        success: true,
+        message: 'Live tournament settings updated successfully!'
+      });
+    }
+    
+    res.redirect('/admin/live-tournament?success=settings_updated');
+  } catch (error) {
+    console.error('Live tournament settings update error:', error);
+    
+    // Check if it's an AJAX request
+    if (req.headers['x-requested-with'] === 'XMLHttpRequest') {
+      return res.status(400).json({
+        success: false,
+        message: error.message || 'Failed to update live tournament settings'
+      });
+    }
+    
+    res.redirect('/admin/live-tournament?error=settings_update_failed');
+  }
+});
+
+// Live Stream Update
+app.post('/admin/live-tournament/streams', adminAuth, async (req, res) => {
+  try {
+    const { streamNumber, embedCode, streamTitle, streamStatus } = req.body;
+    
+    if (!streamNumber) {
+      throw new Error('Stream number is required');
+    }
+    
+    if (embedCode && (!embedCode.includes('<iframe') || !embedCode.includes('</iframe>'))) {
+      throw new Error('Please provide a valid embed code with iframe tags');
+    }
+    
+    // Sanitize embed code if provided
+    let sanitizedEmbedCode = null;
+    if (embedCode && embedCode.trim()) {
+      sanitizedEmbedCode = sanitizeEmbedCode(embedCode);
+    }
+    
+    // Save to database
+    const streamKey = `live_stream_${streamNumber}`;
+    await DatabaseService.setSetting(streamKey, sanitizedEmbedCode);
+    await DatabaseService.setSetting(`${streamKey}_original`, embedCode || '');
+    await DatabaseService.setSetting(`${streamKey}_title`, streamTitle || `Live Stream ${streamNumber}`);
+    await DatabaseService.setSetting(`${streamKey}_status`, streamStatus || 'offline');
+    
+    // Check if it's an AJAX request
+    if (req.headers['x-requested-with'] === 'XMLHttpRequest') {
+      return res.json({
+        success: true,
+        message: `Stream ${streamNumber} updated successfully!`,
+        embedCode: sanitizedEmbedCode,
+        streamTitle: streamTitle,
+        streamStatus: streamStatus
+      });
+    }
+    
+    res.redirect('/admin/live-tournament?success=stream_updated');
+  } catch (error) {
+    console.error('Live stream update error:', error);
+    
+    // Check if it's an AJAX request
+    if (req.headers['x-requested-with'] === 'XMLHttpRequest') {
+      return res.status(400).json({
+        success: false,
+        message: error.message || 'Failed to update live stream'
+      });
+    }
+    
+    res.redirect('/admin/live-tournament?error=stream_update_failed');
+  }
+});
+
+// Get live tournament data API endpoint
+app.get('/admin/live-tournament/api', adminAuth, async (req, res) => {
+  try {
+    const maxStreams = await DatabaseService.getSetting('live_tournament_max_streams', 2);
+    const liveStatus = await DatabaseService.getSetting('live_tournament_status', 'inactive');
+    const tournamentTitle = await DatabaseService.getSetting('live_tournament_title', '');
+    
+    const streams = {};
+    for (let i = 1; i <= maxStreams; i++) {
+      streams[`stream${i}`] = {
+        embedCode: await DatabaseService.getSetting(`live_stream_${i}`, null),
+        originalCode: await DatabaseService.getSetting(`live_stream_${i}_original`, ''),
+        title: await DatabaseService.getSetting(`live_stream_${i}_title`, `Live Stream ${i}`),
+        status: await DatabaseService.getSetting(`live_stream_${i}_status`, 'offline')
+      };
+    }
+    
+    res.json({
+      success: true,
+      maxStreams: maxStreams,  
+      liveStatus: liveStatus,
+      tournamentTitle: tournamentTitle,
+      streams: streams
+    });
+  } catch (error) {
+    console.error('Error getting live tournament data:', error);
+    res.status(500).json({ success: false, error: 'Failed to get live tournament data' });
   }
 });
 

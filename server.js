@@ -154,6 +154,53 @@ app.get('/events', (req, res) => {
   res.render('pages/events', { tournaments: formattedTournaments, session: req.session, backgroundImage: dataStore.backgroundImage });
 });
 
+// Live Tournament public page route
+app.get('/live-tournament', (req, res) => {
+  try {
+    // Get live tournament settings from dataStore
+    const liveStatus = dataStore.liveStatus || 'inactive';
+    const tournamentTitle = dataStore.tournamentTitle || 'Live Tournament';
+    const maxStreams = dataStore.maxStreams || 2;
+    const backgroundImage = dataStore.backgroundImage || '/images/defaultbg.png';
+    
+    // Get all live streams
+    const liveStreams = [];
+    for (let i = 1; i <= maxStreams; i++) {
+      const stream = dataStore[`liveStream${i}`] || null;
+      const streamTitle = dataStore[`liveStream${i}Title`] || `Live Stream ${i}`;
+      const streamStatus = dataStore[`liveStream${i}Status`] || 'offline';
+      
+      if (stream && streamStatus === 'live') {
+        liveStreams.push({
+          number: i,
+          embed: stream,
+          title: streamTitle,
+          status: streamStatus
+        });
+      }
+    }
+    
+    res.render('pages/live-tournament', {
+      liveStatus,
+      tournamentTitle,
+      liveStreams,
+      maxStreams,
+      backgroundImage,
+      session: req.session
+    });
+  } catch (error) {
+    console.error('Live tournament page error:', error);
+    res.render('pages/live-tournament', {
+      liveStatus: 'inactive',
+      tournamentTitle: 'Live Tournament',
+      liveStreams: [],
+      maxStreams: 2,
+      backgroundImage: '/images/defaultbg.png',
+      session: req.session
+    });
+  }
+});
+
 // Test PDF Template Route (for debugging)
 app.get('/tournament/test-pdf-template', (req, res) => {
   try {
@@ -618,6 +665,93 @@ app.get('/admin/coaches', adminAuth, (req, res) => res.render('pages/admin/manag
 app.get('/admin/venues', adminAuth, (req, res) => res.render('pages/admin/manage-venue', { venues: dataStore.venues, session: req.session }));
 app.get('/admin/sponsorships', adminAuth, (req, res) => res.render('pages/admin/manage-sponsership', { sponsorships: dataStore.sponsorships, session: req.session }));
 app.get('/admin/rankings', adminAuth, (req, res) => res.render('pages/admin/manage-ranking', { rankings: dataStore.rankings, session: req.session }));
+
+// Live Tournament Admin Routes
+app.get('/admin/live-tournament', adminAuth, (req, res) => {
+  try {
+    res.render('pages/admin/manage-live-tournament', {
+      liveStatus: dataStore.liveStatus || 'inactive',
+      tournamentTitle: dataStore.tournamentTitle || '',
+      maxStreams: dataStore.maxStreams || 2,
+      liveStream1: dataStore.liveStream1 || null,
+      liveStream1Original: dataStore.liveStream1Original || '',
+      liveStream1Title: dataStore.liveStream1Title || 'Live Stream 1',
+      liveStream1Status: dataStore.liveStream1Status || 'offline',
+      liveStream2: dataStore.liveStream2 || null,
+      liveStream2Original: dataStore.liveStream2Original || '',
+      liveStream2Title: dataStore.liveStream2Title || 'Live Stream 2',
+      liveStream2Status: dataStore.liveStream2Status || 'offline',
+      session: req.session
+    });
+  } catch (error) {
+    console.error('Live tournament admin error:', error);
+    res.render('pages/admin/manage-live-tournament', {
+      liveStatus: 'inactive',
+      tournamentTitle: '',
+      maxStreams: 2,
+      liveStream1: null,
+      liveStream1Original: '',
+      liveStream1Title: 'Live Stream 1',
+      liveStream1Status: 'offline',
+      liveStream2: null,
+      liveStream2Original: '',
+      liveStream2Title: 'Live Stream 2',
+      liveStream2Status: 'offline',
+      session: req.session
+    });
+  }
+});
+
+app.post('/admin/live-tournament/settings', adminAuth, (req, res) => {
+  try {
+    const { maxStreams, liveStatus, tournamentTitle } = req.body;
+    
+    dataStore.maxStreams = parseInt(maxStreams) || 2;
+    dataStore.liveStatus = liveStatus || 'inactive';
+    dataStore.tournamentTitle = tournamentTitle || '';
+    
+    console.log('Live tournament settings updated:', { maxStreams: dataStore.maxStreams, liveStatus: dataStore.liveStatus, tournamentTitle: dataStore.tournamentTitle });
+    
+    res.redirect('/admin/live-tournament?success=settings_updated');
+  } catch (error) {
+    console.error('Live tournament settings error:', error);
+    res.redirect('/admin/live-tournament?error=settings_update_failed');
+  }
+});
+
+app.post('/admin/live-tournament/streams', adminAuth, (req, res) => {
+  try {
+    const { streamNumber, streamTitle, streamStatus, embedCode } = req.body;
+    
+    const streamKey = `liveStream${streamNumber}`;
+    const streamOriginalKey = `liveStream${streamNumber}Original`;
+    const streamTitleKey = `liveStream${streamNumber}Title`;
+    const streamStatusKey = `liveStream${streamNumber}Status`;
+    
+    // Store original embed code
+    dataStore[streamOriginalKey] = embedCode || '';
+    dataStore[streamTitleKey] = streamTitle || `Live Stream ${streamNumber}`;
+    dataStore[streamStatusKey] = streamStatus || 'offline';
+    
+    // Process embed code if provided
+    if (embedCode && embedCode.trim()) {
+      dataStore[streamKey] = embedCode.trim();
+    } else {
+      dataStore[streamKey] = null;
+    }
+    
+    console.log(`Stream ${streamNumber} updated:`, {
+      title: dataStore[streamTitleKey],
+      status: dataStore[streamStatusKey],
+      hasEmbed: !!dataStore[streamKey]
+    });
+    
+    res.redirect('/admin/live-tournament?success=stream_updated');
+  } catch (error) {
+    console.error('Live tournament stream error:', error);
+    res.redirect('/admin/live-tournament?error=stream_update_failed');
+  }
+});
 
 // Admin Home Page Actions
 app.post('/admin/home', adminAuth, (req, res) => {

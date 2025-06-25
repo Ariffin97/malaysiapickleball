@@ -433,8 +433,8 @@
               
               <!-- City -->
               <div class="input-group">
-                <input type="text" name="city" value="<%= formData?.city || '' %>" class="input-field" placeholder=" ">
-                <label class="input-label">City</label>
+                            <input type="text" name="city" value="<%= formData?.city || '' %>" class="input-field" placeholder=" ">
+            <label class="input-label">City and State</label>
               </div>
               
               <!-- Organizer -->
@@ -449,10 +449,11 @@
                 <label class="input-label">Person In Charge</label>
               </div>
               
-              <!-- Phone Number -->
+                                        <!-- Phone Number -->
               <div class="input-group">
-                <input type="tel" name="phoneNumber" value="<%= formData?.phoneNumber || '' %>" class="input-field" placeholder=" " pattern="[0-9+\-\s\(\)]+">
+                <input type="text" name="phoneNumber" value="<%= formData?.phoneNumber || '' %>" class="input-field" placeholder="e.g., +60 12-345 6789" pattern="[0-9+\-\s\(\)]+|^Not Available$">
                 <label class="input-label">Phone Number</label>
+                <small style="color: #666; font-size: 0.85em; margin-top: 4px; display: block;">If the phone number is not applicable, put 'Not Available'.</small>
               </div>
             </div>
             
@@ -535,13 +536,11 @@
                     <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
                     </svg>
-                    <span><%= tournament.startDate ? `${tournament.startDate} to ${tournament.endDate || 'TBD'}` : 'Date TBD' %></span>
+                    <span><%= tournament.startDate ? `${new Date(tournament.startDate).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' })} to ${tournament.endDate ? new Date(tournament.endDate).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' }) : 'TBD'}` : 'Date TBD' %></span>
                   </div>
                   
+                  <% if (tournament.months && tournament.months.length > 0) { %>
                   <div class="flex items-start text-gray-600">
-                    <svg class="w-4 h-4 mr-2 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                    </svg>
                     <div class="flex flex-wrap gap-1">
                       <% tournament.months.forEach(m => { %>
                         <span class="px-2 py-1 bg-gray-100 text-gray-700 rounded-md text-xs">
@@ -550,6 +549,7 @@
                       <% }) %>
                     </div>
                   </div>
+                  <% } %>
                   
                   <% if (tournament.venue) { %>
                     <div class="flex items-center text-gray-600">
@@ -699,7 +699,7 @@
             <!-- City -->
             <div class="input-group">
               <input type="text" name="city" id="editCity" class="input-field" placeholder=" ">
-              <label class="input-label">City</label>
+              <label class="input-label">City and State</label>
             </div>
             
             <!-- Organizer -->
@@ -714,11 +714,12 @@
               <label class="input-label">Person In Charge</label>
             </div>
             
-            <!-- Phone Number -->
-            <div class="input-group">
-              <input type="tel" name="phoneNumber" id="editPhoneNumber" class="input-field" placeholder=" ">
-              <label class="input-label">Phone Number</label>
-            </div>
+                          <!-- Phone Number -->
+              <div class="input-group">
+                <input type="text" name="phoneNumber" id="editPhoneNumber" class="input-field" placeholder="e.g., +60 12-345 6789">
+                <label class="input-label">Phone Number</label>
+                <small style="color: #666; font-size: 0.85em; margin-top: 4px; display: block;">If the phone number is not applicable, put 'Not Available'.</small>
+              </div>
           </div>
           
           <div class="flex justify-end space-x-4 mt-8">

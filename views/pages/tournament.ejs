@@ -488,25 +488,111 @@
             
             <!-- Tournament Rows -->
             <% 
-              // Transform tournaments to tournamentData format
+              // Enhanced tournament positioning with spanning support
               const tournamentData = tournaments.map(t => {
-                const schedule = Array(12).fill().map(() => []);
+                const schedule = Array(12).fill().map(() => ({})); // Change to object to store more data
+                
                 if (t.startDate) {
                   const start = new Date(t.startDate);
+                  const end = t.endDate ? new Date(t.endDate) : new Date(t.startDate);
                   
-                  // Only show dot on start date, not the entire duration
-                  const month = start.getMonth();
-                  const day = start.getDate();
+                  // Get start and end months
+                  const startMonth = start.getMonth();
+                  const endMonth = end.getMonth();
                   
-                  // Better quarter calculation based on actual weeks
-                  let quarter = Math.ceil(day / 7.75); // More accurate quarter division
-                  if (quarter > 4) quarter = 4; // Cap at quarter 4
+                  // Helper function to get the week number within a month (1-5)
+                  const getWeekInMonth = (date) => {
+                    const firstDay = new Date(date.getFullYear(), date.getMonth(), 1);
+                    const firstWeekday = firstDay.getDay(); // 0 = Sunday, 1 = Monday, etc.
+                    const dayOfMonth = date.getDate();
+                    return Math.ceil((dayOfMonth + firstWeekday) / 7);
+                  };
                   
-                  if (!schedule[month]) schedule[month] = [];
-                  if (!schedule[month].includes(quarter)) {
-                    schedule[month].push(quarter);
+                  // Better quarter calculation based on weeks
+                  const getQuarterFromWeek = (week) => {
+                    if (week <= 1) return 1;
+                    if (week <= 2) return 2;
+                    if (week <= 3) return 3;
+                    return 4;
+                  };
+                  
+                  // Calculate spanning information
+                  if (startMonth === endMonth) {
+                    // Tournament within same month
+                    const startWeek = getWeekInMonth(start);
+                    const endWeek = getWeekInMonth(end);
+                    const startQuarter = getQuarterFromWeek(startWeek);
+                    const endQuarter = getQuarterFromWeek(endWeek);
+                    
+                    if (!schedule[startMonth]) schedule[startMonth] = {};
+                    
+                    if (startQuarter === endQuarter) {
+                      // Single quarter tournament
+                      schedule[startMonth][startQuarter] = {
+                        type: 'single',
+                        start: true,
+                        end: true,
+                        duration: Math.max(1, end.getDate() - start.getDate() + 1)
+                      };
+                    } else {
+                      // Multi-quarter tournament within same month
+                      for (let q = startQuarter; q <= endQuarter; q++) {
+                        schedule[startMonth][q] = {
+                          type: 'span',
+                          start: q === startQuarter,
+                          end: q === endQuarter,
+                          middle: q > startQuarter && q < endQuarter,
+                          duration: Math.max(1, end.getDate() - start.getDate() + 1)
+                        };
+                      }
+                    }
+                  } else {
+                    // Tournament spans multiple months
+                    for (let m = startMonth; m <= endMonth; m++) {
+                      if (!schedule[m]) schedule[m] = {};
+                      
+                      if (m === startMonth) {
+                        // Starting month
+                        const startWeek = getWeekInMonth(start);
+                        const startQuarter = getQuarterFromWeek(startWeek);
+                        for (let q = startQuarter; q <= 4; q++) {
+                          schedule[m][q] = {
+                            type: 'span',
+                            start: q === startQuarter,
+                            end: false,
+                            middle: q > startQuarter,
+                            monthSpan: 'start'
+                          };
+                        }
+                      } else if (m === endMonth) {
+                        // Ending month
+                        const endWeek = getWeekInMonth(end);
+                        const endQuarter = getQuarterFromWeek(endWeek);
+                        for (let q = 1; q <= endQuarter; q++) {
+                          schedule[m][q] = {
+                            type: 'span',
+                            start: false,
+                            end: q === endQuarter,
+                            middle: q < endQuarter,
+                            monthSpan: 'end'
+                          };
+                        }
+                      } else {
+                        // Middle months - fill all quarters
+                        for (let q = 1; q <= 4; q++) {
+                          schedule[m][q] = {
+                            type: 'span',
+                            start: false,
+                            end: false,
+                            middle: true,
+                            monthSpan: 'middle'
+                          };
+                        }
+                      }
+                    }
                   }
                 }
+                
                 return {
                   name: t.name,
                   type: t.type,
@@ -554,17 +640,43 @@
                     <% for (let q = 1; q <= 4; q++) { %>
                       <% 
                         let cellClass = "grid-quarter-cell";
-                        if (t.schedule && t.schedule[m] && t.schedule[m].includes(q)) {
+                        let cellData = t.schedule && t.schedule[m] && t.schedule[m][q];
+                        let hasEvent = !!cellData;
+                        let spanClass = "";
+                        let iconClass = "fas fa-circle";
+                        
+                        if (hasEvent) {
                           cellClass += ` ${t.color}`;
+                          
+                          // Add spanning classes for visual effects
+                          if (cellData.type === 'span') {
+                            if (cellData.start && !cellData.end) {
+                              spanClass = " span-start";
+                              iconClass = "fas fa-play";
+                            } else if (cellData.end && !cellData.start) {
+                              spanClass = " span-end"; 
+                              iconClass = "fas fa-stop";
+                            } else if (cellData.middle) {
+                              spanClass = " span-middle";
+                              iconClass = "fas fa-minus";
+                            } else if (cellData.start && cellData.end) {
+                              spanClass = " span-complete";
+                              iconClass = "fas fa-circle";
+                            }
+                          }
+                          
+                          cellClass += spanClass;
                         }
                       %>
-                      <div class="<%= cellClass %> <% if (t.schedule && t.schedule[m] && t.schedule[m].includes(q)) { %>tournament-clickable<% } %>" 
-                           <% if (t.schedule && t.schedule[m] && t.schedule[m].includes(q)) { %>
+                      <div class="<%= cellClass %> <% if (hasEvent) { %>tournament-clickable<% } %>" 
+                           <% if (hasEvent) { %>
                            data-tournament-index="<%= index %>"
-                           title="<%= t.name %>"
+                           data-span-type="<%= cellData.type || 'single' %>"
+                           data-span-position="<%= cellData.start ? 'start' : (cellData.end ? 'end' : (cellData.middle ? 'middle' : 'single')) %>"
+                           title="<%= t.name %><%= cellData.duration ? ' (' + cellData.duration + ' days)' : '' %>"
                            <% } %>>
-                        <% if (t.schedule && t.schedule[m] && t.schedule[m].includes(q)) { %>
-                          <i class="fas fa-circle text-white text-xs"></i>
+                        <% if (hasEvent) { %>
+                          <!-- Clean filled cell without icons -->
                         <% } %>
                       </div>
                     <% } %>
@@ -658,7 +770,7 @@
                     <% if (tournamentData && tournamentData.length) { %>
                       <% let hasEventsThisMonth = false; %>
                       <% tournamentData.forEach((t, index) => { %>
-                        <% if (t.schedule && t.schedule[monthIndex] && t.schedule[monthIndex].length > 0) { %>
+                        <% if (t.schedule && t.schedule[monthIndex] && Object.keys(t.schedule[monthIndex]).length > 0) { %>
                           <% hasEventsThisMonth = true; %>
                           <div class="p-3 border-b border-gray-100 last:border-b-0 tournament-clickable" data-tournament-index="<%= index %>">
                             <div class="flex items-center">
@@ -675,7 +787,10 @@
                                 </div>
                               </div>
                               <div class="text-xs text-gray-400">
-                                Q<%= t.schedule[monthIndex].join(', Q') %>
+                                <% const quarters = Object.keys(t.schedule[monthIndex]).map(q => parseInt(q)).sort(); %>
+                                <% if (quarters.length > 0) { %>
+                                  Q<%= quarters.join(', Q') %>
+                                <% } %>
                               </div>
                             </div>
                           </div>
@@ -899,6 +1014,58 @@
       border-radius: 6px;
     }
     
+    /* Spanning tournament styles */
+    .span-start {
+      border-top-left-radius: 6px !important;
+      border-bottom-left-radius: 6px !important;
+      border-top-right-radius: 0 !important;
+      border-bottom-right-radius: 0 !important;
+      margin-right: -1px;
+      position: relative;
+      z-index: 5;
+    }
+    
+    /* Removed connecting gradient */
+    
+    .span-middle {
+      border-radius: 0 !important;
+      margin-left: -1px;
+      margin-right: -1px;
+      position: relative;
+      z-index: 4;
+    }
+    
+    /* Removed middle connecting gradients */
+    
+    .span-end {
+      border-top-right-radius: 6px !important;
+      border-bottom-right-radius: 6px !important;
+      border-top-left-radius: 0 !important;
+      border-bottom-left-radius: 0 !important;
+      margin-left: -1px;
+      position: relative;
+      z-index: 5;
+    }
+    
+    /* Removed end connecting gradient */
+    
+    .span-complete {
+      border-radius: 6px !important;
+      box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.3);
+    }
+    
+    /* Enhanced hover effects for spanning tournaments */
+    .span-start:hover,
+    .span-middle:hover,
+    .span-end:hover,
+    .span-complete:hover {
+      transform: scale(1.05);
+      z-index: 15 !important;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+    }
+    
+    /* Removed glow animation for connecting gradients */
+    
     /* No tournaments message */
     .grid-no-tournaments {
       grid-column: 1 / -1;
@@ -1086,8 +1253,7 @@
     
     // Wait for DOM to be fully loaded
     document.addEventListener('DOMContentLoaded', function() {
-      console.log('Tournament page loaded, setting up filters...');
-      console.log('Tournament data:', tournamentData);
+      // Tournament page loaded, setting up filters
       
       // Add event listeners for tournament clicks (CSP compliant)
       document.querySelectorAll('.tournament-clickable').forEach(element => {
@@ -1110,11 +1276,11 @@
 
       // Enhanced filter functionality
       const filterButtons = document.querySelectorAll('.filter-btn');
-      console.log('Found filter buttons:', filterButtons.length);
+              // Found filter buttons
       
       filterButtons.forEach(btn => {
               btn.addEventListener('click', function() {
-          console.log('Filter button clicked:', this.dataset.filter);
+          // Filter button clicked
           
           // Update active filter with enhanced styling
           document.querySelectorAll('.filter-btn').forEach(b => {
@@ -1131,7 +1297,7 @@
           this.classList.remove('bg-white', 'text-gray-700');
           
           const filter = this.dataset.filter;
-          console.log('Applying filter:', filter);
+          // Applying filter
         
         // Filter grid elements
         const filterGridElements = (filter) => {
@@ -1188,9 +1354,7 @@
       });
       
       // Initialize filters - show all by default
-      console.log('Initializing filters...');
       const allTournamentNames = document.querySelectorAll('.grid-tournament-name');
-      console.log('Found tournaments:', allTournamentNames.length);
     });
     
     // Mobile view functionality

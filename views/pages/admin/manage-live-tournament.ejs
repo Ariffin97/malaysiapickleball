@@ -1,0 +1,517 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Manage Live Tournament - Malaysia Pickleball Association</title>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="/css/styles.css">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+  
+  <style>
+    .embed-textarea {
+      font-family: 'Courier New', monospace;
+      resize: vertical;
+    }
+    
+    .video-preview {
+      border: 2px solid #e5e7eb;
+      border-radius: 12px;
+      overflow: hidden;
+      background: #f9fafb;
+    }
+    
+    .video-preview iframe {
+      width: 100%;
+      height: auto;
+      min-height: 200px;
+    }
+    
+    .section-divider {
+      border-top: 2px solid #e2e8f0;
+      margin: 2rem 0;
+      position: relative;
+    }
+    
+    .section-divider::before {
+      content: '';
+      position: absolute;
+      top: -1px;
+      left: 0;
+      width: 60px;
+      height: 2px;
+      background: linear-gradient(90deg, #EF4444, #F59E0B);
+    }
+    
+    .pulse-dot {
+      animation: pulse 2s infinite;
+    }
+    
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.5; }
+    }
+    
+    .live-indicator {
+      background: linear-gradient(45deg, #FF0000, #FF6B6B);
+      animation: pulse 2s infinite;
+    }
+    
+    .stream-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 12px 24px rgba(0, 0, 0, 0.15);
+    }
+    
+    .stream-card {
+      transition: all 0.3s ease;
+      border-left: 4px solid transparent;
+    }
+    
+    .stream-card.active {
+      border-left-color: #EF4444;
+      background: linear-gradient(135deg, #FEF2F2 0%, #FFFFFF 100%);
+    }
+  </style>
+</head>
+<body class="bg-gray-50 min-h-screen">
+  <%- include('../../partials/header') %>
+
+  <main class="pt-24 p-6 min-h-screen">
+    <div class="container mx-auto max-w-7xl">
+      <!-- Header Section -->
+      <div class="mb-8">
+        <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between">
+          <div class="mb-4 lg:mb-0">
+            <h1 class="text-4xl font-bold text-gray-800 mb-2 flex items-center">
+              <i class="fas fa-broadcast-tower text-red-600 mr-3"></i>
+              🔴 Manage Live Tournament
+            </h1>
+            <p class="text-gray-600 text-lg">Manage live tournament streams and embedded content</p>
+          </div>
+          <div class="flex items-center space-x-4">
+            <div class="live-indicator px-4 py-2 rounded-full text-white text-sm font-bold flex items-center">
+              <span class="w-2 h-2 bg-white rounded-full mr-2 animate-pulse"></span>
+              LIVE MANAGEMENT
+            </div>
+            <a href="/admin/dashboard" class="bg-gray-600 text-white px-4 py-2 rounded-lg hover:bg-gray-700 transition-colors">
+              <i class="fas fa-arrow-left mr-2"></i>Back to Dashboard
+            </a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Settings Section -->
+      <div class="bg-white p-6 rounded-lg shadow-lg mb-6">
+        <h2 class="text-2xl font-bold text-gray-800 mb-4 flex items-center">
+          <i class="fas fa-cog mr-2 text-blue-500"></i>
+          Live Tournament Settings
+        </h2>
+        
+        <form action="/admin/live-tournament/settings" method="POST" class="space-y-4" id="settings-form">
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">Maximum Number of Live Streams</label>
+              <select name="maxStreams" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                <option value="2" <%= (maxStreams === 2 || !maxStreams) ? 'selected' : '' %>>2 Streams</option>
+                <option value="4" <%= (maxStreams === 4) ? 'selected' : '' %>>4 Streams</option>
+                <option value="6" <%= (maxStreams === 6) ? 'selected' : '' %>>6 Streams</option>
+                <option value="8" <%= (maxStreams === 8) ? 'selected' : '' %>>8 Streams</option>
+                <option value="12" <%= (maxStreams === 12) ? 'selected' : '' %>>12 Streams</option>
+              </select>
+            </div>
+            
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">Live Tournament Status</label>
+              <select name="liveStatus" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                <option value="inactive" <%= (liveStatus === 'inactive' || !liveStatus) ? 'selected' : '' %>>🔴 Inactive</option>
+                <option value="active" <%= (liveStatus === 'active') ? 'selected' : '' %>>🟢 Active</option>
+                <option value="scheduled" <%= (liveStatus === 'scheduled') ? 'selected' : '' %>>🟡 Scheduled</option>
+              </select>
+            </div>
+          </div>
+          
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">Tournament Title</label>
+            <input type="text" name="tournamentTitle" value="<%= tournamentTitle || '' %>" 
+                   placeholder="Enter live tournament title..." 
+                   class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+          </div>
+          
+          <button type="submit" id="settings-submit-btn" class="bg-blue-600 text-white py-2 px-6 rounded-lg hover:bg-blue-700 transition-colors font-medium">
+            <i class="fas fa-save mr-2"></i>
+            Update Settings
+          </button>
+        </form>
+      </div>
+
+      <div class="section-divider"></div>
+
+      <!-- Live Streams Management Section -->
+      <div class="bg-white p-6 rounded-lg shadow-lg">
+        <div class="flex items-center justify-between mb-6">
+          <h2 class="text-2xl font-bold text-gray-800 flex items-center">
+            <i class="fas fa-video mr-2 text-red-500"></i>
+            Live Streams Management
+          </h2>
+          <div class="text-sm text-gray-600">
+            <i class="fas fa-info-circle mr-1"></i>
+            Currently supporting up to <%= maxStreams || 2 %> streams
+          </div>
+        </div>
+        
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <% for (let i = 1; i <= (maxStreams || 2); i++) { %>
+            <% 
+              const streamKey = `liveStream${i}`;
+              const streamOriginalKey = `liveStream${i}Original`;
+              const streamTitleKey = `liveStream${i}Title`;
+              const streamStatusKey = `liveStream${i}Status`;
+              
+              const currentStream = locals[streamKey] || null;
+              const currentStreamOriginal = locals[streamOriginalKey] || '';
+              const currentStreamTitle = locals[streamTitleKey] || `Live Stream ${i}`;
+              const currentStreamStatus = locals[streamStatusKey] || 'offline';
+            %>
+            
+            <div class="stream-card space-y-4 p-4 rounded-lg border <%= currentStream ? 'active' : '' %>">
+              <div class="flex items-center justify-between">
+                <h3 class="text-lg font-semibold text-gray-700 border-b pb-2 flex items-center">
+                  <% if (i % 4 === 1) { %>
+                    <i class="fas fa-play-circle mr-2 text-blue-500"></i>
+                  <% } else if (i % 4 === 2) { %>
+                    <i class="fas fa-play-circle mr-2 text-green-500"></i>
+                  <% } else if (i % 4 === 3) { %>
+                    <i class="fas fa-play-circle mr-2 text-purple-500"></i>
+                  <% } else { %>
+                    <i class="fas fa-play-circle mr-2 text-orange-500"></i>
+                  <% } %>
+                  Stream <%= i %>
+                </h3>
+                <div class="flex items-center space-x-2">
+                  <span class="px-2 py-1 text-xs rounded-full <%= currentStreamStatus === 'live' ? 'bg-red-100 text-red-800' : currentStreamStatus === 'scheduled' ? 'bg-yellow-100 text-yellow-800' : 'bg-gray-100 text-gray-800' %>">
+                    <%= currentStreamStatus === 'live' ? '🔴 LIVE' : currentStreamStatus === 'scheduled' ? '🟡 SCHEDULED' : '⚫ OFFLINE' %>
+                  </span>
+                </div>
+              </div>
+              
+              <form action="/admin/live-tournament/streams" method="POST" class="space-y-4">
+                <input type="hidden" name="streamNumber" value="<%= i %>">
+                
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 mb-2">Stream Title</label>
+                  <input type="text" name="streamTitle" value="<%= currentStreamTitle %>" 
+                         placeholder="Enter stream title..." 
+                         class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                </div>
+                
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 mb-2">Stream Status</label>
+                  <select name="streamStatus" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent mb-4">
+                    <option value="offline" <%= (currentStreamStatus === 'offline') ? 'selected' : '' %>>⚫ Offline</option>
+                    <option value="scheduled" <%= (currentStreamStatus === 'scheduled') ? 'selected' : '' %>>🟡 Scheduled</option>
+                    <option value="live" <%= (currentStreamStatus === 'live') ? 'selected' : '' %>>🔴 Live</option>
+                  </select>
+                </div>
+                
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 mb-2">Stream Embed Code</label>
+                  <textarea name="embedCode" id="stream<%= i %>-embed" rows="4" 
+                            placeholder="Paste your live stream embed code here (e.g., <iframe src=&quot;...&quot;></iframe>)" 
+                            class="embed-textarea w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-300 font-mono text-sm"><%= currentStreamOriginal %></textarea>
+                  <p class="text-xs text-gray-500 mt-1">Paste embed code from YouTube Live, Twitch, Facebook Live, or any streaming platform</p>
+                  
+                  <div class="mt-2 space-y-2">
+                    <div class="flex items-center text-xs text-gray-600">
+                      <i class="fas fa-info-circle mr-1"></i>
+                      <span>Example: &lt;iframe src="https://www.youtube.com/embed/live_stream?channel=CHANNEL_ID" width="560" height="315"&gt;&lt;/iframe&gt;</span>
+                    </div>
+                    
+                    <div class="bg-red-50 p-3 rounded-lg border border-red-200">
+                      <div class="flex items-center mb-2">
+                        <i class="fab fa-youtube text-red-600 mr-2"></i>
+                        <strong class="text-red-800 text-sm">YouTube Live Helper:</strong>
+                      </div>
+                      <div class="space-y-2">
+                        <input type="text" id="youtube-live-url-<%= i %>" placeholder="Paste YouTube Live URL or Channel URL here..." 
+                               class="w-full p-2 text-sm border border-red-300 rounded focus:ring-2 focus:ring-red-500">
+                        <button type="button" onclick="convertLiveToEmbed(<%= i %>)" 
+                                class="w-full bg-red-500 text-white px-3 py-2 rounded text-sm hover:bg-red-600 transition-colors">
+                          <i class="fas fa-magic mr-1"></i>
+                          Convert to Live Embed Code
+                        </button>
+                        <button type="button" onclick="testEmbed(<%= i %>)" 
+                                class="w-full bg-purple-500 text-white px-3 py-2 rounded text-sm hover:bg-purple-600 transition-colors mt-1">
+                          <i class="fas fa-play mr-1"></i>
+                          Test Embed Code
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                
+                <button type="submit" class="w-full bg-gradient-to-r from-red-600 to-red-700 text-white py-2 px-4 rounded-lg hover:from-red-700 hover:to-red-800 transition-all duration-300 font-medium">
+                  <i class="fas fa-broadcast-tower mr-2"></i>
+                  Update Stream <%= i %>
+                </button>
+              </form>
+              
+              <!-- Current Stream Preview -->
+              <div id="stream<%= i %>-preview" class="mt-4">
+                <h4 class="text-sm font-medium text-gray-700 mb-2">Current Stream <%= i %> Preview</h4>
+                <% if (currentStream) { %>
+                  <div class="video-preview">
+                    <div class="aspect-w-16 aspect-h-9">
+                      <%- currentStream %>
+                    </div>
+                    <div class="p-2 text-xs text-gray-600 bg-gray-50 flex items-center justify-between">
+                      <div class="flex items-center">
+                        <i class="fas fa-code mr-1"></i>
+                        <span class="font-mono">Embed code active</span>
+                      </div>
+                      <div class="flex items-center">
+                        <span class="pulse-dot w-2 h-2 bg-red-500 rounded-full mr-2"></span>
+                        <span class="text-red-600 font-semibold"><%= currentStreamStatus.toUpperCase() %></span>
+                      </div>
+                    </div>
+                  </div>
+                <% } else { %>
+                  <div class="video-preview p-8 text-center text-gray-500">
+                    <i class="fas fa-video text-4xl mb-4"></i>
+                    <p class="text-lg font-medium">No stream configured</p>
+                    <p class="text-sm">Add embed code above to activate this stream</p>
+                  </div>
+                <% } %>
+              </div>
+            </div>
+          <% } %>
+        </div>
+
+        <!-- Instructions -->
+        <div class="mt-8 p-6 bg-gradient-to-r from-yellow-50 to-orange-50 rounded-lg border border-yellow-200">
+          <div class="flex items-start">
+            <i class="fas fa-broadcast-tower text-yellow-600 mt-1 mr-3 text-xl"></i>
+            <div>
+              <h4 class="text-lg font-medium text-yellow-800 mb-3">🔴 Live Streaming Instructions:</h4>
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                  <h5 class="font-semibold text-yellow-800 mb-2">📺 Supported Platforms:</h5>
+                  <ul class="text-sm text-yellow-700 space-y-1">
+                    <li>• <strong>YouTube Live:</strong> Best for official tournaments</li>
+                    <li>• <strong>Facebook Live:</strong> Great for community engagement</li>
+                    <li>• <strong>Twitch:</strong> Popular for gaming tournaments</li>
+                    <li>• <strong>Vimeo Live:</strong> Professional streaming</li>
+                    <li>• <strong>Custom RTMP:</strong> Any streaming service</li>
+                  </ul>
+                </div>
+                <div>
+                  <h5 class="font-semibold text-yellow-800 mb-2">⚙️ Setup Tips:</h5>
+                  <ul class="text-sm text-yellow-700 space-y-1">
+                    <li>• Set stream status to match actual broadcast</li>
+                    <li>• Test embed codes before going live</li>
+                    <li>• Use descriptive titles for each stream</li>
+                    <li>• Configure maximum streams based on needs</li>
+                    <li>• Update tournament title for branding</li>
+                  </ul>
+                </div>
+              </div>
+              
+              <div class="mt-4 p-4 bg-red-100 border border-red-300 rounded-lg">
+                <h5 class="text-sm font-medium text-red-800 mb-2">🚨 Troubleshooting:</h5>
+                <ul class="text-xs text-red-700 space-y-1">
+                  <li>• <strong>Stream not showing:</strong> Check if embed code includes proper iframe tags</li>
+                  <li>• <strong>YouTube Live blocked:</strong> Ensure channel has live streaming enabled</li>
+                  <li>• <strong>Facebook Live issues:</strong> Verify privacy settings allow embedding</li>
+                  <li>• <strong>Audio/Video sync:</strong> Contact streaming platform support</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <%- include('../../partials/footer') %>
+  <script src="/js/script.js"></script>
+  
+  <script>
+        // Handle settings form submission with fallback
+    document.addEventListener('DOMContentLoaded', function() {
+      const settingsForm = document.getElementById('settings-form');
+      const submitBtn = document.getElementById('settings-submit-btn');
+      
+      if (settingsForm && submitBtn) {
+        // Add a simple click handler to show loading state
+        submitBtn.addEventListener('click', function() {
+          setTimeout(() => {
+            const originalContent = submitBtn.innerHTML;
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Updating...';
+            submitBtn.disabled = true;
+            
+            // Reset after 10 seconds as fallback
+            setTimeout(() => {
+              if (submitBtn.disabled) {
+                submitBtn.innerHTML = originalContent;
+                submitBtn.disabled = false;
+              }
+            }, 10000);
+          }, 100);
+        });
+        
+        // Try AJAX first, fallback to regular form submission
+        settingsForm.addEventListener('submit', function(e) {
+          e.preventDefault();
+          
+          // Get form data
+          const formData = new FormData(settingsForm);
+          
+          // Submit via fetch with timeout
+          const fetchPromise = fetch('/admin/live-tournament/settings', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/x-www-form-urlencoded',
+              'X-Requested-With': 'XMLHttpRequest'
+            },
+            body: new URLSearchParams(formData)
+          });
+          
+          // Add timeout
+          const timeoutPromise = new Promise((_, reject) => 
+            setTimeout(() => reject(new Error('Request timeout')), 5000)
+          );
+          
+          Promise.race([fetchPromise, timeoutPromise])
+          .then(response => {
+            console.log('Response status:', response.status);
+            
+            if (response.ok) {
+              return response.json().then(data => {
+                console.log('Success response:', data);
+                alert('✅ Settings updated successfully! The page will now reload.');
+                window.location.reload();
+              });
+            } else {
+              throw new Error('Server returned error status: ' + response.status);
+            }
+          })
+          .catch(error => {
+            console.error('AJAX failed, trying regular form submission:', error);
+            
+            // Fallback to regular form submission
+            settingsForm.removeEventListener('submit', arguments.callee);
+            settingsForm.submit();
+          });
+        });
+      }
+    });
+
+    // Convert YouTube Live URL to embed code
+    function convertLiveToEmbed(streamNumber) {
+      const urlInput = document.getElementById(`youtube-live-url-${streamNumber}`);
+      const embedTextarea = document.getElementById(`stream${streamNumber}-embed`);
+      const url = urlInput.value.trim();
+      
+      if (!url) {
+        alert('Please enter a YouTube Live URL');
+        return;
+      }
+      
+      let embedCode = '';
+      
+      // Handle different YouTube Live URL formats
+      if (url.includes('youtube.com/watch')) {
+        // Extract video ID from watch URL
+        const videoId = url.split('v=')[1]?.split('&')[0];
+        if (videoId) {
+          embedCode = `<iframe width="560" height="315" src="https://www.youtube.com/embed/${videoId}?autoplay=1&mute=1" title="YouTube Live Stream ${streamNumber}" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>`;
+        }
+      } else if (url.includes('youtube.com/channel/') || url.includes('youtube.com/c/') || url.includes('youtube.com/@')) {
+        // Handle channel URLs for live streams
+        let channelId = '';
+        if (url.includes('/channel/')) {
+          channelId = url.split('/channel/')[1].split('/')[0];
+        } else if (url.includes('/c/')) {
+          channelId = url.split('/c/')[1].split('/')[0];
+        } else if (url.includes('/@')) {
+          channelId = url.split('/@')[1].split('/')[0];
+        }
+        
+        if (channelId) {
+          embedCode = `<iframe width="560" height="315" src="https://www.youtube.com/embed/live_stream?channel=${channelId}&autoplay=1&mute=1" title="YouTube Live Channel ${streamNumber}" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>`;
+        }
+      } else if (url.includes('youtu.be/')) {
+        // Handle shortened YouTube URLs
+        const videoId = url.split('youtu.be/')[1]?.split('?')[0];
+        if (videoId) {
+          embedCode = `<iframe width="560" height="315" src="https://www.youtube.com/embed/${videoId}?autoplay=1&mute=1" title="YouTube Live Stream ${streamNumber}" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>`;
+        }
+      }
+      
+      if (embedCode) {
+        embedTextarea.value = embedCode;
+        alert('✅ Embed code generated successfully! You can now save the stream.');
+      } else {
+        alert('❌ Could not generate embed code. Please check the URL format or paste the embed code manually.');
+      }
+    }
+    
+    // Test embed code
+    function testEmbed(streamNumber) {
+      const embedTextarea = document.getElementById(`stream${streamNumber}-embed`);
+      const embedCode = embedTextarea.value.trim();
+      
+      if (!embedCode) {
+        alert('Please enter an embed code first');
+        return;
+      }
+      
+      if (!embedCode.includes('<iframe') || !embedCode.includes('</iframe>')) {
+        alert('❌ Invalid embed code. Please make sure it contains iframe tags.');
+        return;
+      }
+      
+      // Create a test popup
+      const testWindow = window.open('', '_blank', 'width=800,height=600,scrollbars=yes');
+      testWindow.document.write(`
+        <!DOCTYPE html>
+        <html>
+        <head>
+          <title>Test Stream ${streamNumber}</title>
+          <style>
+            body { margin: 20px; font-family: Arial, sans-serif; }
+            .test-container { max-width: 100%; }
+            .embed-container { margin: 20px 0; }
+            .embed-container iframe { width: 100%; height: 400px; }
+          </style>
+        </head>
+        <body>
+          <h2>🧪 Testing Stream ${streamNumber}</h2>
+          <p>If the stream loads correctly below, the embed code is working:</p>
+          <div class="embed-container">
+            ${embedCode}
+          </div>
+          <button onclick="window.close()" style="background: #EF4444; color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer;">Close Test</button>
+        </body>
+        </html>
+      `);
+    }
+    
+    // Auto-refresh live status (optional)
+    setInterval(function() {
+      const liveIndicators = document.querySelectorAll('.live-indicator');
+      liveIndicators.forEach(indicator => {
+        if (indicator.textContent.includes('LIVE')) {
+          // Add subtle animation for live indicators
+          indicator.style.opacity = '0.8';
+          setTimeout(() => {
+            indicator.style.opacity = '1';
+          }, 500);
+        }
+      });
+    }, 3000);
+  </script>
+  
+  <!-- Font Awesome for icons -->
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</body>
+</html> 
