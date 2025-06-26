@@ -137,10 +137,20 @@
     }
 
     .quarter-header {
-      background: #e5e7eb !important;
-      color: #6b7280 !important;
+      background: #d1d5db !important;
+      color: #374151 !important;
       padding: 4px 2px;
       font-size: 9px;
+      font-weight: bold;
+      text-align: center;
+    }
+    
+    .date-header {
+      background: #e5e7eb !important;
+      color: #6b7280 !important;
+      padding: 2px 1px;
+      font-size: 8px;
+      min-width: 18px;
     }
 
     .tournament-name {
@@ -368,10 +378,26 @@
         </tr>
         <tr>
           <% for (let i = 0; i < months.length; i++) { %>
-            <th class="quarter-header">Q1</th>
-            <th class="quarter-header">Q2</th>
-            <th class="quarter-header">Q3</th>
-            <th class="quarter-header">Q4</th>
+            <th class="quarter-header" colspan="7">Q1<br/>1-7</th>
+            <th class="quarter-header" colspan="8">Q2<br/>8-15</th>
+            <th class="quarter-header" colspan="8">Q3<br/>16-23</th>
+            <th class="quarter-header" colspan="8">Q4<br/>24-31</th>
+          <% } %>
+        </tr>
+        <tr>
+          <% for (let i = 0; i < months.length; i++) { %>
+            <% for (let q = 1; q <= 4; q++) { %>
+              <% 
+                let startDay, endDay;
+                if (q === 1) { startDay = 1; endDay = 7; }
+                else if (q === 2) { startDay = 8; endDay = 15; }
+                else if (q === 3) { startDay = 16; endDay = 23; }
+                else { startDay = 24; endDay = 31; }
+              %>
+              <% for (let day = startDay; day <= endDay; day++) { %>
+                <th class="date-header"><%= day %></th>
+              <% } %>
+            <% } %>
           <% } %>
         </tr>
       </thead>
@@ -435,14 +461,48 @@
               <% for (let m = 0; m < months.length; m++) { %>
                 <% for (let q = 1; q <= 4; q++) { %>
                   <% 
-                    const hasEvent = t.schedule && t.schedule[m] && t.schedule[m].includes(q);
-                    const cellClass = hasEvent ? t.color : '';
+                    // Define date ranges for each quarter
+                    let startDay, endDay;
+                    if (q === 1) { startDay = 1; endDay = 7; }
+                    else if (q === 2) { startDay = 8; endDay = 15; }
+                    else if (q === 3) { startDay = 16; endDay = 23; }
+                    else { startDay = 24; endDay = 31; }
                   %>
-                  <td class="calendar-cell <%= cellClass %>">
-                    <% if (hasEvent) { %>
-                      <div class="tournament-dot"></div>
-                    <% } %>
-                  </td>
+                  <% for (let day = startDay; day <= endDay; day++) { %>
+                    <% 
+                      let hasEvent = false;
+                      
+                      // Check if tournament has event on this date
+                      if (t.startDate) {
+                        const startDate = new Date(t.startDate);
+                        const endDate = t.endDate ? new Date(t.endDate) : startDate;
+                        
+                        if (startDate.getMonth() === m) {
+                          const startDay = startDate.getDate();
+                          const endDay = endDate.getMonth() === m ? endDate.getDate() : 31;
+                          
+                          if (day >= startDay && day <= endDay) {
+                            hasEvent = true;
+                          }
+                        } else if (endDate.getMonth() === m && startDate.getMonth() < m) {
+                          if (day <= endDate.getDate()) {
+                            hasEvent = true;
+                          }
+                        } else if (startDate.getMonth() < m && endDate.getMonth() > m) {
+                          hasEvent = true;
+                        }
+                      }
+                      
+                      const cellClass = hasEvent ? t.color : '';
+                      const daysInMonth = new Date(2025, m + 1, 0).getDate();
+                      const dayExists = day <= daysInMonth;
+                    %>
+                    <td class="calendar-cell <%= cellClass %>" <% if (!dayExists) { %>style="opacity: 0.1;"<% } %>>
+                      <% if (hasEvent && dayExists) { %>
+                        <div class="tournament-dot"></div>
+                      <% } %>
+                    </td>
+                  <% } %>
                 <% } %>
               <% } %>
             </tr>

@@ -475,14 +475,42 @@
               <div class="grid-month-header"><%= month %></div>
             <% }); %>
             
-            <!-- Sub-header Row -->
+            <!-- Quarter Row -->
             <div class="grid-subheader-corner"></div>
             <% for (let i = 0; i < months.length; i++) { %>
               <div class="grid-quarter-header">
-                <span>Q1</span>
-                <span>Q2</span>
-                <span>Q3</span>
-                <span>Q4</span>
+                <div class="quarter-section">
+                  <div class="quarter-label">Q1</div>
+                  <div class="quarter-dates">
+                    <% for (let day = 1; day <= 7; day++) { %>
+                      <span class="date-cell"><%= day %></span>
+                    <% } %>
+                  </div>
+                </div>
+                <div class="quarter-section">
+                  <div class="quarter-label">Q2</div>
+                  <div class="quarter-dates">
+                    <% for (let day = 8; day <= 15; day++) { %>
+                      <span class="date-cell"><%= day %></span>
+                    <% } %>
+                  </div>
+                </div>
+                <div class="quarter-section">
+                  <div class="quarter-label">Q3</div>
+                  <div class="quarter-dates">
+                    <% for (let day = 16; day <= 23; day++) { %>
+                      <span class="date-cell"><%= day %></span>
+                    <% } %>
+                  </div>
+                </div>
+                <div class="quarter-section">
+                  <div class="quarter-label">Q4</div>
+                  <div class="quarter-dates">
+                    <% for (let day = 24; day <= 31; day++) { %>
+                      <span class="date-cell"><%= day %></span>
+                    <% } %>
+                  </div>
+                </div>
               </div>
             <% } %>
             
@@ -638,45 +666,60 @@
                 <% for (let m = 0; m < months.length; m++) { %>
                   <div class="grid-month-cell">
                     <% for (let q = 1; q <= 4; q++) { %>
-                      <% 
-                        let cellClass = "grid-quarter-cell";
-                        let cellData = t.schedule && t.schedule[m] && t.schedule[m][q];
-                        let hasEvent = !!cellData;
-                        let spanClass = "";
-                        let iconClass = "fas fa-circle";
-                        
-                        if (hasEvent) {
-                          cellClass += ` ${t.color}`;
-                          
-                          // Add spanning classes for visual effects
-                          if (cellData.type === 'span') {
-                            if (cellData.start && !cellData.end) {
-                              spanClass = " span-start";
-                              iconClass = "fas fa-play";
-                            } else if (cellData.end && !cellData.start) {
-                              spanClass = " span-end"; 
-                              iconClass = "fas fa-stop";
-                            } else if (cellData.middle) {
-                              spanClass = " span-middle";
-                              iconClass = "fas fa-minus";
-                            } else if (cellData.start && cellData.end) {
-                              spanClass = " span-complete";
-                              iconClass = "fas fa-circle";
+                      <div class="grid-quarter-cell">
+                        <% 
+                          // Define date ranges for each quarter
+                          let startDay, endDay;
+                          if (q === 1) { startDay = 1; endDay = 7; }
+                          else if (q === 2) { startDay = 8; endDay = 15; }
+                          else if (q === 3) { startDay = 16; endDay = 23; }
+                          else { startDay = 24; endDay = 31; }
+                        %>
+                        <% for (let day = startDay; day <= endDay; day++) { %>
+                          <% 
+                            let cellClass = "grid-date-cell";
+                            let hasEvent = false;
+                            
+                            // Check if tournament has event on this date
+                            if (t.startDate) {
+                              const startDate = new Date(t.startDate);
+                              const endDate = t.endDate ? new Date(t.endDate) : startDate;
+                              
+                              if (startDate.getMonth() === m) {
+                                const startDay = startDate.getDate();
+                                const endDay = endDate.getMonth() === m ? endDate.getDate() : 31;
+                                
+                                if (day >= startDay && day <= endDay) {
+                                  hasEvent = true;
+                                  cellClass += ` ${t.color}`;
+                                }
+                              } else if (endDate.getMonth() === m && startDate.getMonth() < m) {
+                                // Multi-month tournament ending in this month
+                                if (day <= endDate.getDate()) {
+                                  hasEvent = true;
+                                  cellClass += ` ${t.color}`;
+                                }
+                              } else if (startDate.getMonth() < m && endDate.getMonth() > m) {
+                                // Multi-month tournament spanning this entire month
+                                hasEvent = true;
+                                cellClass += ` ${t.color}`;
+                              }
                             }
-                          }
-                          
-                          cellClass += spanClass;
-                        }
-                      %>
-                      <div class="<%= cellClass %> <% if (hasEvent) { %>tournament-clickable<% } %>" 
-                           <% if (hasEvent) { %>
-                           data-tournament-index="<%= index %>"
-                           data-span-type="<%= cellData.type || 'single' %>"
-                           data-span-position="<%= cellData.start ? 'start' : (cellData.end ? 'end' : (cellData.middle ? 'middle' : 'single')) %>"
-                           title="<%= t.name %><%= cellData.duration ? ' (' + cellData.duration + ' days)' : '' %>"
-                           <% } %>>
-                        <% if (hasEvent) { %>
-                          <!-- Clean filled cell without icons -->
+                            
+                            // Check if this day exists in the month
+                            const daysInMonth = new Date(2025, m + 1, 0).getDate();
+                            const dayExists = day <= daysInMonth;
+                          %>
+                          <div class="<%= cellClass %> <% if (hasEvent && dayExists) { %>tournament-clickable<% } %>" 
+                               <% if (hasEvent && dayExists) { %>
+                               data-tournament-index="<%= index %>"
+                               data-date="<%= day %>"
+                               data-month="<%= m %>"
+                               data-quarter="<%= q %>"
+                               title="<%= t.name %> - <%= day %>/<%= m + 1 %>/2025"
+                               <% } %>
+                               <% if (!dayExists) { %>style="opacity: 0.1; pointer-events: none;"<% } %>>
+                          </div>
                         <% } %>
                       </div>
                     <% } %>
@@ -859,13 +902,14 @@
       max-height: 80vh;
       position: relative;
       border: 1px solid #e5e7eb;
+      background: white;
     }
     
     /* CSS Grid Layout */
     .calendar-grid {
       display: grid;
       grid-template-columns: 300px repeat(12, 1fr);
-      min-width: 1600px;
+      min-width: 1800px;
     }
     
     /* Header Corner */
@@ -873,7 +917,7 @@
       position: sticky;
       top: 0;
       left: 0;
-      z-index: 40;
+      z-index: 50;
       background: #f9fafb;
       padding: 16px;
       font-weight: 600;
@@ -903,7 +947,7 @@
       position: sticky;
       top: 48px;
       left: 0;
-      z-index: 35;
+      z-index: 45;
       background: #f3f4f6;
       border-right: 2px solid #e5e7eb;
       border-bottom: 2px solid #e5e7eb;
@@ -915,30 +959,53 @@
       top: 48px;
       z-index: 25;
       background: #f3f4f6;
-      padding: 8px 4px;
+      padding: 4px 2px;
       display: grid;
       grid-template-columns: repeat(4, 1fr);
-      gap: 1px;
+      gap: 2px;
       border-right: 1px solid #e5e7eb;
       border-bottom: 2px solid #e5e7eb;
     }
     
-    .grid-quarter-header span {
-      text-align: center;
-      font-size: 0.75rem;
-      color: #6b7280;
+    .quarter-section {
       border-right: 1px solid #e5e7eb;
+      padding: 2px;
     }
     
-    .grid-quarter-header span:last-child {
+    .quarter-section:last-child {
       border-right: none;
+    }
+    
+    .quarter-label {
+      text-align: center;
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: #374151;
+      margin-bottom: 2px;
+      background: #e5e7eb;
+      padding: 2px;
+      border-radius: 2px;
+    }
+    
+    .quarter-dates {
+      display: grid;
+      grid-template-columns: repeat(8, 1fr);
+      gap: 1px;
+    }
+    
+    .date-cell {
+      text-align: center;
+      font-size: 0.5rem;
+      color: #6b7280;
+      padding: 1px;
+      min-width: 18px;
     }
     
     /* Tournament Name Cells */
     .grid-tournament-name {
       position: sticky;
       left: 0;
-      z-index: 20;
+      z-index: 40;
       background: white;
       padding: 16px;
       border-right: 2px solid #e5e7eb;
@@ -948,6 +1015,7 @@
       word-wrap: break-word;
       overflow-wrap: break-word;
       hyphens: auto;
+      box-shadow: 2px 0 4px rgba(0,0,0,0.1);
     }
     
     .grid-tournament-name:hover {
@@ -966,21 +1034,49 @@
     
     /* Quarter Cells */
     .grid-quarter-cell {
-      padding: 8px;
+      display: grid;
+      grid-template-columns: repeat(8, 1fr);
+      gap: 1px;
+      padding: 2px;
+      border-right: 1px solid #e5e7eb;
+    }
+    
+    .grid-quarter-cell:last-child {
+      border-right: none;
+    }
+    
+    /* Date Cells */
+    .grid-date-cell {
+      padding: 2px;
       text-align: center;
       position: relative;
       transition: all 0.2s ease;
       cursor: pointer;
-      min-height: 40px;
+      min-height: 24px;
+      min-width: 18px;
       display: flex;
       align-items: center;
       justify-content: center;
+      font-size: 0.6rem;
+      border-radius: 2px;
     }
     
-    .grid-quarter-cell:hover {
+    .grid-date-cell:hover {
       transform: scale(1.1);
       z-index: 10;
       box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    }
+    
+    .tournament-date {
+      font-weight: bold;
+      color: white;
+      text-shadow: 0 1px 2px rgba(0,0,0,0.3);
+    }
+    
+    .empty-date {
+      color: #d1d5db;
+      font-size: 0.5rem;
+      opacity: 0.6;
     }
     
     /* Color classes for tournament types */
