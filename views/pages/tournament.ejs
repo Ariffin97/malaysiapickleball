@@ -7,6 +7,8 @@
   <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
   <link rel="stylesheet" href="/css/styles.css">
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+  <!-- DHTMLX Gantt CSS -->
+  <link rel="stylesheet" href="/css/vendor/dhtmlx/dhtmlxgantt.css">
   <style>
     .tournament-hero {
       background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
@@ -163,6 +165,177 @@
     @media (min-width: 1025px) {
       .tournament-hero {
         padding-top: 7rem !important; /* 112px for desktop */
+      }
+    }
+    
+    /* DHTMLX Gantt Customization */
+    #gantt_here {
+      height: 600px;
+      width: 100%;
+      background: white;
+    }
+    
+    /* Tournament type colors */
+    .gantt_task_line.tournament-local {
+      background-color: #10b981;
+      border-color: #059669;
+    }
+    
+    .gantt_task_line.tournament-state {
+      background-color: #ef4444;
+      border-color: #dc2626;
+    }
+    
+    .gantt_task_line.tournament-national {
+      background-color: #3b82f6;
+      border-color: #2563eb;
+    }
+    
+    .gantt_task_line.tournament-sarawak {
+      background-color: #8b5cf6;
+      border-color: #7c3aed;
+    }
+    
+    .gantt_task_line.tournament-wmalaysia {
+      background-color: #f97316;
+      border-color: #ea580c;
+    }
+    
+    /* Weekend highlighting */
+    .gantt_scale_cell.weekend {
+      background-color: #f0f4ff !important;
+    }
+    
+    /* Month boundaries - grey lines */
+    .gantt_scale_cell.month_start {
+      border-left: 3px solid #6b7280 !important;
+      position: relative;
+    }
+    
+    /* Extend month boundary line through entire chart height */
+    .gantt_task_cell.month_start {
+      border-left: 3px solid #6b7280 !important;
+      position: relative;
+    }
+    
+    /* Make month boundary more prominent in data area */
+    .gantt_row .gantt_cell.month_start {
+      border-left: 3px solid #6b7280 !important;
+    }
+    
+    /* Apply month boundaries to ALL scale rows (month, day letters, day numbers) */
+    .gantt_scale_line .gantt_scale_cell.month_start {
+      border-left: 3px solid #6b7280 !important;
+    }
+    
+    /* Ensure month boundary appears in task rows */
+    .gantt_task_row .gantt_task_cell.month_start {
+      border-left: 3px solid #6b7280 !important;
+    }
+    
+    /* Force month boundaries on all cells with date 1 */
+    .gantt_scale_cell[data-date*="-01"],
+    .gantt_task_cell[data-date*="-01"] {
+      border-left: 3px solid #6b7280 !important;
+    }
+    
+    /* Additional selector for DHTMLX structure */
+    .gantt_task .gantt_task_scale .gantt_scale_cell.month_start,
+    .gantt_grid_scale .gantt_scale_cell.month_start {
+      border-left: 3px solid #6b7280 !important;
+    }
+    
+    /* Header styling */
+    .gantt_grid_head_cell {
+      font-weight: 700;
+      background: #f3f4f6;
+      color: #374151;
+    }
+    
+    /* Grid styling */
+    .gantt_grid_data {
+      background: white;
+    }
+    
+    .gantt_row.odd {
+      background: #fafafa;
+    }
+    
+    /* Task text */
+    .gantt_task_content {
+      color: white;
+      font-weight: 600;
+      padding: 2px 8px;
+    }
+    
+    /* Today marker */
+    .gantt_marker {
+      background-color: #fbbf24;
+      opacity: 0.5;
+    }
+    
+    /* Scale headers */
+    .gantt_scale_line {
+      border-bottom: 1px solid #e5e7eb;
+    }
+    
+    /* Weekday row styling */
+    .gantt_scale_line:nth-child(2) {
+      background-color: #f9fafb;
+      font-weight: 600;
+    }
+    
+    /* Make weekday abbreviations very light */
+    .gantt_scale_line:nth-child(2) .gantt_scale_cell {
+      color: #d1d5db;
+      font-size: 0.75rem;
+      font-weight: 400;
+    }
+    
+    /* Weekend weekday labels - slightly darker but still subtle */
+    .gantt_scale_line:nth-child(2) .gantt_scale_cell.weekend {
+      color: #c7d2fe;
+      font-weight: 500;
+    }
+    
+    /* Grid column (tournament names) */
+    .gantt_grid {
+      border-right: 2px solid #e5e7eb;
+    }
+    
+    /* Custom scrollbar */
+    .gantt_hor_scroll::-webkit-scrollbar {
+      height: 8px;
+    }
+    
+    .gantt_hor_scroll::-webkit-scrollbar-track {
+      background: #f3f4f6;
+    }
+    
+    .gantt_hor_scroll::-webkit-scrollbar-thumb {
+      background: #9ca3af;
+      border-radius: 4px;
+    }
+    
+    .gantt_hor_scroll::-webkit-scrollbar-thumb:hover {
+      background: #6b7280;
+    }
+    
+    /* Make tournament names sticky */
+    .gantt_grid_scale .gantt_grid_head_cell {
+      position: sticky !important;
+      left: 0;
+      z-index: 40;
+    }
+    
+    /* Responsive Gantt */
+    @media (max-width: 768px) {
+      #gantt_here {
+        height: 400px;
+      }
+      
+      .gantt_grid {
+        width: 150px !important;
       }
     }
   </style>
@@ -463,8 +636,13 @@
           </div>
         </div>
         
-        <!-- Desktop Calendar Grid -->
-        <div class="calendar-grid-wrapper hidden md:block">
+        <!-- Desktop Calendar Grid - DHTMLX Gantt Chart -->
+        <div class="hidden md:block">
+          <div id="gantt_here" class="rounded-2xl shadow-xl overflow-hidden border border-gray-200"></div>
+        </div>
+        
+        <!-- Keep the original calendar grid hidden for data processing -->
+        <div class="calendar-grid-wrapper hidden" style="display: none !important;">
           <div class="calendar-grid">
             <!-- Header Row -->
             <div class="grid-header-corner">
@@ -1840,5 +2018,169 @@
   
   <!-- PDF Download Functionality -->
   <script src="/js/tournament-pdf.js"></script>
+  
+  <!-- DHTMLX Gantt JS -->
+  <script src="/js/vendor/dhtmlx/dhtmlxgantt.js"></script>
+  
+  <!-- Initialize DHTMLX Gantt -->
+  <script>
+    // Get tournament data from server
+    const tournaments = <%- JSON.stringify(tournaments || []) %>;
+    
+    // Initialize Gantt only on desktop view
+    if (window.innerWidth >= 768) {
+      // Tournament data is already available from the server
+      const ganttTournaments = tournaments || [];
+      
+      // Configure Gantt
+      gantt.config.date_format = "%Y-%m-%d";
+      gantt.config.columns = [
+        {name: "text", label: "Tournament", tree: false, width: 300, resize: false}
+      ];
+      
+      // Configure timeline to show full year 2025
+      gantt.config.start_date = new Date(2025, 0, 1);
+      gantt.config.end_date = new Date(2026, 0, 1);
+      
+      // Configure scales (Month -> Day with weekday -> Day number)
+      gantt.config.scales = [
+        {unit: "month", step: 1, format: "%M"},
+        {unit: "day", step: 1, format: function(date) {
+          const days = ['S', 'M', 'T', 'W', 'T', 'F', 'S'];
+          return days[date.getDay()];
+        }},  // Single letter weekday
+        {unit: "day", step: 1, format: "%d"}   // Day number
+      ];
+      
+      // Enable today marker
+      gantt.plugins({
+        marker: true
+      });
+      
+      // Row height
+      gantt.config.row_height = 30;
+      gantt.config.scale_height = 60;
+      
+      // Readonly mode
+      gantt.config.readonly = true;
+      
+      // Custom task class
+      gantt.templates.task_class = function(start, end, task) {
+        return "tournament-" + (task.type || "local");
+      };
+      
+      // Weekend highlighting and month boundaries
+      gantt.templates.scale_cell_class = function(date) {
+        const day = date.getDay();
+        const classes = [];
+        
+        if (day === 0 || day === 6) {
+          classes.push("weekend");
+        }
+        
+        if (date.getDate() === 1) {
+          classes.push("month_start");
+        }
+        
+        return classes.join(" ");
+      };
+      
+      // Apply month boundaries to task cells as well
+      gantt.templates.task_cell_class = function(task, date) {
+        const classes = [];
+        
+        if (date.getDate() === 1) {
+          classes.push("month_start");
+        }
+        
+        if (date.getDay() === 0 || date.getDay() === 6) {
+          classes.push("weekend");
+        }
+        
+        return classes.join(" ");
+      };
+      
+      // Task text
+      gantt.templates.task_text = function(start, end, task) {
+        return task.text;
+      };
+      
+      // Tooltip
+      gantt.templates.tooltip_text = function(start, end, task) {
+        const startDate = gantt.date.date_to_str("%d %M %Y")(start);
+        const endDate = gantt.date.date_to_str("%d %M %Y")(end);
+        
+        let html = "<b>" + task.text + "</b><br/>";
+        html += "Type: " + (task.type ? task.type.toUpperCase() : 'LOCAL') + "<br/>";
+        html += "Date: " + startDate + " - " + endDate + "<br/>";
+        
+        if (task.venue) {
+          html += "Venue: " + task.venue + "<br/>";
+        }
+        
+        if (task.organizer) {
+          html += "Organizer: " + task.organizer + "<br/>";
+        }
+        
+        return html;
+      };
+      
+      // Convert tournaments to Gantt tasks
+      const tasks = {
+        data: ganttTournaments.map((tournament, index) => {
+          const startDate = new Date(tournament.startDate);
+          const endDate = tournament.endDate ? new Date(tournament.endDate) : new Date(tournament.startDate);
+          
+          // Add one day to end date for proper display
+          endDate.setDate(endDate.getDate() + 1);
+          
+          return {
+            id: index + 1,
+            text: tournament.name,
+            start_date: gantt.date.date_to_str(gantt.config.date_format)(startDate),
+            end_date: gantt.date.date_to_str(gantt.config.date_format)(endDate),
+            type: tournament.type,
+            venue: tournament.venue,
+            city: tournament.city,
+            organizer: tournament.organizer
+          };
+        })
+      };
+      
+      // Initialize Gantt
+      gantt.init("gantt_here");
+      gantt.parse(tasks);
+      
+      // Add today marker
+      const today = new Date();
+      if (today.getFullYear() === 2025) {
+        gantt.addMarker({
+          start_date: today,
+          css: "today",
+          text: "Today",
+          title: "Today: " + gantt.date.date_to_str("%d %M")(today)
+        });
+      }
+      
+      // Zoom to current month on load
+      const currentMonth = new Date();
+      if (currentMonth.getFullYear() === 2025) {
+        gantt.showDate(currentMonth);
+      }
+      
+      // Handle click events to show tournament modal
+      gantt.attachEvent("onTaskClick", function(id, e) {
+        const task = gantt.getTask(id);
+        const tournamentIndex = id - 1; // Convert back to original index
+        const tournament = tournaments[tournamentIndex];
+        
+        if (tournament) {
+          openTournamentModal(tournamentIndex);
+        }
+        
+        return true;
+      });
+    }
+  </script>
 </body>
 </html>

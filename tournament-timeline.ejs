@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tournament Timeline - Malaysia Pickleball Association</title>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="/css/styles.css">
+  
+  <!-- DHTMLX Gantt CSS -->
+  <link rel="stylesheet" href="/css/vendor/dhtmlx/dhtmlxgantt.css">
+  
+  <style>
+    /* Custom styling for tournament timeline */
+    #gantt_here {
+      height: 600px;
+      width: 100%;
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      overflow: hidden;
+    }
+    
+    /* Tournament type colors */
+    .gantt_task_line.tournament-local {
+      background-color: #10b981;
+      border-color: #059669;
+    }
+    
+    .gantt_task_line.tournament-state {
+      background-color: #ef4444;
+      border-color: #dc2626;
+    }
+    
+    .gantt_task_line.tournament-national {
+      background-color: #3b82f6;
+      border-color: #2563eb;
+    }
+    
+    .gantt_task_line.tournament-sarawak {
+      background-color: #8b5cf6;
+      border-color: #7c3aed;
+    }
+    
+    .gantt_task_line.tournament-wmalaysia {
+      background-color: #f97316;
+      border-color: #ea580c;
+    }
+    
+    /* Weekend highlighting */
+    .gantt_scale_cell.weekend {
+      background-color: #f0f4ff !important;
+    }
+    
+    /* Month boundaries */
+    .gantt_scale_cell.month_start {
+      border-left: 2px solid #dc2626 !important;
+    }
+    
+    /* Header styling */
+    .gantt_grid_head_cell {
+      font-weight: 700;
+      background: #f3f4f6;
+      color: #374151;
+    }
+    
+    /* Grid styling */
+    .gantt_grid_data {
+      background: white;
+    }
+    
+    .gantt_row.odd {
+      background: #fafafa;
+    }
+    
+    /* Task text */
+    .gantt_task_content {
+      color: white;
+      font-weight: 600;
+      padding: 2px 8px;
+    }
+    
+    /* Today marker */
+    .gantt_marker {
+      background-color: #fbbf24;
+      opacity: 0.5;
+    }
+    
+    /* Scale headers */
+    .gantt_scale_line {
+      border-bottom: 1px solid #e5e7eb;
+    }
+    
+    /* Weekday row styling */
+    .gantt_scale_line:nth-child(2) {
+      background-color: #f9fafb;
+      font-weight: 600;
+    }
+    
+    /* Make weekday abbreviations stand out */
+    .gantt_scale_line:nth-child(2) .gantt_scale_cell {
+      color: #4b5563;
+      font-size: 0.875rem;
+    }
+    
+    /* Weekend weekday labels */
+    .gantt_scale_line:nth-child(2) .gantt_scale_cell.weekend {
+      color: #7c3aed;
+      font-weight: 700;
+    }
+    
+    /* Grid column (tournament names) */
+    .gantt_grid {
+      border-right: 2px solid #e5e7eb;
+    }
+    
+    /* Custom scrollbar */
+    .gantt_hor_scroll::-webkit-scrollbar {
+      height: 8px;
+    }
+    
+    .gantt_hor_scroll::-webkit-scrollbar-track {
+      background: #f3f4f6;
+    }
+    
+    .gantt_hor_scroll::-webkit-scrollbar-thumb {
+      background: #9ca3af;
+      border-radius: 4px;
+    }
+    
+    .gantt_hor_scroll::-webkit-scrollbar-thumb:hover {
+      background: #6b7280;
+    }
+    
+    /* Legend styling */
+    .legend {
+      display: flex;
+      gap: 1rem;
+      flex-wrap: wrap;
+      justify-content: center;
+      margin-bottom: 2rem;
+    }
+    
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.5rem 1rem;
+      background: #f9fafb;
+      border-radius: 9999px;
+      font-size: 0.875rem;
+      font-weight: 600;
+    }
+    
+    .legend-color {
+      width: 16px;
+      height: 16px;
+      border-radius: 4px;
+    }
+    
+    /* Responsive */
+    @media (max-width: 768px) {
+      #gantt_here {
+        height: 400px;
+      }
+      
+      .gantt_grid {
+        width: 150px !important;
+      }
+    }
+  </style>
+</head>
+<body class="bg-gray-50">
+  <%- include('../partials/header') %>
+  
+  <main class="pt-24 p-4 pb-20">
+    <div class="container mx-auto max-w-7xl">
+      <!-- Page Header -->
+      <div class="text-center mb-8">
+        <h1 class="text-4xl md:text-5xl font-bold text-gray-800 mb-4">
+          <i class="fas fa-stream mr-3 text-indigo-600"></i>
+          2025 Tournament Timeline
+        </h1>
+        <p class="text-lg text-gray-600">View all tournaments in a linear timeline with frozen tournament names</p>
+      </div>
+      
+      <!-- Legend -->
+      <div class="legend">
+        <div class="legend-item">
+          <div class="legend-color" style="background-color: #10b981;"></div>
+          <span>Local</span>
+        </div>
+        <div class="legend-item">
+          <div class="legend-color" style="background-color: #ef4444;"></div>
+          <span>State</span>
+        </div>
+        <div class="legend-item">
+          <div class="legend-color" style="background-color: #3b82f6;"></div>
+          <span>National</span>
+        </div>
+        <div class="legend-item">
+          <div class="legend-color" style="background-color: #8b5cf6;"></div>
+          <span>Sarawak</span>
+        </div>
+        <div class="legend-item">
+          <div class="legend-color" style="background-color: #f97316;"></div>
+          <span>W. Malaysia</span>
+        </div>
+      </div>
+      
+      <!-- Gantt Chart Container -->
+      <div id="gantt_here"></div>
+      
+      <!-- Action Buttons -->
+      <div class="flex justify-center gap-4 mt-8">
+        <a href="/tournament" class="bg-gray-600 hover:bg-gray-700 text-white px-6 py-3 rounded-lg font-semibold transition-all duration-300">
+          <i class="fas fa-arrow-left mr-2"></i>Back to List
+        </a>
+        <a href="/tournament/calendar" class="bg-purple-600 hover:bg-purple-700 text-white px-6 py-3 rounded-lg font-semibold transition-all duration-300">
+          <i class="fas fa-calendar-alt mr-2"></i>Calendar View
+        </a>
+        <a href="/tournament/download-pdf" class="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-lg font-semibold transition-all duration-300">
+          <i class="fas fa-download mr-2"></i>Download PDF
+        </a>
+        <a href="/tournament/print-pdf" target="_blank" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-semibold transition-all duration-300">
+          <i class="fas fa-print mr-2"></i>Print
+        </a>
+      </div>
+    </div>
+  </main>
+  
+  <%- include('../partials/footer') %>
+  
+  <!-- DHTMLX Gantt JS -->
+  <script src="/js/vendor/dhtmlx/dhtmlxgantt.js"></script>
+  
+  <script>
+    // Tournament data from server
+    const tournaments = <%- JSON.stringify(tournaments || []) %>;
+    
+    // Configure Gantt
+    gantt.config.date_format = "%Y-%m-%d";
+    gantt.config.columns = [
+      {name: "text", label: "Tournament", tree: false, width: 300, resize: false}
+    ];
+    
+    // Configure timeline to show full year 2025
+    gantt.config.start_date = new Date(2025, 0, 1);
+    gantt.config.end_date = new Date(2026, 0, 1);
+    
+    // Configure scales (Month -> Day with weekday -> Day number)
+    gantt.config.scales = [
+      {unit: "month", step: 1, format: "%M"},
+      {unit: "day", step: 1, format: function(date) {
+        const days = ['S', 'M', 'T', 'W', 'T', 'F', 'S'];
+        return days[date.getDay()];
+      }},  // Single letter weekday
+      {unit: "day", step: 1, format: "%d"}   // Day number
+    ];
+    
+    // Enable today marker
+    gantt.plugins({
+      marker: true
+    });
+    
+    // Row height
+    gantt.config.row_height = 30;
+    gantt.config.scale_height = 60;
+    
+    // Readonly mode
+    gantt.config.readonly = true;
+    
+    // Custom task class
+    gantt.templates.task_class = function(start, end, task) {
+      return "tournament-" + (task.type || "local");
+    };
+    
+    // Weekend highlighting
+    gantt.templates.scale_cell_class = function(date) {
+      const day = date.getDay();
+      const classes = [];
+      
+      if (day === 0 || day === 6) {
+        classes.push("weekend");
+      }
+      
+      if (date.getDate() === 1) {
+        classes.push("month_start");
+      }
+      
+      return classes.join(" ");
+    };
+    
+    // Task text
+    gantt.templates.task_text = function(start, end, task) {
+      return task.text;
+    };
+    
+    // Tooltip
+    gantt.templates.tooltip_text = function(start, end, task) {
+      const startDate = gantt.date.date_to_str("%d %M %Y")(start);
+      const endDate = gantt.date.date_to_str("%d %M %Y")(end);
+      
+      let html = "<b>" + task.text + "</b><br/>";
+      html += "Type: " + (task.type ? task.type.toUpperCase() : 'LOCAL') + "<br/>";
+      html += "Date: " + startDate + " - " + endDate + "<br/>";
+      
+      if (task.venue) {
+        html += "Venue: " + task.venue + "<br/>";
+      }
+      
+      if (task.organizer) {
+        html += "Organizer: " + task.organizer + "<br/>";
+      }
+      
+      return html;
+    };
+    
+    // Convert tournaments to Gantt tasks
+    const tasks = {
+      data: tournaments.map((tournament, index) => {
+        const startDate = new Date(tournament.startDate);
+        const endDate = tournament.endDate ? new Date(tournament.endDate) : new Date(tournament.startDate);
+        
+        // Add one day to end date for proper display
+        endDate.setDate(endDate.getDate() + 1);
+        
+        return {
+          id: index + 1,
+          text: tournament.name,
+          start_date: gantt.date.date_to_str(gantt.config.date_format)(startDate),
+          end_date: gantt.date.date_to_str(gantt.config.date_format)(endDate),
+          type: tournament.type,
+          venue: tournament.venue,
+          city: tournament.city,
+          organizer: tournament.organizer
+        };
+      })
+    };
+    
+    // Initialize Gantt
+    gantt.init("gantt_here");
+    gantt.parse(tasks);
+    
+    // Add today marker
+    const today = new Date();
+    if (today.getFullYear() === 2025) {
+      gantt.addMarker({
+        start_date: today,
+        css: "today",
+        text: "Today",
+        title: "Today: " + gantt.date.date_to_str("%d %M")(today)
+      });
+    }
+    
+    // Zoom to current month on load
+    const currentMonth = new Date();
+    if (currentMonth.getFullYear() === 2025) {
+      gantt.showDate(currentMonth);
+    }
+  </script>
+</body>
+</html>
