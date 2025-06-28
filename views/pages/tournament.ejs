@@ -8,7 +8,7 @@
   <link rel="stylesheet" href="/css/styles.css">
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
   <!-- DHTMLX Gantt CSS -->
-  <link rel="stylesheet" href="/css/vendor/dhtmlx/dhtmlxgantt.css">
+  <link rel="stylesheet" href="https://cdn.dhtmlx.com/gantt/edge/dhtmlxgantt.css">
   <style>
     .tournament-hero {
       background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
@@ -303,22 +303,39 @@
       border-right: 2px solid #e5e7eb;
     }
     
-    /* Custom scrollbar */
+    /* Custom scrollbar - Enhanced visibility */
     .gantt_hor_scroll::-webkit-scrollbar {
-      height: 8px;
+      height: 16px; /* Increased from 8px to 16px for better visibility */
     }
     
     .gantt_hor_scroll::-webkit-scrollbar-track {
-      background: #f3f4f6;
+      background: #e5e7eb;
+      border-radius: 8px;
+      border: 1px solid #d1d5db;
     }
     
     .gantt_hor_scroll::-webkit-scrollbar-thumb {
-      background: #9ca3af;
-      border-radius: 4px;
+      background: #6b7280;
+      border-radius: 8px;
+      border: 2px solid #e5e7eb;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      min-width: 30px; /* Ensure minimum thumb size */
     }
     
     .gantt_hor_scroll::-webkit-scrollbar-thumb:hover {
-      background: #6b7280;
+      background: #374151;
+      border-color: #d1d5db;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+    }
+    
+    .gantt_hor_scroll::-webkit-scrollbar-thumb:active {
+      background: #1f2937;
+    }
+    
+    /* Firefox scrollbar support */
+    .gantt_hor_scroll {
+      scrollbar-width: thick;
+      scrollbar-color: #6b7280 #e5e7eb;
     }
     
     /* Make tournament names sticky */
@@ -336,6 +353,86 @@
       
       .gantt_grid {
         width: 150px !important;
+      }
+    }
+    
+    /* Print styles for landscape PDF */
+    @media print {
+      @page {
+        size: landscape;
+        margin: 0.5in;
+      }
+      
+      body {
+        margin: 0;
+        padding: 0;
+        background: white !important;
+      }
+      
+      /* Hide elements that shouldn't be printed */
+      .tournament-hero,
+      .filter-controls,
+      .view-toggle,
+      .pagination,
+      .tournament-grid,
+      .tournament-list,
+      .floating-action-btn,
+      header,
+      footer,
+      .navbar,
+      .navigation {
+        display: none !important;
+      }
+      
+      /* Make Gantt chart fill the page */
+      #gantt_here {
+        width: 100% !important;
+        height: 7in !important;
+        page-break-inside: avoid;
+        margin: 0 !important;
+        padding: 0 !important;
+      }
+      
+      /* Ensure tournament calendar section is visible */
+      #tournament-calendar {
+        display: block !important;
+        width: 100% !important;
+        margin: 0 !important;
+        padding: 20px 0 !important;
+      }
+      
+      /* Style the calendar title for print */
+      #tournament-calendar h2 {
+        text-align: center;
+        margin-bottom: 20px;
+        font-size: 24px;
+        color: #333 !important;
+      }
+      
+      /* Remove backgrounds and shadows for clean print */
+      .gantt_grid_head_cell,
+      .gantt_scale_cell,
+      .gantt_task_cell {
+        background: white !important;
+        box-shadow: none !important;
+      }
+      
+      /* Ensure colors are preserved for tournament bars */
+      .gantt_task_line {
+        print-color-adjust: exact;
+        -webkit-print-color-adjust: exact;
+      }
+      
+      /* Remove scrollbars in print */
+      .gantt_hor_scroll,
+      .gantt_ver_scroll {
+        display: none !important;
+      }
+      
+      /* Make sure text is dark for readability */
+      .gantt_grid_head_cell,
+      .gantt_scale_cell {
+        color: #333 !important;
       }
     }
   </style>
@@ -620,13 +717,21 @@
       <!-- Calendar View -->
       <div id="calendar-view" class="bg-white rounded-2xl shadow-xl overflow-hidden fade-in">
         <div class="p-6 bg-gradient-to-r from-indigo-500 to-purple-600 text-white">
-          <h2 class="text-3xl font-bold">
-            <i class="fas fa-calendar-check mr-3"></i>Tournament Calendar
-          </h2>
+          <div class="flex justify-between items-start">
+            <div>
+              <h2 class="text-3xl font-bold">
+                <i class="fas fa-calendar-check mr-3"></i>Tournament Calendar
+              </h2>
+            </div>
+            <!-- Print Button -->
+            <button id="print-calendar-btn" onclick="printCalendar()" class="bg-white bg-opacity-20 hover:bg-opacity-30 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 flex items-center">
+              <i class="fas fa-print mr-2"></i>Print PDF
+            </button>
+          </div>
           <!-- Mobile View Toggle -->
           <div class="mt-4 flex items-center justify-between">
             <div class="hidden md:block text-sm opacity-90">
-              Scroll horizontally to view all months
+              Scroll horizontally to view all months • Click "Print PDF" for landscape format
             </div>
             <div class="md:hidden">
               <button id="mobile-view-toggle" class="bg-white bg-opacity-20 hover:bg-opacity-30 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200">
@@ -636,9 +741,9 @@
           </div>
         </div>
         
-        <!-- Desktop Calendar Grid - DHTMLX Gantt Chart -->
-        <div class="hidden md:block">
-          <div id="gantt_here" class="rounded-2xl shadow-xl overflow-hidden border border-gray-200"></div>
+        <!-- Interactive Gantt Chart Calendar -->
+        <div class="block">
+          <div id="gantt_here" class="rounded-2xl shadow-xl overflow-hidden border border-gray-200" style="height: 600px; width: 100%;"></div>
         </div>
         
         <!-- Keep the original calendar grid hidden for data processing -->
@@ -658,7 +763,7 @@
             <% for (let i = 0; i < months.length; i++) { %>
               <div class="grid-quarter-header">
                 <div class="quarter-section">
-                  <div class="quarter-label">Q1</div>
+                  <div class="quarter-label">Week 1</div>
                   <div class="quarter-dates">
                     <% for (let day = 1; day <= 7; day++) { %>
                       <span class="date-cell"><%= day %></span>
@@ -666,7 +771,7 @@
                   </div>
                 </div>
                 <div class="quarter-section">
-                  <div class="quarter-label">Q2</div>
+                  <div class="quarter-label">Week 2</div>
                   <div class="quarter-dates">
                     <% for (let day = 8; day <= 15; day++) { %>
                       <span class="date-cell"><%= day %></span>
@@ -674,7 +779,7 @@
                   </div>
                 </div>
                 <div class="quarter-section">
-                  <div class="quarter-label">Q3</div>
+                  <div class="quarter-label">Week 3</div>
                   <div class="quarter-dates">
                     <% for (let day = 16; day <= 23; day++) { %>
                       <span class="date-cell"><%= day %></span>
@@ -682,7 +787,7 @@
                   </div>
                 </div>
                 <div class="quarter-section">
-                  <div class="quarter-label">Q4</div>
+                  <div class="quarter-label">Week 4</div>
                   <div class="quarter-dates">
                     <% for (let day = 24; day <= 31; day++) { %>
                       <span class="date-cell"><%= day %></span>
@@ -1008,9 +1113,9 @@
                                 </div>
                               </div>
                               <div class="text-xs text-gray-400">
-                                <% const quarters = Object.keys(t.schedule[monthIndex]).map(q => parseInt(q)).sort(); %>
-                                <% if (quarters.length > 0) { %>
-                                  Q<%= quarters.join(', Q') %>
+                                                              <% const quarters = Object.keys(t.schedule[monthIndex]).map(q => parseInt(q)).sort(); %>
+                              <% if (quarters.length > 0) { %>
+                                Week <%= quarters.join(', Week ') %>
                                 <% } %>
                               </div>
                             </div>
@@ -1516,6 +1621,87 @@
         padding: 1rem;
       }
     }
+    
+    /* Interactive Gantt Chart Styling */
+    #gantt_here {
+      font-family: 'Inter', sans-serif;
+      background: #ffffff;
+      border: 2px solid #e5e7eb;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+    }
+    
+    .gantt_task_line.tournament-local {
+      background: linear-gradient(90deg, #10b981, #34d399) !important;
+      border: 2px solid #059669 !important;
+      border-radius: 6px !important;
+      box-shadow: 0 2px 8px rgba(16, 185, 129, 0.3) !important;
+    }
+    
+    .gantt_task_line.tournament-state {
+      background: linear-gradient(90deg, #ef4444, #f87171) !important;
+      border: 2px solid #dc2626 !important;
+      border-radius: 6px !important;
+      box-shadow: 0 2px 8px rgba(239, 68, 68, 0.3) !important;
+    }
+    
+    .gantt_task_line.tournament-national {
+      background: linear-gradient(90deg, #3b82f6, #60a5fa) !important;
+      border: 2px solid #2563eb !important;
+      border-radius: 6px !important;
+      box-shadow: 0 2px 8px rgba(59, 130, 246, 0.3) !important;
+    }
+    
+    .gantt_task_line.tournament-sarawak {
+      background: linear-gradient(90deg, #8b5cf6, #a78bfa) !important;
+      border: 2px solid #7c3aed !important;
+      border-radius: 6px !important;
+      box-shadow: 0 2px 8px rgba(139, 92, 246, 0.3) !important;
+    }
+    
+    .gantt_task_line.tournament-wmalaysia {
+      background: linear-gradient(90deg, #f97316, #fb923c) !important;
+      border: 2px solid #ea580c !important;
+      border-radius: 6px !important;
+      box-shadow: 0 2px 8px rgba(249, 115, 22, 0.3) !important;
+    }
+    
+    .gantt_task_line:hover {
+      transform: translateY(-2px) !important;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2) !important;
+      transition: all 0.3s ease !important;
+      cursor: pointer !important;
+    }
+    
+    .gantt_scale_line {
+      border-bottom: 2px solid #e5e7eb !important;
+      background: #f8fafc !important;
+      font-weight: 600 !important;
+      color: #374151 !important;
+    }
+    
+    .gantt_task_row {
+      border-bottom: 1px solid #f3f4f6 !important;
+    }
+    
+    .gantt_task_row:hover {
+      background: #f9fafb !important;
+    }
+    
+    .gantt_grid_scale .gantt_grid_head_cell {
+      background: linear-gradient(135deg, #667eea, #764ba2) !important;
+      color: white !important;
+      font-weight: bold !important;
+      border-right: 1px solid rgba(255, 255, 255, 0.2) !important;
+    }
+    
+    .gantt_cell {
+      border-right: 1px solid #f3f4f6 !important;
+    }
+    
+    .gantt_today {
+      background: rgba(59, 130, 246, 0.1) !important;
+      border-left: 3px solid #3b82f6 !important;
+    }
   </style>
   
   <script src="/js/script.js"></script>
@@ -2020,15 +2206,15 @@
   <script src="/js/tournament-pdf.js"></script>
   
   <!-- DHTMLX Gantt JS -->
-  <script src="/js/vendor/dhtmlx/dhtmlxgantt.js"></script>
+  <script src="https://cdn.dhtmlx.com/gantt/edge/dhtmlxgantt.js"></script>
   
   <!-- Initialize DHTMLX Gantt -->
   <script>
     // Get tournament data from server
     const tournaments = <%- JSON.stringify(tournaments || []) %>;
     
-    // Initialize Gantt only on desktop view
-    if (window.innerWidth >= 768) {
+    // Initialize Gantt chart for interactive calendar
+    if (true) {
       // Tournament data is already available from the server
       const ganttTournaments = tournaments || [];
       
@@ -2042,13 +2228,17 @@
       gantt.config.start_date = new Date(2025, 0, 1);
       gantt.config.end_date = new Date(2026, 0, 1);
       
-      // Configure scales (Month -> Day with weekday -> Day number)
+      // Configure scales (Month -> Week -> Day number)
       gantt.config.scales = [
         {unit: "month", step: 1, format: "%M"},
-        {unit: "day", step: 1, format: function(date) {
-          const days = ['S', 'M', 'T', 'W', 'T', 'F', 'S'];
-          return days[date.getDay()];
-        }},  // Single letter weekday
+        {unit: "week", step: 1, format: function(date) {
+          // Calculate which week of the month this week starts in
+          const startOfWeek = new Date(date);
+          startOfWeek.setDate(date.getDate() - date.getDay());
+          const day = startOfWeek.getDate();
+          const weekNum = Math.ceil(day / 7);
+          return "Week " + weekNum;
+        }},  // Week header (Week 1, Week 2, Week 3, Week 4)
         {unit: "day", step: 1, format: "%d"}   // Day number
       ];
       
@@ -2100,9 +2290,9 @@
         return classes.join(" ");
       };
       
-      // Task text
+      // Task text - Empty to show only colored bars
       gantt.templates.task_text = function(start, end, task) {
-        return task.text;
+        return "";
       };
       
       // Tooltip
@@ -2180,6 +2370,17 @@
         
         return true;
       });
+    }
+    
+    // Print Calendar Function
+    function printCalendar() {
+      // Show alert with instructions for manual landscape selection
+      alert('📝 PRINT INSTRUCTIONS:\n\n1. In the print dialog, select "More settings"\n2. Change "Orientation" to "Landscape"\n3. Set "Margins" to "Minimum"\n4. Make sure "Graphics" or "Background graphics" is enabled\n5. Click "Print" or "Save as PDF"\n\nThis will give you the best horizontal layout for the tournament calendar!');
+      
+      // Small delay then trigger print
+      setTimeout(() => {
+        window.print();
+      }, 1000);
     }
   </script>
 </body>

@@ -93,8 +93,8 @@ app.use(helmet({
   contentSecurityPolicy: {
     directives: {
       defaultSrc: ["'self'"],
-      scriptSrc: ["'self'", "'unsafe-inline'"],
-      styleSrc: ["'self'", "'unsafe-inline'", "https://cdn.jsdelivr.net", "https://cdnjs.cloudflare.com"],
+      scriptSrc: ["'self'", "'unsafe-inline'", "https://cdn.dhtmlx.com"],
+      styleSrc: ["'self'", "'unsafe-inline'", "https://cdn.jsdelivr.net", "https://cdnjs.cloudflare.com", "https://cdn.dhtmlx.com"],
       fontSrc: ["'self'", "https://cdnjs.cloudflare.com", "https://fonts.gstatic.com", "data:"],
       imgSrc: ["'self'", "data:", "https:"],
       connectSrc: ["'self'"],
@@ -360,6 +360,58 @@ app.get('/tournament', async (req, res) => {
   }
 });
 
+// Tournament Calendar route (FullCalendar version)
+app.get('/tournament-calendar', async (req, res) => {
+  try {
+    const tournaments = await DatabaseService.getAllTournaments();
+    const backgroundImage = await DatabaseService.getSetting('background_image', '/images/defaultbg.png');
+    
+    const formattedTournaments = tournaments.map(t => ({
+      ...t.toObject(),
+      color: tournamentTypes[t.type]?.color || 'green'
+    }));
+    
+    res.render('pages/tournament-calendar', { 
+      tournaments: formattedTournaments, 
+      session: req.session, 
+      backgroundImage 
+    });
+  } catch (error) {
+    console.error('Tournament calendar page error:', error);
+    res.render('pages/tournament-calendar', { 
+      tournaments: [], 
+      session: req.session, 
+      backgroundImage: '/images/defaultbg.png'
+    });
+  }
+});
+
+// Tournament Timeline route (DHTMLX Gantt version)
+app.get('/tournament-timeline', async (req, res) => {
+  try {
+    const tournaments = await DatabaseService.getAllTournaments();
+    const backgroundImage = await DatabaseService.getSetting('background_image', '/images/defaultbg.png');
+    
+    const formattedTournaments = tournaments.map(t => ({
+      ...t.toObject(),
+      color: tournamentTypes[t.type]?.color || 'green'
+    }));
+    
+    res.render('pages/tournament-timeline', { 
+      tournaments: formattedTournaments, 
+      session: req.session, 
+      backgroundImage 
+    });
+  } catch (error) {
+    console.error('Tournament timeline page error:', error);
+    res.render('pages/tournament-timeline', { 
+      tournaments: [], 
+      session: req.session, 
+      backgroundImage: '/images/defaultbg.png'
+    });
+  }
+});
+
 // Events page route
 app.get('/events', async (req, res) => {
   try {
@@ -411,18 +463,18 @@ app.get('/events', async (req, res) => {
 // Live Tournament public page route
 app.get('/live-tournament', async (req, res) => {
   try {
-    // Get live tournament settings
-    const liveStatus = await DatabaseService.getSetting('liveStatus', 'inactive');
-    const tournamentTitle = await DatabaseService.getSetting('tournamentTitle', 'Live Tournament');
-    const maxStreams = await DatabaseService.getSetting('maxStreams', 2);
+    // Get live tournament settings (using the correct keys that match admin saving)
+    const liveStatus = await DatabaseService.getSetting('live_tournament_status', 'inactive');
+    const tournamentTitle = await DatabaseService.getSetting('live_tournament_title', 'Live Tournament');
+    const maxStreams = await DatabaseService.getSetting('live_tournament_max_streams', 2);
     const backgroundImage = await DatabaseService.getSetting('background_image', '/images/defaultbg.png');
     
-    // Get all live streams
+    // Get all live streams (using the correct keys that match admin saving)
     const liveStreams = [];
     for (let i = 1; i <= maxStreams; i++) {
-      const stream = await DatabaseService.getSetting(`liveStream${i}`, null);
-      const streamTitle = await DatabaseService.getSetting(`liveStream${i}Title`, `Live Stream ${i}`);
-      const streamStatus = await DatabaseService.getSetting(`liveStream${i}Status`, 'offline');
+      const stream = await DatabaseService.getSetting(`live_stream_${i}`, null);
+      const streamTitle = await DatabaseService.getSetting(`live_stream_${i}_title`, `Live Stream ${i}`);
+      const streamStatus = await DatabaseService.getSetting(`live_stream_${i}_status`, 'offline');
       
       if (stream && streamStatus === 'live') {
         liveStreams.push({
