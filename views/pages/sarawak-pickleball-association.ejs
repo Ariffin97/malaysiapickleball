@@ -1,0 +1,550 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sarawak Pickleball Association</title>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="/css/styles.css">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+  <style>
+    /* Custom Gold and Black Theme */
+    :root {
+      --sarawak-gold: #FFD700;
+      --sarawak-dark-gold: #DAA520;
+      --sarawak-black: #1a1a1a;
+      --sarawak-dark-black: #0a0a0a;
+      --sarawak-light-gold: #FFF8DC;
+    }
+    
+    .sarawak-bg {
+      background: linear-gradient(135deg, var(--sarawak-black) 0%, var(--sarawak-dark-black) 100%);
+    }
+    
+    /* Sarawak Navbar Styles */
+    .sarawak-navbar {
+      background: linear-gradient(135deg, var(--sarawak-black) 0%, var(--sarawak-dark-black) 100%);
+      border-bottom: 2px solid var(--sarawak-gold);
+      backdrop-filter: blur(10px);
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 1000;
+      height: 70px;
+    }
+    
+    .sarawak-navbar-brand {
+      color: var(--sarawak-gold);
+      font-weight: bold;
+      font-size: 1.5rem;
+      text-decoration: none;
+      transition: all 0.3s ease;
+    }
+    
+    .sarawak-navbar-brand:hover {
+      color: var(--sarawak-light-gold);
+      transform: scale(1.05);
+    }
+    
+    .sarawak-nav-link {
+      color: var(--sarawak-light-gold);
+      text-decoration: none;
+      padding: 0.5rem 1rem;
+      border-radius: 0.5rem;
+      transition: all 0.3s ease;
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .sarawak-nav-link:hover {
+      color: var(--sarawak-black);
+      background: var(--sarawak-gold);
+      transform: translateY(-2px);
+    }
+    
+    .sarawak-nav-link::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+      transition: left 0.5s;
+    }
+    
+    .sarawak-nav-link:hover::before {
+      left: 100%;
+    }
+    
+    .sarawak-login-btn {
+      background: linear-gradient(135deg, var(--sarawak-gold), var(--sarawak-dark-gold));
+      color: var(--sarawak-black);
+      border: none;
+      padding: 0.5rem 1.5rem;
+      border-radius: 2rem;
+      font-weight: bold;
+      transition: all 0.3s ease;
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .sarawak-login-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 25px rgba(255, 215, 0, 0.4);
+    }
+    
+    .sarawak-login-btn::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+      transition: left 0.5s;
+    }
+    
+    .sarawak-login-btn:hover::before {
+      left: 100%;
+    }
+    
+    /* Mobile menu styles */
+    .sarawak-mobile-menu {
+      background: linear-gradient(135deg, var(--sarawak-black) 0%, var(--sarawak-dark-black) 100%);
+      border-top: 1px solid var(--sarawak-gold);
+    }
+    
+    .sarawak-mobile-toggle {
+      color: var(--sarawak-gold);
+      background: none;
+      border: 2px solid var(--sarawak-gold);
+      padding: 0.5rem;
+      border-radius: 0.5rem;
+      transition: all 0.3s ease;
+    }
+    
+    .sarawak-mobile-toggle:hover {
+      background: var(--sarawak-gold);
+      color: var(--sarawak-black);
+    }
+    
+    .sarawak-hero {
+      background: linear-gradient(135deg, rgba(26, 26, 26, 0.95) 0%, rgba(10, 10, 10, 0.95) 100%);
+      position: relative;
+      overflow: hidden;
+      margin-top: 70px; /* Account for fixed navbar */
+    }
+    
+    .sarawak-hero::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: linear-gradient(45deg, transparent 30%, rgba(255, 215, 0, 0.1) 50%, transparent 70%);
+      animation: shimmer 3s ease-in-out infinite;
+    }
+    
+    @keyframes shimmer {
+      0%, 100% { transform: translateX(-100%); }
+      50% { transform: translateX(100%); }
+    }
+    
+    .sarawak-card {
+      background: linear-gradient(145deg, var(--sarawak-black), var(--sarawak-dark-black));
+      border: 2px solid var(--sarawak-gold);
+      box-shadow: 0 10px 30px rgba(255, 215, 0, 0.2);
+      transition: all 0.3s ease;
+    }
+    
+    .sarawak-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 20px 40px rgba(255, 215, 0, 0.3);
+      border-color: var(--sarawak-light-gold);
+    }
+    
+    .sarawak-button {
+      background: linear-gradient(135deg, var(--sarawak-gold), var(--sarawak-dark-gold));
+      color: var(--sarawak-black);
+      border: none;
+      transition: all 0.3s ease;
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .sarawak-button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 25px rgba(255, 215, 0, 0.4);
+    }
+    
+    .sarawak-button::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+      transition: left 0.5s;
+    }
+    
+    .sarawak-button:hover::before {
+      left: 100%;
+    }
+    
+    .sarawak-text-gold {
+      color: var(--sarawak-gold);
+    }
+    
+    .sarawak-text-light-gold {
+      color: var(--sarawak-light-gold);
+    }
+    
+    .sarawak-border-gold {
+      border-color: var(--sarawak-gold);
+    }
+    
+    .floating-gold {
+      position: fixed;
+      pointer-events: none;
+      z-index: 1;
+    }
+    
+    .floating-gold-1 {
+      top: 20%;
+      left: 10%;
+      width: 8px;
+      height: 8px;
+      background: var(--sarawak-gold);
+      border-radius: 50%;
+      opacity: 0.6;
+      animation: float-gold 6s ease-in-out infinite;
+    }
+    
+    .floating-gold-2 {
+      top: 60%;
+      right: 15%;
+      width: 12px;
+      height: 12px;
+      background: var(--sarawak-dark-gold);
+      border-radius: 50%;
+      opacity: 0.4;
+      animation: float-gold 8s ease-in-out infinite reverse;
+    }
+    
+    .floating-gold-3 {
+      bottom: 30%;
+      left: 20%;
+      width: 6px;
+      height: 6px;
+      background: var(--sarawak-gold);
+      border-radius: 50%;
+      opacity: 0.7;
+      animation: float-gold 7s ease-in-out infinite;
+      animation-delay: -2s;
+    }
+    
+    @keyframes float-gold {
+      0%, 100% { transform: translateY(0px) rotate(0deg); }
+      50% { transform: translateY(-20px) rotate(180deg); }
+    }
+    
+    .sarawak-section {
+      position: relative;
+      z-index: 10;
+    }
+    
+    .sarawak-icon {
+      color: var(--sarawak-gold);
+      transition: all 0.3s ease;
+    }
+    
+    .sarawak-icon:hover {
+      color: var(--sarawak-light-gold);
+      transform: scale(1.1);
+    }
+  </style>
+</head>
+<body class="sarawak-bg min-h-screen text-white">
+  <!-- Sarawak Independent Navbar -->
+  <nav class="sarawak-navbar">
+    <div class="container mx-auto px-4 h-full">
+      <div class="flex items-center justify-between h-full">
+        <!-- Brand -->
+        <div class="flex items-center space-x-3">
+          <i class="fas fa-crown sarawak-text-gold text-2xl"></i>
+          <a href="/sarawak-pickleball-association" class="sarawak-navbar-brand">
+            Sarawak Pickleball Association
+          </a>
+        </div>
+        
+        <!-- Admin Login Only -->
+        <div class="flex items-center">
+          <a href="/sarawak-admin-login" class="sarawak-login-btn">
+            <i class="fas fa-sign-in-alt mr-2"></i>Admin Login
+          </a>
+        </div>
+      </div>
+    </div>
+    
+
+  </nav>
+
+  <!-- Floating Gold Elements -->
+  <div class="floating-gold floating-gold-1"></div>
+  <div class="floating-gold floating-gold-2"></div>
+  <div class="floating-gold floating-gold-3"></div>
+  
+  <main class="min-h-screen relative z-10">
+    <!-- Hero Section -->
+    <section class="sarawak-hero py-20 mb-12" id="home">
+      <div class="container mx-auto px-4">
+        <div class="text-center">
+          <div class="mb-8">
+            <i class="fas fa-crown sarawak-text-gold text-6xl mb-4"></i>
+          </div>
+          <h1 class="text-5xl md:text-7xl font-bold mb-6 leading-tight">
+            <span class="sarawak-text-gold">Sarawak</span>
+            <span class="text-white"> Pickleball</span>
+            <br>
+            <span class="sarawak-text-gold">Association</span>
+          </h1>
+          <p class="text-xl md:text-2xl mb-8 sarawak-text-light-gold max-w-3xl mx-auto">
+            The premier pickleball organization in Sarawak, Malaysia. Promoting excellence, community, and the spirit of competition.
+          </p>
+          
+          <!-- Action Buttons -->
+          <div class="flex flex-col sm:flex-row gap-4 justify-center mt-8">
+            <a href="#about" class="sarawak-button px-8 py-3 rounded-full font-semibold text-lg shadow-lg text-center">
+              <i class="fas fa-info-circle mr-2"></i>
+              About
+            </a>
+            <a href="#programs" class="bg-transparent border-2 sarawak-border-gold sarawak-text-gold px-8 py-3 rounded-full font-semibold text-lg hover:bg-yellow-400 hover:text-black transition-all duration-300 text-center">
+              <i class="fas fa-graduation-cap mr-2"></i>
+              Programs
+            </a>
+            <a href="#contact" class="sarawak-button px-8 py-3 rounded-full font-semibold text-lg shadow-lg text-center">
+              <i class="fas fa-phone mr-2"></i>
+              Contact
+            </a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Main Content Grid -->
+    <section class="sarawak-section py-16">
+      <div class="container mx-auto px-4">
+        <!-- Content Grid Layout: 4x2 News (left), 2x2 Calendar (top right), 4x4 Tournaments (bottom right) -->
+        <div class="grid grid-cols-1 lg:grid-cols-6 gap-8">
+          
+          <!-- Latest News Section - 4x4 Grid (Left Column) -->
+          <div class="lg:col-span-4 lg:row-span-4">
+            <div class="sarawak-card p-8 rounded-2xl h-full">
+              <div class="mb-8">
+                <h2 class="text-3xl font-bold mb-4">
+                  <span class="sarawak-text-gold">Latest</span> <span class="text-white">News</span>
+                </h2>
+                <p class="text-lg sarawak-text-light-gold">
+                  Stay updated with the latest news and developments from Sarawak Pickleball Association.
+                </p>
+              </div>
+              
+              <div class="space-y-6">
+                <% if (newsList && newsList.length > 0) { %>
+                  <% newsList.forEach(function(news) { %>
+                    <div class="border-b border-yellow-400 pb-6">
+                      <h3 class="text-2xl font-bold mb-3 sarawak-text-gold"><%= news.title %></h3>
+                      <p class="sarawak-text-light-gold mb-3 text-sm"><%= news.publishedAt ? new Date(news.publishedAt).toLocaleDateString('en-GB') : '' %></p>
+                      <p class="sarawak-text-light-gold mb-4"><%= news.content %></p>
+                    </div>
+                  <% }); %>
+                <% } else { %>
+                  <div class="text-center sarawak-text-light-gold">No news articles available.</div>
+                <% } %>
+              </div>
+              
+              <div class="mt-8 text-center">
+                <button class="sarawak-button px-8 py-3 rounded-full font-semibold">
+                  <i class="fas fa-newspaper mr-2"></i>View All News
+                </button>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Events Calendar Section - 2x2 Grid (Top Right) -->
+          <div class="lg:col-span-2 lg:row-span-1">
+            <div class="sarawak-card p-6 rounded-2xl h-full">
+              <div class="mb-6">
+                <h2 class="text-2xl font-bold mb-3">
+                  <span class="sarawak-text-gold">Upcoming</span> <span class="text-white">Events</span>
+                </h2>
+              </div>
+              
+              <div class="space-y-4">
+                <!-- Event 1 -->
+                <div class="flex items-center space-x-3">
+                  <div class="bg-yellow-400 text-black rounded-lg p-2 flex-shrink-0">
+                    <div class="text-center">
+                      <div class="text-xs font-semibold">MAR</div>
+                      <div class="text-sm font-bold">20</div>
+                    </div>
+                  </div>
+                  <div>
+                    <h4 class="text-sm font-bold sarawak-text-gold">Training Session - Beginners</h4>
+                    <p class="sarawak-text-light-gold text-xs">09:00 AM - Kuching Sports Complex</p>
+                  </div>
+                </div>
+                
+                <!-- Event 2 -->
+                <div class="flex items-center space-x-3">
+                  <div class="bg-yellow-400 text-black rounded-lg p-2 flex-shrink-0">
+                    <div class="text-center">
+                      <div class="text-xs font-semibold">MAR</div>
+                      <div class="text-sm font-bold">25</div>
+                    </div>
+                  </div>
+                  <div>
+                    <h4 class="text-sm font-bold sarawak-text-gold">Coach Certification</h4>
+                    <p class="sarawak-text-light-gold text-xs">02:00 PM - Miri Community Center</p>
+                  </div>
+                </div>
+                
+                <!-- Event 3 -->
+                <div class="flex items-center space-x-3">
+                  <div class="bg-yellow-400 text-black rounded-lg p-2 flex-shrink-0">
+                    <div class="text-center">
+                      <div class="text-xs font-semibold">MAR</div>
+                      <div class="text-sm font-bold">30</div>
+                    </div>
+                  </div>
+                  <div>
+                    <h4 class="text-sm font-bold sarawak-text-gold">Social Tournament</h4>
+                    <p class="sarawak-text-light-gold text-xs">10:00 AM - Sibu Recreation Center</p>
+                  </div>
+                </div>
+              </div>
+              
+              <div class="mt-6 text-center">
+                <button class="sarawak-button px-4 py-2 rounded-full font-semibold text-sm">
+                  <i class="fas fa-calendar-alt mr-2"></i>View Calendar
+                </button>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Tournament Announcements Section - 4x4 Grid (Bottom Right) -->
+          <div class="lg:col-span-2 lg:row-span-2">
+            <div class="sarawak-card p-6 rounded-2xl h-full">
+              <div class="mb-6">
+                <h2 class="text-2xl font-bold mb-3">
+                  <span class="sarawak-text-gold">Tournament</span> <span class="text-white">Announcements</span>
+                </h2>
+                <p class="text-sm sarawak-text-light-gold">
+                  Upcoming tournaments sanctioned by Sarawak Pickleball Association.
+                </p>
+              </div>
+              
+              <div class="space-y-6">
+                <% if (tournamentAnnouncements && tournamentAnnouncements.length > 0) { %>
+                  <% tournamentAnnouncements.forEach(function(announcement) { %>
+                    <div class="border-b border-yellow-400 pb-6">
+                      <div class="flex items-start space-x-3">
+                        <i class="fas fa-trophy sarawak-text-gold text-2xl mt-1"></i>
+                        <div class="flex-1">
+                          <h3 class="text-lg font-bold mb-2 sarawak-text-gold"><%= announcement.title %></h3>
+                          <div class="space-y-1 mb-3">
+                            <p class="sarawak-text-light-gold text-sm">
+                              <i class="fas fa-calendar sarawak-text-gold mr-2"></i>
+                              <%= announcement.metadata && announcement.metadata.startDate ? announcement.metadata.startDate : '' %>
+                              <% if (announcement.metadata && announcement.metadata.endDate) { %> to <%= announcement.metadata.endDate %><% } %>
+                            </p>
+                            <p class="sarawak-text-light-gold text-sm">
+                              <i class="fas fa-clock sarawak-text-gold mr-2"></i>
+                              Deadline: <%= announcement.metadata && announcement.metadata.registrationDeadline ? announcement.metadata.registrationDeadline : '' %>
+                            </p>
+                            <p class="sarawak-text-light-gold text-sm">
+                              <i class="fas fa-map-marker-alt sarawak-text-gold mr-2"></i>
+                              <%= announcement.metadata && announcement.metadata.venue ? announcement.metadata.venue : '' %>
+                            </p>
+                            <p class="sarawak-text-light-gold text-sm">
+                              <i class="fas fa-city sarawak-text-gold mr-2"></i>
+                              <%= announcement.metadata && announcement.metadata.cityState ? announcement.metadata.cityState : '' %>
+                            </p>
+                            <p class="sarawak-text-light-gold text-sm">
+                              <i class="fas fa-users sarawak-text-gold mr-2"></i>
+                              Organizer: <%= announcement.metadata && announcement.metadata.organizer ? announcement.metadata.organizer : '' %>
+                            </p>
+                            <p class="sarawak-text-light-gold text-sm">
+                              <i class="fas fa-user sarawak-text-gold mr-2"></i>
+                              Person in Charge: <%= announcement.metadata && announcement.metadata.personInCharge ? announcement.metadata.personInCharge : '' %>
+                            </p>
+                            <p class="sarawak-text-light-gold text-sm">
+                              <i class="fas fa-phone sarawak-text-gold mr-2"></i>
+                              Phone: <%= announcement.metadata && announcement.metadata.phoneNumber ? announcement.metadata.phoneNumber : '' %>
+                            </p>
+                          </div>
+                          <p class="sarawak-text-light-gold text-sm mb-3">
+                            <%= announcement.content %>
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  <% }); %>
+                <% } else { %>
+                  <div class="text-center sarawak-text-light-gold">No tournament announcements available.</div>
+                <% } %>
+              </div>
+              
+              <div class="mt-6 text-center">
+                <button class="sarawak-button px-4 py-2 rounded-full font-semibold text-sm">
+                  <i class="fas fa-bullhorn mr-2"></i>All Tournaments
+                </button>
+              </div>
+            </div>
+          </div>
+          
+        </div>
+      </div>
+    </section>
+
+    <!-- Programs Section -->
+    <!-- REMOVED: Our Programs section -->
+
+    <!-- Contact Section -->
+    <!-- REMOVED: Contact Us section -->
+
+    <!-- CTA Section -->
+    <!-- REMOVED: Join Sarawak Pickleball Today section -->
+  </main>
+  
+  <!-- Back to Top Button -->
+  <button id="backToTop" class="fixed bottom-8 right-8 sarawak-button p-3 rounded-full shadow-lg opacity-0 transition-all duration-300 z-50">
+    <i class="fas fa-arrow-up text-xl"></i>
+  </button>
+  
+  <script>
+    // Back to top functionality
+    window.addEventListener('scroll', function() {
+      const backToTop = document.getElementById('backToTop');
+      if (window.pageYOffset > 300) {
+        backToTop.style.opacity = '1';
+        backToTop.style.transform = 'translateY(0)';
+      } else {
+        backToTop.style.opacity = '0';
+        backToTop.style.transform = 'translateY(20px)';
+      }
+    });
+    
+    document.getElementById('backToTop').addEventListener('click', function() {
+      window.scrollTo({
+        top: 0,
+        behavior: 'smooth'
+      });
+    });
+  </script>
+</body>
+</html> 

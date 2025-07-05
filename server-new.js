@@ -27,6 +27,7 @@ const tournamentTypes = {
   local: { color: 'green', label: 'Local' },
   state: { color: 'red', label: 'State' },
   national: { color: 'blue', label: 'National' },
+  international: { color: 'teal', label: 'International' },
   sarawak: { color: 'purple', label: 'Miscellaneous Pickleball Events in Sarawak' },
   wmalaysia: { color: 'orange', label: 'Miscellaneous Events in W. Malaysia' }
 };
@@ -1902,6 +1903,116 @@ app.get('/shop', async (req, res) => {
   }
 });
 
+// Sarawak Pickleball Association Route
+app.get('/sarawak-pickleball-association', async (req, res) => {
+  try {
+    // Fetch all announcements
+    const result = await DatabaseService.getAnnouncements('all', 1, 50); // Increase limit if needed
+    // Filter news and tournament announcements
+    const newsList = result.announcements.filter(a => a.type === 'news');
+    const tournamentAnnouncements = result.announcements.filter(a => a.type === 'event' && a.isActive && a.metadata && a.metadata.link === 'homepage');
+    res.render('pages/sarawak-pickleball-association', { 
+      session: req.session,
+      newsList,
+      tournamentAnnouncements
+    });
+  } catch (error) {
+    console.error('Sarawak Pickleball Association page error:', error);
+    res.render('pages/sarawak-pickleball-association', { 
+      session: req.session,
+      newsList: [],
+      tournamentAnnouncements: []
+    });
+  }
+});
+
+// Sarawak Admin Authentication Middleware
+const sarawakAdminAuth = (req, res, next) => {
+  if (req.session && req.session.sarawakAdmin) {
+    return next();
+  } else {
+    return res.redirect('/sarawak-admin-login?reason=unauthorized');
+  }
+};
+
+// Sarawak Admin Login Routes
+app.get('/sarawak-admin-login', (req, res) => {
+  let error = null;
+  const reason = req.query.reason;
+  
+  if (reason === 'unauthorized') {
+    error = 'You must be logged in to access the admin dashboard.';
+  } else if (reason === 'invalid') {
+    error = 'Invalid username or password.';
+  }
+  
+  res.render('pages/sarawak-admin-login', { 
+    error, 
+    session: req.session 
+  });
+});
+
+app.post('/sarawak-admin-login', async (req, res) => {
+  try {
+    const { username, password } = req.body;
+    
+    // Simple hardcoded admin credentials for demo
+    // In production, this should use proper authentication with hashed passwords
+    const validCredentials = [
+      { username: 'sarawak_admin', password: 'sarawak123', name: 'Sarawak Administrator' },
+      { username: 'admin', password: 'admin123', name: 'System Admin' }
+    ];
+    
+    const admin = validCredentials.find(cred => 
+      cred.username === username && cred.password === password
+    );
+    
+    if (admin) {
+      // Set session
+      req.session.sarawakAdmin = {
+        username: admin.username,
+        name: admin.name,
+        loginTime: new Date()
+      };
+      
+      console.log('Sarawak admin login successful:', admin.username);
+      res.redirect('/sarawak-admin-dashboard');
+    } else {
+      console.log('Sarawak admin login failed:', username);
+      res.redirect('/sarawak-admin-login?reason=invalid');
+    }
+  } catch (error) {
+    console.error('Sarawak admin login error:', error);
+    res.redirect('/sarawak-admin-login?reason=invalid');
+  }
+});
+
+// Sarawak Admin Dashboard
+app.get('/sarawak-admin-dashboard', sarawakAdminAuth, async (req, res) => {
+  try {
+    // Fetch all announcements (not just news)
+    const result = await DatabaseService.getAnnouncements('all', 1, 50); // Increase limit if needed
+    const newsList = result.announcements; // Pass all announcements
+    res.render('pages/sarawak-admin-dashboard', { 
+      admin: req.session.sarawakAdmin,
+      session: req.session,
+      newsList
+    });
+  } catch (error) {
+    console.error('Sarawak admin dashboard error:', error);
+    res.redirect('/sarawak-admin-login?reason=unauthorized');
+  }
+});
+
+// Sarawak Admin Logout
+app.get('/sarawak-admin-logout', (req, res) => {
+  if (req.session.sarawakAdmin) {
+    console.log('Sarawak admin logout:', req.session.sarawakAdmin.username);
+    delete req.session.sarawakAdmin;
+  }
+  res.redirect('/sarawak-admin-login');
+});
+
 // Additional Services Routes
 app.get('/services/sponsorship', async (req, res) => {
   try {
@@ -2102,6 +2213,7 @@ app.get('/tournament/print-pdf', async (req, res) => {
       'local': { color: 'green' },
       'state': { color: 'red' },
       'national': { color: 'blue' },
+      'international': { color: 'teal' },
       'sarawak': { color: 'purple' },
       'wmalaysia': { color: 'orange' }
     };
@@ -2201,6 +2313,7 @@ app.get('/api/tournaments', async (req, res) => {
       'local': { color: 'green', displayName: 'Local Tournament' },
       'state': { color: 'red', displayName: 'State Tournament' },
       'national': { color: 'blue', displayName: 'National Tournament' },
+      'international': { color: 'teal', displayName: 'International Tournament' },
       'sarawak': { color: 'purple', displayName: 'Sarawak Tournament' },
       'wmalaysia': { color: 'orange', displayName: 'West Malaysia Tournament' }
     };
@@ -2344,6 +2457,7 @@ app.get('/api/tournaments/upcoming', async (req, res) => {
       'local': { color: 'green', displayName: 'Local Tournament' },
       'state': { color: 'red', displayName: 'State Tournament' },
       'national': { color: 'blue', displayName: 'National Tournament' },
+      'international': { color: 'teal', displayName: 'International Tournament' },
       'sarawak': { color: 'purple', displayName: 'Sarawak Tournament' },
       'wmalaysia': { color: 'orange', displayName: 'West Malaysia Tournament' }
     };
@@ -2403,6 +2517,7 @@ app.get('/api/tournaments/:id', async (req, res) => {
       'local': { color: 'green', displayName: 'Local Tournament' },
       'state': { color: 'red', displayName: 'State Tournament' },
       'national': { color: 'blue', displayName: 'National Tournament' },
+      'international': { color: 'teal', displayName: 'International Tournament' },
       'sarawak': { color: 'purple', displayName: 'Sarawak Tournament' },
       'wmalaysia': { color: 'orange', displayName: 'West Malaysia Tournament' }
     };
@@ -3000,3 +3115,188 @@ app.listen(PORT, () => {
 });
 
 module.exports = app; 
+
+// Add News Article page (GET)
+app.get('/sarawak-admin-add-news', sarawakAdminAuth, (req, res) => {
+  res.render('pages/sarawak-admin-add-news');
+});
+
+// Add News Article (POST)
+app.post('/sarawak-admin-add-news', sarawakAdminAuth, async (req, res) => {
+  try {
+    const { title, date, status, homepageLink, content } = req.body;
+    // Get admin info from session
+    const publishedBy = req.session.sarawakAdmin?.username || 'sarawak_admin';
+    const publishedByName = req.session.sarawakAdmin?.name || 'Sarawak Admin';
+    // Prepare announcement data
+    const announcementData = {
+      title,
+      content,
+      type: 'news',
+      isActive: status === 'Published',
+      publishedAt: date ? new Date(date) : new Date(),
+      publishedBy,
+      publishedByName,
+      metadata: {
+        link: homepageLink === 'Linked' ? 'homepage' : '',
+      },
+      targetAudience: 'all',
+    };
+    await DatabaseService.createAnnouncement(announcementData);
+    res.redirect('/sarawak-admin-dashboard');
+  } catch (error) {
+    console.error('Error adding news article:', error);
+    res.redirect('/sarawak-admin-dashboard?error=add_news');
+  }
+});
+
+// Edit News Article (GET)
+app.get('/sarawak-admin-edit-news/:id', sarawakAdminAuth, async (req, res) => {
+  try {
+    const Announcement = require('./models/Announcement');
+    const news = await Announcement.findById(req.params.id);
+    if (!news) return res.redirect('/sarawak-admin-dashboard?error=notfound');
+    res.render('pages/sarawak-admin-edit-news', { news, session: req.session, admin: req.session.sarawakAdmin });
+  } catch (error) {
+    console.error('Error loading edit news page:', error);
+    res.redirect('/sarawak-admin-dashboard?error=edit_load');
+  }
+});
+
+// Edit News Article (POST)
+app.post('/sarawak-admin-edit-news/:id', sarawakAdminAuth, async (req, res) => {
+  try {
+    const Announcement = require('./models/Announcement');
+    const { title, date, status, homepageLink, content } = req.body;
+    const update = {
+      title,
+      content,
+      isActive: status === 'Published',
+      publishedAt: date ? new Date(date) : new Date(),
+      metadata: { link: homepageLink === 'Linked' ? 'homepage' : '' }
+    };
+    await Announcement.findByIdAndUpdate(req.params.id, update);
+    res.redirect('/sarawak-admin-dashboard');
+  } catch (error) {
+    console.error('Error editing news article:', error);
+    res.redirect('/sarawak-admin-dashboard?error=edit_news');
+  }
+});
+
+// Delete News Article (POST)
+app.post('/sarawak-admin-delete-news/:id', sarawakAdminAuth, async (req, res) => {
+  try {
+    const Announcement = require('./models/Announcement');
+    await Announcement.findByIdAndDelete(req.params.id);
+    if (req.xhr || req.headers['x-requested-with'] === 'XMLHttpRequest') {
+      return res.json({ success: true });
+    }
+    res.redirect('/sarawak-admin-dashboard');
+  } catch (error) {
+    console.error('Error deleting news article:', error);
+    if (req.xhr || req.headers['x-requested-with'] === 'XMLHttpRequest') {
+      return res.json({ success: false });
+    }
+    res.redirect('/sarawak-admin-dashboard?error=delete_news');
+  }
+});
+
+// Add Tournament Announcement (GET)
+app.get('/sarawak-admin-add-announcement', sarawakAdminAuth, (req, res) => {
+  res.render('pages/sarawak-admin-add-announcement', { session: req.session, admin: req.session.sarawakAdmin });
+});
+
+// Add Tournament Announcement (POST)
+app.post('/sarawak-admin-add-announcement', sarawakAdminAuth, async (req, res) => {
+  try {
+    const { title, startDate, endDate, registrationDeadline, status, homepageLink, content, venue, cityState, organizer, personInCharge, phoneNumber } = req.body;
+    const publishedBy = req.session.sarawakAdmin?.username || 'sarawak_admin';
+    const publishedByName = req.session.sarawakAdmin?.name || 'Sarawak Admin';
+    const announcementData = {
+      title,
+      content,
+      type: 'event',
+      isActive: status === 'Published',
+      publishedAt: new Date(),
+      publishedBy,
+      publishedByName,
+      metadata: {
+        link: homepageLink === 'Linked' ? 'homepage' : '',
+        startDate,
+        endDate,
+        registrationDeadline,
+        venue,
+        cityState,
+        organizer,
+        personInCharge,
+        phoneNumber
+      },
+      targetAudience: 'all',
+    };
+    await DatabaseService.createAnnouncement(announcementData);
+    res.redirect('/sarawak-admin-dashboard');
+  } catch (error) {
+    console.error('Error adding tournament announcement:', error);
+    res.redirect('/sarawak-admin-dashboard?error=add_announcement');
+  }
+});
+
+// Edit Tournament Announcement (GET)
+app.get('/sarawak-admin-edit-announcement/:id', sarawakAdminAuth, async (req, res) => {
+  try {
+    const Announcement = require('./models/Announcement');
+    const announcement = await Announcement.findById(req.params.id);
+    if (!announcement) return res.redirect('/sarawak-admin-dashboard?error=notfound');
+    res.render('pages/sarawak-admin-edit-announcement', { announcement, session: req.session, admin: req.session.sarawakAdmin });
+  } catch (error) {
+    console.error('Error loading edit announcement page:', error);
+    res.redirect('/sarawak-admin-dashboard?error=edit_load');
+  }
+});
+
+// Edit Tournament Announcement (POST)
+app.post('/sarawak-admin-edit-announcement/:id', sarawakAdminAuth, async (req, res) => {
+  try {
+    const Announcement = require('./models/Announcement');
+    const { title, startDate, endDate, registrationDeadline, status, homepageLink, content, venue, cityState, organizer, personInCharge, phoneNumber } = req.body;
+    const update = {
+      title,
+      content,
+      isActive: status === 'Published',
+      metadata: {
+        link: homepageLink === 'Linked' ? 'homepage' : '',
+        startDate,
+        endDate,
+        registrationDeadline,
+        venue,
+        cityState,
+        organizer,
+        personInCharge,
+        phoneNumber
+      }
+    };
+    await Announcement.findByIdAndUpdate(req.params.id, update);
+    res.redirect('/sarawak-admin-dashboard');
+  } catch (error) {
+    console.error('Error editing tournament announcement:', error);
+    res.redirect('/sarawak-admin-dashboard?error=edit_announcement');
+  }
+});
+
+// Delete Tournament Announcement (POST)
+app.post('/sarawak-admin-delete-announcement/:id', sarawakAdminAuth, async (req, res) => {
+  try {
+    const Announcement = require('./models/Announcement');
+    await Announcement.findByIdAndDelete(req.params.id);
+    if (req.xhr || req.headers['x-requested-with'] === 'XMLHttpRequest') {
+      return res.json({ success: true });
+    }
+    res.redirect('/sarawak-admin-dashboard');
+  } catch (error) {
+    console.error('Error deleting tournament announcement:', error);
+    if (req.xhr || req.headers['x-requested-with'] === 'XMLHttpRequest') {
+      return res.json({ success: false });
+    }
+    res.redirect('/sarawak-admin-dashboard?error=delete_announcement');
+  }
+});

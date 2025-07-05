@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sarawak Admin Login - Sarawak Pickleball Association</title>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="/css/styles.css">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+  <style>
+    /* Custom Gold and Black Theme */
+    :root {
+      --sarawak-gold: #FFD700;
+      --sarawak-dark-gold: #DAA520;
+      --sarawak-black: #1a1a1a;
+      --sarawak-dark-black: #0a0a0a;
+      --sarawak-light-gold: #FFF8DC;
+    }
+    
+    .sarawak-bg {
+      background: linear-gradient(135deg, var(--sarawak-black) 0%, var(--sarawak-dark-black) 100%);
+      min-height: 100vh;
+    }
+    
+    .sarawak-login-container {
+      background: linear-gradient(145deg, var(--sarawak-black), var(--sarawak-dark-black));
+      border: 2px solid var(--sarawak-gold);
+      box-shadow: 0 20px 40px rgba(255, 215, 0, 0.3);
+      backdrop-filter: blur(10px);
+    }
+    
+    .sarawak-input {
+      background: rgba(255, 255, 255, 0.1);
+      border: 2px solid var(--sarawak-gold);
+      color: var(--sarawak-light-gold);
+      transition: all 0.3s ease;
+    }
+    
+    .sarawak-input:focus {
+      outline: none;
+      border-color: var(--sarawak-light-gold);
+      box-shadow: 0 0 20px rgba(255, 215, 0, 0.3);
+      background: rgba(255, 255, 255, 0.15);
+    }
+    
+    .sarawak-input::placeholder {
+      color: rgba(255, 248, 220, 0.6);
+    }
+    
+    .sarawak-label {
+      color: var(--sarawak-gold);
+      font-weight: bold;
+    }
+    
+    .sarawak-button {
+      background: linear-gradient(135deg, var(--sarawak-gold), var(--sarawak-dark-gold));
+      color: var(--sarawak-black);
+      border: none;
+      transition: all 0.3s ease;
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .sarawak-button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 25px rgba(255, 215, 0, 0.4);
+    }
+    
+    .sarawak-button:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+      transform: none;
+    }
+    
+    .sarawak-button::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+      transition: left 0.5s;
+    }
+    
+    .sarawak-button:hover::before {
+      left: 100%;
+    }
+    
+    .sarawak-text-gold {
+      color: var(--sarawak-gold);
+    }
+    
+    .sarawak-text-light-gold {
+      color: var(--sarawak-light-gold);
+    }
+    
+    .sarawak-link {
+      color: var(--sarawak-gold);
+      text-decoration: none;
+      transition: all 0.3s ease;
+    }
+    
+    .sarawak-link:hover {
+      color: var(--sarawak-light-gold);
+      text-decoration: underline;
+    }
+    
+    .floating-gold {
+      position: fixed;
+      pointer-events: none;
+      z-index: 1;
+    }
+    
+    .floating-gold-1 {
+      top: 20%;
+      left: 10%;
+      width: 8px;
+      height: 8px;
+      background: var(--sarawak-gold);
+      border-radius: 50%;
+      opacity: 0.6;
+      animation: float-gold 6s ease-in-out infinite;
+    }
+    
+    .floating-gold-2 {
+      top: 60%;
+      right: 15%;
+      width: 12px;
+      height: 12px;
+      background: var(--sarawak-dark-gold);
+      border-radius: 50%;
+      opacity: 0.4;
+      animation: float-gold 8s ease-in-out infinite reverse;
+    }
+    
+    .floating-gold-3 {
+      bottom: 30%;
+      left: 20%;
+      width: 6px;
+      height: 6px;
+      background: var(--sarawak-gold);
+      border-radius: 50%;
+      opacity: 0.7;
+      animation: float-gold 7s ease-in-out infinite;
+      animation-delay: -2s;
+    }
+    
+    @keyframes float-gold {
+      0%, 100% { transform: translateY(0px) rotate(0deg); }
+      50% { transform: translateY(-20px) rotate(180deg); }
+    }
+    
+    .error-message {
+      background: rgba(239, 68, 68, 0.1);
+      border: 1px solid #ef4444;
+      color: #fca5a5;
+      padding: 0.75rem;
+      border-radius: 0.5rem;
+      margin-bottom: 1rem;
+    }
+    
+    .success-message {
+      background: rgba(34, 197, 94, 0.1);
+      border: 1px solid #22c55e;
+      color: #86efac;
+      padding: 0.75rem;
+      border-radius: 0.5rem;
+      margin-bottom: 1rem;
+    }
+  </style>
+</head>
+<body class="sarawak-bg">
+  <!-- Floating Gold Elements -->
+  <div class="floating-gold floating-gold-1"></div>
+  <div class="floating-gold floating-gold-2"></div>
+  <div class="floating-gold floating-gold-3"></div>
+  
+  <div class="min-h-screen flex items-center justify-center p-4">
+    <div class="sarawak-login-container rounded-2xl p-8 w-full max-w-md">
+      <!-- Header -->
+      <div class="text-center mb-8">
+        <i class="fas fa-crown sarawak-text-gold text-4xl mb-4"></i>
+        <h1 class="text-3xl font-bold sarawak-text-gold mb-2">Admin Login</h1>
+        <p class="sarawak-text-light-gold">Sarawak Pickleball Association</p>
+      </div>
+      
+      <!-- Error/Success Messages -->
+      <% if (typeof error !== 'undefined' && error) { %>
+        <div class="error-message">
+          <i class="fas fa-exclamation-triangle mr-2"></i>
+          <%= error %>
+        </div>
+      <% } %>
+      
+      <% if (typeof success !== 'undefined' && success) { %>
+        <div class="success-message">
+          <i class="fas fa-check-circle mr-2"></i>
+          <%= success %>
+        </div>
+      <% } %>
+      
+      <!-- Login Form -->
+      <form action="/sarawak-admin-login" method="POST" id="loginForm">
+        <div class="mb-6">
+          <label for="username" class="block sarawak-label mb-2">
+            <i class="fas fa-user mr-2"></i>Username
+          </label>
+          <input 
+            type="text" 
+            id="username" 
+            name="username" 
+            class="sarawak-input w-full px-4 py-3 rounded-lg" 
+            placeholder="Enter your username"
+            required
+            autocomplete="username"
+          >
+        </div>
+        
+        <div class="mb-6">
+          <label for="password" class="block sarawak-label mb-2">
+            <i class="fas fa-lock mr-2"></i>Password
+          </label>
+          <div class="relative">
+            <input 
+              type="password" 
+              id="password" 
+              name="password" 
+              class="sarawak-input w-full px-4 py-3 rounded-lg pr-12" 
+              placeholder="Enter your password"
+              required
+              autocomplete="current-password"
+            >
+            <button 
+              type="button" 
+              id="togglePassword" 
+              class="absolute right-3 top-1/2 transform -translate-y-1/2 sarawak-text-gold hover:sarawak-text-light-gold transition-colors"
+            >
+              <i class="fas fa-eye" id="eyeIcon"></i>
+            </button>
+          </div>
+        </div>
+        
+        <div class="mb-6">
+          <button 
+            type="submit" 
+            class="sarawak-button w-full py-3 rounded-lg font-bold text-lg"
+            id="loginButton"
+          >
+            <i class="fas fa-sign-in-alt mr-2"></i>
+            <span id="buttonText">Login</span>
+          </button>
+        </div>
+      </form>
+      
+      <!-- Footer Links -->
+      <div class="text-center space-y-3">
+        <div>
+          <a href="/sarawak-pickleball-association" class="sarawak-link text-sm">
+            <i class="fas fa-arrow-left mr-2"></i>
+            Back to Sarawak Pickleball Association
+          </a>
+        </div>
+        <div class="text-xs sarawak-text-light-gold opacity-75">
+          <i class="fas fa-shield-alt mr-2"></i>
+          Secure Admin Access
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <script>
+    // Password toggle functionality
+    document.getElementById('togglePassword').addEventListener('click', function() {
+      const passwordInput = document.getElementById('password');
+      const eyeIcon = document.getElementById('eyeIcon');
+      
+      if (passwordInput.type === 'password') {
+        passwordInput.type = 'text';
+        eyeIcon.classList.remove('fa-eye');
+        eyeIcon.classList.add('fa-eye-slash');
+      } else {
+        passwordInput.type = 'password';
+        eyeIcon.classList.remove('fa-eye-slash');
+        eyeIcon.classList.add('fa-eye');
+      }
+    });
+    
+    // Form submission handling
+    document.getElementById('loginForm').addEventListener('submit', function(e) {
+      const loginButton = document.getElementById('loginButton');
+      const buttonText = document.getElementById('buttonText');
+      
+      // Disable button and show loading state
+      loginButton.disabled = true;
+      buttonText.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Logging in...';
+    });
+    
+    // Input focus effects
+    document.querySelectorAll('.sarawak-input').forEach(input => {
+      input.addEventListener('focus', function() {
+        this.parentElement.querySelector('.sarawak-label').style.color = 'var(--sarawak-light-gold)';
+      });
+      
+      input.addEventListener('blur', function() {
+        this.parentElement.querySelector('.sarawak-label').style.color = 'var(--sarawak-gold)';
+      });
+    });
+  </script>
+</body>
+</html> 

@@ -28,6 +28,33 @@
     <!-- Navigation Content -->
     <div class="flex-1 overflow-y-auto relative z-10 p-4">
       <nav class="space-y-3">
+        <!-- State Association Dropdown -->
+        <div class="nav-item-wrapper">
+          <div class="state-association-dropdown">
+            <button id="state-association-toggle" class="nav-item group flex items-center p-4 rounded-2xl transition-all duration-300 hover:bg-white hover:bg-opacity-10 hover:shadow-xl transform hover:scale-105 w-full text-left">
+              <div class="nav-icon bg-amber-500 bg-opacity-20 p-3 rounded-xl mr-4 group-hover:bg-opacity-100 group-hover:scale-110 transition-all duration-300">
+                <i class="fas fa-map text-amber-400 group-hover:text-white text-lg"></i>
+              </div>
+              <div class="flex-1">
+                <div class="font-semibold text-white group-hover:text-amber-100">State Association</div>
+                <div class="text-gray-400 text-xs group-hover:text-amber-200">Regional chapters</div>
+              </div>
+              <i class="fas fa-chevron-down text-gray-500 group-hover:text-white transition-all duration-300 transform state-association-arrow" id="state-association-arrow"></i>
+            </button>
+            
+            <!-- State Association Submenu -->
+            <div id="state-association-menu" class="submenu-container mt-2 ml-6 space-y-2 hidden transition-all duration-500 ease-in-out">
+              <a href="/sarawak-pickleball-association" class="submenu-item flex items-center p-3 rounded-xl transition-all duration-300 hover:bg-white hover:bg-opacity-5 transform hover:translate-x-2 group opacity-100">
+                <i class="fas fa-star text-amber-400 mr-3 group-hover:scale-110 transition-transform"></i>
+                <div>
+                  <div class="text-sm font-medium text-white group-hover:text-amber-200">Sarawak Pickleball Association</div>
+                  <div class="text-xs text-gray-500 group-hover:text-amber-300">Sarawak state chapter</div>
+                </div>
+              </a>
+            </div>
+          </div>
+        </div>
+
         <!-- Tournament Section -->
         <div class="nav-item-wrapper">
           <a href="/tournament" class="nav-item group flex items-center p-4 rounded-2xl transition-all duration-300 hover:bg-white hover:bg-opacity-10 hover:shadow-xl transform hover:scale-105 hover:translate-x-2">

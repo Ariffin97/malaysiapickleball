@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Add Tournament Announcement - Sarawak Admin</title>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+  <style>
+    :root {
+      --sarawak-gold: #FFD700;
+      --sarawak-dark-gold: #DAA520;
+      --sarawak-black: #1a1a1a;
+      --sarawak-dark-black: #0a0a0a;
+      --sarawak-light-gold: #FFF8DC;
+    }
+    .sarawak-bg {
+      background: linear-gradient(135deg, var(--sarawak-black) 0%, var(--sarawak-dark-black) 100%);
+      min-height: 100vh;
+    }
+    .sarawak-card {
+      background: linear-gradient(145deg, var(--sarawak-black), var(--sarawak-dark-black));
+      border: 2px solid var(--sarawak-gold);
+      box-shadow: 0 10px 30px rgba(255, 215, 0, 0.2);
+      transition: all 0.3s ease;
+    }
+    .sarawak-button {
+      background: linear-gradient(135deg, var(--sarawak-gold), var(--sarawak-dark-gold));
+      color: var(--sarawak-black);
+      border: none;
+      transition: all 0.3s ease;
+      font-weight: bold;
+    }
+    .sarawak-button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 25px rgba(255, 215, 0, 0.4);
+    }
+    .sarawak-button-secondary {
+      background: transparent;
+      border: 2px solid var(--sarawak-gold);
+      color: var(--sarawak-gold);
+      transition: all 0.3s ease;
+      font-weight: bold;
+    }
+    .sarawak-button-secondary:hover {
+      background: var(--sarawak-gold);
+      color: var(--sarawak-black);
+      transform: translateY(-2px);
+    }
+    .sarawak-text-gold {
+      color: var(--sarawak-gold);
+    }
+    .sarawak-text-light-gold {
+      color: var(--sarawak-light-gold);
+    }
+    .form-label {
+      font-weight: bold;
+      color: var(--sarawak-gold);
+    }
+    .form-input, .form-select, .form-textarea {
+      background: #222;
+      color: #fff;
+      border: 1.5px solid var(--sarawak-gold);
+      border-radius: 0.5rem;
+      padding: 0.75rem 1rem;
+      width: 100%;
+      margin-bottom: 1.25rem;
+      transition: border 0.2s;
+    }
+    .form-input:focus, .form-select:focus, .form-textarea:focus {
+      outline: none;
+      border-color: var(--sarawak-dark-gold);
+    }
+  </style>
+</head>
+<body class="sarawak-bg text-white">
+  <div class="container mx-auto py-12 px-4">
+    <div class="max-w-2xl mx-auto sarawak-card p-8 rounded-2xl">
+      <div class="mb-8 flex items-center justify-between">
+        <h1 class="text-3xl font-bold sarawak-text-gold flex items-center">
+          <i class="fas fa-plus mr-3"></i>Add Tournament Announcement
+        </h1>
+        <a href="/sarawak-admin-dashboard" class="sarawak-button-secondary px-4 py-2 rounded-lg">
+          <i class="fas fa-arrow-left mr-2"></i>Back to Dashboard
+        </a>
+      </div>
+      <form method="POST" action="/sarawak-admin-add-announcement">
+        <label class="form-label">Tournament Name</label>
+        <input type="text" name="title" class="form-input" required />
+        <label class="form-label">Venue</label>
+        <input type="text" name="venue" class="form-input" required />
+        <label class="form-label">City and State</label>
+        <input type="text" name="cityState" class="form-input" required />
+        <label class="form-label">Organizer</label>
+        <input type="text" name="organizer" class="form-input" required />
+        <label class="form-label">Person in Charge</label>
+        <input type="text" name="personInCharge" class="form-input" required />
+        <label class="form-label">Phone Number</label>
+        <input type="text" name="phoneNumber" class="form-input" required />
+        <label class="form-label">Start Date</label>
+        <input type="date" name="startDate" class="form-input" required />
+        <label class="form-label">End Date</label>
+        <input type="date" name="endDate" class="form-input" required />
+        <label class="form-label">Registration Deadline</label>
+        <input type="date" name="registrationDeadline" class="form-input" required />
+        <label class="form-label">Status</label>
+        <select name="status" class="form-select" required>
+          <option value="Published">Published</option>
+          <option value="Draft">Draft</option>
+        </select>
+        <label class="form-label">Homepage Link</label>
+        <select name="homepageLink" class="form-select" required>
+          <option value="Linked">Linked to Homepage</option>
+          <option value="Not Linked">Not Linked</option>
+        </select>
+        <label class="form-label">Content</label>
+        <textarea name="content" rows="5" class="form-textarea" required></textarea>
+        <div class="flex justify-end space-x-3 mt-6">
+          <a href="/sarawak-admin-dashboard" class="sarawak-button-secondary px-6 py-2 rounded-lg">Cancel</a>
+          <button type="submit" class="sarawak-button px-8 py-2 rounded-lg">Submit</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</body>
+</html> 

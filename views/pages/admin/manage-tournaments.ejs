@@ -419,6 +419,7 @@
                   <option value="local" <%= formData?.type === 'local' ? 'selected' : '' %>>🏘️ Local</option>
                   <option value="state" <%= formData?.type === 'state' ? 'selected' : '' %>>🏛️ State</option>
                   <option value="national" <%= formData?.type === 'national' ? 'selected' : '' %>>🇲🇾 National</option>
+                  <option value="international" <%= formData?.type === 'international' ? 'selected' : '' %>>🌍 International</option>
                   <option value="sarawak" <%= formData?.type === 'sarawak' ? 'selected' : '' %>>🏝️ Miscellaneous Pickleball Events in Sarawak</option>
                   <option value="wmalaysia" <%= formData?.type === 'wmalaysia' ? 'selected' : '' %>>🏢 Miscellaneous Events in W. Malaysia</option>
                 </select>
@@ -525,6 +526,7 @@
                     <%= tournament.type === 'local' ? 'bg-green-100 text-green-800' : 
                         tournament.type === 'state' ? 'bg-red-100 text-red-800' : 
                         tournament.type === 'national' ? 'bg-blue-100 text-blue-800' : 
+                        tournament.type === 'international' ? 'bg-teal-100 text-teal-800' :
                         tournament.type === 'sarawak' ? 'bg-purple-100 text-purple-800' :
                         'bg-orange-100 text-orange-800' %>">
                     <%= tournament.type ? tournament.type.toUpperCase() : 'GENERAL' %>
@@ -684,6 +686,7 @@
                 <option value="local">Local</option>
                 <option value="state">State</option>
                 <option value="national">National</option>
+                <option value="international">International</option>
                 <option value="sarawak">Sarawak</option>
                 <option value="wmalaysia">W. Malaysia</option>
               </select>

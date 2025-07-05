@@ -17,7 +17,7 @@ const tournamentSchema = new mongoose.Schema({
   type: {
     type: String,
     required: true,
-    enum: ['local', 'state', 'national', 'sarawak', 'wmalaysia']
+    enum: ['local', 'state', 'national', 'international', 'sarawak', 'wmalaysia']
   },
   months: [{
     type: Number,

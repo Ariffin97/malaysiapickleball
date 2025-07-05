@@ -1512,6 +1512,7 @@
         local: 'green',
         state: 'red',
         national: 'blue',
+        international: 'teal',
         sarawak: 'purple',
         wmalaysia: 'orange'
       };
@@ -1655,6 +1656,7 @@
               ${(tournament.type || 'local') === 'local' ? 'Perfect for community players looking to compete locally.' :
                 (tournament.type || 'local') === 'state' ? 'State-level competition for advancing players.' :
                 (tournament.type || 'local') === 'national' ? 'National championship level tournament.' :
+                (tournament.type || 'local') === 'international' ? 'International level tournament with global participation.' :
                 (tournament.type || 'local') === 'sarawak' ? 'Miscellaneous pickleball events in Sarawak region.' :
                 'Miscellaneous events in West Malaysia region.'}
             </p>

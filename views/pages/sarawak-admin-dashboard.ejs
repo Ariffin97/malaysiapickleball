@@ -1,0 +1,643 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sarawak Admin Dashboard</title>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+  <style>
+    :root {
+      --sarawak-gold: #FFD700;
+      --sarawak-dark-gold: #DAA520;
+      --sarawak-black: #1a1a1a;
+      --sarawak-dark-black: #0a0a0a;
+      --sarawak-light-gold: #FFF8DC;
+    }
+    
+    .sarawak-bg {
+      background: linear-gradient(135deg, var(--sarawak-black) 0%, var(--sarawak-dark-black) 100%);
+      min-height: 100vh;
+    }
+    
+    .sarawak-dashboard-card {
+      background: linear-gradient(145deg, var(--sarawak-black), var(--sarawak-dark-black));
+      border: 2px solid var(--sarawak-gold);
+      box-shadow: 0 10px 30px rgba(255, 215, 0, 0.2);
+      transition: all 0.3s ease;
+    }
+    
+    .sarawak-dashboard-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 20px 40px rgba(255, 215, 0, 0.3);
+    }
+    
+    .sarawak-button {
+      background: linear-gradient(135deg, var(--sarawak-gold), var(--sarawak-dark-gold));
+      color: var(--sarawak-black);
+      border: none;
+      transition: all 0.3s ease;
+      font-weight: bold;
+    }
+    
+    .sarawak-button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 25px rgba(255, 215, 0, 0.4);
+    }
+    
+    .sarawak-button-secondary {
+      background: transparent;
+      border: 2px solid var(--sarawak-gold);
+      color: var(--sarawak-gold);
+      transition: all 0.3s ease;
+      font-weight: bold;
+    }
+    
+    .sarawak-button-secondary:hover {
+      background: var(--sarawak-gold);
+      color: var(--sarawak-black);
+      transform: translateY(-2px);
+    }
+    
+    .sarawak-text-gold {
+      color: var(--sarawak-gold);
+    }
+    
+    .sarawak-text-light-gold {
+      color: var(--sarawak-light-gold);
+    }
+    
+    .sarawak-table {
+      background: linear-gradient(145deg, var(--sarawak-black), var(--sarawak-dark-black));
+      border: 1px solid var(--sarawak-gold);
+    }
+    
+    .sarawak-table th {
+      background: var(--sarawak-gold);
+      color: var(--sarawak-black);
+      font-weight: bold;
+    }
+    
+    .sarawak-table td {
+      border-bottom: 1px solid rgba(255, 215, 0, 0.2);
+      color: var(--sarawak-light-gold);
+    }
+    
+    .sarawak-table tr:hover {
+      background: rgba(255, 215, 0, 0.1);
+    }
+    
+    .management-icon {
+      font-size: 3rem;
+      margin-bottom: 1rem;
+      color: var(--sarawak-gold);
+    }
+    
+    .status-badge {
+      padding: 0.25rem 0.75rem;
+      border-radius: 9999px;
+      font-size: 0.75rem;
+      font-weight: bold;
+    }
+    
+    .status-published {
+      background-color: #10b981;
+      color: white;
+    }
+    
+    .status-draft {
+      background-color: #f59e0b;
+      color: white;
+    }
+    
+    .status-pending {
+      background-color: #3b82f6;
+      color: white;
+    }
+    
+    .status-approved {
+      background-color: #10b981;
+      color: white;
+    }
+    
+    .status-rejected {
+      background-color: #ef4444;
+      color: white;
+    }
+  </style>
+</head>
+<body class="sarawak-bg text-white">
+  <!-- Dashboard Header -->
+  <nav class="bg-black bg-opacity-50 border-b-2 border-yellow-400 p-4">
+    <div class="container mx-auto flex justify-between items-center">
+      <div class="flex items-center space-x-3">
+        <i class="fas fa-crown text-yellow-400 text-2xl"></i>
+        <div>
+          <h1 class="text-xl font-bold text-yellow-400">Sarawak Admin Dashboard</h1>
+          <p class="text-sm text-yellow-200">Content Management System</p>
+        </div>
+      </div>
+      <div class="flex items-center space-x-4">
+        <div class="text-right">
+          <p class="text-yellow-400 font-semibold">Welcome, <%= admin ? admin.name || admin.username : 'Admin' %></p>
+          <p class="text-xs text-yellow-200">Last login: <%= new Date().toLocaleDateString() %></p>
+        </div>
+        <a href="/sarawak-admin-logout" class="sarawak-button-secondary px-4 py-2 rounded-lg">
+          <i class="fas fa-sign-out-alt mr-2"></i>Logout
+        </a>
+      </div>
+    </div>
+  </nav>
+  
+  <!-- Dashboard Content -->
+  <div class="container mx-auto p-6">
+    <!-- Management Overview Cards -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+      <!-- News Management -->
+      <div class="sarawak-dashboard-card p-6 rounded-xl text-center cursor-pointer" onclick="scrollToSection('news-section')">
+        <i class="fas fa-newspaper management-icon"></i>
+        <h3 class="text-xl font-bold sarawak-text-gold mb-2">News Management</h3>
+        <p class="sarawak-text-light-gold text-sm mb-4">Manage news articles for homepage</p>
+        <div class="text-2xl font-bold sarawak-text-gold">12</div>
+        <p class="text-xs sarawak-text-light-gold">Active Articles</p>
+      </div>
+      
+      <!-- Tournament Announcements -->
+      <div class="sarawak-dashboard-card p-6 rounded-xl text-center cursor-pointer" onclick="scrollToSection('announcements-section')">
+        <i class="fas fa-bullhorn management-icon"></i>
+        <h3 class="text-xl font-bold sarawak-text-gold mb-2">Tournament Announcements</h3>
+        <p class="sarawak-text-light-gold text-sm mb-4">Manage tournament announcements</p>
+        <div class="text-2xl font-bold sarawak-text-gold">8</div>
+        <p class="text-xs sarawak-text-light-gold">Active Announcements</p>
+      </div>
+      
+      <!-- Calendar Management -->
+      <div class="sarawak-dashboard-card p-6 rounded-xl text-center cursor-pointer" onclick="scrollToSection('calendar-section')">
+        <i class="fas fa-calendar-alt management-icon"></i>
+        <h3 class="text-xl font-bold sarawak-text-gold mb-2">Calendar Management</h3>
+        <p class="sarawak-text-light-gold text-sm mb-4">Manage events calendar</p>
+        <div class="text-2xl font-bold sarawak-text-gold">15</div>
+        <p class="text-xs sarawak-text-light-gold">Upcoming Events</p>
+      </div>
+      
+      <!-- Player Applications -->
+      <div class="sarawak-dashboard-card p-6 rounded-xl text-center cursor-pointer" onclick="scrollToSection('applications-section')">
+        <i class="fas fa-users management-icon"></i>
+        <h3 class="text-xl font-bold sarawak-text-gold mb-2">Player Applications</h3>
+        <p class="sarawak-text-light-gold text-sm mb-4">Sarawak sanctioned tournaments</p>
+        <div class="text-2xl font-bold sarawak-text-gold">23</div>
+        <p class="text-xs sarawak-text-light-gold">Pending Applications</p>
+      </div>
+    </div>
+    
+    <!-- News Management Section -->
+    <section id="news-section" class="mb-12">
+      <div class="sarawak-dashboard-card p-6 rounded-xl">
+        <div class="flex items-center justify-between mb-6">
+          <h2 class="text-2xl font-bold sarawak-text-gold">
+            <i class="fas fa-newspaper mr-3"></i>News Management
+          </h2>
+          <a href="/sarawak-admin-add-news" class="sarawak-button px-6 py-2 rounded-lg" id="addNewsArticleLink">
+            <i class="fas fa-plus mr-2"></i>Add News Article
+          </a>
+        </div>
+        
+        <div class="overflow-x-auto">
+          <table class="sarawak-table w-full rounded-lg overflow-hidden">
+            <thead>
+              <tr>
+                <th class="px-6 py-3 text-left">Title</th>
+                <th class="px-6 py-3 text-left">Date</th>
+                <th class="px-6 py-3 text-left">Status</th>
+                <th class="px-6 py-3 text-left">Homepage Link</th>
+                <th class="px-6 py-3 text-left">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              <% if (newsList && newsList.length > 0) { %>
+                <% newsList.forEach(function(news) { %>
+                  <tr>
+                    <td class="px-6 py-4"><%= news.title %></td>
+                    <td class="px-6 py-4"><%= news.publishedAt ? new Date(news.publishedAt).toISOString().slice(0,10) : '' %></td>
+                    <td class="px-6 py-4">
+                      <% if (news.isActive) { %>
+                        <span class="status-badge status-published">Published</span>
+                      <% } else { %>
+                        <span class="status-badge status-draft">Draft</span>
+                      <% } %>
+                    </td>
+                    <td class="px-6 py-4">
+                      <% if (news.metadata && news.metadata.link === 'homepage') { %>
+                        <span class="sarawak-text-gold">✓ Linked to Homepage</span>
+                      <% } else { %>
+                        <span class="text-gray-400">Not Linked</span>
+                      <% } %>
+                    </td>
+                    <td class="px-6 py-4">
+                      <a href="/sarawak-admin-edit-news/<%= news._id %>" class="sarawak-text-gold hover:sarawak-text-light-gold mr-3">
+                        <i class="fas fa-edit"></i>
+                      </a>
+                      <form class="delete-news-form" data-id="<%= news._id %>" style="display:inline;">
+                        <button type="button" class="text-red-400 hover:text-red-300 delete-news-btn" data-id="<%= news._id %>" style="background:none;border:none;padding:0;cursor:pointer;">
+                          <i class="fas fa-trash"></i>
+                        </button>
+                      </form>
+                    </td>
+                  </tr>
+                <% }); %>
+              <% } else { %>
+                <tr><td colspan="5" class="text-center py-4">No news articles found.</td></tr>
+              <% } %>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+    
+    <!-- Tournament Announcements Section -->
+    <section id="announcements-section" class="mb-12">
+      <div class="sarawak-dashboard-card p-6 rounded-xl">
+        <div class="flex items-center justify-between mb-6">
+          <h2 class="text-2xl font-bold sarawak-text-gold">
+            <i class="fas fa-bullhorn mr-3"></i>Tournament Announcements
+          </h2>
+          <a href="/sarawak-admin-add-announcement" class="sarawak-button px-6 py-2 rounded-lg" id="addAnnouncementLink">
+            <i class="fas fa-plus mr-2"></i>Add Announcement
+          </a>
+        </div>
+        
+        <div class="overflow-x-auto">
+          <table class="sarawak-table w-full rounded-lg overflow-hidden">
+            <thead>
+              <tr>
+                <th class="px-6 py-3 text-left">Tournament</th>
+                <th class="px-6 py-3 text-left">Date</th>
+                <th class="px-6 py-3 text-left">Registration Deadline</th>
+                <th class="px-6 py-3 text-left">Status</th>
+                <th class="px-6 py-3 text-left">Homepage Link</th>
+                <th class="px-6 py-3 text-left">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              <% if (newsList && newsList.length > 0) { %>
+                <% newsList.filter(function(a) { return a.type === 'event'; }).forEach(function(announcement) { %>
+                  <tr>
+                    <td class="px-6 py-4"><%= announcement.title %></td>
+                    <td class="px-6 py-4">
+                      <%= announcement.metadata && announcement.metadata.startDate ? announcement.metadata.startDate : '' %>
+                      <% if (announcement.metadata && announcement.metadata.endDate) { %> to <%= announcement.metadata.endDate %><% } %>
+                    </td>
+                    <td class="px-6 py-4"><%= announcement.metadata && announcement.metadata.registrationDeadline ? announcement.metadata.registrationDeadline : '' %></td>
+                    <td class="px-6 py-4">
+                      <% if (announcement.isActive) { %>
+                        <span class="status-badge status-published">Published</span>
+                      <% } else { %>
+                        <span class="status-badge status-draft">Draft</span>
+                      <% } %>
+                    </td>
+                    <td class="px-6 py-4">
+                      <% if (announcement.metadata && announcement.metadata.link === 'homepage') { %>
+                        <span class="sarawak-text-gold">✓ Linked to Homepage</span>
+                      <% } else { %>
+                        <span class="text-gray-400">Not Linked</span>
+                      <% } %>
+                    </td>
+                    <td class="px-6 py-4">
+                      <a href="/sarawak-admin-edit-announcement/<%= announcement._id %>" class="sarawak-text-gold hover:sarawak-text-light-gold mr-3">
+                        <i class="fas fa-edit"></i>
+                      </a>
+                      <form class="delete-announcement-form" data-id="<%= announcement._id %>" style="display:inline;">
+                        <button type="button" class="text-red-400 hover:text-red-300 delete-announcement-btn" data-id="<%= announcement._id %>" style="background:none;border:none;padding:0;cursor:pointer;">
+                          <i class="fas fa-trash"></i>
+                        </button>
+                      </form>
+                    </td>
+                  </tr>
+                <% }); %>
+              <% } else { %>
+                <tr><td colspan="6" class="text-center py-4">No tournament announcements found.</td></tr>
+              <% } %>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+    
+    <!-- Calendar Management Section -->
+    <section id="calendar-section" class="mb-12">
+      <div class="sarawak-dashboard-card p-6 rounded-xl">
+        <div class="flex items-center justify-between mb-6">
+          <h2 class="text-2xl font-bold sarawak-text-gold">
+            <i class="fas fa-calendar-alt mr-3"></i>Calendar Management
+          </h2>
+          <button class="sarawak-button px-6 py-2 rounded-lg" onclick="openCalendarModal()">
+            <i class="fas fa-plus mr-2"></i>Add Event
+          </button>
+        </div>
+        
+        <div class="overflow-x-auto">
+          <table class="sarawak-table w-full rounded-lg overflow-hidden">
+            <thead>
+              <tr>
+                <th class="px-6 py-3 text-left">Event</th>
+                <th class="px-6 py-3 text-left">Date</th>
+                <th class="px-6 py-3 text-left">Time</th>
+                <th class="px-6 py-3 text-left">Venue</th>
+                <th class="px-6 py-3 text-left">Status</th>
+                <th class="px-6 py-3 text-left">Homepage Link</th>
+                <th class="px-6 py-3 text-left">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td class="px-6 py-4">Training Session - Beginners</td>
+                <td class="px-6 py-4">2024-03-20</td>
+                <td class="px-6 py-4">09:00 AM</td>
+                <td class="px-6 py-4">Kuching Sports Complex</td>
+                <td class="px-6 py-4">
+                  <span class="status-badge status-published">Published</span>
+                </td>
+                <td class="px-6 py-4">
+                  <span class="sarawak-text-gold">✓ Linked to Homepage</span>
+                </td>
+                <td class="px-6 py-4">
+                  <button class="sarawak-text-gold hover:sarawak-text-light-gold mr-3">
+                    <i class="fas fa-edit"></i>
+                  </button>
+                  <button class="text-red-400 hover:text-red-300">
+                    <i class="fas fa-trash"></i>
+                  </button>
+                </td>
+              </tr>
+              <tr>
+                <td class="px-6 py-4">Coach Certification Workshop</td>
+                <td class="px-6 py-4">2024-03-25</td>
+                <td class="px-6 py-4">02:00 PM</td>
+                <td class="px-6 py-4">Miri Community Center</td>
+                <td class="px-6 py-4">
+                  <span class="status-badge status-published">Published</span>
+                </td>
+                <td class="px-6 py-4">
+                  <span class="sarawak-text-gold">✓ Linked to Homepage</span>
+                </td>
+                <td class="px-6 py-4">
+                  <button class="sarawak-text-gold hover:sarawak-text-light-gold mr-3">
+                    <i class="fas fa-edit"></i>
+                  </button>
+                  <button class="text-red-400 hover:text-red-300">
+                    <i class="fas fa-trash"></i>
+                  </button>
+                </td>
+              </tr>
+              <tr>
+                <td class="px-6 py-4">Equipment Maintenance Day</td>
+                <td class="px-6 py-4">2024-03-30</td>
+                <td class="px-6 py-4">10:00 AM</td>
+                <td class="px-6 py-4">All Venues</td>
+                <td class="px-6 py-4">
+                  <span class="status-badge status-draft">Draft</span>
+                </td>
+                <td class="px-6 py-4">
+                  <span class="text-gray-400">Not Linked</span>
+                </td>
+                <td class="px-6 py-4">
+                  <button class="sarawak-text-gold hover:sarawak-text-light-gold mr-3">
+                    <i class="fas fa-edit"></i>
+                  </button>
+                  <button class="text-red-400 hover:text-red-300">
+                    <i class="fas fa-trash"></i>
+                  </button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+    
+    <!-- Player Applications Section -->
+    <section id="applications-section" class="mb-12">
+      <div class="sarawak-dashboard-card p-6 rounded-xl">
+        <div class="flex items-center justify-between mb-6">
+          <h2 class="text-2xl font-bold sarawak-text-gold">
+            <i class="fas fa-users mr-3"></i>Player Applications - Sarawak Sanctioned Tournaments
+          </h2>
+          <div class="flex space-x-3">
+            <button class="sarawak-button-secondary px-4 py-2 rounded-lg">
+              <i class="fas fa-download mr-2"></i>Export List
+            </button>
+            <button class="sarawak-button px-4 py-2 rounded-lg">
+              <i class="fas fa-filter mr-2"></i>Filter
+            </button>
+          </div>
+        </div>
+        
+        <div class="overflow-x-auto">
+          <table class="sarawak-table w-full rounded-lg overflow-hidden">
+            <thead>
+              <tr>
+                <th class="px-6 py-3 text-left">Player Name</th>
+                <th class="px-6 py-3 text-left">IC Number</th>
+                <th class="px-6 py-3 text-left">Tournament</th>
+                <th class="px-6 py-3 text-left">Category</th>
+                <th class="px-6 py-3 text-left">Application Date</th>
+                <th class="px-6 py-3 text-left">Status</th>
+                <th class="px-6 py-3 text-left">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td class="px-6 py-4">Ahmad Rahman</td>
+                <td class="px-6 py-4">123456-78-9012</td>
+                <td class="px-6 py-4">Sarawak Open Championship 2024</td>
+                <td class="px-6 py-4">Men's Singles</td>
+                <td class="px-6 py-4">2024-03-10</td>
+                <td class="px-6 py-4">
+                  <span class="status-badge status-pending">Pending</span>
+                </td>
+                <td class="px-6 py-4">
+                  <button class="text-green-400 hover:text-green-300 mr-2" title="Approve">
+                    <i class="fas fa-check-circle"></i>
+                  </button>
+                  <button class="text-red-400 hover:text-red-300 mr-2" title="Reject">
+                    <i class="fas fa-times-circle"></i>
+                  </button>
+                  <button class="sarawak-text-gold hover:sarawak-text-light-gold" title="View Details">
+                    <i class="fas fa-eye"></i>
+                  </button>
+                </td>
+              </tr>
+              <tr>
+                <td class="px-6 py-4">Sarah Lee Mei Ling</td>
+                <td class="px-6 py-4">234567-89-0123</td>
+                <td class="px-6 py-4">Sarawak Open Championship 2024</td>
+                <td class="px-6 py-4">Women's Doubles</td>
+                <td class="px-6 py-4">2024-03-11</td>
+                <td class="px-6 py-4">
+                  <span class="status-badge status-approved">Approved</span>
+                </td>
+                <td class="px-6 py-4">
+                  <button class="sarawak-text-gold hover:sarawak-text-light-gold mr-2" title="View Details">
+                    <i class="fas fa-eye"></i>
+                  </button>
+                  <button class="text-blue-400 hover:text-blue-300" title="Send Confirmation">
+                    <i class="fas fa-envelope"></i>
+                  </button>
+                </td>
+              </tr>
+              <tr>
+                <td class="px-6 py-4">David Wong</td>
+                <td class="px-6 py-4">345678-90-1234</td>
+                <td class="px-6 py-4">Youth Development Tournament</td>
+                <td class="px-6 py-4">Youth Singles</td>
+                <td class="px-6 py-4">2024-03-12</td>
+                <td class="px-6 py-4">
+                  <span class="status-badge status-rejected">Rejected</span>
+                </td>
+                <td class="px-6 py-4">
+                  <button class="sarawak-text-gold hover:sarawak-text-light-gold mr-2" title="View Details">
+                    <i class="fas fa-eye"></i>
+                  </button>
+                  <button class="text-orange-400 hover:text-orange-300" title="Reconsider">
+                    <i class="fas fa-redo"></i>
+                  </button>
+                </td>
+              </tr>
+              <tr>
+                <td class="px-6 py-4">Maria Gonzales</td>
+                <td class="px-6 py-4">456789-01-2345</td>
+                <td class="px-6 py-4">Masters Cup Sarawak</td>
+                <td class="px-6 py-4">Mixed Doubles</td>
+                <td class="px-6 py-4">2024-03-13</td>
+                <td class="px-6 py-4">
+                  <span class="status-badge status-pending">Pending</span>
+                </td>
+                <td class="px-6 py-4">
+                  <button class="text-green-400 hover:text-green-300 mr-2" title="Approve">
+                    <i class="fas fa-check-circle"></i>
+                  </button>
+                  <button class="text-red-400 hover:text-red-300 mr-2" title="Reject">
+                    <i class="fas fa-times-circle"></i>
+                  </button>
+                  <button class="sarawak-text-gold hover:sarawak-text-light-gold" title="View Details">
+                    <i class="fas fa-eye"></i>
+                  </button>
+                </td>
+              </tr>
+              <tr>
+                <td class="px-6 py-4">Raj Kumar</td>
+                <td class="px-6 py-4">567890-12-3456</td>
+                <td class="px-6 py-4">Sarawak Open Championship 2024</td>
+                <td class="px-6 py-4">Men's Doubles</td>
+                <td class="px-6 py-4">2024-03-14</td>
+                <td class="px-6 py-4">
+                  <span class="status-badge status-approved">Approved</span>
+                </td>
+                <td class="px-6 py-4">
+                  <button class="sarawak-text-gold hover:sarawak-text-light-gold mr-2" title="View Details">
+                    <i class="fas fa-eye"></i>
+                  </button>
+                  <button class="text-blue-400 hover:text-blue-300" title="Send Confirmation">
+                    <i class="fas fa-envelope"></i>
+                  </button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        
+        <div class="mt-6 flex justify-between items-center">
+          <div class="sarawak-text-light-gold">
+            Showing 5 of 23 applications
+          </div>
+          <div class="flex space-x-2">
+            <button class="sarawak-button-secondary px-4 py-2 rounded-lg">Previous</button>
+            <button class="sarawak-button px-4 py-2 rounded-lg">Next</button>
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>
+  
+  <script>
+    // Smooth scroll to sections
+    function scrollToSection(sectionId) {
+      document.getElementById(sectionId).scrollIntoView({
+        behavior: 'smooth',
+        block: 'start'
+      });
+    }
+    
+    // Modal functions (CSP compatible)
+    function openNewsModal() {
+      alert('News Article Modal - To be implemented\n\nThis will open a form to create/edit news articles that will be linked to the homepage.');
+    }
+    
+    function openAnnouncementModal() {
+      alert('Tournament Announcement Modal - To be implemented\n\nThis will open a form to create/edit tournament announcements that will be linked to the homepage.');
+    }
+    
+    function openCalendarModal() {
+      alert('Calendar Event Modal - To be implemented\n\nThis will open a form to create/edit calendar events that will be linked to the homepage.');
+    }
+    
+    // Attach event listeners for modal actions (CSP safe)
+    document.addEventListener('DOMContentLoaded', function() {
+      const managementCards = document.querySelectorAll('.sarawak-dashboard-card');
+      
+      managementCards.forEach(card => {
+        card.addEventListener('mouseenter', function() {
+          this.style.transform = 'translateY(-5px)';
+        });
+        
+        card.addEventListener('mouseleave', function() {
+          this.style.transform = 'translateY(0)';
+        });
+      });
+    });
+
+    document.addEventListener('DOMContentLoaded', function() {
+      document.querySelectorAll('.delete-announcement-btn').forEach(function(btn) {
+        btn.addEventListener('click', function(e) {
+          if (!confirm('Are you sure you want to delete this announcement?')) return;
+          const id = btn.getAttribute('data-id');
+          fetch(`/sarawak-admin-delete-announcement/${id}`, {
+            method: 'POST',
+            headers: { 'X-Requested-With': 'XMLHttpRequest' }
+          })
+          .then(res => res.json())
+          .then(data => {
+            if (data.success) {
+              const row = btn.closest('tr');
+              if (row) row.remove();
+            } else {
+              alert('Failed to delete announcement.');
+            }
+          })
+          .catch(() => alert('Failed to delete announcement.'));
+        });
+      });
+      document.querySelectorAll('.delete-news-btn').forEach(function(btn) {
+        btn.addEventListener('click', function(e) {
+          if (!confirm('Are you sure you want to delete this news article?')) return;
+          const id = btn.getAttribute('data-id');
+          fetch(`/sarawak-admin-delete-news/${id}`, {
+            method: 'POST',
+            headers: { 'X-Requested-With': 'XMLHttpRequest' }
+          })
+          .then(res => res.json())
+          .then(data => {
+            if (data.success) {
+              const row = btn.closest('tr');
+              if (row) row.remove();
+            } else {
+              alert('Failed to delete news article.');
+            }
+          })
+          .catch(() => alert('Failed to delete news article.'));
+        });
+      });
+    });
+  </script>
+</body>
+</html> 
