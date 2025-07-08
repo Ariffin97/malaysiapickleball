@@ -45,7 +45,9 @@
             <!-- State Association Submenu -->
             <div id="state-association-menu" class="submenu-container mt-2 ml-6 space-y-2 hidden transition-all duration-500 ease-in-out">
               <a href="/sarawak-pickleball-association" class="submenu-item flex items-center p-3 rounded-xl transition-all duration-300 hover:bg-white hover:bg-opacity-5 transform hover:translate-x-2 group opacity-100">
-                <i class="fas fa-star text-amber-400 mr-3 group-hover:scale-110 transition-transform"></i>
+                <div class="flex items-center justify-center w-8 h-8 bg-white bg-opacity-10 rounded-lg mr-3 group-hover:bg-opacity-20 transition-all duration-300">
+                  <img src="/images/SPA.png" alt="Sarawak Pickleball Association" class="w-6 h-6 object-contain group-hover:scale-110 transition-transform">
+                </div>
                 <div>
                   <div class="text-sm font-medium text-white group-hover:text-amber-200">Sarawak Pickleball Association</div>
                   <div class="text-xs text-gray-500 group-hover:text-amber-300">Sarawak state chapter</div>
@@ -310,8 +312,16 @@
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
   }
   
+  .submenu-container {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.3s ease-out, opacity 0.3s ease-out;
+    opacity: 0;
+  }
+  
   .submenu-container.expanded {
     max-height: 500px;
+    opacity: 1;
   }
   
   .submenu-container.expanded .submenu-item {
@@ -319,16 +329,26 @@
     transform: translateX(0);
   }
   
-  .services-arrow.rotated {
+  .services-arrow.rotated,
+  .state-association-arrow.rotated {
     transform: rotate(180deg);
   }
   
   .submenu-item {
     transition: all 0.3s ease-out;
+    opacity: 0.8;
+    transform: translateX(-10px);
   }
   
   .submenu-item:hover {
     background: rgba(255, 255, 255, 0.05);
+  }
+  
+  /* Hidden class override for dropdowns */
+  .submenu-container.hidden {
+    max-height: 0 !important;
+    opacity: 0 !important;
+    overflow: hidden;
   }
   
   @keyframes float-particle {

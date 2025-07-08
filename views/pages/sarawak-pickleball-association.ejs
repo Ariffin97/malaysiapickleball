@@ -266,6 +266,45 @@
       color: var(--sarawak-light-gold);
       transform: scale(1.1);
     }
+    
+    /* Sarawak Logo Styles */
+    .sarawak-logo {
+      filter: drop-shadow(0 4px 8px rgba(255, 215, 0, 0.3));
+      transition: all 0.5s ease;
+      animation: sarawakLogoEntrance 1.5s ease-out;
+    }
+    
+    .sarawak-logo:hover {
+      transform: scale(1.1) rotate(5deg);
+      filter: drop-shadow(0 8px 16px rgba(255, 215, 0, 0.5));
+    }
+    
+    @keyframes sarawakLogoEntrance {
+      0% {
+        opacity: 0;
+        transform: translateY(-30px) scale(0.8);
+      }
+      60% {
+        opacity: 1;
+        transform: translateY(5px) scale(1.05);
+      }
+      100% {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+      }
+    }
+    
+    /* Mobile Sarawak logo adjustments */
+    @media (max-width: 768px) {
+      .sarawak-logo {
+        width: 6rem !important;
+        height: 6rem !important;
+      }
+      
+      .sarawak-logo:hover {
+        transform: scale(1.05);
+      }
+    }
   </style>
 </head>
 <body class="sarawak-bg min-h-screen text-white">
@@ -304,7 +343,7 @@
       <div class="container mx-auto px-4">
         <div class="text-center">
           <div class="mb-8">
-            <i class="fas fa-crown sarawak-text-gold text-6xl mb-4"></i>
+            <img src="/images/SPA.png" alt="Sarawak Pickleball Association" class="sarawak-logo w-28 h-28 md:w-36 md:h-36 lg:w-40 lg:h-40 object-contain mx-auto">
           </div>
           <h1 class="text-5xl md:text-7xl font-bold mb-6 leading-tight">
             <span class="sarawak-text-gold">Sarawak</span>
