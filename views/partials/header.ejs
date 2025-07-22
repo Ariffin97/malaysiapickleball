@@ -82,6 +82,35 @@
           <span>Login</span>
         </a>
       <% } %>
+      <!-- Quick Actions Dropdown -->
+      <div class="relative">
+        <button class="nav-link px-4 py-2 rounded-xl font-semibold transition-all duration-300 hover:bg-white hover:bg-opacity-10 hover:text-yellow-200 transform hover:scale-105 active:scale-95 flex items-center space-x-2" id="quick-actions-menu-button" type="button" aria-expanded="false">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+          </svg>
+          <span>Menu</span>
+          <svg class="w-4 h-4 transition-transform duration-300" id="quick-actions-menu-arrow" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+          </svg>
+        </button>
+        <!-- Dropdown Content -->
+        <div class="absolute right-0 mt-2 w-80 rounded-2xl shadow-2xl border border-gray-200 opacity-0 invisible pointer-events-none transition-all duration-300 z-50" id="quick-actions-dropdown" style="background: linear-gradient(135deg, #059669 0%, #047857 50%, #065f46 100%);">
+          <div class="flex flex-col gap-4 p-6">
+            <a href="#calendar-view" class="flex items-center gap-2 px-4 py-3 rounded-full font-semibold bg-gray-700 text-white hover:bg-gray-800 transition-all duration-200">
+              <i class="fas fa-calendar-alt"></i> View Calendar
+            </a>
+            <a href="/events" class="flex items-center gap-2 px-4 py-3 rounded-full font-semibold bg-yellow-500 text-gray-900 hover:bg-yellow-600 transition-all duration-200">
+              <i class="fas fa-trophy"></i> Tournament Event
+            </a>
+            <a href="/live-tournament" class="flex items-center gap-2 px-4 py-3 rounded-full font-semibold bg-red-500 text-white hover:bg-red-600 transition-all duration-200">
+              <i class="fas fa-broadcast-tower"></i> Live Stream Tournament
+            </a>
+            <a href="/player/login" class="flex items-center gap-2 px-4 py-3 rounded-full font-semibold bg-green-500 text-white hover:bg-green-600 transition-all duration-200">
+              <i class="fas fa-sign-in-alt"></i> Player Login
+            </a>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
   
@@ -195,3 +224,42 @@
 <script src="/js/ajax-handler.js"></script>
 <!-- Include file upload handler for forms with file uploads -->
 <script src="/js/file-upload-handler.js"></script>
+
+<script>
+// Quick Actions Dropdown Toggle
+(function() {
+  const btn = document.getElementById('quick-actions-menu-button');
+  const dropdown = document.getElementById('quick-actions-dropdown');
+  let open = false;
+
+  function openMenu() {
+    dropdown.classList.remove('opacity-0', 'invisible', 'pointer-events-none');
+    dropdown.classList.add('opacity-100', 'visible');
+    btn.setAttribute('aria-expanded', 'true');
+    open = true;
+  }
+  function closeMenu() {
+    dropdown.classList.add('opacity-0', 'invisible', 'pointer-events-none');
+    dropdown.classList.remove('opacity-100', 'visible');
+    btn.setAttribute('aria-expanded', 'false');
+    open = false;
+  }
+  btn && btn.addEventListener('click', function(e) {
+    e.stopPropagation();
+    if (open) {
+      closeMenu();
+    } else {
+      openMenu();
+    }
+  });
+  document.addEventListener('click', function(e) {
+    if (open && !dropdown.contains(e.target) && e.target !== btn) {
+      closeMenu();
+    }
+  });
+  // Optional: close on ESC
+  document.addEventListener('keydown', function(e) {
+    if (open && e.key === 'Escape') closeMenu();
+  });
+})();
+</script>
