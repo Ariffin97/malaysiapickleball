@@ -45,9 +45,7 @@
             <!-- State Association Submenu -->
             <div id="state-association-menu" class="submenu-container mt-2 ml-6 space-y-2 hidden transition-all duration-500 ease-in-out">
               <a href="/sarawak-pickleball-association" class="submenu-item flex items-center p-3 rounded-xl transition-all duration-300 hover:bg-white hover:bg-opacity-5 transform hover:translate-x-2 group opacity-100">
-                <div class="flex items-center justify-center w-8 h-8 bg-white bg-opacity-10 rounded-lg mr-3 group-hover:bg-opacity-20 transition-all duration-300">
-                  <img src="/images/SPA.png" alt="Sarawak Pickleball Association" class="w-6 h-6 object-contain group-hover:scale-110 transition-transform">
-                </div>
+                <img src="/images/SPA.png" alt="Sarawak Pickleball Association" class="w-6 h-6 object-contain group-hover:scale-110 transition-transform mr-3">
                 <div>
                   <div class="text-sm font-medium text-white group-hover:text-amber-200">Sarawak Pickleball Association</div>
                   <div class="text-xs text-gray-500 group-hover:text-amber-300">Sarawak state chapter</div>
@@ -144,7 +142,7 @@
         <!-- Services Dropdown -->
         <div class="nav-item-wrapper">
           <div class="services-dropdown">
-            <button id="services-toggle" class="nav-item group flex items-center p-4 rounded-2xl transition-all duration-300 hover:bg-white hover:bg-opacity-10 hover:shadow-xl transform hover:scale-105 w-full text-left">
+            <button id="services-toggle" onclick="toggleServices()" class="nav-item group flex items-center p-4 rounded-2xl transition-all duration-300 hover:bg-white hover:bg-opacity-10 hover:shadow-xl transform hover:scale-105 w-full text-left">
               <div class="nav-icon bg-indigo-500 bg-opacity-20 p-3 rounded-xl mr-4 group-hover:bg-opacity-100 group-hover:scale-110 transition-all duration-300">
                 <i class="fas fa-cogs text-indigo-400 group-hover:text-white text-lg"></i>
               </div>
@@ -312,28 +310,6 @@
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
   }
   
-  .submenu-container {
-    max-height: 0;
-    overflow: hidden;
-    transition: max-height 0.3s ease-out, opacity 0.3s ease-out;
-    opacity: 0;
-  }
-  
-  .submenu-container.expanded {
-    max-height: 500px;
-    opacity: 1;
-  }
-  
-  .submenu-container.expanded .submenu-item {
-    opacity: 1;
-    transform: translateX(0);
-  }
-  
-  .services-arrow.rotated,
-  .state-association-arrow.rotated {
-    transform: rotate(180deg);
-  }
-  
   .submenu-item {
     transition: all 0.3s ease-out;
     opacity: 0.8;
@@ -342,6 +318,26 @@
   
   .submenu-item:hover {
     background: rgba(255, 255, 255, 0.05);
+  }
+  
+  /* Make submenu flexible with smooth transitions */
+  .submenu-container {
+    max-height: 1000px;
+    opacity: 1;
+    overflow: hidden;
+    transition: max-height 0.3s ease-in-out, opacity 0.3s ease-in-out;
+  }
+  
+  /* Arrow rotation for dropdowns */
+  .services-arrow.rotated,
+  .state-association-arrow.rotated {
+    transform: rotate(180deg);
+    transition: transform 0.3s ease-in-out;
+  }
+  
+  .services-arrow,
+  .state-association-arrow {
+    transition: transform 0.3s ease-in-out;
   }
   
   /* Hidden class override for dropdowns */
@@ -414,7 +410,39 @@
 </style>
 
 <!-- Include external sidebar JavaScript -->
-<script src="/js/sidebar.js"></script>
+<script>
+// Simple direct approach for Services dropdown
+function toggleServices() {
+  const servicesMenu = document.getElementById('services-menu');
+  const servicesArrow = document.getElementById('services-arrow');
+  
+  if (servicesMenu && servicesArrow) {
+    if (servicesMenu.classList.contains('hidden')) {
+      servicesMenu.classList.remove('hidden');
+      servicesArrow.classList.add('rotated');
+    } else {
+      servicesMenu.classList.add('hidden');
+      servicesArrow.classList.remove('rotated');
+    }
+  }
+}
+
+// Simple direct approach for State Association dropdown
+function toggleStateAssociation() {
+  const stateAssociationMenu = document.getElementById('state-association-menu');
+  const stateAssociationArrow = document.getElementById('state-association-arrow');
+  
+  if (stateAssociationMenu && stateAssociationArrow) {
+    if (stateAssociationMenu.classList.contains('hidden')) {
+      stateAssociationMenu.classList.remove('hidden');
+      stateAssociationArrow.classList.add('rotated');
+    } else {
+      stateAssociationMenu.classList.add('hidden');
+      stateAssociationArrow.classList.remove('rotated');
+    }
+  }
+}
+</script>
 
 <style>
   .ripple {

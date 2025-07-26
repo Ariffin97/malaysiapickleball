@@ -409,6 +409,20 @@ app.get('/events', async (req, res) => {
   }
 });
 
+// Terms of Service page route
+app.get('/terms', (req, res) => {
+  res.render('pages/terms', { 
+    session: req.session 
+  });
+});
+
+// Cookie Policy page route
+app.get('/cookies', (req, res) => {
+  res.render('pages/cookies', { 
+    session: req.session 
+  });
+});
+
 // Live Tournament public page route
 app.get('/live-tournament', async (req, res) => {
   try {

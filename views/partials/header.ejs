@@ -12,10 +12,10 @@
       <!-- Brand Logo & Text -->
       <div class="brand-container flex items-center space-x-3 cursor-pointer group" onclick="window.location.href='/'">
         <div class="logo-container group-hover:scale-110 transition-all duration-300 transform group-hover:rotate-1">
-          <img src="/images/malaysia-pickleball-logo.png" alt="Malaysia Pickleball Association" class="logo-image w-10 h-10 md:w-12 md:h-12 object-contain">
+          <img src="/images/mpa.png" alt="Malaysia Pickleball Association" class="logo-image w-10 h-10 md:w-12 md:h-12 object-contain">
         </div>
         <div class="brand-text">
-          <div class="text-sm md:text-base font-bold tracking-wide group-hover:text-yellow-200 transition-colors duration-300">
+          <div class="text-sm md:text-base font-bold tracking-wide text-white group-hover:text-yellow-200 transition-colors duration-300">
             Malaysia Pickleball Association
           </div>
         </div>
@@ -23,10 +23,10 @@
     </div>
     
     <!-- Right Side - Navigation Menu -->
-    <div class="flex items-center space-x-2">
+    <div class="flex items-center space-x-3">
       <!-- Home Link -->
-      <a href="/" class="nav-link px-4 py-2 rounded-xl font-semibold transition-all duration-300 hover:bg-white hover:bg-opacity-10 hover:text-yellow-200 transform hover:scale-105 active:scale-95 flex items-center space-x-2">
-        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <a href="/" class="nav-button flex items-center space-x-2 px-4 py-2 rounded-xl font-medium text-white transition-all duration-300 hover:bg-white hover:bg-opacity-10 hover:text-white transform hover:scale-105 active:scale-95">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path>
         </svg>
         <span>Home</span>
@@ -35,14 +35,14 @@
       <% if (session.isAuthenticated) { %>
         <!-- User Menu Dropdown -->
         <div class="relative user-menu-dropdown">
-          <button class="nav-link px-4 py-2 rounded-xl font-semibold transition-all duration-300 hover:bg-white hover:bg-opacity-10 hover:text-yellow-200 transform hover:scale-105 active:scale-95 flex items-center space-x-2" id="user-menu-button">
-            <div class="w-8 h-8 bg-white bg-opacity-20 rounded-full flex items-center justify-center">
-              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <button class="nav-button flex items-center space-x-2 px-4 py-2 rounded-xl font-medium text-white transition-all duration-300 hover:bg-white hover:bg-opacity-10 hover:text-white transform hover:scale-105 active:scale-95" id="user-menu-button">
+            <div class="w-4 h-4 bg-white bg-opacity-30 rounded-full flex items-center justify-center">
+              <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
               </svg>
             </div>
             <span>Account</span>
-            <svg class="w-4 h-4 transition-transform duration-300" id="user-menu-arrow" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg class="w-3 h-3 transition-transform duration-300" id="user-menu-arrow" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
             </svg>
           </button>
@@ -74,39 +74,39 @@
           </div>
         </div>
       <% } else { %>
-        <!-- Login Button -->
-        <a href="/login" class="login-button px-6 py-2 bg-white bg-opacity-20 rounded-xl font-semibold transition-all duration-300 hover:bg-white hover:text-green-600 transform hover:scale-105 active:scale-95 flex items-center space-x-2 border border-white border-opacity-30 hover:border-opacity-0">
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <!-- Admin Login Button -->
+        <a href="/login" class="nav-button flex items-center space-x-2 px-4 py-2 rounded-xl font-medium text-white transition-all duration-300 hover:bg-white hover:bg-opacity-10 hover:text-white transform hover:scale-105 active:scale-95">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1"></path>
           </svg>
-          <span>Login</span>
+          <span>Admin Login</span>
         </a>
       <% } %>
       <!-- Quick Actions Dropdown -->
       <div class="relative">
-        <button class="nav-link px-4 py-2 rounded-xl font-semibold transition-all duration-300 hover:bg-white hover:bg-opacity-10 hover:text-yellow-200 transform hover:scale-105 active:scale-95 flex items-center space-x-2" id="quick-actions-menu-button" type="button" aria-expanded="false">
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <button class="nav-button flex items-center space-x-2 px-4 py-2 rounded-xl font-medium text-white transition-all duration-300 hover:bg-white hover:bg-opacity-10 hover:text-white transform hover:scale-105 active:scale-95" id="quick-actions-menu-button" type="button" aria-expanded="false">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
           </svg>
           <span>Menu</span>
-          <svg class="w-4 h-4 transition-transform duration-300" id="quick-actions-menu-arrow" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <svg class="w-3 h-3 transition-transform duration-300" id="quick-actions-menu-arrow" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
           </svg>
         </button>
         <!-- Dropdown Content -->
-        <div class="absolute right-0 mt-2 w-80 rounded-2xl shadow-2xl border border-gray-200 opacity-0 invisible pointer-events-none transition-all duration-300 z-50" id="quick-actions-dropdown" style="background: linear-gradient(135deg, #059669 0%, #047857 50%, #065f46 100%);">
-          <div class="flex flex-col gap-4 p-6">
-            <a href="#calendar-view" class="flex items-center gap-2 px-4 py-3 rounded-full font-semibold bg-gray-700 text-white hover:bg-gray-800 transition-all duration-200">
-              <i class="fas fa-calendar-alt"></i> View Calendar
+        <div class="absolute right-0 mt-2 w-64 rounded-xl shadow-2xl border border-gray-200 opacity-0 invisible pointer-events-none transition-all duration-300 z-50" id="quick-actions-dropdown" style="background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);">
+          <div class="flex flex-col gap-2 p-4">
+            <a href="#calendar-view" class="flex items-center gap-3 px-3 py-2 rounded-lg font-medium text-gray-700 hover:bg-green-50 hover:text-green-600 transition-all duration-200 text-sm">
+              <i class="fas fa-calendar-alt text-gray-500 w-4"></i> View Calendar
             </a>
-            <a href="/events" class="flex items-center gap-2 px-4 py-3 rounded-full font-semibold bg-yellow-500 text-gray-900 hover:bg-yellow-600 transition-all duration-200">
-              <i class="fas fa-trophy"></i> Tournament Event
+            <a href="/events" class="flex items-center gap-3 px-3 py-2 rounded-lg font-medium text-gray-700 hover:bg-yellow-50 hover:text-yellow-600 transition-all duration-200 text-sm">
+              <i class="fas fa-trophy text-gray-500 w-4"></i> Tournament Event
             </a>
-            <a href="/live-tournament" class="flex items-center gap-2 px-4 py-3 rounded-full font-semibold bg-red-500 text-white hover:bg-red-600 transition-all duration-200">
-              <i class="fas fa-broadcast-tower"></i> Live Stream Tournament
+            <a href="/live-tournament" class="flex items-center gap-3 px-3 py-2 rounded-lg font-medium text-gray-700 hover:bg-red-50 hover:text-red-600 transition-all duration-200 text-sm">
+              <i class="fas fa-broadcast-tower text-gray-500 w-4"></i> Live Stream Tournament
             </a>
-            <a href="/player/login" class="flex items-center gap-2 px-4 py-3 rounded-full font-semibold bg-green-500 text-white hover:bg-green-600 transition-all duration-200">
-              <i class="fas fa-sign-in-alt"></i> Player Login
+            <a href="/player/login" class="flex items-center gap-3 px-3 py-2 rounded-lg font-medium text-gray-700 hover:bg-green-50 hover:text-green-600 transition-all duration-200 text-sm">
+              <i class="fas fa-sign-in-alt text-gray-500 w-4"></i> Player Login
             </a>
           </div>
         </div>
@@ -120,7 +120,7 @@
 
 <style>
   .navbar-modern {
-    background: linear-gradient(135deg, #059669 0%, #047857 50%, #065f46 100%);
+    background: linear-gradient(135deg, #111827 0%, #1f2937 50%, #111827 100%);
     backdrop-filter: blur(10px);
     border-bottom: 1px solid rgba(255, 255, 255, 0.1);
     box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
@@ -134,7 +134,7 @@
   }
   
   .navbar-modern.scrolled {
-    background: linear-gradient(135deg, rgba(5, 150, 105, 0.95) 0%, rgba(4, 120, 87, 0.95) 50%, rgba(6, 95, 70, 0.95) 100%);
+    background: linear-gradient(135deg, rgba(17, 24, 39, 0.95) 0%, rgba(31, 41, 55, 0.95) 50%, rgba(17, 24, 39, 0.95) 100%);
     box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
       }
     
