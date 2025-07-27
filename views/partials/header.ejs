@@ -2,23 +2,50 @@
   <div class="container mx-auto flex justify-between items-center px-4 h-full">
     <!-- Left Side - Logo & Brand -->
     <div class="flex items-center space-x-4">
-      <!-- Mobile Sidebar Toggle Button -->
-      <button id="mobile-sidebar-toggle" class="md:hidden nav-button p-2 rounded-xl hover:bg-white hover:bg-opacity-10 focus:outline-none focus:ring-2 focus:ring-white focus:ring-opacity-50 transition-all duration-300 transform hover:scale-110">
-        <svg class="w-6 h-6 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
-        </svg>
-      </button>
-      
       <!-- Brand Logo & Text -->
-      <div class="brand-container flex items-center space-x-3 cursor-pointer group" onclick="window.location.href='/'">
-        <div class="logo-container group-hover:scale-110 transition-all duration-300 transform group-hover:rotate-1">
-          <img src="/images/mpa.png" alt="Malaysia Pickleball Association" class="logo-image w-10 h-10 md:w-12 md:h-12 object-contain">
-        </div>
-        <div class="brand-text">
-          <div class="text-sm md:text-base font-bold tracking-wide text-white group-hover:text-yellow-200 transition-colors duration-300">
-            Malaysia Pickleball Association
+      <div class="flex items-center space-x-4">
+        <div class="brand-container flex items-center space-x-3 cursor-pointer group" onclick="window.location.href='/'">
+          <div class="logo-container group-hover:scale-110 transition-all duration-300 transform group-hover:rotate-1">
+            <img src="/images/mpa.png" alt="Malaysia Pickleball Association" class="logo-image w-10 h-10 md:w-12 md:h-12 object-contain">
+          </div>
+          <div class="brand-text">
+            <div class="text-sm md:text-base font-bold tracking-wide text-white group-hover:text-yellow-200 transition-colors duration-300">
+              Malaysia Pickleball Association
+            </div>
           </div>
         </div>
+
+        <!-- State Dropdown -->
+        <div class="relative state-dropdown">
+          <button class="nav-button flex items-center space-x-2 px-3 py-2 rounded-xl font-medium text-white transition-all duration-300 hover:bg-white hover:bg-opacity-10 hover:text-white transform hover:scale-105 active:scale-95" id="state-menu-button" type="button" aria-expanded="false">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
+            </svg>
+            <span>State</span>
+            <svg class="w-3 h-3 transition-transform duration-300" id="state-menu-arrow" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+            </svg>
+          </button>
+          
+          <!-- State Dropdown Content -->
+          <div class="absolute left-0 mt-2 w-64 rounded-xl shadow-2xl border border-gray-200 opacity-0 invisible pointer-events-none transition-all duration-300 z-50" id="state-dropdown" style="background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);">
+            <div class="flex flex-col gap-1 p-3">
+              <div class="px-3 py-2 text-xs font-bold text-gray-500 uppercase tracking-wide border-b border-gray-100 mb-2">State Associations</div>
+              <a href="/sarawak-pickleball-association" class="nav-dropdown-item flex items-center gap-3 px-3 py-2 rounded-lg font-medium text-gray-700 hover:bg-amber-50 hover:text-amber-600 transition-all duration-200 text-sm">
+                <img src="/images/SPA.png" alt="Sarawak" class="w-5 h-5 object-contain"> Sarawak Pickleball Association
+              </a>
+            </div>
+          </div>
+        </div>
+
+        <!-- Official Partnership Button -->
+        <a href="/official-partnership" class="nav-button flex items-center space-x-2 px-3 py-2 rounded-xl font-medium text-white transition-all duration-300 hover:bg-white hover:bg-opacity-10 hover:text-white transform hover:scale-105 active:scale-95">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
+          </svg>
+          <span>Official Partnership</span>
+        </a>
       </div>
     </div>
     
@@ -93,21 +120,93 @@
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
           </svg>
         </button>
-        <!-- Dropdown Content -->
-        <div class="absolute right-0 mt-2 w-64 rounded-xl shadow-2xl border border-gray-200 opacity-0 invisible pointer-events-none transition-all duration-300 z-50" id="quick-actions-dropdown" style="background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);">
-          <div class="flex flex-col gap-2 p-4">
-            <a href="#calendar-view" class="flex items-center gap-3 px-3 py-2 rounded-lg font-medium text-gray-700 hover:bg-green-50 hover:text-green-600 transition-all duration-200 text-sm">
-              <i class="fas fa-calendar-alt text-gray-500 w-4"></i> View Calendar
-            </a>
-            <a href="/events" class="flex items-center gap-3 px-3 py-2 rounded-lg font-medium text-gray-700 hover:bg-yellow-50 hover:text-yellow-600 transition-all duration-200 text-sm">
-              <i class="fas fa-trophy text-gray-500 w-4"></i> Tournament Event
-            </a>
-            <a href="/live-tournament" class="flex items-center gap-3 px-3 py-2 rounded-lg font-medium text-gray-700 hover:bg-red-50 hover:text-red-600 transition-all duration-200 text-sm">
-              <i class="fas fa-broadcast-tower text-gray-500 w-4"></i> Live Stream Tournament
-            </a>
-            <a href="/player/login" class="flex items-center gap-3 px-3 py-2 rounded-lg font-medium text-gray-700 hover:bg-green-50 hover:text-green-600 transition-all duration-200 text-sm">
-              <i class="fas fa-sign-in-alt text-gray-500 w-4"></i> Player Login
-            </a>
+        <!-- Navigation Dropdown Content -->
+        <div class="absolute right-0 mt-2 w-80 rounded-xl shadow-2xl border border-gray-200 opacity-0 invisible pointer-events-none transition-all duration-300 z-50 max-h-96 overflow-y-auto" id="quick-actions-dropdown" style="background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);">
+          <div class="flex flex-col gap-1 p-3">
+            
+
+
+            <!-- Tournament & Events -->
+            <div class="nav-section mt-3">
+              <div class="px-3 py-2 text-xs font-bold text-gray-500 uppercase tracking-wide border-b border-gray-100 mb-2">Tournament & Events</div>
+              <a href="/tournament" class="nav-dropdown-item flex items-center gap-3 px-3 py-2 rounded-lg font-medium text-gray-700 hover:bg-green-50 hover:text-green-600 transition-all duration-200 text-sm">
+                <i class="fas fa-trophy text-green-500 w-4"></i> Tournament
+              </a>
+              <a href="/events" class="nav-dropdown-item flex items-center gap-3 px-3 py-2 rounded-lg font-medium text-gray-700 hover:bg-yellow-50 hover:text-yellow-600 transition-all duration-200 text-sm">
+                <i class="fas fa-calendar-alt text-yellow-500 w-4"></i> Events
+              </a>
+              <a href="/live-tournament" class="nav-dropdown-item flex items-center gap-3 px-3 py-2 rounded-lg font-medium text-gray-700 hover:bg-red-50 hover:text-red-600 transition-all duration-200 text-sm">
+                <i class="fas fa-broadcast-tower text-red-500 w-4"></i> Live Tournament
+              </a>
+            </div>
+
+            <!-- People & Places -->
+            <div class="nav-section mt-3">
+              <div class="px-3 py-2 text-xs font-bold text-gray-500 uppercase tracking-wide border-b border-gray-100 mb-2">People & Places</div>
+              <a href="/referee" class="nav-dropdown-item flex items-center gap-3 px-3 py-2 rounded-lg font-medium text-gray-700 hover:bg-red-50 hover:text-red-600 transition-all duration-200 text-sm">
+                <i class="fas fa-user-tie text-red-500 w-4"></i> Referee
+              </a>
+              <a href="/coaches" class="nav-dropdown-item flex items-center gap-3 px-3 py-2 rounded-lg font-medium text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition-all duration-200 text-sm">
+                <i class="fas fa-chalkboard-teacher text-blue-500 w-4"></i> Coaches
+              </a>
+              <a href="/venue" class="nav-dropdown-item flex items-center gap-3 px-3 py-2 rounded-lg font-medium text-gray-700 hover:bg-purple-50 hover:text-purple-600 transition-all duration-200 text-sm">
+                <i class="fas fa-map-marker-alt text-purple-500 w-4"></i> Venue
+              </a>
+            </div>
+
+            <!-- Rankings & Shop -->
+            <div class="nav-section mt-3">
+              <div class="px-3 py-2 text-xs font-bold text-gray-500 uppercase tracking-wide border-b border-gray-100 mb-2">Rankings & Shop</div>
+              <a href="/services/ranking" class="nav-dropdown-item flex items-center gap-3 px-3 py-2 rounded-lg font-medium text-gray-700 hover:bg-yellow-50 hover:text-yellow-600 transition-all duration-200 text-sm">
+                <i class="fas fa-chart-line text-yellow-500 w-4"></i> Ranking
+              </a>
+              <a href="/shop" class="nav-dropdown-item flex items-center gap-3 px-3 py-2 rounded-lg font-medium text-gray-700 hover:bg-orange-50 hover:text-orange-600 transition-all duration-200 text-sm">
+                <i class="fas fa-shopping-cart text-orange-500 w-4"></i> Shop
+              </a>
+            </div>
+
+            <!-- Services -->
+            <div class="nav-section mt-3">
+              <div class="px-3 py-2 text-xs font-bold text-gray-500 uppercase tracking-wide border-b border-gray-100 mb-2">Services</div>
+              <a href="/services/sponsorship" class="nav-dropdown-item flex items-center gap-3 px-3 py-2 rounded-lg font-medium text-gray-700 hover:bg-orange-50 hover:text-orange-600 transition-all duration-200 text-sm">
+                <i class="fas fa-handshake text-orange-500 w-4"></i> Sponsorship
+              </a>
+              <a href="/services/registration" class="nav-dropdown-item flex items-center gap-3 px-3 py-2 rounded-lg font-medium text-gray-700 hover:bg-green-50 hover:text-green-600 transition-all duration-200 text-sm">
+                <i class="fas fa-calendar-plus text-green-500 w-4"></i> Event Organization
+              </a>
+              <a href="/services/requirement-approval" class="nav-dropdown-item flex items-center gap-3 px-3 py-2 rounded-lg font-medium text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition-all duration-200 text-sm">
+                <i class="fas fa-check-circle text-blue-500 w-4"></i> Approval Requirements
+              </a>
+              <a href="/services/requirement-bidding" class="nav-dropdown-item flex items-center gap-3 px-3 py-2 rounded-lg font-medium text-gray-700 hover:bg-purple-50 hover:text-purple-600 transition-all duration-200 text-sm">
+                <i class="fas fa-gavel text-purple-500 w-4"></i> Bidding Requirements
+              </a>
+            </div>
+
+            <!-- Legal Framework -->
+            <div class="nav-section mt-3">
+              <div class="px-3 py-2 text-xs font-bold text-gray-500 uppercase tracking-wide border-b border-gray-100 mb-2">Legal Framework</div>
+              <a href="/services/section-33" class="nav-dropdown-item flex items-center gap-3 px-3 py-2 rounded-lg font-medium text-gray-700 hover:bg-red-50 hover:text-red-600 transition-all duration-200 text-sm">
+                <i class="fas fa-file-alt text-red-500 w-4"></i> Section 33 (Act 576)
+              </a>
+              <a href="/services/section-34" class="nav-dropdown-item flex items-center gap-3 px-3 py-2 rounded-lg font-medium text-gray-700 hover:bg-pink-50 hover:text-pink-600 transition-all duration-200 text-sm">
+                <i class="fas fa-file-contract text-pink-500 w-4"></i> Section 34 (Act 576)
+              </a>
+              <a href="/services/section-36" class="nav-dropdown-item flex items-center gap-3 px-3 py-2 rounded-lg font-medium text-gray-700 hover:bg-cyan-50 hover:text-cyan-600 transition-all duration-200 text-sm">
+                <i class="fas fa-balance-scale text-cyan-500 w-4"></i> Section 36 (Act 576)
+              </a>
+            </div>
+
+            <!-- Player Access -->
+            <div class="nav-section mt-3">
+              <div class="px-3 py-2 text-xs font-bold text-gray-500 uppercase tracking-wide border-b border-gray-100 mb-2">Player Access</div>
+              <a href="/player/login" class="nav-dropdown-item flex items-center gap-3 px-3 py-2 rounded-lg font-medium text-gray-700 hover:bg-green-50 hover:text-green-600 transition-all duration-200 text-sm">
+                <i class="fas fa-sign-in-alt text-green-500 w-4"></i> Player Login
+              </a>
+              <a href="/player/register" class="nav-dropdown-item flex items-center gap-3 px-3 py-2 rounded-lg font-medium text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition-all duration-200 text-sm">
+                <i class="fas fa-user-plus text-blue-500 w-4"></i> Player Registration
+              </a>
+            </div>
+
           </div>
         </div>
       </div>
@@ -202,18 +301,41 @@
       height: 2rem !important;
     }
     
-    .nav-link span,
-    .login-button span {
-      display: none;
+    /* Hide text spans in nav buttons on mobile */
+    .nav-button span {
+      display: none !important;
     }
     
-    .nav-link,
-    .login-button {
-      padding: 0.5rem;
+    /* Adjust nav button padding for icon-only display */
+    .nav-button {
+      padding: 0.75rem !important;
+      min-width: auto !important;
+    }
+    
+    /* Hide dropdown arrows on mobile since text is hidden */
+    #user-menu-arrow,
+    #quick-actions-menu-arrow,
+    #state-menu-arrow {
+      display: none !important;
+    }
+
+    /* Hide State dropdown text on mobile */
+    .state-dropdown .nav-button span {
+      display: none !important;
+    }
+
+    /* Adjust State dropdown positioning on mobile */
+    .state-dropdown {
+      margin-left: 0.5rem;
     }
     
     .brand-container {
       space-x: 0.5rem;
+    }
+    
+    /* Adjust spacing between nav buttons */
+    .flex.items-center.space-x-3 > * + * {
+      margin-left: 0.5rem !important;
     }
   }
 </style>
@@ -242,6 +364,46 @@
     dropdown.classList.add('opacity-0', 'invisible', 'pointer-events-none');
     dropdown.classList.remove('opacity-100', 'visible');
     btn.setAttribute('aria-expanded', 'false');
+    open = false;
+  }
+  btn && btn.addEventListener('click', function(e) {
+    e.stopPropagation();
+    if (open) {
+      closeMenu();
+    } else {
+      openMenu();
+    }
+  });
+  document.addEventListener('click', function(e) {
+    if (open && !dropdown.contains(e.target) && e.target !== btn) {
+      closeMenu();
+    }
+  });
+  // Optional: close on ESC
+  document.addEventListener('keydown', function(e) {
+    if (open && e.key === 'Escape') closeMenu();
+  });
+})();
+
+// State Dropdown Toggle
+(function() {
+  const btn = document.getElementById('state-menu-button');
+  const dropdown = document.getElementById('state-dropdown');
+  const arrow = document.getElementById('state-menu-arrow');
+  let open = false;
+
+  function openMenu() {
+    dropdown.classList.remove('opacity-0', 'invisible', 'pointer-events-none');
+    dropdown.classList.add('opacity-100', 'visible');
+    btn.setAttribute('aria-expanded', 'true');
+    arrow.style.transform = 'rotate(180deg)';
+    open = true;
+  }
+  function closeMenu() {
+    dropdown.classList.add('opacity-0', 'invisible', 'pointer-events-none');
+    dropdown.classList.remove('opacity-100', 'visible');
+    btn.setAttribute('aria-expanded', 'false');
+    arrow.style.transform = 'rotate(0deg)';
     open = false;
   }
   btn && btn.addEventListener('click', function(e) {

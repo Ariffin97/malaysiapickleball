@@ -2046,6 +2046,23 @@ app.get('/services/sponsorship', async (req, res) => {
   }
 });
 
+// Official Partnership Route
+app.get('/official-partnership', async (req, res) => {
+  try {
+    const backgroundImage = await DatabaseService.getSetting('background_image', '/images/defaultbg.png');
+    res.render('pages/official-partnership', { 
+      session: req.session, 
+      backgroundImage 
+    });
+  } catch (error) {
+    console.error('Official Partnership page error:', error);
+    res.render('pages/official-partnership', { 
+      session: req.session, 
+      backgroundImage: '/images/defaultbg.png' 
+    });
+  }
+});
+
 app.get('/services/registration', async (req, res) => {
   try {
     const backgroundImage = await DatabaseService.getSetting('background_image', '/images/defaultbg.png');

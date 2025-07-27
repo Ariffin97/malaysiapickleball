@@ -101,7 +101,6 @@
 %>
 <body class="bg-gray-100 bg-cover bg-center bg-fixed min-h-screen" style="background-image: url('<%= defaultBg %>')">
   <%- include('../partials/header') %>
-  <%- include('../partials/sidebar') %>
   
   <!-- Floating Elements -->
   <div class="fixed inset-0 pointer-events-none z-0">
@@ -109,7 +108,7 @@
     <div class="floating-element absolute bottom-1/4 left-10 w-4 h-4 bg-yellow-400 rounded-full opacity-20"></div>
   </div>
   
-  <main class="md:ml-64 min-h-screen relative z-10" style="padding-top: var(--navbar-height);">
+  <main class="min-h-screen relative z-10" style="padding-top: var(--navbar-height);">
     <!-- Coming Soon Section -->
     <section class="coming-soon-section">
       <div class="container mx-auto px-4 text-center">

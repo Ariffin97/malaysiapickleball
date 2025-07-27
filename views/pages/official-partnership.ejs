@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Official Partnership - Malaysia Pickleball Association</title>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="/css/styles.css">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+  <style>
+    .partnership-card {
+      background: linear-gradient(145deg, rgba(255, 255, 255, 0.9), rgba(255, 255, 255, 0.7));
+      backdrop-filter: blur(10px);
+      box-shadow: 0 4px 15px rgba(59, 130, 246, 0.1);
+      transition: all 0.3s ease;
+    }
+    
+    .partnership-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 20px 40px rgba(59, 130, 246, 0.2);
+    }
+    
+    .benefit-item {
+      transition: all 0.3s ease;
+    }
+    
+    .benefit-item:hover {
+      transform: translateX(5px);
+    }
+  </style>
+</head>
+<%
+  const defaultBg = backgroundImage || '/images/defaultbg.png';
+%>
+<body class="min-h-screen" style="background: linear-gradient(135deg, #ffffff 0%, #f0f9ff 25%, #dbeafe 50%, #bfdbfe 75%, #93c5fd 100%);">
+  <%- include('../partials/header') %>
+  
+  <main class="min-h-screen relative z-10" style="padding-top: var(--navbar-height);">
+    <!-- Partnership Types Section -->
+    <section class="py-16 pt-8 relative">
+      <div class="container mx-auto px-4">
+        <div class="text-center mb-12">
+          <h2 class="text-3xl md:text-4xl font-bold text-gray-800 mb-4">Partnership Opportunities</h2>
+          <p class="text-lg text-gray-600 max-w-3xl mx-auto">
+            Join us in promoting pickleball across Malaysia through strategic partnerships that benefit both organizations and the community.
+          </p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-7xl mx-auto">
+          <!-- Strategic Partnership -->
+          <div class="partnership-card rounded-2xl p-8">
+                         <div class="text-center mb-6">
+               <i class="fas fa-chess-king text-4xl text-blue-600 mb-4"></i>
+               <h3 class="text-2xl font-bold text-gray-800 mb-2">Strategic Partnership</h3>
+               <p class="text-gray-600">Long-term collaboration for mutual growth and development</p>
+             </div>
+                          <ul class="space-y-3 text-gray-700">
+               <li class="benefit-item flex items-center">
+                 <i class="fas fa-check-circle text-green-600 mr-3"></i>
+                 Joint program development
+               </li>
+               <li class="benefit-item flex items-center">
+                 <i class="fas fa-check-circle text-green-600 mr-3"></i>
+                 Co-branded initiatives
+               </li>
+               <li class="benefit-item flex items-center">
+                 <i class="fas fa-check-circle text-green-600 mr-3"></i>
+                 Resource sharing
+               </li>
+               <li class="benefit-item flex items-center">
+                 <i class="fas fa-check-circle text-green-600 mr-3"></i>
+                 Executive collaboration
+               </li>
+             </ul>
+          </div>
+
+          <!-- Educational Partnership -->
+          <div class="partnership-card rounded-2xl p-8">
+                         <div class="text-center mb-6">
+               <i class="fas fa-graduation-cap text-4xl text-purple-600 mb-4"></i>
+               <h3 class="text-2xl font-bold text-gray-800 mb-2">Educational Partnership</h3>
+               <p class="text-gray-600">Collaborate with schools and universities</p>
+             </div>
+                          <ul class="space-y-3 text-gray-700">
+               <li class="benefit-item flex items-center">
+                 <i class="fas fa-check-circle text-green-600 mr-3"></i>
+                 Curriculum integration
+               </li>
+               <li class="benefit-item flex items-center">
+                 <i class="fas fa-check-circle text-green-600 mr-3"></i>
+                 Student programs
+               </li>
+               <li class="benefit-item flex items-center">
+                 <i class="fas fa-check-circle text-green-600 mr-3"></i>
+                 Research collaboration
+               </li>
+               <li class="benefit-item flex items-center">
+                 <i class="fas fa-check-circle text-green-600 mr-3"></i>
+                 Facility access
+               </li>
+             </ul>
+          </div>
+
+          <!-- Technology Partnership -->
+          <div class="partnership-card rounded-2xl p-8">
+                         <div class="text-center mb-6">
+               <i class="fas fa-microchip text-4xl text-cyan-600 mb-4"></i>
+               <h3 class="text-2xl font-bold text-gray-800 mb-2">Technology Partnership</h3>
+               <p class="text-gray-600">Innovation and digital transformation together</p>
+             </div>
+                          <ul class="space-y-3 text-gray-700">
+               <li class="benefit-item flex items-center">
+                 <i class="fas fa-check-circle text-green-600 mr-3"></i>
+                 Platform development
+               </li>
+               <li class="benefit-item flex items-center">
+                 <i class="fas fa-check-circle text-green-600 mr-3"></i>
+                 Data analytics
+               </li>
+               <li class="benefit-item flex items-center">
+                 <i class="fas fa-check-circle text-green-600 mr-3"></i>
+                 Digital solutions
+               </li>
+               <li class="benefit-item flex items-center">
+                 <i class="fas fa-check-circle text-green-600 mr-3"></i>
+                 Technical support
+               </li>
+             </ul>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Benefits Section -->
+    <section class="py-16 relative">
+      <div class="container mx-auto px-4">
+        <div class="text-center mb-12">
+          <h2 class="text-3xl md:text-4xl font-bold text-gray-800 mb-4">Partnership Benefits</h2>
+          <p class="text-lg text-gray-600 max-w-3xl mx-auto">
+            Discover the advantages of partnering with Malaysia's leading pickleball organization.
+          </p>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 max-w-6xl mx-auto">
+          <!-- For Partners -->
+          <div class="partnership-card rounded-2xl p-8">
+                         <h3 class="text-2xl font-bold text-gray-800 mb-6 flex items-center">
+               <i class="fas fa-star text-yellow-500 mr-3"></i>
+               For Our Partners
+             </h3>
+            <div class="space-y-4">
+                             <div class="benefit-item flex items-start">
+                 <i class="fas fa-arrow-right text-blue-600 mr-3 mt-1"></i>
+                                 <div>
+                   <h4 class="font-semibold text-gray-800">Brand Association</h4>
+                   <p class="text-gray-600 text-sm">Align with Malaysia's premier pickleball organization</p>
+                 </div>
+               </div>
+               <div class="benefit-item flex items-start">
+                 <i class="fas fa-arrow-right text-blue-600 mr-3 mt-1"></i>
+                 <div>
+                   <h4 class="font-semibold text-gray-800">Network Access</h4>
+                   <p class="text-gray-600 text-sm">Connect with players, coaches, and stakeholders nationwide</p>
+                 </div>
+               </div>
+               <div class="benefit-item flex items-start">
+                 <i class="fas fa-arrow-right text-blue-600 mr-3 mt-1"></i>
+                 <div>
+                   <h4 class="font-semibold text-gray-800">Market Reach</h4>
+                   <p class="text-gray-600 text-sm">Access to growing pickleball community across Malaysia</p>
+                 </div>
+               </div>
+               <div class="benefit-item flex items-start">
+                 <i class="fas fa-arrow-right text-blue-600 mr-3 mt-1"></i>
+                 <div>
+                   <h4 class="font-semibold text-gray-800">Official Recognition</h4>
+                   <p class="text-gray-600 text-sm">Become an officially recognized partner organization</p>
+                 </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- For Community -->
+          <div class="partnership-card rounded-2xl p-8">
+                         <h3 class="text-2xl font-bold text-gray-800 mb-6 flex items-center">
+               <i class="fas fa-heart text-red-500 mr-3"></i>
+               For The Community
+             </h3>
+            <div class="space-y-4">
+                             <div class="benefit-item flex items-start">
+                 <i class="fas fa-arrow-right text-green-600 mr-3 mt-1"></i>
+                                 <div>
+                   <h4 class="font-semibold text-gray-800">Enhanced Programs</h4>
+                   <p class="text-gray-600 text-sm">Better training, coaching, and development opportunities</p>
+                 </div>
+               </div>
+               <div class="benefit-item flex items-start">
+                 <i class="fas fa-arrow-right text-green-600 mr-3 mt-1"></i>
+                 <div>
+                   <h4 class="font-semibold text-gray-800">Improved Facilities</h4>
+                   <p class="text-gray-600 text-sm">Access to better courts and equipment</p>
+                 </div>
+               </div>
+               <div class="benefit-item flex items-start">
+                 <i class="fas fa-arrow-right text-green-600 mr-3 mt-1"></i>
+                 <div>
+                   <h4 class="font-semibold text-gray-800">More Opportunities</h4>
+                   <p class="text-gray-600 text-sm">Increased tournaments, events, and competitions</p>
+                 </div>
+               </div>
+               <div class="benefit-item flex items-start">
+                 <i class="fas fa-arrow-right text-green-600 mr-3 mt-1"></i>
+                 <div>
+                   <h4 class="font-semibold text-gray-800">Sport Growth</h4>
+                   <p class="text-gray-600 text-sm">Accelerated development of pickleball nationwide</p>
+                 </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Contact Section -->
+    <section class="py-16 relative">
+      <div class="container mx-auto px-4">
+        <div class="partnership-card rounded-2xl p-8 md:p-12 max-w-4xl mx-auto text-center">
+          <h2 class="text-3xl md:text-4xl font-bold text-gray-800 mb-6">Ready to Partner With Us?</h2>
+          <p class="text-lg text-gray-600 mb-8 max-w-2xl mx-auto">
+            Let's discuss how we can work together to grow pickleball in Malaysia and create meaningful impact in our communities.
+          </p>
+          
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+            <div class="text-center">
+              <i class="fas fa-envelope text-3xl text-blue-600 mb-3"></i>
+              <h4 class="font-semibold text-gray-800 mb-2">Email Us</h4>
+              <p class="text-gray-600 text-sm">partnerships@mpa.com.my</p>
+            </div>
+            <div class="text-center">
+              <i class="fas fa-phone text-3xl text-green-600 mb-3"></i>
+              <h4 class="font-semibold text-gray-800 mb-2">Call Us</h4>
+              <p class="text-gray-600 text-sm">+60 12-345-6789</p>
+            </div>
+            <div class="text-center">
+              <i class="fas fa-calendar text-3xl text-purple-600 mb-3"></i>
+              <h4 class="font-semibold text-gray-800 mb-2">Schedule Meeting</h4>
+              <p class="text-gray-600 text-sm">Book a consultation</p>
+            </div>
+          </div>
+          
+          <a href="mailto:partnerships@mpa.com.my" class="inline-flex items-center px-8 py-4 bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-400 hover:to-purple-500 text-white font-bold rounded-xl shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300">
+            <i class="fas fa-paper-plane mr-3"></i>
+            Start Partnership Discussion
+          </a>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <%- include('../partials/footer') %>
+  <script src="/js/script.js"></script>
+</body>
+</html> 

@@ -30,85 +30,186 @@
       -ms-text-size-adjust: 100%;
     }
     
+    * {
+      box-sizing: border-box;
+    }
+    
     body {
       -webkit-overflow-scrolling: touch;
       overscroll-behavior: contain;
       scroll-behavior: smooth;
-      transform: translateZ(0); /* Hardware acceleration */
     }
     
-    /* Optimized hero section */
+    /* Professional Hero Section */
     .hero-section {
-      background: linear-gradient(135deg, rgba(0,0,0,0.7), rgba(0,0,0,0.4));
+      background: linear-gradient(135deg, rgba(0,0,0,0.85), rgba(0,0,0,0.6));
       position: relative;
       overflow: hidden;
       margin-top: 0;
       padding-top: 2rem;
-      will-change: transform;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
     }
     
     .hero-content {
-      animation: fadeInUp 0.6s ease-out;
-      will-change: transform, opacity;
+      animation: fadeInUp 0.8s ease-out;
     }
     
-    /* Optimized logo animation */
+    /* Enhanced logo with glow effect */
+    .hero-logo-container {
+      position: relative;
+      display: inline-block;
+    }
+    
     .hero-logo {
-      filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.3));
-      animation: logoFloatIn 1s ease-out;
-      will-change: transform, opacity;
+      filter: drop-shadow(0 8px 16px rgba(0, 0, 0, 0.4));
+      animation: logoFloatIn 1.2s ease-out;
+      transition: transform 0.3s ease;
     }
     
-    @keyframes logoFloatIn {
+    .hero-logo:hover {
+      transform: scale(1.05) rotate(2deg);
+      filter: drop-shadow(0 12px 24px rgba(255, 215, 0, 0.3));
+    }
+
+    /* Vision & Mission Styles */
+    .grid > div {
+      animation: fadeInUp 1s ease-out 0.3s both;
+    }
+
+    .grid > div:nth-child(3) {
+      animation-delay: 0.6s;
+    }
+
+
+    
+
+    
+        @keyframes logoFloatIn {
       0% {
         opacity: 0;
-        transform: translateY(-20px) scale(0.9);
+        transform: translate3d(0, -20px, 0) scale(0.9);
       }
       100% {
         opacity: 1;
-        transform: translateY(0) scale(1);
+        transform: translate3d(0, 0, 0) scale(1);
       }
     }
-    
+
     @keyframes fadeInUp {
       from {
         opacity: 0;
-        transform: translateY(20px);
+        transform: translate3d(0, 20px, 0);
       }
       to {
         opacity: 1;
-        transform: translateY(0);
+        transform: translate3d(0, 0, 0);
       }
     }
     
-    /* Optimized floating elements - reduced count and complexity */
-    .floating-element {
-      animation: float 8s ease-in-out infinite;
-      will-change: transform;
+    /* Mobile-Specific Hero Optimizations */
+    @media (max-width: 768px) {
+      .hero-section {
+        min-height: 90vh;
+        padding: 1rem 0;
+      }
+      
+      .hero-content {
+        padding: 0 1rem;
+      }
+      
+      .hero-logo-container {
+        margin-bottom: 1rem;
+      }
+      
+      .hero-logo {
+        width: 6rem !important;
+        height: 6rem !important;
+      }
+      
+      /* Mobile typography adjustments */
+      .hero-content h1 {
+        font-size: 2rem !important;
+        line-height: 1.2 !important;
+        margin-bottom: 1rem !important;
+      }
+      
+      .hero-content p {
+        font-size: 1rem !important;
+        line-height: 1.5 !important;
+        margin-bottom: 1.5rem !important;
+        padding: 0 0.5rem;
+      }
+
+      /* Mobile Vision & Mission adjustments */
+      .grid > div h3 {
+        font-size: 1.75rem !important;
+        margin-bottom: 1rem !important;
+      }
+
+      .grid > div p {
+        font-size: 0.875rem !important;
+        line-height: 1.4 !important;
+      }
+
+      /* Adjust mission item spacing on mobile */
+      .grid > div .space-y-3 {
+        gap: 0.5rem !important;
+      }
+
+      /* Hide divider line on mobile */
+      .absolute.left-1\/2 {
+        display: none !important;
+      }
+
+
+      
+      
     }
     
+    /* Tablet optimizations */
+    @media (min-width: 769px) and (max-width: 1024px) {
+      .hero-section {
+        min-height: 85vh;
+      }
+      
+      .hero-logo {
+        width: 8rem !important;
+        height: 8rem !important;
+      }
+      
+      .hero-content h1 {
+        font-size: 3rem !important;
+      }
+    }
+    
+        /* Optimized floating elements - reduced count and complexity */
+    .floating-element {
+      animation: float 8s ease-in-out infinite;
+      animation-fill-mode: both;
+    }
+
     .floating-element:nth-child(2n) {
       animation-delay: -4s;
     }
-    
+
     @keyframes float {
-      0%, 100% { transform: translateY(0px); }
-      50% { transform: translateY(-15px); }
+      0%, 100% { transform: translate3d(0, 0px, 0); }
+      50% { transform: translate3d(0, -15px, 0); }
     }
     
-    /* Optimized video container */
+        /* Optimized video container */
     .video-container {
-      transition: transform var(--animation-duration) var(--animation-timing);
-      will-change: transform;
+      transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     }
-    
+
     .video-container:hover {
       transform: translateY(-4px) scale(1.01);
     }
-    
+
     /* Simplified backdrop effects for better performance */
     .optimized-backdrop {
-      backdrop-filter: blur(8px);
       background: rgba(255, 255, 255, 0.1);
     }
     
@@ -211,30 +312,26 @@
       opacity: 1;
     }
     
-    /* Parallax optimization */
-    .parallax-bg {
-      transform: translateZ(0);
+    /* Background optimization */
+    .bg-optimized {
       backface-visibility: hidden;
-      will-change: transform;
     }
     
-    /* Popup optimizations */
+        /* Popup optimizations */
     .popup-modal {
-      backdrop-filter: blur(4px);
-      will-change: opacity, transform;
+      background: rgba(0, 0, 0, 0.5);
     }
-    
+
     .popup-content {
-      will-change: transform;
+      transition: transform 0.3s ease;
     }
   </style>
 </head>
 <%
   const defaultBg = backgroundImage || '/images/defaultbg.png';
 %>
-<body class="bg-gray-100 bg-cover bg-center bg-fixed min-h-screen parallax-bg" style="background-image: url('<%= defaultBg %>')">
+<body class="bg-gray-100 bg-cover bg-center min-h-screen" style="background-image: url('<%= defaultBg %>'); background-attachment: scroll;">
   <%- include('../partials/header') %>
-  <%- include('../partials/sidebar') %>
   
   <!-- Optimized floating elements - reduced count -->
   <div class="fixed inset-0 pointer-events-none z-0">
@@ -242,32 +339,98 @@
     <div class="floating-element absolute bottom-32 right-20 w-5 h-5 bg-green-400 rounded-full opacity-40"></div>
   </div>
   
-  <main class="md:ml-64 min-h-screen relative z-10" style="padding-top: var(--navbar-height);">
-    <!-- Optimized Hero Section -->
-    <section class="hero-section py-20">
-      <div class="container mx-auto px-4">
-        <div class="hero-content text-center text-white">
+  <main class="min-h-screen relative z-10" style="padding-top: var(--navbar-height);">
+    <!-- Professional Hero Section -->
+    <section class="hero-section py-12 md:py-20">
+      <div class="container mx-auto px-4 md:px-6">
+        <div class="hero-content text-center text-white max-w-5xl mx-auto">
           <!-- Malaysia Pickleball Association Logo -->
-          <div class="flex justify-center mb-8">
-            <img src="/images/mpa.png" alt="Malaysia Pickleball Association" class="hero-logo w-40 h-40 md:w-52 md:h-52 lg:w-64 lg:h-64 object-contain lazy-load" loading="lazy">
+          <div class="flex justify-center mb-6 md:mb-8">
+            <div class="hero-logo-container relative">
+              <div class="absolute inset-0 bg-gradient-to-r from-yellow-400/20 to-green-400/20 rounded-full blur-2xl scale-110"></div>
+              <img src="/images/mpa.png" alt="Malaysia Pickleball Association" class="hero-logo relative w-24 h-24 sm:w-32 sm:h-32 md:w-40 md:h-40 lg:w-48 lg:h-48 object-contain lazy-load" loading="lazy">
+            </div>
           </div>
           
-          <h1 class="text-5xl md:text-7xl font-bold mb-6 leading-tight">
-            <span class="text-transparent bg-clip-text bg-gradient-to-r from-yellow-400 to-green-400">
-              Malaysia Pickleball Association
+          <!-- Main Heading -->
+          <h1 class="text-3xl sm:text-4xl md:text-6xl lg:text-7xl font-bold mb-4 md:mb-6 leading-tight">
+            <span class="text-transparent bg-clip-text bg-gradient-to-r from-yellow-400 via-yellow-300 to-green-400">
+              Malaysia
+            </span>
+            <br class="sm:hidden">
+            <span class="text-transparent bg-clip-text bg-gradient-to-r from-green-400 via-green-300 to-blue-400">
+              Pickleball Association
             </span>
           </h1>
-          <p class="text-xl md:text-2xl mb-8 text-gray-200 max-w-3xl mx-auto">
-            Join the fastest-growing sport in Malaysia. Discover tournaments, connect with coaches, and be part of our vibrant community.
-          </p>
           
-          <!-- Optimized Action Buttons -->
-          <div class="flex flex-col sm:flex-row gap-4 justify-center mt-8">
-            
+          <!-- Description Text -->
+          <div class="max-w-4xl mx-auto px-4 sm:px-6 mb-8 md:mb-12">
+            <p class="text-base md:text-lg text-gray-200 leading-relaxed text-center">
+              The Malaysia Pickleball Association (MPA), the national governing body for pickleball, promotes and regulates the sport in Malaysia. It organizes tournaments, supports training and certification, advocates for dedicated facilities, and builds inclusive communities. By collaborating with government and sports bodies, the MPA drives pickleball's growth, fostering active lifestyles and positioning Malaysia as a regional hub for this dynamic sport.
+            </p>
           </div>
+
+          <!-- Vision & Mission -->
+          <div class="max-w-6xl mx-auto px-4 sm:px-6">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-16 relative">
+              
+              <!-- Vertical divider line (hidden on mobile) -->
+              <div class="absolute left-1/2 top-0 bottom-0 w-px bg-gradient-to-b from-transparent via-blue-400 to-transparent hidden lg:block transform -translate-x-1/2"></div>
+              
+              <!-- Vision & Objective -->
+              <div class="text-center lg:text-right lg:pr-8">
+                <h3 class="text-3xl md:text-4xl font-bold mb-6 text-white" style="font-style: italic;">
+                  Vision
+                </h3>
+                <p class="text-base md:text-lg text-gray-300 leading-relaxed mb-8">
+                  Pickleball will be a vibrant and popular sport in Malaysia that contributes towards nation building and social development by reaching out to all Malaysians in its pursuit of glory for the country.
+                </p>
+                
+                <h3 class="text-3xl md:text-4xl font-bold mb-6 text-white" style="font-style: italic;">
+                  Objective
+                </h3>
+                <p class="text-base md:text-lg text-gray-300 leading-relaxed">
+                  To establish Malaysia as a leading pickleball nation through comprehensive development programs, world-class facilities, and excellence in international competitions while promoting the sport as an inclusive activity for all Malaysians.
+                </p>
+              </div>
+
+              <!-- Mission -->
+              <div class="text-center lg:text-left lg:pl-8">
+                <h3 class="text-3xl md:text-4xl font-bold mb-6 text-white" style="font-style: italic;">
+                  Mission
+                </h3>
+                <div class="space-y-3 text-sm md:text-base text-gray-300">
+                  <div class="flex items-start justify-center lg:justify-start space-x-3">
+                    <div class="w-0 h-0 border-l-3 border-l-blue-400 border-t-3 border-t-transparent border-b-3 border-b-transparent mt-1.5 flex-shrink-0"></div>
+                    <p class="text-left">To inspire and unite Malaysians through pickleball, promoting an active lifestyle for all.</p>
+                  </div>
+                  <div class="flex items-start justify-center lg:justify-start space-x-3">
+                    <div class="w-0 h-0 border-l-3 border-l-blue-400 border-t-3 border-t-transparent border-b-3 border-b-transparent mt-1.5 flex-shrink-0"></div>
+                    <p class="text-left">To develop a strong pipeline of talented players and coaches to elevate the sport nationally.</p>
+                  </div>
+                  <div class="flex items-start justify-center lg:justify-start space-x-3">
+                    <div class="w-0 h-0 border-l-3 border-l-blue-400 border-t-3 border-t-transparent border-b-3 border-b-transparent mt-1.5 flex-shrink-0"></div>
+                    <p class="text-left">To host world-class tournaments that showcase Malaysia's growing pickleball prowess.</p>
+                  </div>
+                  <div class="flex items-start justify-center lg:justify-start space-x-3">
+                    <div class="w-0 h-0 border-l-3 border-l-blue-400 border-t-3 border-t-transparent border-b-3 border-b-transparent mt-1.5 flex-shrink-0"></div>
+                    <p class="text-left">To build accessible training facilities across states to support grassroots growth.</p>
+                  </div>
+                  <div class="flex items-start justify-center lg:justify-start space-x-3">
+                    <div class="w-0 h-0 border-l-3 border-l-blue-400 border-t-3 border-t-transparent border-b-3 border-b-transparent mt-1.5 flex-shrink-0"></div>
+                    <p class="text-left">To establish pickleball as a leading sport, reflecting national pride and excellence.</p>
+                  </div>
+                </div>
+              </div>
+
+            </div>
+          </div>
+          
+          
         </div>
       </div>
     </section>
+
 
     <!-- News Update and Video Section -->
     <section class="py-16 relative overflow-hidden">
