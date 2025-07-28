@@ -7,7 +7,6 @@
   <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
   <link rel="stylesheet" href="/css/styles.css">
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <style>
     .dashboard-card {
       transition: all 0.3s ease;
@@ -54,627 +53,309 @@
       0%, 100% { opacity: 1; }
       50% { opacity: 0.5; }
     }
-    .loading-spinner {
-      border: 3px solid #f3f3f3;
-      border-top: 3px solid #3498db;
-      border-radius: 50%;
-      width: 20px;
-      height: 20px;
-      animation: spin 1s linear infinite;
+    .tab-button {
+      padding: 0.5rem 1rem;
+      border-radius: 0.5rem;
+      font-weight: 500;
+      transition: all 0.2s;
+      cursor: pointer;
     }
-    @keyframes spin {
-      0% { transform: rotate(0deg); }
-      100% { transform: rotate(360deg); }
+    .tab-button.active {
+      background-color: #2563eb;
+      color: white;
     }
-    .category-header {
-      background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
-      border-left: 4px solid #3B82F6;
+    .tab-button:not(.active) {
+      background-color: #e5e7eb;
+      color: #374151;
     }
-    
-    /* Mobile optimizations */
-    @media (max-width: 768px) {
-      .dashboard-card {
-        min-height: 60px;
-        padding: 12px !important;
-      }
-      .dashboard-card h4 {
-        font-size: 0.9rem;
-      }
-      .dashboard-card p {
-        font-size: 0.75rem;
-      }
-      .action-btn {
-        min-height: 70px;
-        padding: 12px !important;
-      }
-      .action-btn h3 {
-        font-size: 0.9rem;
-      }
-      .action-btn p {
-        font-size: 0.75rem;
-      }
-      .category-header {
-        padding: 16px !important;
-      }
-      .category-header h2, .category-header h3 {
-        font-size: 1.1rem !important;
-        line-height: 1.3;
-      }
-      .player-card {
-        padding: 12px !important;
-      }
-      .player-card h3 {
-        font-size: 1rem !important;
-      }
-      .player-card .text-sm {
-        font-size: 0.75rem;
-      }
-      .player-card img, .player-card .w-16 {
-        width: 48px !important;
-        height: 48px !important;
-      }
+    .tab-button:not(.active):hover {
+      background-color: #d1d5db;
     }
-    
-    @media (max-width: 640px) {
-      .stat-card {
-        min-height: 100px;
-        padding: 16px !important;
-      }
-      .stat-card .text-3xl {
-        font-size: 1.5rem !important;
-      }
-      .stat-card .text-sm {
-        font-size: 0.75rem;
-      }
+    .tab-content {
+      display: none;
     }
-    
-    /* Ensure proper layout and prevent navbar overlay */
-    body {
-      position: relative;
-    }
-    
-    main {
-      position: relative;
-      z-index: 1;
-    }
-    
-
-    
-    /* Ensure all content sections are properly spaced */
-    .container {
-      max-width: 100%;
-      margin: 0 auto;
-    }
-    
-    /* Fix any potential z-index issues */
-    .category-header,
-    .stat-card,
-    .action-btn,
-    .dashboard-card {
-      position: relative;
-      z-index: 2;
-    }
-
-    /* Logout Button Styling */
-    .logout-btn {
-      backdrop-filter: blur(10px);
-      border: 1px solid rgba(255, 255, 255, 0.2);
-      box-shadow: 0 8px 32px rgba(239, 68, 68, 0.3);
-    }
-
-    .logout-btn:hover {
-      box-shadow: 0 12px 40px rgba(239, 68, 68, 0.4);
-      transform: scale(1.05) translateY(-2px);
-    }
-
-    .logout-btn:active {
-      transform: scale(0.98);
-    }
-
-    /* Responsive logout button */
-    @media (max-width: 640px) {
-      .logout-btn {
-        padding: 0.5rem;
-        border-radius: 50%;
-        width: 40px;
-        height: 40px;
-        justify-content: center;
-      }
-    }
-
-    /* Dashboard logo styles */
-    .dashboard-logo {
-      filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.1));
-      transition: all 0.3s ease;
-      animation: dashboardLogoFadeIn 1s ease-out;
-    }
-
-    .dashboard-logo:hover {
-      transform: scale(1.05);
-      filter: drop-shadow(0 6px 12px rgba(0, 0, 0, 0.15));
-    }
-
-    @keyframes dashboardLogoFadeIn {
-      0% {
-        opacity: 0;
-        transform: translateY(-10px);
-      }
-      100% {
-        opacity: 1;
-        transform: translateY(0);
-      }
-    }
-
-    /* Mobile dashboard logo adjustments */
-    @media (max-width: 768px) {
-      .dashboard-logo {
-        width: 3.5rem !important;
-        height: 3.5rem !important;
-      }
+    .tab-content.active {
+      display: block;
     }
   </style>
 </head>
-<body class="bg-gray-50 min-h-screen">
-
-
-
-  <main class="p-3 sm:p-6 min-h-screen">
-    <div class="container mx-auto max-w-7xl">
-      <!-- Dashboard Header -->
-      <div class="mb-6 sm:mb-8">
-        <!-- Malaysia Pickleball Association Logo -->
-        <div class="flex justify-center mb-6">
-          <img src="/images/mpa.png" alt="Malaysia Pickleball Association" class="dashboard-logo w-16 h-16 md:w-20 md:h-20 object-contain">
-        </div>
-        
-        <div class="flex flex-col md:flex-row md:items-center md:justify-between">
-          <div class="mb-4 md:mb-0 text-center md:text-left">
-            <h1 class="text-2xl sm:text-4xl font-bold text-gray-800 mb-2">
-              <i class="fas fa-tachometer-alt text-blue-600 mr-2 sm:mr-3"></i>
-              Admin Dashboard
-            </h1>
-            <p class="text-gray-600 text-sm sm:text-base">Welcome back! Here's what's happening with your platform.</p>
+<body class="bg-gray-50">
+  <div class="min-h-screen bg-gray-50">
+    <div class="container mx-auto px-4 py-8">
+      <!-- Admin Header -->
+      <div class="mb-8 bg-white rounded-xl shadow-lg p-6">
+        <div class="flex flex-col md:flex-row justify-between items-start md:items-center">
+          <div class="flex items-center space-x-4">
+            <img src="/images/mpa.png" alt="MPA Logo" class="w-12 h-12 object-contain">
+            <div>
+              <h1 class="text-3xl font-bold text-gray-800 mb-1">Admin Dashboard</h1>
+              <p class="text-gray-600">Malaysia Pickleball Association</p>
+            </div>
           </div>
-          <div class="mt-4 md:mt-0 flex flex-col sm:flex-row items-stretch sm:items-center space-y-2 sm:space-y-0 sm:space-x-3">
-            <div class="text-xs sm:text-sm text-gray-500 text-center sm:text-left">
-              <i class="fas fa-clock mr-1"></i>
-              Last updated: <span id="lastUpdated"></span>
-            </div>
-            <div class="flex flex-col gap-2">
-              <button onclick="refreshData()" class="bg-blue-600 text-white px-3 sm:px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors text-sm">
-                <i class="fas fa-sync-alt mr-1 sm:mr-2"></i>Refresh
-              </button>
-              <a href="/logout" class="bg-red-600 text-white px-3 sm:px-4 py-2 rounded-lg hover:bg-red-700 transition-colors text-sm text-center">
-                <i class="fas fa-sign-out-alt mr-1 sm:mr-2"></i>Logout
-              </a>
-            </div>
+          <div class="mt-4 md:mt-0 flex items-center space-x-3">
+            <button id="refreshBtn" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors text-sm flex items-center">
+              <i class="fas fa-sync-alt mr-2"></i>
+              Refresh Data
+            </button>
+            <a href="/logout" class="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition-colors text-sm flex items-center">
+              <i class="fas fa-sign-out-alt mr-2"></i>
+              Logout
+            </a>
           </div>
         </div>
       </div>
 
-      <!-- Overview Section -->
-      <section class="mb-8 sm:mb-12">
-        <div class="category-header p-3 sm:p-4 rounded-t-xl mb-4 sm:mb-6">
-          <h2 class="text-xl sm:text-2xl font-bold text-gray-800 flex items-center">
-            <i class="fas fa-chart-line text-blue-600 mr-2 sm:mr-3"></i>
-            Platform Overview
-          </h2>
+      <!-- Statistics Cards -->
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        <div class="stat-card p-6 rounded-xl shadow-lg bg-gradient-to-r from-blue-500 to-blue-600">
+          <div class="flex items-center justify-between">
+            <div>
+              <p class="text-white text-sm opacity-90 mb-1">Total Players</p>
+              <p class="text-3xl font-bold text-white"><%= users ? users.length : 0 %></p>
+            </div>
+            <div class="text-4xl text-white opacity-80">
+              <i class="fas fa-users"></i>
+            </div>
+          </div>
+          <div class="mt-4 text-sm text-white opacity-90">+12% from last month</div>
         </div>
-        
-        <!-- Statistics Cards -->
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6">
-          <div class="stat-card p-4 sm:p-6 rounded-xl shadow-lg">
-            <div class="flex items-center justify-between">
-              <div>
-                <p class="text-blue-100 text-xs sm:text-sm font-medium">Total Players</p>
-                <p class="text-2xl sm:text-3xl font-bold"><%= users.length %></p>
-                <p class="text-blue-200 text-xs sm:text-sm">
-                  <i class="fas fa-arrow-up mr-1"></i>
-                  +12% from last month
-                </p>
-              </div>
-              <div class="bg-white bg-opacity-20 p-2 sm:p-3 rounded-full">
-                <i class="fas fa-users text-lg sm:text-2xl"></i>
-              </div>
-            </div>
-          </div>
 
-          <div class="bg-gradient-to-br from-green-500 to-green-600 text-white p-4 sm:p-6 rounded-xl shadow-lg">
-            <div class="flex items-center justify-between">
-              <div>
-                <p class="text-green-100 text-xs sm:text-sm font-medium">Active Tournaments</p>
-                <p class="text-2xl sm:text-3xl font-bold" id="tournamentCount">0</p>
-                <p class="text-green-200 text-xs sm:text-sm">
-                  <i class="fas fa-trophy mr-1"></i>
-                  Ongoing events
-                </p>
-              </div>
-              <div class="bg-white bg-opacity-20 p-2 sm:p-3 rounded-full">
-                <i class="fas fa-trophy text-lg sm:text-2xl"></i>
-              </div>
+        <div class="stat-card p-6 rounded-xl shadow-lg bg-gradient-to-r from-green-500 to-green-600">
+          <div class="flex items-center justify-between">
+            <div>
+              <p class="text-white text-sm opacity-90 mb-1">Total Tournaments</p>
+              <p class="text-3xl font-bold text-white">12</p>
+            </div>
+            <div class="text-4xl text-white opacity-80">
+              <i class="fas fa-trophy"></i>
             </div>
           </div>
-
-          <div class="bg-gradient-to-br from-orange-500 to-red-500 text-black p-4 sm:p-6 rounded-xl shadow-lg">
-            <div class="flex items-center justify-between">
-              <div>
-                <p class="text-orange-100 text-xs sm:text-sm font-medium">Pending Registrations</p>
-                <p class="text-2xl sm:text-3xl font-bold flex items-center">
-                  <%= pendingRegistrations.length %>
-                  <% if (pendingRegistrations.length > 0) { %>
-                    <span class="pulse-dot ml-2 w-2 sm:w-3 h-2 sm:h-3 bg-yellow-400 rounded-full"></span>
-                  <% } %>
-                </p>
-                <p class="text-orange-200 text-xs sm:text-sm">
-                  <i class="fas fa-clock mr-1"></i>
-                  Awaiting approval
-                </p>
-              </div>
-              <div class="bg-white bg-opacity-20 p-2 sm:p-3 rounded-full">
-                <i class="fas fa-clipboard-list text-lg sm:text-2xl"></i>
-              </div>
-            </div>
-          </div>
-
-          <div class="bg-gradient-to-br from-purple-500 to-purple-600 text-white p-4 sm:p-6 rounded-xl shadow-lg">
-            <div class="flex items-center justify-between">
-              <div>
-                <p class="text-purple-100 text-xs sm:text-sm font-medium">Total Venues</p>
-                <p class="text-2xl sm:text-3xl font-bold" id="venueCount">0</p>
-                <p class="text-purple-200 text-xs sm:text-sm">
-                  <i class="fas fa-map-marker-alt mr-1"></i>
-                  Locations available
-                </p>
-              </div>
-              <div class="bg-white bg-opacity-20 p-2 sm:p-3 rounded-full">
-                <i class="fas fa-map-marker-alt text-lg sm:text-2xl"></i>
-              </div>
-            </div>
-          </div>
+          <div class="mt-4 text-sm text-white opacity-90">+3 this quarter</div>
         </div>
-      </section>
 
-      <div class="section-divider"></div>
-
-      <!-- Quick Actions Section -->
-      <section class="mb-8 sm:mb-12">
-        <div class="category-header p-3 sm:p-4 rounded-t-xl mb-4 sm:mb-6">
-          <h2 class="text-xl sm:text-2xl font-bold text-gray-800 flex items-center">
-            <i class="fas fa-bolt text-yellow-500 mr-2 sm:mr-3"></i>
-            Quick Actions
-          </h2>
-        </div>
-        
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
-          <a href="/admin/tournaments" class="action-btn bg-white p-3 sm:p-4 rounded-lg shadow-md hover:shadow-lg border-l-4 border-blue-500">
-            <div class="flex items-center">
-              <div class="bg-blue-100 p-2 sm:p-3 rounded-full mr-3 sm:mr-4">
-                <i class="fas fa-trophy text-blue-600 text-sm sm:text-base"></i>
-              </div>
-              <div>
-                <h3 class="font-semibold text-gray-800 text-sm sm:text-base">Tournaments</h3>
-                <p class="text-xs sm:text-sm text-gray-600">Manage events</p>
-              </div>
+        <div class="stat-card p-6 rounded-xl shadow-lg bg-gradient-to-r from-yellow-500 to-orange-500">
+          <div class="flex items-center justify-between">
+            <div>
+              <p class="text-white text-sm opacity-90 mb-1">Pending Registrations</p>
+              <p class="text-3xl font-bold text-white"><%= pendingRegistrations ? pendingRegistrations.length : 0 %></p>
             </div>
-          </a>
-
-
-
-          <a href="/admin/venues" class="action-btn bg-white p-3 sm:p-4 rounded-lg shadow-md hover:shadow-lg border-l-4 border-green-500">
-            <div class="flex items-center">
-              <div class="bg-green-100 p-2 sm:p-3 rounded-full mr-3 sm:mr-4">
-                <i class="fas fa-map-marker-alt text-green-600 text-sm sm:text-base"></i>
-              </div>
-              <div>
-                <h3 class="font-semibold text-gray-800 text-sm sm:text-base">Venues</h3>
-                <p class="text-xs sm:text-sm text-gray-600">Manage locations</p>
-              </div>
-            </div>
-          </a>
-
-          <a href="/admin/home" class="action-btn bg-white p-3 sm:p-4 rounded-lg shadow-md hover:shadow-lg border-l-4 border-purple-500">
-            <div class="flex items-center">
-              <div class="bg-purple-100 p-2 sm:p-3 rounded-full mr-3 sm:mr-4">
-                <i class="fas fa-home text-purple-600 text-sm sm:text-base"></i>
-              </div>
-              <div>
-                <h3 class="font-semibold text-gray-800 text-sm sm:text-base">Home Page</h3>
-                <p class="text-xs sm:text-sm text-gray-600">Update content</p>
-              </div>
-            </div>
-          </a>
-
-          <a href="/admin/live-tournament" class="action-btn bg-white p-3 sm:p-4 rounded-lg shadow-md hover:shadow-lg border-l-4 border-red-500">
-            <div class="flex items-center">
-              <div class="bg-red-100 p-2 sm:p-3 rounded-full mr-3 sm:mr-4">
-                <i class="fas fa-broadcast-tower text-red-600 text-sm sm:text-base"></i>
-              </div>
-              <div>
-                <h3 class="font-semibold text-gray-800 text-sm sm:text-base">Live Tournament</h3>
-                <p class="text-xs sm:text-sm text-gray-600">Manage live streams</p>
-              </div>
-            </div>
-          </a>
-
-          <a href="/admin/players" class="action-btn bg-white p-3 sm:p-4 rounded-lg shadow-md hover:shadow-lg border-l-4 border-orange-500">
-            <div class="flex items-center">
-              <div class="bg-orange-100 p-2 sm:p-3 rounded-full mr-3 sm:mr-4">
-                <i class="fas fa-users text-orange-600 text-sm sm:text-base"></i>
-              </div>
-              <div>
-                <h3 class="font-semibold text-gray-800 text-sm sm:text-base">Players</h3>
-                <p class="text-xs sm:text-sm text-gray-600">Manage registrations</p>
-              </div>
-            </div>
-          </a>
-        </div>
-        
-        <!-- Second row for additional actions -->
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mt-4">
-          <a href="/admin/messages" class="action-btn bg-white p-3 sm:p-4 rounded-lg shadow-md hover:shadow-lg border-l-4 border-pink-500">
-            <div class="flex items-center">
-              <div class="bg-pink-100 p-2 sm:p-3 rounded-full mr-3 sm:mr-4">
-                <i class="fas fa-paper-plane text-pink-600 text-sm sm:text-base"></i>
-              </div>
-              <div>
-                <h3 class="font-semibold text-gray-800 text-sm sm:text-base">Messages</h3>
-                <p class="text-xs sm:text-sm text-gray-600">Send to players</p>
-              </div>
-            </div>
-          </a>
-        </div>
-      </section>
-
-      <div class="section-divider"></div>
-
-      <!-- Main Management Section -->
-      <section class="mb-8 sm:mb-12">
-        <!-- Content Management -->
-        <div class="bg-white rounded-xl shadow-lg overflow-hidden">
-          <div class="category-header p-4 sm:p-6">
-            <h2 class="text-lg sm:text-xl font-bold text-gray-800 flex items-center">
-              <i class="fas fa-cogs text-blue-600 mr-2 sm:mr-3"></i>
-              Content Management
-            </h2>
-          </div>
-          
-          <!-- Core Content Management -->
-          <div class="p-6">
-            <h3 class="text-lg font-semibold text-gray-700 mb-4 flex items-center">
-              <i class="fas fa-edit text-green-600 mr-2"></i>
-              Core Content
-            </h3>
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-              <a href="/admin/home" class="dashboard-card p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-all duration-200">
-                <div class="flex items-center mb-2">
-                  <i class="fas fa-home text-blue-600 mr-3"></i>
-                  <h4 class="font-semibold">Home Page</h4>
-                </div>
-                <p class="text-sm text-gray-600">Manage homepage content and layout</p>
-              </a>
-
-              <a href="/admin/tournaments" class="dashboard-card p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-all duration-200">
-                <div class="flex items-center mb-2">
-                  <i class="fas fa-trophy text-yellow-600 mr-3"></i>
-                  <h4 class="font-semibold">Tournaments</h4>
-                </div>
-                <p class="text-sm text-gray-600">Create and manage tournaments</p>
-              </a>
-
-              <a href="/admin/venues" class="dashboard-card p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-all duration-200">
-                <div class="flex items-center mb-2">
-                  <i class="fas fa-map-marker-alt text-red-600 mr-3"></i>
-                  <h4 class="font-semibold">Venues</h4>
-                </div>
-                <p class="text-sm text-gray-600">Manage venue information</p>
-              </a>
-
-              <a href="/admin/sponsorships" class="dashboard-card p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-all duration-200">
-                <div class="flex items-center mb-2">
-                  <i class="fas fa-handshake text-purple-600 mr-3"></i>
-                  <h4 class="font-semibold">Sponsors</h4>
-                </div>
-                <p class="text-sm text-gray-600">Manage sponsorship details</p>
-              </a>
-
-              <a href="/admin/live-tournament" class="dashboard-card p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-all duration-200">
-                <div class="flex items-center mb-2">
-                  <i class="fas fa-broadcast-tower text-red-600 mr-3"></i>
-                  <h4 class="font-semibold">Live Tournament</h4>
-                </div>
-                <p class="text-sm text-gray-600">Manage live streaming content</p>
-              </a>
+            <div class="text-4xl text-white opacity-80">
+              <i class="fas fa-clock"></i>
             </div>
           </div>
+          <div class="mt-4 text-sm text-white opacity-90">Needs attention</div>
+        </div>
 
-          <div class="border-t border-gray-200 p-6">
-            <h3 class="text-lg font-semibold text-gray-700 mb-4 flex items-center">
-              <i class="fas fa-users text-indigo-600 mr-2"></i>
-              People Management
-            </h3>
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              <a href="/admin/referees" class="dashboard-card p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-all duration-200">
-                <div class="flex items-center mb-2">
-                  <i class="fas fa-whistle text-gray-600 mr-3"></i>
-                  <h4 class="font-semibold">Referees</h4>
-                </div>
-                <p class="text-sm text-gray-600">Manage referee information</p>
-              </a>
-
-              <a href="/admin/coaches" class="dashboard-card p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-all duration-200">
-                <div class="flex items-center mb-2">
-                  <i class="fas fa-chalkboard-teacher text-green-600 mr-3"></i>
-                  <h4 class="font-semibold">Coaches</h4>
-                </div>
-                <p class="text-sm text-gray-600">Manage coaching staff</p>
-              </a>
-
-              <a href="/admin/rankings" class="dashboard-card p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-all duration-200">
-                <div class="flex items-center mb-2">
-                  <i class="fas fa-medal text-orange-600 mr-3"></i>
-                  <h4 class="font-semibold">Rankings</h4>
-                </div>
-                <p class="text-sm text-gray-600">Update player rankings</p>
-              </a>
+        <div class="stat-card p-6 rounded-xl shadow-lg bg-gradient-to-r from-purple-500 to-purple-600">
+          <div class="flex items-center justify-between">
+            <div>
+              <p class="text-white text-sm opacity-90 mb-1">Active Tournaments</p>
+              <p class="text-3xl font-bold text-white">3</p>
+            </div>
+            <div class="text-4xl text-white opacity-80">
+              <i class="fas fa-play-circle"></i>
             </div>
           </div>
+          <div class="mt-4 text-sm text-white opacity-90">Currently running</div>
+        </div>
+      </div>
 
-          <!-- Admin Settings Section -->
-          <div class="border-t border-gray-200 p-6">
-            <h3 class="text-lg font-semibold text-gray-700 mb-4 flex items-center">
-              <i class="fas fa-cog text-red-600 mr-2"></i>
-              System Administration
-            </h3>
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              <a href="/admin/settings" class="dashboard-card p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-all duration-200">
-                <div class="flex items-center mb-2">
-                  <i class="fas fa-user-cog text-blue-600 mr-3"></i>
-                  <h4 class="font-semibold">Admin Settings</h4>
+      <!-- Tabs -->
+      <div class="flex space-x-2 mb-6">
+        <button class="tab-button active" data-tab="overview">Overview</button>
+        <button class="tab-button" data-tab="registrations">Recent Registrations</button>
+        <button class="tab-button" data-tab="tournaments">Upcoming Tournaments</button>
+      </div>
+
+      <!-- Tab Content -->
+      <div id="tab-content">
+        <!-- Overview Tab -->
+        <div class="tab-content active" id="overview-tab">
+          <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <!-- Quick Actions -->
+            <div class="dashboard-card bg-white p-6 rounded-xl shadow-lg">
+              <h3 class="text-xl font-bold text-gray-800 mb-4 flex items-center">
+                <i class="fas fa-bolt text-blue-600 mr-2"></i>
+                Quick Actions
+              </h3>
+              <div class="grid grid-cols-2 gap-4">
+                <a href="/admin/tournaments" class="action-btn bg-blue-600 text-white p-4 rounded-lg text-center hover:bg-blue-700 transition-colors">
+                  <i class="fas fa-trophy text-2xl mb-2"></i>
+                  <div class="font-medium">Manage Tournaments</div>
+                </a>
+                <a href="/admin/registrations" class="action-btn bg-green-600 text-white p-4 rounded-lg text-center hover:bg-green-700 transition-colors">
+                  <i class="fas fa-users text-2xl mb-2"></i>
+                  <div class="font-medium">View Players</div>
+                </a>
+                <a href="/admin/referees" class="action-btn bg-purple-600 text-white p-4 rounded-lg text-center hover:bg-purple-700 transition-colors">
+                  <i class="fas fa-whistle text-2xl mb-2"></i>
+                  <div class="font-medium">Manage Referees</div>
+                </a>
+                <a href="/admin/settings" class="action-btn bg-gray-600 text-white p-4 rounded-lg text-center hover:bg-gray-700 transition-colors">
+                  <i class="fas fa-cog text-2xl mb-2"></i>
+                  <div class="font-medium">Settings</div>
+                </a>
+              </div>
+            </div>
+
+            <!-- System Status -->
+            <div class="dashboard-card bg-white p-6 rounded-xl shadow-lg">
+              <h3 class="text-xl font-bold text-gray-800 mb-4 flex items-center">
+                <i class="fas fa-server text-green-600 mr-2"></i>
+                System Status
+              </h3>
+              <div class="space-y-3">
+                <div class="flex items-center justify-between">
+                  <span class="text-gray-700">Database</span>
+                  <span class="flex items-center text-green-600">
+                    <div class="w-2 h-2 bg-green-500 rounded-full pulse-dot mr-2"></div>
+                    Online
+                  </span>
                 </div>
-                <p class="text-sm text-gray-600">Manage your admin account and security</p>
-              </a>
+                <div class="flex items-center justify-between">
+                  <span class="text-gray-700">Server</span>
+                  <span class="flex items-center text-green-600">
+                    <div class="w-2 h-2 bg-green-500 rounded-full pulse-dot mr-2"></div>
+                    Running
+                  </span>
+                </div>
+                <div class="flex items-center justify-between">
+                  <span class="text-gray-700">Last Backup</span>
+                  <span class="text-gray-600">2 hours ago</span>
+                </div>
+              </div>
             </div>
           </div>
         </div>
-      </section>
 
-      <div class="section-divider"></div>
-
-      <!-- Players Management Section -->
-      <% if (users.length > 0) { %>
-      <section class="mb-6 sm:mb-8">
-        <div class="bg-white rounded-xl shadow-lg overflow-hidden">
-          <div class="category-header p-4 sm:p-6">
-            <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between">
-              <h2 class="text-lg sm:text-xl font-bold text-gray-800 flex items-center mb-4 lg:mb-0">
-                <i class="fas fa-users text-blue-600 mr-2 sm:mr-3"></i>
-                Registered Players Management
-              </h2>
-              <div class="flex flex-col sm:flex-row items-stretch sm:items-center space-y-3 sm:space-y-0 sm:space-x-4">
-                <div class="relative flex-1 lg:flex-none">
-                  <input type="text" id="playerSearch" placeholder="Search players..." 
-                         class="pl-8 sm:pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm w-full lg:w-auto">
-                  <i class="fas fa-search absolute left-2 sm:left-3 top-3 text-gray-400 text-sm"></i>
-                </div>
-                <select id="playerFilter" class="border border-gray-300 rounded-lg px-2 sm:px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm flex-1 lg:flex-none">
-                  <option value="">All Ages</option>
-                  <option value="youth">Youth (Under 18)</option>
-                  <option value="adult">Adult (18-50)</option>
-                  <option value="senior">Senior (50+)</option>
-                </select>
-              </div>
+        <!-- Registrations Tab -->
+        <div class="tab-content" id="registrations-tab">
+          <div class="dashboard-card bg-white p-6 rounded-xl shadow-lg">
+            <h3 class="text-xl font-bold text-gray-800 mb-4">Recent Player Registrations</h3>
+            <div class="overflow-x-auto">
+              <table class="w-full">
+                <thead class="bg-gray-50">
+                  <tr>
+                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Name</th>
+                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Email</th>
+                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
+                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                  </tr>
+                </thead>
+                <tbody class="bg-white divide-y divide-gray-200">
+                  <tr class="hover:bg-gray-50">
+                    <td class="px-4 py-4 whitespace-nowrap text-sm font-medium text-gray-900">John Doe</td>
+                    <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-500">john@example.com</td>
+                    <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-500">2024-01-15</td>
+                    <td class="px-4 py-4 whitespace-nowrap">
+                      <span class="px-2 py-1 text-xs font-semibold rounded-full bg-yellow-100 text-yellow-800">Pending</span>
+                    </td>
+                  </tr>
+                  <tr class="hover:bg-gray-50">
+                    <td class="px-4 py-4 whitespace-nowrap text-sm font-medium text-gray-900">Sarah Smith</td>
+                    <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-500">sarah@example.com</td>
+                    <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-500">2024-01-14</td>
+                    <td class="px-4 py-4 whitespace-nowrap">
+                      <span class="px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">Approved</span>
+                    </td>
+                  </tr>
+                  <tr class="hover:bg-gray-50">
+                    <td class="px-4 py-4 whitespace-nowrap text-sm font-medium text-gray-900">Mike Johnson</td>
+                    <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-500">mike@example.com</td>
+                    <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-500">2024-01-13</td>
+                    <td class="px-4 py-4 whitespace-nowrap">
+                      <span class="px-2 py-1 text-xs font-semibold rounded-full bg-yellow-100 text-yellow-800">Pending</span>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
             </div>
           </div>
-          
-          <div class="p-4 sm:p-6">
-            <div id="playersGrid" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 sm:gap-6">
-              <% users.forEach(user => { %>
-                <div class="player-card bg-gray-50 rounded-lg p-3 sm:p-4 hover:shadow-md transition-shadow" data-age="<%= user.age %>" data-name="<%= user.fullName.toLowerCase() %>">
-                  <div class="flex items-start space-x-3 sm:space-x-4">
-                    <% if (user.faceImage) { %>
-                      <img src="<%= user.faceImage %>" alt="<%= user.fullName %>" class="w-12 h-12 sm:w-16 sm:h-16 rounded-full object-cover">
-                    <% } else { %>
-                      <div class="w-12 h-12 sm:w-16 sm:h-16 bg-gray-300 rounded-full flex items-center justify-center">
-                        <i class="fas fa-user text-lg sm:text-2xl text-gray-500"></i>
-                      </div>
-                    <% } %>
-                    <div class="flex-1 min-w-0">
-                      <h3 class="font-bold text-base sm:text-lg text-gray-800 truncate"><%= user.fullName %></h3>
-                      <div class="space-y-1 text-xs sm:text-sm text-gray-600">
-                        <p><i class="fas fa-id-card mr-1 sm:mr-2"></i><%= user.icNumber %></p>
-                        <p><i class="fas fa-birthday-cake mr-1 sm:mr-2"></i>Age: <%= user.age %></p>
-                        <p><i class="fas fa-heart mr-1 sm:mr-2"></i><%= user.maritalStatus %></p>
-                        <p><i class="fas fa-phone mr-1 sm:mr-2"></i><%= user.phone %></p>
-                        <p><i class="fas fa-envelope mr-1 sm:mr-2"></i><%= user.email %></p>
-                      </div>
-                    </div>
+        </div>
+
+        <!-- Tournaments Tab -->
+        <div class="tab-content" id="tournaments-tab">
+          <div class="dashboard-card bg-white p-6 rounded-xl shadow-lg">
+            <h3 class="text-xl font-bold text-gray-800 mb-4">Upcoming Tournaments</h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div class="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow">
+                <h4 class="font-bold text-lg text-gray-800 mb-2">Malaysia Open 2024</h4>
+                <div class="space-y-2 text-sm text-gray-600">
+                  <div class="flex items-center">
+                    <i class="fas fa-calendar mr-2"></i>
+                    2024-02-15
+                  </div>
+                  <div class="flex items-center">
+                    <i class="fas fa-map-marker-alt mr-2"></i>
+                    KL Sports Center
+                  </div>
+                  <div class="flex items-center">
+                    <i class="fas fa-users mr-2"></i>
+                    64 participants
                   </div>
                 </div>
-              <% }) %>
+              </div>
+              <div class="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow">
+                <h4 class="font-bold text-lg text-gray-800 mb-2">Sarawak Championship</h4>
+                <div class="space-y-2 text-sm text-gray-600">
+                  <div class="flex items-center">
+                    <i class="fas fa-calendar mr-2"></i>
+                    2024-02-28
+                  </div>
+                  <div class="flex items-center">
+                    <i class="fas fa-map-marker-alt mr-2"></i>
+                    Kuching Arena
+                  </div>
+                  <div class="flex items-center">
+                    <i class="fas fa-users mr-2"></i>
+                    32 participants
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </div>
-      </section>
-      <% } %>
+      </div>
     </div>
-  </main>
+  </div>
 
-  <%- include('../../partials/footer') %>
-  
-  <script src="/js/script.js"></script>
   <script>
-    // Update timestamp
-    function updateTimestamp() {
-      document.getElementById('lastUpdated').textContent = new Date().toLocaleTimeString();
-    }
-    updateTimestamp();
-
-    // Refresh data function
-    function refreshData() {
-      const button = event.target;
-      const originalText = button.innerHTML;
-      button.innerHTML = '<div class="loading-spinner inline-block mr-2"></div>Refreshing...';
-      button.disabled = true;
-      
-      setTimeout(() => {
-        button.innerHTML = originalText;
-        button.disabled = false;
-        updateTimestamp();
-        // Add any actual refresh logic here
-      }, 2000);
-    }
-
-    // Player search and filter functionality
+    // Vanilla JavaScript Tab System
     document.addEventListener('DOMContentLoaded', function() {
-      const searchInput = document.getElementById('playerSearch');
-      const filterSelect = document.getElementById('playerFilter');
-      const playerCards = document.querySelectorAll('.player-card');
+      // Tab functionality
+      const tabButtons = document.querySelectorAll('.tab-button');
+      const tabContents = document.querySelectorAll('.tab-content');
 
-      function filterPlayers() {
-        const searchTerm = searchInput?.value.toLowerCase() || '';
-        const ageFilter = filterSelect?.value || '';
+      tabButtons.forEach(button => {
+        button.addEventListener('click', function() {
+          const targetTab = this.getAttribute('data-tab');
+          
+          // Remove active class from all buttons and contents
+          tabButtons.forEach(btn => btn.classList.remove('active'));
+          tabContents.forEach(content => content.classList.remove('active'));
+          
+          // Add active class to clicked button and corresponding content
+          this.classList.add('active');
+          document.getElementById(targetTab + '-tab').classList.add('active');
+        });
+      });
 
-        playerCards.forEach(card => {
-          const playerName = card.dataset.name || '';
-          const playerAge = parseInt(card.dataset.age) || 0;
+      // Refresh button functionality
+      const refreshBtn = document.getElementById('refreshBtn');
+      if (refreshBtn) {
+        refreshBtn.addEventListener('click', function() {
+          // Add loading state
+          const icon = this.querySelector('i');
+          icon.classList.add('fa-spin');
           
-          let ageMatch = true;
-          if (ageFilter === 'youth') ageMatch = playerAge < 18;
-          else if (ageFilter === 'adult') ageMatch = playerAge >= 18 && playerAge <= 50;
-          else if (ageFilter === 'senior') ageMatch = playerAge > 50;
-          
-          const nameMatch = playerName.includes(searchTerm);
-          
-          card.style.display = (nameMatch && ageMatch) ? 'block' : 'none';
+          // Reload page after short delay
+          setTimeout(() => {
+            location.reload();
+          }, 500);
         });
       }
 
-      if (searchInput) searchInput.addEventListener('input', filterPlayers);
-      if (filterSelect) filterSelect.addEventListener('change', filterPlayers);
-    });
-
-    // Animate statistics on load
-    function animateStats() {
-      const statElements = document.querySelectorAll('.stat-card .text-3xl');
-      statElements.forEach(element => {
-        const finalValue = parseInt(element.textContent);
-        let currentValue = 0;
-        const increment = Math.ceil(finalValue / 20);
-        
-        const timer = setInterval(() => {
-          currentValue += increment;
-          if (currentValue >= finalValue) {
-            currentValue = finalValue;
-            clearInterval(timer);
-          }
-          element.textContent = currentValue;
-        }, 50);
-      });
-    }
-
-    // Initialize animations
-    document.addEventListener('DOMContentLoaded', function() {
-      setTimeout(animateStats, 500);
+      console.log('Admin Dashboard loaded successfully');
     });
   </script>
 </body>
