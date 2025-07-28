@@ -7,112 +7,285 @@
   <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
   <link rel="stylesheet" href="/css/styles.css">
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-  <style>
-    .coming-soon-card {
-      background: rgba(255, 255, 255, 0.95);
-      backdrop-filter: blur(10px);
-      transition: all 0.3s ease;
-    }
-    .coming-soon-card:hover {
-      transform: translateY(-5px);
-      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
-    }
-    .pulse-animation {
-      animation: pulse 2s infinite;
-    }
-    @keyframes pulse {
-      0%, 100% { opacity: 1; }
-      50% { opacity: 0.7; }
-    }
-  </style>
 </head>
 <%
   const defaultBg = backgroundImage || '/images/defaultbg.png';
 %>
-<body class="bg-gray-100 bg-cover bg-center bg-fixed min-h-screen" style="background-image: url('<%= defaultBg %>')">
+<body class="bg-gray-100 min-h-screen">
+  <!-- Blurred Background Layer -->
+  <div class="fixed inset-0 bg-cover bg-center bg-fixed" style="background-image: url('<%= defaultBg %>'); filter: blur(10px); transform: scale(1.1);"></div>
+  <!-- Darkened Background Overlay -->
+  <div class="fixed inset-0 bg-black/40 z-0"></div>
+  
   <%- include('../../partials/header') %>
   
-  <main class="pt-20 pb-20 min-h-screen flex items-center justify-center">
-    <div class="container mx-auto px-4">
-      <div class="max-w-2xl mx-auto text-center">
-        
-        <!-- Coming Soon Card -->
-        <div class="coming-soon-card rounded-3xl shadow-2xl p-12 mb-8">
-          
-          <!-- Icon -->
-          <div class="mb-8">
-            <div class="w-24 h-24 mx-auto bg-gradient-to-br from-yellow-500 to-orange-600 rounded-full flex items-center justify-center pulse-animation">
-              <i class="fas fa-trophy text-3xl text-white"></i>
-            </div>
+  <main class="pt-20 pb-20 min-h-screen relative z-10">
+    <!-- Loading Section -->
+    <div id="loading-section" class="flex items-center justify-center min-h-screen">
+      <div class="text-center">
+        <div class="animate-spin rounded-full h-16 w-16 border-b-2 border-blue-600 mx-auto mb-4"></div>
+        <p class="text-gray-600 text-lg">Loading rankings...</p>
+      </div>
+    </div>
+
+    <!-- Main Content Section -->
+    <div id="main-content" class="hidden">
+      <!-- Header Section -->
+      <div class="text-center mb-12 pt-16">
+        <div class="flex items-center justify-center space-x-16 md:space-x-24 mb-6">
+          <!-- MPA Logo -->
+          <div class="w-24 h-24 md:w-32 md:h-32 lg:w-40 lg:h-40">
+            <img src="/images/mpa.png" alt="MPA Logo" class="w-full h-full object-contain">
           </div>
           
           <!-- Title -->
-          <h1 class="text-4xl md:text-5xl font-bold text-gray-800 mb-4">
-            Player Rankings
+          <h1 class="text-5xl md:text-6xl lg:text-7xl font-bold text-white leading-tight">
+            Malaysia Rankings
           </h1>
           
-          <!-- Release Soon Badge -->
-          <div class="inline-flex items-center px-6 py-3 bg-gradient-to-r from-orange-400 to-pink-500 text-black rounded-full font-semibold text-lg mb-6 shadow-lg">
-            <i class="fas fa-rocket mr-2"></i>
-            Release Soon
-          </div>
-          
-          <!-- Description -->
-          <p class="text-xl text-gray-600 mb-8 leading-relaxed">
-            We're developing a comprehensive ranking system to track player performance and achievements. 
-            This will showcase the best pickleball players across Malaysia.
-          </p>
-          
-          <!-- Features Coming -->
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-            <div class="flex items-center justify-center p-4 bg-gray-50 rounded-xl">
-              <i class="fas fa-list-ol text-blue-500 mr-3 text-xl"></i>
-              <span class="text-gray-700 font-medium">Live Rankings</span>
+          <!-- Right Side Logos Container -->
+          <div class="flex flex-col space-y-4">
+            <!-- PG Logo -->
+            <div class="w-28 h-28 md:w-36 md:h-36 lg:w-44 lg:h-44">
+              <img src="/images/pglogo.png" alt="PG Logo" class="w-full h-full object-contain">
             </div>
-            <div class="flex items-center justify-center p-4 bg-gray-50 rounded-xl">
-              <i class="fas fa-chart-line text-green-500 mr-3 text-xl"></i>
-              <span class="text-gray-700 font-medium">Performance Stats</span>
-            </div>
-            <div class="flex items-center justify-center p-4 bg-gray-50 rounded-xl">
-              <i class="fas fa-medal text-purple-500 mr-3 text-xl"></i>
-              <span class="text-gray-700 font-medium">Achievement Badges</span>
-            </div>
-            <div class="flex items-center justify-center p-4 bg-gray-50 rounded-xl">
-              <i class="fas fa-history text-yellow-500 mr-3 text-xl"></i>
-              <span class="text-gray-700 font-medium">Match History</span>
+            
+            <!-- WPC Logo -->
+            <div class="w-28 h-28 md:w-36 md:h-36 lg:w-44 lg:h-44">
+              <img src="/images/wpclogo.png" alt="WPC Logo" class="w-full h-full object-contain">
             </div>
           </div>
-          
-          <!-- Back Button -->
-          <div class="flex flex-col sm:flex-row gap-4 justify-center">
-            <a href="/" class="inline-flex items-center px-8 py-3 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition-all duration-300 font-semibold shadow-lg hover:shadow-xl transform hover:scale-105">
-              <i class="fas fa-home mr-2"></i>
-              Back to Home
-            </a>
-            <a href="/tournament" class="inline-flex items-center px-8 py-3 bg-gray-600 text-white rounded-xl hover:bg-gray-700 transition-all duration-300 font-semibold shadow-lg hover:shadow-xl transform hover:scale-105">
-              <i class="fas fa-trophy mr-2"></i>
-              View Tournaments
-            </a>
-          </div>
-          
         </div>
-        
-        <!-- Additional Info -->
-        <div class="text-center">
-          <p class="text-gray-600">
-            <i class="fas fa-envelope mr-2"></i>
-            Have questions? Contact us at 
-            <a href="mailto:info@malaysiaPickleball.com" class="text-blue-600 hover:text-blue-800 font-semibold">
-              info@malaysiaPickleball.com
-            </a>
-          </p>
-        </div>
-        
+        <div class="w-24 h-1 bg-gradient-to-r from-blue-500 to-purple-600 mx-auto rounded-full mb-8"></div>
       </div>
+
+      <!-- Category Selection -->
+      <div class="flex justify-center mb-8">
+        <div class="bg-white/30 backdrop-blur-md rounded-full p-2 flex flex-wrap justify-center gap-2" id="category-buttons">
+          <!-- Category buttons will be inserted here -->
+        </div>
+      </div>
+
+      <!-- Rankings Table -->
+      <div class="bg-white/30 backdrop-blur-md rounded-3xl p-8 shadow-2xl border border-white/20">
+        <div class="text-center mb-6">
+          <h2 class="text-3xl font-bold text-white mb-2" id="category-title">Men's Singles</h2>
+          <p class="text-white">Top 8 Players</p>
+        </div>
+        
+        <div class="overflow-x-auto">
+          <table class="w-full" id="rankings-table">
+            <thead>
+              <tr class="border-b border-gray-200">
+                <th class="text-left py-4 px-6 font-bold text-white">Rank</th>
+                <th class="text-left py-4 px-6 font-bold text-white">Player/Team</th>
+                <th class="text-left py-4 px-6 font-bold text-white">Points</th>
+                <th class="text-left py-4 px-6 font-bold text-white">Record</th>
+                <th class="text-left py-4 px-6 font-bold text-white">Status</th>
+              </tr>
+            </thead>
+            <tbody id="rankings-tbody">
+              <!-- Rankings will be inserted here -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Recognition Text -->
+      <div class="text-center mt-8">
+        <p class="text-white text-lg md:text-xl leading-relaxed max-w-4xl mx-auto">
+          The ranking owned by Pickleball Global/WPC has been recognized by the Malaysia Pickleball Association (MPA) as the national ranking in Malaysia.
+        </p>
+      </div>
+
     </div>
   </main>
 
   <%- include('../../partials/footer') %>
   <script src="/js/script.js"></script>
+  
+  <script>
+    // Ranking data
+    const rankingsData = {
+      "Men's Singles": [
+        { id: 1, name: "Ahmad Zulkarnain", rank: 1, points: 2850, wins: 45, losses: 8, status: "Active" },
+        { id: 2, name: "Raj Kumar", rank: 2, points: 2720, wins: 42, losses: 12, status: "Active" },
+        { id: 3, name: "David Chen", rank: 3, points: 2650, wins: 38, losses: 15, status: "Active" },
+        { id: 4, name: "Mohammed Ali", rank: 4, points: 2580, wins: 35, losses: 18, status: "Active" },
+        { id: 5, name: "Tan Wei Ming", rank: 5, points: 2510, wins: 32, losses: 20, status: "Active" },
+        { id: 6, name: "Lim Chong Wei", rank: 6, points: 2450, wins: 30, losses: 22, status: "Active" },
+        { id: 7, name: "Kumar Suresh", rank: 7, points: 2380, wins: 28, losses: 25, status: "Active" },
+        { id: 8, name: "Wong Ah Keng", rank: 8, points: 2320, wins: 25, losses: 28, status: "Active" }
+      ],
+      "Men's Doubles": [
+        { id: 1, name: "Ahmad Zulkarnain & Raj Kumar", rank: 1, points: 2950, wins: 48, losses: 5, status: "Active" },
+        { id: 2, name: "David Chen & Tan Wei Ming", rank: 2, points: 2820, wins: 45, losses: 8, status: "Active" },
+        { id: 3, name: "Mohammed Ali & Lim Chong Wei", rank: 3, points: 2750, wins: 42, losses: 12, status: "Active" },
+        { id: 4, name: "Kumar Suresh & Wong Ah Keng", rank: 4, points: 2680, wins: 38, losses: 15, status: "Active" },
+        { id: 5, name: "Lee Ming & Chan Ah Kow", rank: 5, points: 2610, wins: 35, losses: 18, status: "Active" },
+        { id: 6, name: "Goh Keng & Teo Ah Beng", rank: 6, points: 2540, wins: 32, losses: 20, status: "Active" },
+        { id: 7, name: "Ng Ah Seng & Lim Ah Keng", rank: 7, points: 2470, wins: 30, losses: 22, status: "Active" },
+        { id: 8, name: "Chew Ah Meng & Tan Ah Kow", rank: 8, points: 2400, wins: 28, losses: 25, status: "Active" }
+      ],
+      "Women's Singles": [
+        { id: 1, name: "Sarah Lim", rank: 1, points: 2850, wins: 48, losses: 5, status: "Active" },
+        { id: 2, name: "Nurul Ain", rank: 2, points: 2720, wins: 45, losses: 8, status: "Active" },
+        { id: 3, name: "Priya Devi", rank: 3, points: 2650, wins: 42, losses: 12, status: "Active" },
+        { id: 4, name: "Emily Wong", rank: 4, points: 2580, wins: 38, losses: 15, status: "Active" },
+        { id: 5, name: "Fatimah Binti", rank: 5, points: 2510, wins: 35, losses: 18, status: "Active" },
+        { id: 6, name: "Aisha Rahman", rank: 6, points: 2450, wins: 32, losses: 20, status: "Active" },
+        { id: 7, name: "Mei Ling Tan", rank: 7, points: 2380, wins: 30, losses: 22, status: "Active" },
+        { id: 8, name: "Kavitha Raj", rank: 8, points: 2320, wins: 28, losses: 25, status: "Active" }
+      ],
+      "Women's Doubles": [
+        { id: 1, name: "Sarah Lim & Nurul Ain", rank: 1, points: 2950, wins: 50, losses: 3, status: "Active" },
+        { id: 2, name: "Priya Devi & Emily Wong", rank: 2, points: 2820, wins: 47, losses: 6, status: "Active" },
+        { id: 3, name: "Fatimah Binti & Aisha Rahman", rank: 3, points: 2750, wins: 44, losses: 9, status: "Active" },
+        { id: 4, name: "Mei Ling Tan & Kavitha Raj", rank: 4, points: 2680, wins: 41, losses: 12, status: "Active" },
+        { id: 5, name: "Siti Aminah & Zainab Omar", rank: 5, points: 2610, wins: 38, losses: 15, status: "Active" },
+        { id: 6, name: "Lily Chen & Rose Lim", rank: 6, points: 2540, wins: 35, losses: 18, status: "Active" },
+        { id: 7, name: "Diana Tan & Grace Wong", rank: 7, points: 2470, wins: 32, losses: 20, status: "Active" },
+        { id: 8, name: "Maria Lee & Anna Lim", rank: 8, points: 2400, wins: 30, losses: 22, status: "Active" }
+      ],
+      "Mixed Men's": [
+        { id: 1, name: "Ahmad Zulkarnain & Sarah Lim", rank: 1, points: 3000, wins: 52, losses: 2, status: "Active" },
+        { id: 2, name: "Raj Kumar & Nurul Ain", rank: 2, points: 2870, wins: 49, losses: 5, status: "Active" },
+        { id: 3, name: "David Chen & Priya Devi", rank: 3, points: 2800, wins: 46, losses: 8, status: "Active" },
+        { id: 4, name: "Mohammed Ali & Emily Wong", rank: 4, points: 2730, wins: 43, losses: 11, status: "Active" },
+        { id: 5, name: "Tan Wei Ming & Fatimah Binti", rank: 5, points: 2660, wins: 40, losses: 14, status: "Active" },
+        { id: 6, name: "Lim Chong Wei & Aisha Rahman", rank: 6, points: 2590, wins: 37, losses: 17, status: "Active" },
+        { id: 7, name: "Kumar Suresh & Mei Ling Tan", rank: 7, points: 2520, wins: 34, losses: 20, status: "Active" },
+        { id: 8, name: "Wong Ah Keng & Kavitha Raj", rank: 8, points: 2450, wins: 31, losses: 23, status: "Active" }
+      ],
+      "Mixed Women's": [
+        { id: 1, name: "Sarah Lim & Ahmad Zulkarnain", rank: 1, points: 3000, wins: 52, losses: 2, status: "Active" },
+        { id: 2, name: "Nurul Ain & Raj Kumar", rank: 2, points: 2870, wins: 49, losses: 5, status: "Active" },
+        { id: 3, name: "Priya Devi & David Chen", rank: 3, points: 2800, wins: 46, losses: 8, status: "Active" },
+        { id: 4, name: "Emily Wong & Mohammed Ali", rank: 4, points: 2730, wins: 43, losses: 11, status: "Active" },
+        { id: 5, name: "Fatimah Binti & Tan Wei Ming", rank: 5, points: 2660, wins: 40, losses: 14, status: "Active" },
+        { id: 6, name: "Aisha Rahman & Lim Chong Wei", rank: 6, points: 2590, wins: 37, losses: 17, status: "Active" },
+        { id: 7, name: "Mei Ling Tan & Kumar Suresh", rank: 7, points: 2520, wins: 34, losses: 20, status: "Active" },
+        { id: 8, name: "Kavitha Raj & Wong Ah Keng", rank: 8, points: 2450, wins: 31, losses: 23, status: "Active" }
+      ]
+    };
+
+    const categories = [
+      "Men's Singles",
+      "Men's Doubles", 
+      "Women's Singles",
+      "Women's Doubles",
+      "Mixed Men's",
+      "Mixed Women's"
+    ];
+
+    let currentCategory = "Men's Singles";
+
+    // Initialize the page
+    document.addEventListener('DOMContentLoaded', function() {
+      // Simulate loading
+      setTimeout(() => {
+        document.getElementById('loading-section').classList.add('hidden');
+        document.getElementById('main-content').classList.remove('hidden');
+        
+        // Create category buttons
+        createCategoryButtons();
+        
+        // Load initial rankings
+        loadRankings(currentCategory);
+      }, 1000);
+    });
+
+         function createCategoryButtons() {
+       const container = document.getElementById('category-buttons');
+       categories.forEach(category => {
+         const button = document.createElement('button');
+         button.className = `px-6 py-3 rounded-full font-medium transition-all duration-300 ${
+           category === currentCategory
+             ? 'bg-blue-600 text-white shadow-lg'
+             : 'text-white hover:bg-white/50'
+         }`;
+         button.textContent = category;
+         button.onclick = () => switchCategory(category);
+         container.appendChild(button);
+       });
+     }
+
+    function switchCategory(category) {
+      currentCategory = category;
+      
+             // Update button styles
+       const buttons = document.querySelectorAll('#category-buttons button');
+       buttons.forEach(button => {
+         if (button.textContent === category) {
+           button.className = 'px-6 py-3 rounded-full font-medium transition-all duration-300 bg-blue-600 text-white shadow-lg';
+         } else {
+           button.className = 'px-6 py-3 rounded-full font-medium transition-all duration-300 text-white hover:bg-white/50';
+         }
+       });
+      
+      // Load new rankings
+      loadRankings(category);
+    }
+
+    function loadRankings(category) {
+      const rankings = rankingsData[category] || [];
+      
+      // Update category title
+      document.getElementById('category-title').textContent = category;
+      
+      // Update table
+      const tbody = document.getElementById('rankings-tbody');
+      tbody.innerHTML = '';
+      
+      rankings.forEach((player, index) => {
+        const row = document.createElement('tr');
+        row.className = 'border-b border-gray-100 hover:bg-white/20 transition-colors duration-200';
+        
+                 const winRate = ((player.wins / (player.wins + player.losses)) * 100).toFixed(1);
+         const rankColor = 'text-white';
+        
+                 row.innerHTML = `
+           <td class="py-4 px-6">
+             <div class="flex items-center">
+               <span class="text-2xl font-bold ${rankColor}">#${player.rank}</span>
+             </div>
+           </td>
+           <td class="py-4 px-6">
+             <div class="flex items-center space-x-4">
+               <div class="w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-white font-bold">
+                 ${player.name.charAt(0)}
+               </div>
+               <div>
+                 <div class="font-semibold text-white">${player.name}</div>
+                 <div class="text-sm text-gray-300">ID: ${player.id}</div>
+               </div>
+             </div>
+           </td>
+           <td class="py-4 px-6">
+             <div class="font-bold text-white">${player.points.toLocaleString()}</div>
+             <div class="text-sm text-gray-300">points</div>
+           </td>
+           <td class="py-4 px-6">
+             <div class="text-sm">
+               <span class="text-green-400 font-semibold">${player.wins}W</span>
+               <span class="text-gray-300 mx-1">/</span>
+               <span class="text-red-400 font-semibold">${player.losses}L</span>
+             </div>
+             <div class="text-xs text-gray-300">${winRate}% win rate</div>
+           </td>
+           <td class="py-4 px-6">
+             <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-green-800">
+               <div class="w-2 h-2 bg-green-500 rounded-full mr-2"></div>
+               ${player.status}
+             </span>
+           </td>
+         `;
+        
+        tbody.appendChild(row);
+      });
+      
+             // Stats section removed
+     }
+  </script>
 </body>
 </html>
