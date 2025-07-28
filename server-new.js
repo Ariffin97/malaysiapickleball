@@ -2105,9 +2105,15 @@ app.get('/test-images', (req, res) => {
         <div id="spa-status">Loading...</div>
       </div>
       
+      <div class="image-test">
+        <h3>Fenix Digital Logo</h3>
+        <img src="/images/FenixDigitalLogo.png" alt="Fenix Digital Logo" onload="this.nextElementSibling.textContent='✅ Loaded successfully'" onerror="this.nextElementSibling.textContent='❌ Failed to load'">
+        <div id="fenix-status">Loading...</div>
+      </div>
+      
       <script>
         // Additional JavaScript to check image loading
-        const images = ['/images/mpa.png', '/images/pglogo.png', '/images/wpclogo.png', '/images/spa.png'];
+        const images = ['/images/mpa.png', '/images/pglogo.png', '/images/wpclogo.png', '/images/spa.png', '/images/FenixDigitalLogo.png'];
         images.forEach(src => {
           const img = new Image();
           img.onload = () => console.log('✅', src, 'loaded successfully');

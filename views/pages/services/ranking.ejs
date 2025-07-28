@@ -11,20 +11,17 @@
 <%
   const defaultBg = backgroundImage || '/images/defaultbg.png';
 %>
-<body class="bg-gray-100 min-h-screen">
-  <!-- Blurred Background Layer -->
-  <div class="fixed inset-0 bg-cover bg-center bg-fixed" style="background-image: url('<%= defaultBg %>'); filter: blur(10px); transform: scale(1.1);"></div>
-  <!-- Darkened Background Overlay -->
-  <div class="fixed inset-0 bg-black/40 z-0"></div>
+<body class="min-h-screen bg-white">
+  <!-- Clean white background -->
   
   <%- include('../../partials/header') %>
   
-  <main class="pt-20 pb-20 min-h-screen relative z-10">
+  <main class="pt-20 pb-20 min-h-screen">
     <!-- Loading Section -->
     <div id="loading-section" class="flex items-center justify-center min-h-screen">
       <div class="text-center">
         <div class="animate-spin rounded-full h-16 w-16 border-b-2 border-blue-600 mx-auto mb-4"></div>
-        <p class="text-gray-600 text-lg">Loading rankings...</p>
+        <p class="text-gray-700 text-lg">Loading rankings...</p>
       </div>
     </div>
 
@@ -33,13 +30,24 @@
       <!-- Header Section -->
       <div class="text-center mb-12 pt-16">
         <div class="flex items-center justify-center space-x-16 md:space-x-24 mb-6">
-          <!-- MPA Logo -->
-          <div class="w-24 h-24 md:w-32 md:h-32 lg:w-40 lg:h-40">
-            <img src="/images/mpa.png" alt="MPA Logo" class="w-full h-full object-contain" onerror="console.log('MPA logo failed to load'); this.style.display='none'" onload="console.log('MPA logo loaded successfully')">
+          <!-- Left Side Logos Container -->
+          <div class="flex flex-col space-y-4">
+            <!-- MPA Logo -->
+            <div class="w-24 h-24 md:w-32 md:h-32 lg:w-40 lg:h-40">
+              <img src="/images/mpa.png" alt="MPA Logo" class="w-full h-full object-contain" onerror="console.log('MPA logo failed to load'); this.style.display='none'" onload="console.log('MPA logo loaded successfully')">
+            </div>
+            
+            <!-- Fenix Digital Logo -->
+            <div class="text-center">
+              <div class="w-24 h-24 md:w-32 md:h-32 lg:w-40 lg:h-40 mx-auto">
+                <img src="/images/FenixDigitalLogo.png" alt="Fenix Digital Logo" class="w-full h-full object-contain" onerror="console.log('Fenix Digital logo failed to load'); this.style.display='none'" onload="console.log('Fenix Digital logo loaded successfully')">
+              </div>
+              <p class="text-xs text-gray-600 mt-2">Official Technical Partner</p>
+            </div>
           </div>
           
           <!-- Title -->
-          <h1 class="text-5xl md:text-6xl lg:text-7xl font-bold text-white leading-tight">
+          <h1 class="text-5xl md:text-6xl lg:text-7xl font-bold text-gray-800 leading-tight">
             Malaysia Rankings
           </h1>
           
@@ -67,21 +75,21 @@
       </div>
 
       <!-- Rankings Table -->
-      <div class="bg-white/30 backdrop-blur-md rounded-3xl p-8 shadow-2xl border border-white/20">
+      <div class="p-8">
         <div class="text-center mb-6">
-          <h2 class="text-3xl font-bold text-white mb-2" id="category-title">Men's Singles</h2>
-          <p class="text-white">Top 8 Players</p>
+          <h2 class="text-3xl font-bold text-gray-800 mb-2" id="category-title">Men's Singles</h2>
+          <p class="text-gray-600">Top 8 Players</p>
         </div>
         
         <div class="overflow-x-auto">
           <table class="w-full" id="rankings-table">
             <thead>
-              <tr class="border-b border-gray-200">
-                <th class="text-left py-4 px-6 font-bold text-white">Rank</th>
-                <th class="text-left py-4 px-6 font-bold text-white">Player/Team</th>
-                <th class="text-left py-4 px-6 font-bold text-white">Points</th>
-                <th class="text-left py-4 px-6 font-bold text-white">Record</th>
-                <th class="text-left py-4 px-6 font-bold text-white">Status</th>
+              <tr>
+                <th class="text-left py-4 px-6 font-bold text-gray-800">Rank</th>
+                <th class="text-left py-4 px-6 font-bold text-gray-800">Player/Team</th>
+                <th class="text-left py-4 px-6 font-bold text-gray-800">Points</th>
+                <th class="text-left py-4 px-6 font-bold text-gray-800">Record</th>
+                <th class="text-left py-4 px-6 font-bold text-gray-800">Status</th>
               </tr>
             </thead>
             <tbody id="rankings-tbody">
@@ -93,8 +101,11 @@
 
       <!-- Recognition Text -->
       <div class="text-center mt-8">
-        <p class="text-white text-lg md:text-xl leading-relaxed max-w-4xl mx-auto">
+        <p class="text-gray-700 text-lg md:text-xl font-bold leading-relaxed max-w-4xl mx-auto font-serif">
           The ranking owned by Pickleball Global/WPC has been recognized by the Malaysia Pickleball Association (MPA) as the national ranking in Malaysia.
+        </p>
+        <p class="text-blue-600 text-sm md:text-base mt-4 font-medium">
+          Visit : <a href="https://www.facebook.com/malaysiapickleball/posts/1356616343130965/" target="_blank" class="hover:text-blue-800 underline transition-colors duration-200">@https://www.facebook.com/malaysiapickleball/posts/1356616343130965/</a>
         </p>
       </div>
 
@@ -185,7 +196,7 @@
       console.log('🎯 Ranking page loaded, checking images...');
       
       // Test image accessibility
-      const testImages = ['/images/mpa.png', '/images/pglogo.png', '/images/wpclogo.png', '/images/spa.png'];
+      const testImages = ['/images/mpa.png', '/images/pglogo.png', '/images/wpclogo.png', '/images/spa.png', '/images/FenixDigitalLogo.png'];
       testImages.forEach(src => {
         const img = new Image();
         img.onload = () => console.log('✅', src, 'accessible');
@@ -213,7 +224,7 @@
          button.className = `px-6 py-3 rounded-full font-medium transition-all duration-300 ${
            category === currentCategory
              ? 'bg-blue-600 text-white shadow-lg'
-             : 'text-white hover:bg-white/50'
+             : 'text-gray-700 hover:bg-white/50'
          }`;
          button.textContent = category;
          button.onclick = () => switchCategory(category);
@@ -230,7 +241,7 @@
          if (button.textContent === category) {
            button.className = 'px-6 py-3 rounded-full font-medium transition-all duration-300 bg-blue-600 text-white shadow-lg';
          } else {
-           button.className = 'px-6 py-3 rounded-full font-medium transition-all duration-300 text-white hover:bg-white/50';
+           button.className = 'px-6 py-3 rounded-full font-medium transition-all duration-300 text-gray-700 hover:bg-white/50';
          }
        });
       
@@ -250,10 +261,10 @@
       
       rankings.forEach((player, index) => {
         const row = document.createElement('tr');
-        row.className = 'border-b border-gray-100 hover:bg-white/20 transition-colors duration-200';
+                 row.className = 'hover:bg-white/20 transition-colors duration-200';
         
                  const winRate = ((player.wins / (player.wins + player.losses)) * 100).toFixed(1);
-         const rankColor = 'text-white';
+         const rankColor = 'text-black';
         
                  row.innerHTML = `
            <td class="py-4 px-6">
@@ -267,22 +278,22 @@
                  ${player.name.charAt(0)}
                </div>
                <div>
-                 <div class="font-semibold text-white">${player.name}</div>
-                 <div class="text-sm text-gray-300">ID: ${player.id}</div>
+                 <div class="font-semibold text-gray-800">${player.name}</div>
+                 <div class="text-sm text-gray-600">ID: ${player.id}</div>
                </div>
              </div>
            </td>
            <td class="py-4 px-6">
-             <div class="font-bold text-white">${player.points.toLocaleString()}</div>
-             <div class="text-sm text-gray-300">points</div>
+             <div class="font-bold text-gray-800">${player.points.toLocaleString()}</div>
+             <div class="text-sm text-gray-600">points</div>
            </td>
            <td class="py-4 px-6">
              <div class="text-sm">
-               <span class="text-green-400 font-semibold">${player.wins}W</span>
-               <span class="text-gray-300 mx-1">/</span>
-               <span class="text-red-400 font-semibold">${player.losses}L</span>
+               <span class="text-green-600 font-semibold">${player.wins}W</span>
+               <span class="text-gray-400 mx-1">/</span>
+               <span class="text-red-600 font-semibold">${player.losses}L</span>
              </div>
-             <div class="text-xs text-gray-300">${winRate}% win rate</div>
+             <div class="text-xs text-gray-500">${winRate}% win rate</div>
            </td>
            <td class="py-4 px-6">
              <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-green-800">
