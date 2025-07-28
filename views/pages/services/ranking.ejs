@@ -28,8 +28,47 @@
     <!-- Main Content Section -->
     <div id="main-content" class="hidden">
       <!-- Header Section -->
-      <div class="text-center mb-12 pt-16">
-        <div class="flex items-center justify-center space-x-16 md:space-x-24 mb-6">
+      <div class="text-center mb-8 pt-8 px-4">
+        <!-- Mobile Layout -->
+        <div class="block md:hidden">
+          <!-- Title -->
+          <h1 class="text-3xl font-bold text-gray-800 mb-6">Malaysia Rankings</h1>
+          
+          <!-- Mobile Logo Grid -->
+          <div class="grid grid-cols-2 gap-4 max-w-xs mx-auto mb-6">
+            <!-- MPA Logo -->
+            <div class="flex flex-col items-center">
+              <div class="w-16 h-16 mb-2">
+                <img src="/images/mpa.png" alt="MPA Logo" class="w-full h-full object-contain" onerror="console.log('MPA logo failed to load'); this.style.display='none'" onload="console.log('MPA logo loaded successfully')">
+              </div>
+            </div>
+            
+            <!-- PG Logo -->
+            <div class="flex flex-col items-center">
+              <div class="w-16 h-16 mb-2">
+                <img src="/images/pglogo.png" alt="PG Logo" class="w-full h-full object-contain" onerror="console.log('PG logo failed to load'); this.style.display='none'" onload="console.log('PG logo loaded successfully')">
+              </div>
+            </div>
+            
+            <!-- Fenix Digital Logo -->
+            <div class="flex flex-col items-center">
+              <div class="w-16 h-16 mb-1">
+                <img src="/images/FenixDigitalLogo.png" alt="Fenix Digital Logo" class="w-full h-full object-contain" onerror="console.log('Fenix Digital logo failed to load'); this.style.display='none'" onload="console.log('Fenix Digital logo loaded successfully')">
+              </div>
+              <p class="text-xs text-gray-600">Technical Partner</p>
+            </div>
+            
+            <!-- WPC Logo -->
+            <div class="flex flex-col items-center">
+              <div class="w-16 h-16 mb-2">
+                <img src="/images/wpclogo.png" alt="WPC Logo" class="w-full h-full object-contain" onerror="console.log('WPC logo failed to load'); this.style.display='none'" onload="console.log('WPC logo loaded successfully')">
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Desktop Layout -->
+        <div class="hidden md:flex items-center justify-center space-x-16 md:space-x-24 mb-6">
           <!-- Left Side Logos Container -->
           <div class="flex flex-col space-y-4">
             <!-- MPA Logo -->
@@ -64,24 +103,41 @@
             </div>
           </div>
         </div>
-        <div class="w-24 h-1 bg-gradient-to-r from-blue-500 to-purple-600 mx-auto rounded-full mb-8"></div>
+        
+        <div class="w-16 h-1 bg-gradient-to-r from-blue-500 to-purple-600 mx-auto rounded-full mb-6"></div>
       </div>
 
       <!-- Category Selection -->
-      <div class="flex justify-center mb-8">
-        <div class="bg-white/30 backdrop-blur-md rounded-full p-2 flex flex-wrap justify-center gap-2" id="category-buttons">
-          <!-- Category buttons will be inserted here -->
+      <div class="px-4 mb-8">
+        <!-- Mobile: Grid Layout -->
+        <div class="block md:hidden">
+          <div class="grid grid-cols-2 gap-3 max-w-sm mx-auto" id="category-buttons-mobile">
+            <!-- Category buttons will be inserted here -->
+          </div>
+        </div>
+        
+        <!-- Desktop: Horizontal Layout -->
+        <div class="hidden md:flex justify-center">
+          <div class="bg-white/30 backdrop-blur-md rounded-full p-2 flex flex-wrap justify-center gap-2" id="category-buttons-desktop">
+            <!-- Category buttons will be inserted here -->
+          </div>
         </div>
       </div>
 
       <!-- Rankings Table -->
-      <div class="p-8">
+      <div class="px-4 pb-8">
         <div class="text-center mb-6">
-          <h2 class="text-3xl font-bold text-gray-800 mb-2" id="category-title">Men's Singles</h2>
-          <p class="text-gray-600">Top 8 Players</p>
+          <h2 class="text-2xl md:text-3xl font-bold text-gray-800 mb-2" id="category-title">Men's Singles</h2>
+          <p class="text-gray-600 text-sm md:text-base">Top 8 Players</p>
         </div>
         
-        <div class="overflow-x-auto">
+        <!-- Mobile: Card Layout -->
+        <div class="block md:hidden space-y-4" id="rankings-cards">
+          <!-- Rankings cards will be inserted here -->
+        </div>
+        
+        <!-- Desktop: Table Layout -->
+        <div class="hidden md:block overflow-x-auto">
           <table class="w-full" id="rankings-table">
             <thead>
               <tr>
@@ -100,12 +156,12 @@
       </div>
 
       <!-- Recognition Text -->
-      <div class="text-center mt-8">
-        <p class="text-gray-700 text-lg md:text-xl font-bold leading-relaxed max-w-4xl mx-auto font-serif">
+      <div class="text-center mt-8 px-4">
+        <p class="text-gray-700 text-sm md:text-lg lg:text-xl font-bold leading-relaxed max-w-4xl mx-auto font-serif">
           The ranking owned by Pickleball Global/WPC has been recognized by the Malaysia Pickleball Association (MPA) as the national ranking in Malaysia.
         </p>
-        <p class="text-blue-600 text-sm md:text-base mt-4 font-medium">
-          Visit : <a href="https://www.facebook.com/malaysiapickleball/posts/1356616343130965/" target="_blank" class="hover:text-blue-800 underline transition-colors duration-200">@https://www.facebook.com/malaysiapickleball/posts/1356616343130965/</a>
+        <p class="text-blue-600 text-xs md:text-sm lg:text-base mt-4 font-medium">
+          Visit : <a href="https://www.facebook.com/malaysiapickleball/posts/1356616343130965/" target="_blank" class="hover:text-blue-800 underline transition-colors duration-200 break-all">@https://www.facebook.com/malaysiapickleball/posts/1356616343130965/</a>
         </p>
       </div>
 
@@ -218,32 +274,56 @@
     });
 
          function createCategoryButtons() {
-       const container = document.getElementById('category-buttons');
+       const mobileContainer = document.getElementById('category-buttons-mobile');
+       const desktopContainer = document.getElementById('category-buttons-desktop');
+       
        categories.forEach(category => {
-         const button = document.createElement('button');
-         button.className = `px-6 py-3 rounded-full font-medium transition-all duration-300 ${
+         // Mobile button
+         const mobileButton = document.createElement('button');
+         mobileButton.className = `px-4 py-3 rounded-xl font-medium text-sm transition-all duration-300 ${
+           category === currentCategory
+             ? 'bg-blue-600 text-white shadow-lg'
+             : 'bg-white text-gray-700 border border-gray-200 hover:bg-blue-50'
+         }`;
+         mobileButton.textContent = category;
+         mobileButton.onclick = () => switchCategory(category);
+         mobileContainer.appendChild(mobileButton);
+         
+         // Desktop button
+         const desktopButton = document.createElement('button');
+         desktopButton.className = `px-6 py-3 rounded-full font-medium transition-all duration-300 ${
            category === currentCategory
              ? 'bg-blue-600 text-white shadow-lg'
              : 'text-gray-700 hover:bg-white/50'
          }`;
-         button.textContent = category;
-         button.onclick = () => switchCategory(category);
-         container.appendChild(button);
+         desktopButton.textContent = category;
+         desktopButton.onclick = () => switchCategory(category);
+         desktopContainer.appendChild(desktopButton);
        });
      }
 
     function switchCategory(category) {
       currentCategory = category;
       
-             // Update button styles
-       const buttons = document.querySelectorAll('#category-buttons button');
-       buttons.forEach(button => {
-         if (button.textContent === category) {
-           button.className = 'px-6 py-3 rounded-full font-medium transition-all duration-300 bg-blue-600 text-white shadow-lg';
-         } else {
-           button.className = 'px-6 py-3 rounded-full font-medium transition-all duration-300 text-gray-700 hover:bg-white/50';
-         }
-       });
+      // Update mobile button styles
+      const mobileButtons = document.querySelectorAll('#category-buttons-mobile button');
+      mobileButtons.forEach(button => {
+        if (button.textContent === category) {
+          button.className = 'px-4 py-3 rounded-xl font-medium text-sm transition-all duration-300 bg-blue-600 text-white shadow-lg';
+        } else {
+          button.className = 'px-4 py-3 rounded-xl font-medium text-sm transition-all duration-300 bg-white text-gray-700 border border-gray-200 hover:bg-blue-50';
+        }
+      });
+      
+      // Update desktop button styles
+      const desktopButtons = document.querySelectorAll('#category-buttons-desktop button');
+      desktopButtons.forEach(button => {
+        if (button.textContent === category) {
+          button.className = 'px-6 py-3 rounded-full font-medium transition-all duration-300 bg-blue-600 text-white shadow-lg';
+        } else {
+          button.className = 'px-6 py-3 rounded-full font-medium transition-all duration-300 text-gray-700 hover:bg-white/50';
+        }
+      });
       
       // Load new rankings
       loadRankings(category);
@@ -255,59 +335,102 @@
       // Update category title
       document.getElementById('category-title').textContent = category;
       
-      // Update table
+      // Update desktop table
       const tbody = document.getElementById('rankings-tbody');
       tbody.innerHTML = '';
       
-      rankings.forEach((player, index) => {
-        const row = document.createElement('tr');
-                 row.className = 'hover:bg-white/20 transition-colors duration-200';
-        
-                 const winRate = ((player.wins / (player.wins + player.losses)) * 100).toFixed(1);
-         const rankColor = 'text-black';
-        
-                 row.innerHTML = `
-           <td class="py-4 px-6">
-             <div class="flex items-center">
-               <span class="text-2xl font-bold ${rankColor}">#${player.rank}</span>
-             </div>
-           </td>
-           <td class="py-4 px-6">
-             <div class="flex items-center space-x-4">
-               <div class="w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-white font-bold">
-                 ${player.name.charAt(0)}
-               </div>
-               <div>
-                 <div class="font-semibold text-gray-800">${player.name}</div>
-                 <div class="text-sm text-gray-600">ID: ${player.id}</div>
-               </div>
-             </div>
-           </td>
-           <td class="py-4 px-6">
-             <div class="font-bold text-gray-800">${player.points.toLocaleString()}</div>
-             <div class="text-sm text-gray-600">points</div>
-           </td>
-           <td class="py-4 px-6">
-             <div class="text-sm">
-               <span class="text-green-600 font-semibold">${player.wins}W</span>
-               <span class="text-gray-400 mx-1">/</span>
-               <span class="text-red-600 font-semibold">${player.losses}L</span>
-             </div>
-             <div class="text-xs text-gray-500">${winRate}% win rate</div>
-           </td>
-           <td class="py-4 px-6">
-             <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-green-800">
-               <div class="w-2 h-2 bg-green-500 rounded-full mr-2"></div>
-               ${player.status}
-             </span>
-           </td>
-         `;
-        
-        tbody.appendChild(row);
-      });
+      // Update mobile cards
+      const cardsContainer = document.getElementById('rankings-cards');
+      cardsContainer.innerHTML = '';
       
-             // Stats section removed
-     }
+      rankings.forEach((player, index) => {
+        const winRate = ((player.wins / (player.wins + player.losses)) * 100).toFixed(1);
+        const rankColor = 'text-black';
+        
+        // Create desktop table row
+        const row = document.createElement('tr');
+        row.className = 'hover:bg-white/20 transition-colors duration-200';
+        row.innerHTML = `
+          <td class="py-4 px-6">
+            <div class="flex items-center">
+              <span class="text-2xl font-bold ${rankColor}">#${player.rank}</span>
+            </div>
+          </td>
+          <td class="py-4 px-6">
+            <div class="flex items-center space-x-4">
+              <div class="w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-white font-bold">
+                ${player.name.charAt(0)}
+              </div>
+              <div>
+                <div class="font-semibold text-gray-800">${player.name}</div>
+                <div class="text-sm text-gray-600">ID: ${player.id}</div>
+              </div>
+            </div>
+          </td>
+          <td class="py-4 px-6">
+            <div class="font-bold text-gray-800">${player.points.toLocaleString()}</div>
+            <div class="text-sm text-gray-600">points</div>
+          </td>
+          <td class="py-4 px-6">
+            <div class="text-sm">
+              <span class="text-green-600 font-semibold">${player.wins}W</span>
+              <span class="text-gray-400 mx-1">/</span>
+              <span class="text-red-600 font-semibold">${player.losses}L</span>
+            </div>
+            <div class="text-xs text-gray-500">${winRate}% win rate</div>
+          </td>
+          <td class="py-4 px-6">
+            <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-green-800">
+              <div class="w-2 h-2 bg-green-500 rounded-full mr-2"></div>
+              ${player.status}
+            </span>
+          </td>
+        `;
+        tbody.appendChild(row);
+        
+        // Create mobile card
+        const card = document.createElement('div');
+        card.className = 'bg-white rounded-xl shadow-md border border-gray-100 p-4 hover:shadow-lg transition-shadow duration-200';
+        card.innerHTML = `
+          <div class="flex items-center justify-between mb-3">
+            <div class="flex items-center space-x-3">
+              <div class="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-white font-bold text-sm">
+                ${player.name.charAt(0)}
+              </div>
+              <div>
+                <div class="font-semibold text-gray-800 text-sm">${player.name}</div>
+                <div class="text-xs text-gray-500">ID: ${player.id}</div>
+              </div>
+            </div>
+            <div class="text-right">
+              <span class="text-2xl font-bold ${rankColor}">#${player.rank}</span>
+            </div>
+          </div>
+          
+          <div class="grid grid-cols-3 gap-4 pt-3 border-t border-gray-100">
+            <div class="text-center">
+              <div class="text-lg font-bold text-gray-800">${player.points.toLocaleString()}</div>
+              <div class="text-xs text-gray-500">Points</div>
+            </div>
+            <div class="text-center">
+              <div class="text-sm">
+                <span class="text-green-600 font-semibold">${player.wins}W</span>
+                <span class="text-gray-400 mx-1">/</span>
+                <span class="text-red-600 font-semibold">${player.losses}L</span>
+              </div>
+              <div class="text-xs text-gray-500">${winRate}% win rate</div>
+            </div>
+            <div class="text-center">
+              <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                <div class="w-1.5 h-1.5 bg-green-500 rounded-full mr-1"></div>
+                ${player.status}
+              </span>
+            </div>
+          </div>
+        `;
+        cardsContainer.appendChild(card);
+      });
+    }
   </script>
 </body>
 </html>

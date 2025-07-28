@@ -15,8 +15,8 @@
           </div>
         </div>
 
-        <!-- State Dropdown -->
-        <div class="relative state-dropdown">
+        <!-- State Dropdown - Hidden on Mobile -->
+        <div class="relative state-dropdown hidden md:block">
           <button class="nav-button flex items-center space-x-2 px-3 py-2 rounded-xl font-medium text-white transition-all duration-300 hover:bg-white hover:bg-opacity-10 hover:text-white transform hover:scale-105 active:scale-95" id="state-menu-button" type="button" aria-expanded="false">
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
@@ -39,8 +39,8 @@
           </div>
         </div>
 
-        <!-- Official Partnership Button -->
-        <a href="/official-partnership" class="nav-button flex items-center space-x-2 px-3 py-2 rounded-xl font-medium text-white transition-all duration-300 hover:bg-white hover:bg-opacity-10 hover:text-white transform hover:scale-105 active:scale-95">
+        <!-- Official Partnership Button - Hidden on Mobile -->
+        <a href="/official-partnership" class="nav-button hidden md:flex items-center space-x-2 px-3 py-2 rounded-xl font-medium text-white transition-all duration-300 hover:bg-white hover:bg-opacity-10 hover:text-white transform hover:scale-105 active:scale-95">
           <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
           </svg>
@@ -51,8 +51,8 @@
     
     <!-- Right Side - Navigation Menu -->
     <div class="flex items-center space-x-3">
-      <!-- Home Link -->
-      <a href="/" class="nav-button flex items-center space-x-2 px-4 py-2 rounded-xl font-medium text-white transition-all duration-300 hover:bg-white hover:bg-opacity-10 hover:text-white transform hover:scale-105 active:scale-95">
+      <!-- Home Link - Hidden on Mobile -->
+      <a href="/" class="nav-button hidden md:flex items-center space-x-2 px-4 py-2 rounded-xl font-medium text-white transition-all duration-300 hover:bg-white hover:bg-opacity-10 hover:text-white transform hover:scale-105 active:scale-95">
         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path>
         </svg>
@@ -60,8 +60,8 @@
       </a>
       
       <% if (session.isAuthenticated) { %>
-        <!-- User Menu Dropdown -->
-        <div class="relative user-menu-dropdown">
+        <!-- User Menu Dropdown - Hidden on Mobile -->
+        <div class="relative user-menu-dropdown hidden md:block">
           <button class="nav-button flex items-center space-x-2 px-4 py-2 rounded-xl font-medium text-white transition-all duration-300 hover:bg-white hover:bg-opacity-10 hover:text-white transform hover:scale-105 active:scale-95" id="user-menu-button">
             <div class="w-4 h-4 bg-white bg-opacity-30 rounded-full flex items-center justify-center">
               <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -101,8 +101,8 @@
           </div>
         </div>
       <% } else { %>
-        <!-- Admin Login Button -->
-        <a href="/login" class="nav-button flex items-center space-x-2 px-4 py-2 rounded-xl font-medium text-white transition-all duration-300 hover:bg-white hover:bg-opacity-10 hover:text-white transform hover:scale-105 active:scale-95">
+        <!-- Admin Login Button - Hidden on Mobile -->
+        <a href="/login" class="nav-button hidden md:flex items-center space-x-2 px-4 py-2 rounded-xl font-medium text-white transition-all duration-300 hover:bg-white hover:bg-opacity-10 hover:text-white transform hover:scale-105 active:scale-95">
           <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1"></path>
           </svg>
@@ -124,7 +124,36 @@
         <div class="absolute right-0 mt-2 w-80 rounded-xl shadow-2xl border border-gray-200 opacity-0 invisible pointer-events-none transition-all duration-300 z-50 max-h-96 overflow-y-auto" id="quick-actions-dropdown" style="background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);">
           <div class="flex flex-col gap-1 p-3">
             
+            <!-- Mobile Only Navigation -->
+            <div class="nav-section md:hidden">
+              <div class="px-3 py-2 text-xs font-bold text-gray-500 uppercase tracking-wide border-b border-gray-100 mb-2">Navigation</div>
+              <a href="/" class="nav-dropdown-item flex items-center gap-3 px-3 py-2 rounded-lg font-medium text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition-all duration-200 text-sm">
+                <i class="fas fa-home text-blue-500 w-4"></i> Home
+              </a>
+              <a href="/official-partnership" class="nav-dropdown-item flex items-center gap-3 px-3 py-2 rounded-lg font-medium text-gray-700 hover:bg-purple-50 hover:text-purple-600 transition-all duration-200 text-sm">
+                <i class="fas fa-handshake text-purple-500 w-4"></i> Official Partnership
+              </a>
+              <% if (session.isAuthenticated) { %>
+                <a href="/admin/dashboard" class="nav-dropdown-item flex items-center gap-3 px-3 py-2 rounded-lg font-medium text-gray-700 hover:bg-green-50 hover:text-green-600 transition-all duration-200 text-sm">
+                  <i class="fas fa-tachometer-alt text-green-500 w-4"></i> Dashboard
+                </a>
+                <a href="/logout" class="nav-dropdown-item flex items-center gap-3 px-3 py-2 rounded-lg font-medium text-red-700 hover:bg-red-50 hover:text-red-600 transition-all duration-200 text-sm">
+                  <i class="fas fa-sign-out-alt text-red-500 w-4"></i> Logout
+                </a>
+              <% } else { %>
+                <a href="/login" class="nav-dropdown-item flex items-center gap-3 px-3 py-2 rounded-lg font-medium text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition-all duration-200 text-sm">
+                  <i class="fas fa-sign-in-alt text-blue-500 w-4"></i> Admin Login
+                </a>
+              <% } %>
+            </div>
 
+            <!-- State Associations - Mobile Only -->
+            <div class="nav-section md:hidden">
+              <div class="px-3 py-2 text-xs font-bold text-gray-500 uppercase tracking-wide border-b border-gray-100 mb-2">State Associations</div>
+              <a href="/sarawak-pickleball-association" class="nav-dropdown-item flex items-center gap-3 px-3 py-2 rounded-lg font-medium text-gray-700 hover:bg-amber-50 hover:text-amber-600 transition-all duration-200 text-sm">
+                <img src="/images/spa.png" alt="Sarawak" class="w-4 h-4 object-contain" onerror="this.style.display='none'"> Sarawak Pickleball Association
+              </a>
+            </div>
 
             <!-- Tournament & Events -->
             <div class="nav-section mt-3">
