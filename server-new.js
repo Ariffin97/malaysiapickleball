@@ -2063,6 +2063,63 @@ app.get('/official-partnership', async (req, res) => {
   }
 });
 
+// Test route to verify images are accessible
+app.get('/test-images', (req, res) => {
+  res.send(`
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <title>Image Test</title>
+      <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .image-test { margin: 20px 0; padding: 10px; border: 1px solid #ccc; }
+        img { max-width: 200px; height: auto; margin: 10px; }
+        .success { color: green; }
+        .error { color: red; }
+      </style>
+    </head>
+    <body>
+      <h1>Image Accessibility Test</h1>
+      
+      <div class="image-test">
+        <h3>MPA Logo</h3>
+        <img src="/images/mpa.png" alt="MPA Logo" onload="this.nextElementSibling.textContent='✅ Loaded successfully'" onerror="this.nextElementSibling.textContent='❌ Failed to load'">
+        <div id="mpa-status">Loading...</div>
+      </div>
+      
+      <div class="image-test">
+        <h3>PG Logo</h3>
+        <img src="/images/pglogo.png" alt="PG Logo" onload="this.nextElementSibling.textContent='✅ Loaded successfully'" onerror="this.nextElementSibling.textContent='❌ Failed to load'">
+        <div id="pg-status">Loading...</div>
+      </div>
+      
+      <div class="image-test">
+        <h3>WPC Logo</h3>
+        <img src="/images/wpclogo.png" alt="WPC Logo" onload="this.nextElementSibling.textContent='✅ Loaded successfully'" onerror="this.nextElementSibling.textContent='❌ Failed to load'">
+        <div id="wpc-status">Loading...</div>
+      </div>
+      
+      <div class="image-test">
+        <h3>SPA Logo</h3>
+        <img src="/images/spa.png" alt="SPA Logo" onload="this.nextElementSibling.textContent='✅ Loaded successfully'" onerror="this.nextElementSibling.textContent='❌ Failed to load'">
+        <div id="spa-status">Loading...</div>
+      </div>
+      
+      <script>
+        // Additional JavaScript to check image loading
+        const images = ['/images/mpa.png', '/images/pglogo.png', '/images/wpclogo.png', '/images/spa.png'];
+        images.forEach(src => {
+          const img = new Image();
+          img.onload = () => console.log('✅', src, 'loaded successfully');
+          img.onerror = () => console.log('❌', src, 'failed to load');
+          img.src = src;
+        });
+      </script>
+    </body>
+    </html>
+  `);
+});
+
 app.get('/services/registration', async (req, res) => {
   try {
     const backgroundImage = await DatabaseService.getSetting('background_image', '/images/defaultbg.png');
