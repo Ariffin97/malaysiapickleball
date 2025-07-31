@@ -1254,63 +1254,8 @@
              const videoContainer = document.createElement('div');
        videoContainer.className = 'space-y-6 h-auto';
 
-      // Add video cards using actual database data
-      // --- REMOVE ALL JS-BASED VIDEO CARD CREATION BELOW THIS LINE ---
-
-      <% if (video1 && video1 !== 'null' && video1 !== 'Null') { %>
-        <div class="video-container group h-64 transition-all duration-500 hover:scale-105">
-          <div class="bg-gradient-to-br from-white/90 to-gray-100/90 backdrop-blur-lg rounded-2xl shadow-2xl overflow-hidden border border-gray-200/50 h-full hover:bg-gradient-to-br hover:from-white/95 hover:to-gray-50/95 transition-all duration-500">
-            <div class="relative h-48 bg-gray-100 overflow-hidden">
-              <%- video1 %>
-            </div>
-            <div class="p-4">
-              <div class="flex items-center justify-between">
-                <div class="flex items-center space-x-3">
-                  <div class="w-8 h-8 bg-gradient-to-br from-red-500 to-pink-500 rounded-lg flex items-center justify-center shadow-lg">
-                    <i class="fas fa-play text-white text-sm"></i>
-                  </div>
-                  <div>
-                    <h3 class="font-bold text-gray-800 text-sm group-hover:text-green-600 transition-colors"><%= video1Type %></h3>
-                    <p class="text-xs text-gray-600">Pickleball Content</p>
-                  </div>
-                </div>
-                <div class="flex items-center space-x-1 bg-red-500/20 px-2 py-1 rounded-full border border-red-400/30">
-                  <i class="fab fa-youtube text-red-500 text-xs"></i>
-                  <span class="text-xs font-medium text-red-600">YouTube</span>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      <% } %>
-
-      <% if (video2 && video2 !== 'null' && video2 !== 'Null') { %>
-        <div class="video-container group h-64 transition-all duration-500 hover:scale-105">
-          <div class="bg-gradient-to-br from-white/90 to-gray-100/90 backdrop-blur-lg rounded-2xl shadow-2xl overflow-hidden border border-gray-200/50 h-full hover:bg-gradient-to-br hover:from-white/95 hover:to-gray-50/95 transition-all duration-500">
-            <div class="relative h-48 bg-gray-100 overflow-hidden">
-              <%- video2 %>
-            </div>
-            <div class="p-4">
-              <div class="flex items-center justify-between">
-                <div class="flex items-center space-x-3">
-                  <div class="w-8 h-8 bg-gradient-to-br from-red-500 to-pink-500 rounded-lg flex items-center justify-center shadow-lg">
-                    <i class="fas fa-play text-white text-sm"></i>
-                  </div>
-                  <div>
-                    <h3 class="font-bold text-gray-900 text-sm group-hover:text-green-600 transition-colors"><%= video2Type %></h3>
-                    <p class="text-xs text-gray-800">Pickleball Content</p>
-                  </div>
-                </div>
-                <div class="flex items-center space-x-1 bg-red-500/20 px-2 py-1 rounded-full border border-red-400/30">
-                  <i class="fab fa-youtube text-red-500 text-xs"></i>
-                  <span class="text-xs font-medium text-red-600">YouTube</span>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      <% } %>
-      // --- END VIDEO CARD SECTION ---
+      // Video cards are handled by the existing HTML template above (not in JavaScript)
+      videoSection.appendChild(videoContainer);
 
       // Add Upcoming Tournaments Section directly under videos
       videoSection.appendChild(document.createElement('div')).innerHTML = `
