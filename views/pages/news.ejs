@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Latest News - Malaysia Pickleball Association</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="/css/styles.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+
+<body class="min-h-screen relative overflow-x-hidden bg-gray-50">
+    <%- include('../partials/header') %>
+
+    <main class="min-h-screen relative z-10" style="padding-top: var(--navbar-height);">
+        <!-- Page Header -->
+        <section class="py-12 bg-gradient-to-r from-blue-600 to-blue-800">
+            <div class="container mx-auto px-4">
+                <div class="text-center">
+                    <h1 class="text-4xl md:text-5xl font-bold text-white mb-4">Latest News & Updates</h1>
+                    <p class="text-xl text-blue-100 max-w-2xl mx-auto">
+                        Stay informed with the latest developments from Malaysia's pickleball community
+                    </p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Featured News Section -->
+    <% if (featuredNews && featuredNews.length > 0) { %>
+    <section class="py-16 bg-white">
+        <div class="container mx-auto px-4">
+            <div class="text-center mb-16">
+                <h2 class="text-4xl md:text-5xl font-bold text-gray-800 mb-4">Featured Stories</h2>
+                <div class="w-24 h-1 bg-gradient-to-r from-blue-500 to-purple-600 mx-auto mb-6"></div>
+                <p class="text-xl text-gray-600 max-w-2xl mx-auto">
+                    Highlighting the most important news and updates from the pickleball community
+                </p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <% featuredNews.forEach(function(article, index) { %>
+                <article class="group cursor-pointer" onclick="location.href='/news/<%= article._id %>'">
+                    <div class="bg-white rounded-3xl shadow-lg overflow-hidden border-2 border-transparent hover:border-blue-200 transition-all duration-500 hover:shadow-2xl hover:scale-105">
+                        <!-- Featured Image -->
+                        <div class="relative h-64 bg-gradient-to-br from-blue-500 to-purple-600 overflow-hidden">
+                            <% if (article.featuredImage) { %>
+                                <img src="<%= article.featuredImage %>" alt="<%= article.title %>" 
+                                     class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
+                                     onerror="this.parentElement.innerHTML='<div class=&quot;w-full h-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center&quot;><i class=&quot;fas fa-newspaper text-4xl text-white&quot;></i></div>'">
+                            <% } else { %>
+                                <div class="w-full h-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center">
+                                    <i class="fas fa-newspaper text-4xl text-white"></i>
+                                </div>
+                            <% } %>
+                            
+                            <!-- Category Badge -->
+                            <div class="absolute top-4 left-4">
+                                <span class="bg-white bg-opacity-90 text-gray-800 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wide">
+                                    <%= article.category %>
+                                </span>
+                            </div>
+                            
+                            <!-- Featured Badge -->
+                            <div class="absolute top-4 right-4">
+                                <span class="bg-yellow-400 text-gray-800 px-3 py-1 rounded-full text-xs font-bold">
+                                    FEATURED
+                                </span>
+                            </div>
+                        </div>
+
+                        <!-- Content -->
+                        <div class="p-8">
+                            <div class="flex items-center text-sm text-gray-500 mb-4">
+                                <i class="fas fa-calendar mr-2"></i>
+                                <span><%= article.formattedDate || new Date(article.publishedAt).toLocaleDateString('en-GB') %></span>
+                                <span class="mx-2">•</span>
+                                <i class="fas fa-eye mr-2"></i>
+                                <span><%= article.viewCount || 0 %> views</span>
+                            </div>
+                            
+                            <h3 class="text-2xl font-bold text-gray-800 mb-4 group-hover:text-blue-600 transition-colors duration-300 line-clamp-2">
+                                <%= article.title %>
+                            </h3>
+                            
+                            <p class="text-gray-600 leading-relaxed mb-6 line-clamp-3">
+                                <%= article.summary %>
+                            </p>
+                            
+                            <div class="flex items-center justify-between">
+                                <div class="flex items-center text-sm text-gray-500">
+                                    <i class="fas fa-user mr-2"></i>
+                                    <span><%= article.author %></span>
+                                </div>
+                                
+                                <div class="flex items-center text-blue-600 font-medium group-hover:text-blue-700 transition-colors">
+                                    <span class="mr-2">Read More</span>
+                                    <i class="fas fa-arrow-right transform group-hover:translate-x-1 transition-transform"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </article>
+                <% }); %>
+            </div>
+        </div>
+    </section>
+    <% } %>
+
+    <!-- All News Section -->
+    <section class="py-16 bg-gray-50">
+        <div class="container mx-auto px-4">
+            <div class="text-center mb-16">
+                <h2 class="text-4xl md:text-5xl font-bold text-gray-800 mb-4">All News</h2>
+                <div class="w-24 h-1 bg-gradient-to-r from-green-500 to-blue-500 mx-auto mb-6"></div>
+                <p class="text-xl text-gray-600 max-w-2xl mx-auto">
+                    Complete coverage of Malaysia's pickleball community
+                </p>
+            </div>
+
+            <!-- Filters -->
+            <div class="flex flex-wrap justify-center gap-4 mb-12">
+                <button class="filter-btn active px-6 py-3 rounded-full bg-blue-600 text-white font-medium hover:bg-blue-700 transition-colors" data-category="all">
+                    All Categories
+                </button>
+                <button class="filter-btn px-6 py-3 rounded-full bg-gray-200 text-gray-700 font-medium hover:bg-gray-300 transition-colors" data-category="tournament">
+                    Tournament
+                </button>
+                <button class="filter-btn px-6 py-3 rounded-full bg-gray-200 text-gray-700 font-medium hover:bg-gray-300 transition-colors" data-category="announcement">
+                    Announcement
+                </button>
+                <button class="filter-btn px-6 py-3 rounded-full bg-gray-200 text-gray-700 font-medium hover:bg-gray-300 transition-colors" data-category="achievement">
+                    Achievement
+                </button>
+                <button class="filter-btn px-6 py-3 rounded-full bg-gray-200 text-gray-700 font-medium hover:bg-gray-300 transition-colors" data-category="event">
+                    Event
+                </button>
+            </div>
+
+            <!-- News Grid -->
+            <% if (news && news.length > 0) { %>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8" id="newsGrid">
+                <% news.forEach(function(article) { %>
+                <article class="news-item group cursor-pointer" data-category="<%= article.category %>" onclick="location.href='/news/<%= article._id %>'">
+                    <div class="bg-white rounded-2xl shadow-lg overflow-hidden hover:shadow-xl transition-all duration-300 hover:scale-105 border border-gray-100">
+                        <!-- Image -->
+                        <div class="relative h-48 bg-gradient-to-br from-gray-400 to-gray-600 overflow-hidden">
+                            <% if (article.featuredImage) { %>
+                                <img src="<%= article.featuredImage %>" alt="<%= article.title %>" 
+                                     class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                                     onerror="this.parentElement.innerHTML='<div class=&quot;w-full h-full bg-gradient-to-br from-gray-400 to-gray-600 flex items-center justify-center&quot;><i class=&quot;fas fa-newspaper text-2xl text-white&quot;></i></div>'">
+                            <% } else { %>
+                                <div class="w-full h-full bg-gradient-to-br from-gray-400 to-gray-600 flex items-center justify-center">
+                                    <i class="fas fa-newspaper text-2xl text-white"></i>
+                                </div>
+                            <% } %>
+                            
+                            <!-- Category Badge -->
+                            <div class="absolute top-3 left-3">
+                                <span class="category-badge bg-white bg-opacity-90 text-gray-800 px-2 py-1 rounded-full text-xs font-semibold uppercase">
+                                    <%= article.category %>
+                                </span>
+                            </div>
+                        </div>
+
+                        <!-- Content -->
+                        <div class="p-6">
+                            <div class="flex items-center text-sm text-gray-500 mb-3">
+                                <i class="fas fa-calendar mr-2"></i>
+                                <span><%= new Date(article.publishedAt).toLocaleDateString('en-GB') %></span>
+                                <span class="mx-2">•</span>
+                                <i class="fas fa-eye mr-2"></i>
+                                <span><%= article.viewCount || 0 %></span>
+                            </div>
+                            
+                            <h3 class="text-xl font-bold text-gray-800 mb-3 group-hover:text-blue-600 transition-colors line-clamp-2">
+                                <%= article.title %>
+                            </h3>
+                            
+                            <p class="text-gray-600 text-sm leading-relaxed mb-4 line-clamp-3">
+                                <%= article.summary %>
+                            </p>
+                            
+                            <div class="flex items-center justify-between">
+                                <span class="text-sm text-gray-500">
+                                    <i class="fas fa-user mr-1"></i>
+                                    <%= article.author %>
+                                </span>
+                                <span class="text-blue-600 text-sm font-medium">
+                                    Read More →
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </article>
+                <% }); %>
+            </div>
+            <% } else { %>
+            <div class="text-center py-20">
+                <div class="w-24 h-24 mx-auto bg-gray-200 rounded-full flex items-center justify-center mb-6">
+                    <i class="fas fa-newspaper text-3xl text-gray-400"></i>
+                </div>
+                <h3 class="text-2xl font-bold text-gray-800 mb-4">No News Available</h3>
+                <p class="text-gray-600 max-w-md mx-auto">
+                    Stay tuned! We're working on bringing you the latest updates from the Malaysia pickleball community.
+                </p>
+            </div>
+            <% } %>
+        </div>
+    </section>
+    </main>
+
+    <%- include('../partials/footer') %>
+
+    <!-- Custom Styles -->
+    <style>
+        .line-clamp-2 {
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+        .line-clamp-3 {
+            display: -webkit-box;
+            -webkit-line-clamp: 3;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+        .animate-fade-in {
+            animation: fadeIn 1s ease-in-out;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .delay-2000 { animation-delay: 2s; }
+        .delay-3000 { animation-delay: 3s; }
+    </style>
+
+    <!-- JavaScript for filtering -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const filterBtns = document.querySelectorAll('.filter-btn');
+            const newsItems = document.querySelectorAll('.news-item');
+
+            filterBtns.forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const category = this.getAttribute('data-category');
+                    
+                    // Update active button
+                    filterBtns.forEach(b => {
+                        b.classList.remove('active', 'bg-blue-600', 'text-white');
+                        b.classList.add('bg-gray-200', 'text-gray-700');
+                    });
+                    this.classList.add('active', 'bg-blue-600', 'text-white');
+                    this.classList.remove('bg-gray-200', 'text-gray-700');
+                    
+                    // Filter news items
+                    newsItems.forEach(item => {
+                        if (category === 'all' || item.getAttribute('data-category') === category) {
+                            item.style.display = 'block';
+                            item.classList.add('animate-fade-in');
+                        } else {
+                            item.style.display = 'none';
+                        }
+                    });
+                });
+            });
+        });
+    </script>
+</body>
+</html>

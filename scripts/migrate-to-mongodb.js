@@ -18,7 +18,7 @@ const existingData = {
     state: { color: 'red', label: 'State' },
     national: { color: 'blue', label: 'National' },
     sarawak: { color: 'purple', label: 'Miscellaneous Pickleball Events in Sarawak' },
-    wmalaysia: { color: 'orange', label: 'Miscellaneous Events in W. Malaysia' }
+    wmalaysia: { color: 'yellow', label: 'Miscellaneous Events in W. Malaysia' }
   },
   adminCredentials: {
     username: 'admin',

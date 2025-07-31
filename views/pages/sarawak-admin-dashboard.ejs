@@ -153,14 +153,7 @@
   <div class="container mx-auto p-6">
     <!-- Management Overview Cards -->
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-      <!-- News Management -->
-      <div class="sarawak-dashboard-card p-6 rounded-xl text-center cursor-pointer" onclick="scrollToSection('news-section')">
-        <i class="fas fa-newspaper management-icon"></i>
-        <h3 class="text-xl font-bold sarawak-text-gold mb-2">News Management</h3>
-        <p class="sarawak-text-light-gold text-sm mb-4">Manage news articles for homepage</p>
-        <div class="text-2xl font-bold sarawak-text-gold">12</div>
-        <p class="text-xs sarawak-text-light-gold">Active Articles</p>
-      </div>
+
       
       <!-- Tournament Announcements -->
       <div class="sarawak-dashboard-card p-6 rounded-xl text-center cursor-pointer" onclick="scrollToSection('announcements-section')">
@@ -190,69 +183,7 @@
       </div>
     </div>
     
-    <!-- News Management Section -->
-    <section id="news-section" class="mb-12">
-      <div class="sarawak-dashboard-card p-6 rounded-xl">
-        <div class="flex items-center justify-between mb-6">
-          <h2 class="text-2xl font-bold sarawak-text-gold">
-            <i class="fas fa-newspaper mr-3"></i>News Management
-          </h2>
-          <a href="/sarawak-admin-add-news" class="sarawak-button px-6 py-2 rounded-lg" id="addNewsArticleLink">
-            <i class="fas fa-plus mr-2"></i>Add News Article
-          </a>
-        </div>
-        
-        <div class="overflow-x-auto">
-          <table class="sarawak-table w-full rounded-lg overflow-hidden">
-            <thead>
-              <tr>
-                <th class="px-6 py-3 text-left">Title</th>
-                <th class="px-6 py-3 text-left">Date</th>
-                <th class="px-6 py-3 text-left">Status</th>
-                <th class="px-6 py-3 text-left">Homepage Link</th>
-                <th class="px-6 py-3 text-left">Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              <% if (newsList && newsList.length > 0) { %>
-                <% newsList.forEach(function(news) { %>
-                  <tr>
-                    <td class="px-6 py-4"><%= news.title %></td>
-                    <td class="px-6 py-4"><%= news.publishedAt ? new Date(news.publishedAt).toISOString().slice(0,10) : '' %></td>
-                    <td class="px-6 py-4">
-                      <% if (news.isActive) { %>
-                        <span class="status-badge status-published">Published</span>
-                      <% } else { %>
-                        <span class="status-badge status-draft">Draft</span>
-                      <% } %>
-                    </td>
-                    <td class="px-6 py-4">
-                      <% if (news.metadata && news.metadata.link === 'homepage') { %>
-                        <span class="sarawak-text-gold">✓ Linked to Homepage</span>
-                      <% } else { %>
-                        <span class="text-gray-400">Not Linked</span>
-                      <% } %>
-                    </td>
-                    <td class="px-6 py-4">
-                      <a href="/sarawak-admin-edit-news/<%= news._id %>" class="sarawak-text-gold hover:sarawak-text-light-gold mr-3">
-                        <i class="fas fa-edit"></i>
-                      </a>
-                      <form class="delete-news-form" data-id="<%= news._id %>" style="display:inline;">
-                        <button type="button" class="text-red-400 hover:text-red-300 delete-news-btn" data-id="<%= news._id %>" style="background:none;border:none;padding:0;cursor:pointer;">
-                          <i class="fas fa-trash"></i>
-                        </button>
-                      </form>
-                    </td>
-                  </tr>
-                <% }); %>
-              <% } else { %>
-                <tr><td colspan="5" class="text-center py-4">No news articles found.</td></tr>
-              <% } %>
-            </tbody>
-          </table>
-        </div>
-      </div>
-    </section>
+
     
     <!-- Tournament Announcements Section -->
     <section id="announcements-section" class="mb-12">
@@ -617,26 +548,7 @@
           .catch(() => alert('Failed to delete announcement.'));
         });
       });
-      document.querySelectorAll('.delete-news-btn').forEach(function(btn) {
-        btn.addEventListener('click', function(e) {
-          if (!confirm('Are you sure you want to delete this news article?')) return;
-          const id = btn.getAttribute('data-id');
-          fetch(`/sarawak-admin-delete-news/${id}`, {
-            method: 'POST',
-            headers: { 'X-Requested-With': 'XMLHttpRequest' }
-          })
-          .then(res => res.json())
-          .then(data => {
-            if (data.success) {
-              const row = btn.closest('tr');
-              if (row) row.remove();
-            } else {
-              alert('Failed to delete news article.');
-            }
-          })
-          .catch(() => alert('Failed to delete news article.'));
-        });
-      });
+
     });
   </script>
 </body>

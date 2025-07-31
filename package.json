@@ -2,12 +2,14 @@
   "name": "malaysia-pickleball",
   "version": "1.0.0",
   "description": "Website for Malaysia Pickleball Association",
-  "main": "server.js",
+  "main": "server-new.js",
   "scripts": {
     "start": "node server-new.js",
     "dev": "nodemon server-new.js",
     "local": "node server.js",
     "setup": "node quick-start.js",
+    "build-css": "tailwindcss -i ./src/input.css -o ./public/css/tailwind.css --minify",
+    "watch-css": "tailwindcss -i ./src/input.css -o ./public/css/tailwind.css --watch",
     "security-check": "node scripts/check-env-security.js",
     "generate-secret": "node -e \"console.log('SESSION_SECRET=' + require('crypto').randomBytes(64).toString('hex'))\"",
     "validate-env": "node -e \"require('dotenv').config(); console.log('✅ Environment variables loaded successfully')\"",
@@ -31,9 +33,11 @@
     "mongodb": "^6.17.0",
     "mongoose": "^8.15.1",
     "morgan": "^1.10.0",
-    "multer": "^1.4.5-lts.1"
+    "multer": "^1.4.5-lts.1",
+    "nodemailer": "^6.10.1"
   },
   "devDependencies": {
-    "nodemon": "^2.0.20"
+    "nodemon": "^2.0.20",
+    "tailwindcss": "^4.1.11"
   }
 }

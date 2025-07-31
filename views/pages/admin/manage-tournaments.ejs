@@ -350,9 +350,8 @@
   </style>
 </head>
 <body class="bg-gradient-to-br from-gray-50 to-gray-100 min-h-screen">
-  <%- include('../../partials/header') %>
   
-  <main class="pt-24 p-4 pb-20">
+  <main class="p-4 pb-20">
     <div class="container mx-auto max-w-6xl">
       <!-- Page Header -->
       <div class="page-header">
@@ -526,9 +525,10 @@
                     <%= tournament.type === 'local' ? 'bg-green-100 text-green-800' : 
                         tournament.type === 'state' ? 'bg-red-100 text-red-800' : 
                         tournament.type === 'national' ? 'bg-blue-100 text-blue-800' : 
-                        tournament.type === 'international' ? 'bg-teal-100 text-teal-800' :
+                        tournament.type === 'international' ? 'bg-orange-100 text-orange-800' :
                         tournament.type === 'sarawak' ? 'bg-purple-100 text-purple-800' :
-                        'bg-orange-100 text-orange-800' %>">
+                        tournament.type === 'wmalaysia' ? 'bg-yellow-100 text-yellow-800' :
+                        'bg-gray-100 text-gray-800' %>">
                     <%= tournament.type ? tournament.type.toUpperCase() : 'GENERAL' %>
                   </span>
                 </div>

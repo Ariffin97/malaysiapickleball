@@ -388,35 +388,47 @@
         <!-- Content Grid Layout: 4x2 News (left), 2x2 Calendar (top right), 4x4 Tournaments (bottom right) -->
         <div class="grid grid-cols-1 lg:grid-cols-6 gap-8">
           
-          <!-- Latest News Section - 4x4 Grid (Left Column) -->
+          <!-- About Sarawak Pickleball Association Section - 4x4 Grid (Left Column) -->
           <div class="lg:col-span-4 lg:row-span-4">
             <div class="sarawak-card p-8 rounded-2xl h-full">
               <div class="mb-8">
                 <h2 class="text-3xl font-bold mb-4">
-                  <span class="sarawak-text-gold">Latest</span> <span class="text-white">News</span>
+                  <span class="sarawak-text-gold">About</span> <span class="text-white">SPA</span>
                 </h2>
                 <p class="text-lg sarawak-text-light-gold">
-                  Stay updated with the latest news and developments from Sarawak Pickleball Association.
+                  Sarawak Pickleball Association is the premier governing body for pickleball in Sarawak, Malaysia.
                 </p>
               </div>
               
               <div class="space-y-6">
-                <% if (newsList && newsList.length > 0) { %>
-                  <% newsList.forEach(function(news) { %>
-                    <div class="border-b border-yellow-400 pb-6">
-                      <h3 class="text-2xl font-bold mb-3 sarawak-text-gold"><%= news.title %></h3>
-                      <p class="sarawak-text-light-gold mb-3 text-sm"><%= news.publishedAt ? new Date(news.publishedAt).toLocaleDateString('en-GB') : '' %></p>
-                      <p class="sarawak-text-light-gold mb-4"><%= news.content %></p>
-                    </div>
-                  <% }); %>
-                <% } else { %>
-                  <div class="text-center sarawak-text-light-gold">No news articles available.</div>
-                <% } %>
+                <div class="border-b border-yellow-400 pb-6">
+                  <h3 class="text-2xl font-bold mb-3 sarawak-text-gold">Our Mission</h3>
+                  <p class="sarawak-text-light-gold mb-4">
+                    To promote, develop, and govern the sport of pickleball throughout Sarawak while fostering a community of players across all skill levels. We are committed to excellence in sporting governance and player development.
+                  </p>
+                </div>
+                
+                <div class="border-b border-yellow-400 pb-6">
+                  <h3 class="text-2xl font-bold mb-3 sarawak-text-gold">Our Vision</h3>
+                  <p class="sarawak-text-light-gold mb-4">
+                    To establish Sarawak as a leading force in Malaysian pickleball, producing world-class players and hosting internationally recognized tournaments that showcase our beautiful state.
+                  </p>
+                </div>
+                
+                <div>
+                  <h3 class="text-2xl font-bold mb-3 sarawak-text-gold">What We Do</h3>
+                  <ul class="sarawak-text-light-gold space-y-2">
+                    <li class="flex items-center"><i class="fas fa-check text-yellow-400 mr-3"></i>Organize state and national tournaments</li>
+                    <li class="flex items-center"><i class="fas fa-check text-yellow-400 mr-3"></i>Provide training programs and coaching certification</li>
+                    <li class="flex items-center"><i class="fas fa-check text-yellow-400 mr-3"></i>Develop pickleball facilities across Sarawak</li>
+                    <li class="flex items-center"><i class="fas fa-check text-yellow-400 mr-3"></i>Support community outreach and youth programs</li>
+                  </ul>
+                </div>
               </div>
               
               <div class="mt-8 text-center">
                 <button class="sarawak-button px-8 py-3 rounded-full font-semibold">
-                  <i class="fas fa-newspaper mr-2"></i>View All News
+                  <i class="fas fa-info-circle mr-2"></i>Learn More About SPA
                 </button>
               </div>
             </div>

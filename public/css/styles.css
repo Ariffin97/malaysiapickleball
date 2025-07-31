@@ -905,3 +905,70 @@ footer button:hover {
     background-attachment: scroll !important;
   }
 }
+
+/* Gradient Text Styling for Malaysia Pickleball Association */
+.gradient-text {
+  background: linear-gradient(135deg, #3B82F6, #1E40AF, #2563EB, #1D4ED8, #3B82F6);
+  background-size: 300% 300%;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  color: transparent;
+  animation: gradientShift 4s ease-in-out infinite;
+  transition: all 0.3s ease;
+  cursor: pointer;
+  text-shadow: none;
+}
+
+.gradient-text:hover {
+  animation-duration: 1s;
+  transform: scale(1.02);
+  filter: brightness(1.2);
+}
+
+@keyframes gradientShift {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+/* Fallback for browsers that don't support background-clip: text */
+@supports not (-webkit-background-clip: text) {
+  .gradient-text {
+    background: none;
+    color: #3B82F6;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+  }
+}
+
+/* Mobile optimizations for gradient text */
+@media (max-width: 768px) {
+  .gradient-text {
+    animation-duration: 6s; /* Slower animation on mobile for better performance */
+  }
+  
+  .gradient-text:hover {
+    transform: scale(1.01); /* Less dramatic scaling on mobile */
+  }
+}
+
+/* Text truncation utilities */
+.line-clamp-2 {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.line-clamp-3 {
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}

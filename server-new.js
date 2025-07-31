@@ -13,6 +13,7 @@ require('dotenv').config();
 // MongoDB imports
 const { connectDB } = require('./config/database');
 const DatabaseService = require('./services/databaseService');
+const EmailService = require('./services/emailService');
 
 const app = express();
 
@@ -27,9 +28,9 @@ const tournamentTypes = {
   local: { color: 'green', label: 'Local' },
   state: { color: 'red', label: 'State' },
   national: { color: 'blue', label: 'National' },
-  international: { color: 'teal', label: 'International' },
+      international: { color: 'orange', label: 'International' },
   sarawak: { color: 'purple', label: 'Miscellaneous Pickleball Events in Sarawak' },
-  wmalaysia: { color: 'orange', label: 'Miscellaneous Events in W. Malaysia' }
+  wmalaysia: { color: 'yellow', label: 'Miscellaneous Events in W. Malaysia' }
 };
 
 // Middleware
@@ -94,8 +95,20 @@ app.use(helmet({
   contentSecurityPolicy: {
     directives: {
       defaultSrc: ["'self'"],
-      scriptSrc: ["'self'", "'unsafe-inline'"],
-      styleSrc: ["'self'", "'unsafe-inline'", "https://cdn.jsdelivr.net", "https://cdnjs.cloudflare.com"],
+      scriptSrc: [
+        "'self'", 
+        "'unsafe-inline'",
+        "'unsafe-hashes'",
+        "https://cdn.jsdelivr.net",
+        "https://cdnjs.cloudflare.com"
+      ],
+      'script-src-attr': ["'unsafe-inline'"],
+      styleSrc: [
+        "'self'", 
+        "'unsafe-inline'", 
+        "https://cdn.jsdelivr.net", 
+        "https://cdnjs.cloudflare.com"
+      ],
       fontSrc: ["'self'", "https://cdnjs.cloudflare.com", "data:"],
       imgSrc: ["'self'", "data:", "https:"],
       connectSrc: ["'self'"],
@@ -378,7 +391,7 @@ app.get('/events', async (req, res) => {
         { name: 'KGM Autumn Tournament', startDate: '2025-01-15', endDate: '2025-01-17', type: 'local', color: 'green' },
         { name: 'MPR@KL (SUKMA)', startDate: '2025-02-26', endDate: '2025-02-28', type: 'state', color: 'red' },
         { name: 'SPA Grand Finals', startDate: '2025-03-10', endDate: '2025-03-12', type: 'national', color: 'blue' },
-        { name: 'IOP Johor', startDate: '2025-04-20', endDate: '2025-04-22', type: 'wmalaysia', color: 'orange' },
+        { name: 'IOP Johor', startDate: '2025-04-20', endDate: '2025-04-22', type: 'wmalaysia', color: 'yellow' },
         { name: 'Sarawak Open Championship', startDate: '2025-05-15', endDate: '2025-05-17', type: 'sarawak', color: 'purple' },
         { name: 'Penang Masters Tournament', startDate: '2025-06-10', endDate: '2025-06-12', type: 'local', color: 'green' }
       ];
@@ -412,6 +425,13 @@ app.get('/events', async (req, res) => {
 // Terms of Service page route
 app.get('/terms', (req, res) => {
   res.render('pages/terms', { 
+    session: req.session 
+  });
+});
+
+// Privacy Policy page route
+app.get('/privacy-policy', (req, res) => {
+  res.render('pages/privacy-policy', { 
     session: req.session 
   });
 });
@@ -629,6 +649,78 @@ app.get('/admin/dashboard', adminAuth, async (req, res) => {
   }
 });
 
+// Admin Registrations Routes
+app.get('/admin/registrations', adminAuth, async (req, res) => {
+  try {
+    const pendingRegistrations = await DatabaseService.getPendingPlayerRegistrations();
+    res.render('pages/admin/registrations', { 
+      pendingRegistrations, 
+      session: req.session 
+    });
+  } catch (error) {
+    console.error('Registrations page error:', error);
+    res.render('pages/admin/registrations', { 
+      pendingRegistrations: [], 
+      session: req.session 
+    });
+  }
+});
+
+app.get('/admin/registrations/:id', adminAuth, async (req, res) => {
+  try {
+    const registrationId = req.params.id;
+    const registration = await DatabaseService.getPlayerRegistrationById(registrationId);
+    
+    if (!registration) {
+      return res.render('pages/admin/registration-detail', { 
+        registration: null, 
+        session: req.session 
+      });
+    }
+    
+    res.render('pages/admin/registration-detail', { 
+      registration, 
+      session: req.session 
+    });
+  } catch (error) {
+    console.error('Registration detail error:', error);
+    res.render('pages/admin/registration-detail', { 
+      registration: null, 
+      session: req.session 
+    });
+  }
+});
+
+// Registration approval/rejection routes
+app.post('/admin/registrations/accept/:id', adminAuth, async (req, res) => {
+  try {
+    const registrationId = req.params.id;
+    const processedBy = req.session.username || 'admin';
+    
+    const result = await DatabaseService.approvePlayerRegistration(registrationId, processedBy);
+    
+    res.redirect('/admin/registrations?success=approved&playerId=' + result.player.playerId);
+  } catch (error) {
+    console.error('Error accepting registration:', error);
+    res.redirect('/admin/registrations?error=approval_failed');
+  }
+});
+
+app.post('/admin/registrations/reject/:id', adminAuth, async (req, res) => {
+  try {
+    const registrationId = req.params.id;
+    const processedBy = req.session.username || 'admin';
+    const notes = req.body.notes || 'Registration rejected by admin';
+    
+    await DatabaseService.rejectPlayerRegistration(registrationId, processedBy, notes);
+    
+    res.redirect('/admin/registrations?success=rejected');
+  } catch (error) {
+    console.error('Error rejecting registration:', error);
+    res.redirect('/admin/registrations?error=rejection_failed');
+  }
+});
+
 app.get('/admin/tournaments', adminAuth, async (req, res) => {
   try {
     const tournaments = await DatabaseService.getAllTournaments();
@@ -836,9 +928,27 @@ app.post('/admin/players/approve/:id', adminAuth, async (req, res) => {
     
     const result = await DatabaseService.approvePlayerRegistration(registrationId, processedBy);
     
+    // Send welcome email to approved player
+    try {
+      const emailResult = await EmailService.sendWelcomeEmail({
+        fullName: result.player.fullName,
+        email: result.player.email,
+        playerId: result.player.playerId
+      });
+      
+      if (emailResult.success) {
+        console.log('✅ Welcome email sent to approved player:', result.player.email);
+      } else {
+        console.log('⚠️ Failed to send welcome email:', emailResult.message || emailResult.error);
+      }
+    } catch (emailError) {
+      console.error('❌ Error sending welcome email:', emailError);
+      // Don't fail the approval if email fails
+    }
+    
     res.json({ 
       success: true, 
-      message: `Player registration approved successfully! Player ID: ${result.player.playerId}`,
+      message: `Player registration approved successfully! Player ID: ${result.player.playerId}. Welcome email sent to ${result.player.email}.`,
       player: result.player,
       playerId: result.player.playerId
     });
@@ -1021,9 +1131,28 @@ app.post('/player/register', [
     // Save registration to database
     const registration = await DatabaseService.createPlayerRegistration(registrationData);
 
+    // Send registration success email
+    try {
+      const emailResult = await EmailService.sendRegistrationSuccessEmail({
+        fullName: registrationData.fullName,
+        email: registrationData.email,
+        username: registrationData.username,
+        password: registrationData.password
+      });
+      
+      if (emailResult.success) {
+        console.log('✅ Registration success email sent to:', registrationData.email);
+      } else {
+        console.log('⚠️ Failed to send registration email:', emailResult.message || emailResult.error);
+      }
+    } catch (emailError) {
+      console.error('❌ Error sending registration email:', emailError);
+      // Don't fail the registration if email fails
+    }
+
     res.render('pages/player-register', {
       error: null,
-      success: 'Registration submitted successfully! Your application has been received and will be reviewed by our admin team within 24-48 hours. Once approved, you will receive a unique 5-character Player ID linked to your IC number. You will receive an email notification once your application is processed.',
+      success: 'Registration submitted successfully! Your application has been received and will be reviewed by our admin team within 24-48 hours. A confirmation email with your login credentials has been sent to your email address. Once approved, you will receive a unique 5-character Player ID linked to your IC number.',
       session: req.session,
       backgroundImage: await DatabaseService.getSetting('background_image', '/images/defaultbg.png')
     });
@@ -2307,9 +2436,9 @@ app.get('/tournament/print-pdf', async (req, res) => {
       'local': { color: 'green' },
       'state': { color: 'red' },
       'national': { color: 'blue' },
-      'international': { color: 'teal' },
+      'international': { color: 'orange' },
       'sarawak': { color: 'purple' },
-      'wmalaysia': { color: 'orange' }
+      'wmalaysia': { color: 'yellow' }
     };
     
     // Format tournaments for PDF
@@ -2407,9 +2536,9 @@ app.get('/api/tournaments', async (req, res) => {
       'local': { color: 'green', displayName: 'Local Tournament' },
       'state': { color: 'red', displayName: 'State Tournament' },
       'national': { color: 'blue', displayName: 'National Tournament' },
-      'international': { color: 'teal', displayName: 'International Tournament' },
+      'international': { color: 'orange', displayName: 'International Tournament' },
       'sarawak': { color: 'purple', displayName: 'Sarawak Tournament' },
-      'wmalaysia': { color: 'orange', displayName: 'West Malaysia Tournament' }
+      'wmalaysia': { color: 'yellow', displayName: 'West Malaysia Tournament' }
     };
 
     // Apply filters
@@ -2551,9 +2680,9 @@ app.get('/api/tournaments/upcoming', async (req, res) => {
       'local': { color: 'green', displayName: 'Local Tournament' },
       'state': { color: 'red', displayName: 'State Tournament' },
       'national': { color: 'blue', displayName: 'National Tournament' },
-      'international': { color: 'teal', displayName: 'International Tournament' },
+      'international': { color: 'orange', displayName: 'International Tournament' },
       'sarawak': { color: 'purple', displayName: 'Sarawak Tournament' },
-      'wmalaysia': { color: 'orange', displayName: 'West Malaysia Tournament' }
+      'wmalaysia': { color: 'yellow', displayName: 'West Malaysia Tournament' }
     };
 
     const formattedTournaments = upcomingTournaments.map(tournament => {
@@ -2611,9 +2740,9 @@ app.get('/api/tournaments/:id', async (req, res) => {
       'local': { color: 'green', displayName: 'Local Tournament' },
       'state': { color: 'red', displayName: 'State Tournament' },
       'national': { color: 'blue', displayName: 'National Tournament' },
-      'international': { color: 'teal', displayName: 'International Tournament' },
+      'international': { color: 'orange', displayName: 'International Tournament' },
       'sarawak': { color: 'purple', displayName: 'Sarawak Tournament' },
-      'wmalaysia': { color: 'orange', displayName: 'West Malaysia Tournament' }
+      'wmalaysia': { color: 'yellow', displayName: 'West Malaysia Tournament' }
     };
 
     const tournamentObj = tournament.toObject();
@@ -3210,90 +3339,298 @@ app.listen(PORT, () => {
 
 module.exports = app; 
 
-// Add News Article page (GET)
-app.get('/sarawak-admin-add-news', sarawakAdminAuth, (req, res) => {
-  res.render('pages/sarawak-admin-add-news');
-});
+// ========================
+// NEWS MANAGEMENT ROUTES
+// ========================
 
-// Add News Article (POST)
-app.post('/sarawak-admin-add-news', sarawakAdminAuth, async (req, res) => {
+// Public News Routes
+app.get('/news', async (req, res) => {
   try {
-    const { title, date, status, homepageLink, content } = req.body;
-    // Get admin info from session
-    const publishedBy = req.session.sarawakAdmin?.username || 'sarawak_admin';
-    const publishedByName = req.session.sarawakAdmin?.name || 'Sarawak Admin';
-    // Prepare announcement data
-    const announcementData = {
-      title,
-      content,
-      type: 'news',
-      isActive: status === 'Published',
-      publishedAt: date ? new Date(date) : new Date(),
-      publishedBy,
-      publishedByName,
-      metadata: {
-        link: homepageLink === 'Linked' ? 'homepage' : '',
-      },
-      targetAudience: 'all',
-    };
-    await DatabaseService.createAnnouncement(announcementData);
-    res.redirect('/sarawak-admin-dashboard');
+    const news = await DatabaseService.getPublishedNews();
+    const featuredNews = await DatabaseService.getFeaturedNews();
+    const backgroundImage = await DatabaseService.getSetting('background_image', '/images/defaultbg.png');
+    
+    res.render('pages/news', {
+      news,
+      featuredNews,
+      session: req.session,
+      backgroundImage
+    });
   } catch (error) {
-    console.error('Error adding news article:', error);
-    res.redirect('/sarawak-admin-dashboard?error=add_news');
+    console.error('News page error:', error);
+    res.render('pages/news', {
+      news: [],
+      featuredNews: [],
+      session: req.session,
+      backgroundImage: '/images/defaultbg.png'
+    });
   }
 });
 
-// Edit News Article (GET)
-app.get('/sarawak-admin-edit-news/:id', sarawakAdminAuth, async (req, res) => {
+// View Single News Article
+app.get('/news/:id', async (req, res) => {
   try {
-    const Announcement = require('./models/Announcement');
-    const news = await Announcement.findById(req.params.id);
-    if (!news) return res.redirect('/sarawak-admin-dashboard?error=notfound');
-    res.render('pages/sarawak-admin-edit-news', { news, session: req.session, admin: req.session.sarawakAdmin });
-  } catch (error) {
-    console.error('Error loading edit news page:', error);
-    res.redirect('/sarawak-admin-dashboard?error=edit_load');
-  }
-});
-
-// Edit News Article (POST)
-app.post('/sarawak-admin-edit-news/:id', sarawakAdminAuth, async (req, res) => {
-  try {
-    const Announcement = require('./models/Announcement');
-    const { title, date, status, homepageLink, content } = req.body;
-    const update = {
-      title,
-      content,
-      isActive: status === 'Published',
-      publishedAt: date ? new Date(date) : new Date(),
-      metadata: { link: homepageLink === 'Linked' ? 'homepage' : '' }
-    };
-    await Announcement.findByIdAndUpdate(req.params.id, update);
-    res.redirect('/sarawak-admin-dashboard');
-  } catch (error) {
-    console.error('Error editing news article:', error);
-    res.redirect('/sarawak-admin-dashboard?error=edit_news');
-  }
-});
-
-// Delete News Article (POST)
-app.post('/sarawak-admin-delete-news/:id', sarawakAdminAuth, async (req, res) => {
-  try {
-    const Announcement = require('./models/Announcement');
-    await Announcement.findByIdAndDelete(req.params.id);
-    if (req.xhr || req.headers['x-requested-with'] === 'XMLHttpRequest') {
-      return res.json({ success: true });
+    const news = await DatabaseService.getNewsById(req.params.id);
+    if (!news || news.status !== 'published') {
+      return res.status(404).render('pages/404', {
+        session: req.session,
+        backgroundImage: await DatabaseService.getSetting('background_image', '/images/defaultbg.png')
+      });
     }
-    res.redirect('/sarawak-admin-dashboard');
+
+    // Increment view count
+    await DatabaseService.incrementNewsViews(req.params.id);
+
+    // Get related news
+    const relatedNews = await DatabaseService.getNewsByCategory(news.category);
+    const filteredRelatedNews = relatedNews.filter(n => n._id.toString() !== news._id.toString()).slice(0, 3);
+
+    const backgroundImage = await DatabaseService.getSetting('background_image', '/images/defaultbg.png');
+
+    // Construct base URL for social sharing
+    const baseUrl = `${req.protocol}://${req.get('host')}`;
+    const articleUrl = `${baseUrl}/news/${news._id}`;
+
+    res.render('pages/news-detail', {
+      news,
+      relatedNews: filteredRelatedNews,
+      session: req.session,
+      backgroundImage,
+      baseUrl,
+      articleUrl
+    });
   } catch (error) {
-    console.error('Error deleting news article:', error);
-    if (req.xhr || req.headers['x-requested-with'] === 'XMLHttpRequest') {
-      return res.json({ success: false });
-    }
-    res.redirect('/sarawak-admin-dashboard?error=delete_news');
+    console.error('News detail error:', error);
+    res.status(500).render('pages/404', {
+      session: req.session,
+      backgroundImage: '/images/defaultbg.png'
+    });
   }
 });
+
+// API endpoint for latest news (for homepage)
+app.get('/api/news/latest', async (req, res) => {
+  try {
+    const limit = parseInt(req.query.limit) || 5;
+    const news = await DatabaseService.getLatestNews(limit);
+    
+    res.json({
+      success: true,
+      news
+    });
+  } catch (error) {
+    console.error('Latest news API error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to fetch latest news'
+    });
+  }
+});
+
+// Admin News Management Routes
+app.get('/admin/news', adminAuth, async (req, res) => {
+  try {
+    const news = await DatabaseService.getAllNews();
+    res.render('pages/admin/manage-news', {
+      news,
+      session: req.session
+    });
+  } catch (error) {
+    console.error('Manage news page error:', error);
+    res.render('pages/admin/manage-news', {
+      news: [],
+      session: req.session
+    });
+  }
+});
+
+// Create News
+app.post('/admin/news/create', adminAuth, [
+  body('title').notEmpty().trim().withMessage('Title is required'),
+  body('summary').notEmpty().trim().isLength({ max: 300 }).withMessage('Summary is required and must be under 300 characters'),
+  body('content').notEmpty().trim().withMessage('Content is required'),
+  body('category').isIn(['tournament', 'announcement', 'general', 'achievement', 'event']).withMessage('Valid category is required'),
+  body('status').isIn(['draft', 'published', 'archived']).withMessage('Valid status is required')
+], async (req, res) => {
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    return res.status(400).json({
+      success: false,
+      message: 'Validation failed',
+      errors: errors.array()
+    });
+  }
+
+  try {
+    const { title, summary, content, category, status, tags, featured } = req.body;
+    const author = req.session.username || 'Admin';
+    const createdBy = req.session.username || 'admin';
+
+    // Handle file upload if present
+    let featuredImage = null;
+    let featuredVideo = null;
+    let mediaType = 'none';
+
+    if (req.files && req.files.mediaFile) {
+      const mediaFile = req.files.mediaFile;
+      const fileName = `news_${Date.now()}_${mediaFile.name}`;
+      const uploadPath = path.join(__dirname, 'public/uploads', fileName);
+
+      await mediaFile.mv(uploadPath);
+
+      if (mediaFile.mimetype.startsWith('image/')) {
+        featuredImage = `/uploads/${fileName}`;
+        mediaType = 'image';
+      } else if (mediaFile.mimetype.startsWith('video/')) {
+        featuredVideo = `/uploads/${fileName}`;
+        mediaType = 'video';
+      }
+    }
+
+    // Process tags
+    const tagArray = tags ? tags.split(',').map(tag => tag.trim()).filter(tag => tag) : [];
+
+    const newsData = {
+      title,
+      summary,
+      content,
+      author,
+      category,
+      status,
+      featuredImage,
+      featuredVideo,
+      mediaType,
+      tags: tagArray,
+      featured: featured === 'on' || featured === true,
+      createdBy
+    };
+
+    const news = await DatabaseService.createNews(newsData);
+
+    res.json({
+      success: true,
+      message: 'News article created successfully',
+      news
+    });
+
+  } catch (error) {
+    console.error('Error creating news:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to create news article'
+    });
+  }
+});
+
+// Update News
+app.put('/admin/news/:id', adminAuth, [
+  body('title').notEmpty().trim().withMessage('Title is required'),
+  body('summary').notEmpty().trim().isLength({ max: 300 }).withMessage('Summary is required and must be under 300 characters'),
+  body('content').notEmpty().trim().withMessage('Content is required'),
+  body('category').isIn(['tournament', 'announcement', 'general', 'achievement', 'event']).withMessage('Valid category is required'),
+  body('status').isIn(['draft', 'published', 'archived']).withMessage('Valid status is required')
+], async (req, res) => {
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    return res.status(400).json({
+      success: false,
+      message: 'Validation failed',
+      errors: errors.array()
+    });
+  }
+
+  try {
+    const { title, summary, content, category, status, tags, featured } = req.body;
+    const updatedBy = req.session.username || 'admin';
+
+    let updateData = {
+      title,
+      summary,
+      content,
+      category,
+      status,
+      tags: tags ? tags.split(',').map(tag => tag.trim()).filter(tag => tag) : [],
+      featured: featured === 'on' || featured === true,
+      updatedBy
+    };
+
+    // Handle file upload if present
+    if (req.files && req.files.mediaFile) {
+      const mediaFile = req.files.mediaFile;
+      const fileName = `news_${Date.now()}_${mediaFile.name}`;
+      const uploadPath = path.join(__dirname, 'public/uploads', fileName);
+
+      await mediaFile.mv(uploadPath);
+
+      if (mediaFile.mimetype.startsWith('image/')) {
+        updateData.featuredImage = `/uploads/${fileName}`;
+        updateData.featuredVideo = null;
+        updateData.mediaType = 'image';
+      } else if (mediaFile.mimetype.startsWith('video/')) {
+        updateData.featuredVideo = `/uploads/${fileName}`;
+        updateData.featuredImage = null;
+        updateData.mediaType = 'video';
+      }
+    }
+
+    const news = await DatabaseService.updateNews(req.params.id, updateData);
+
+    res.json({
+      success: true,
+      message: 'News article updated successfully',
+      news
+    });
+
+  } catch (error) {
+    console.error('Error updating news:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to update news article'
+    });
+  }
+});
+
+// Delete News
+app.delete('/admin/news/:id', adminAuth, async (req, res) => {
+  try {
+    await DatabaseService.deleteNews(req.params.id);
+    res.json({
+      success: true,
+      message: 'News article deleted successfully'
+    });
+  } catch (error) {
+    console.error('Error deleting news:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to delete news article'
+    });
+  }
+});
+
+// Get News by ID (for editing)
+app.get('/admin/news/:id', adminAuth, async (req, res) => {
+  try {
+    const news = await DatabaseService.getNewsById(req.params.id);
+    if (!news) {
+      return res.status(404).json({
+        success: false,
+        message: 'News article not found'
+      });
+    }
+    res.json({
+      success: true,
+      news
+    });
+  } catch (error) {
+    console.error('Error getting news:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to get news article'
+    });
+  }
+});
+
+
 
 // Add Tournament Announcement (GET)
 app.get('/sarawak-admin-add-announcement', sarawakAdminAuth, (req, res) => {
@@ -3394,3 +3731,4 @@ app.post('/sarawak-admin-delete-announcement/:id', sarawakAdminAuth, async (req,
     res.redirect('/sarawak-admin-dashboard?error=delete_announcement');
   }
 });
+

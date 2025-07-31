@@ -3,188 +3,218 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Terms of Service - Malaysia Pickleball Association</title>
+  <title>Terms and Conditions - Malaysia Pickleball Association</title>
   <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
   <link rel="stylesheet" href="/css/styles.css">
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+  <style>
+    .terms-content {
+      line-height: 1.8;
+    }
+    .terms-content h2 {
+      color: #1e40af;
+      font-weight: bold;
+      font-size: 1.5rem;
+      margin-top: 2rem;
+      margin-bottom: 1rem;
+    }
+    .terms-content h3 {
+      color: #1e40af;
+      font-weight: 600;
+      font-size: 1.25rem;
+      margin-top: 1.5rem;
+      margin-bottom: 0.75rem;
+    }
+    .terms-content p {
+      margin-bottom: 1rem;
+    }
+    .terms-content ul, .terms-content ol {
+      margin-bottom: 1rem;
+      padding-left: 2rem;
+    }
+    .terms-content li {
+      margin-bottom: 0.5rem;
+    }
+  </style>
 </head>
-<body class="bg-gray-100 min-h-screen">
+<body class="bg-gray-50">
   <%- include('../partials/header') %>
+  
+  <main class="pt-20 pb-12">
+    <div class="container mx-auto px-4 max-w-4xl">
+      
+      <!-- Header -->
+      <div class="bg-white rounded-lg shadow-lg p-8 mb-8">
+        <div class="text-center">
+          <h1 class="text-4xl font-bold text-gray-800 mb-4">
+            <i class="fas fa-file-contract text-blue-600 mr-3"></i>
+            Terms and Conditions
+          </h1>
+          <p class="text-gray-600 text-lg">Malaysia Pickleball Association Player Registration</p>
+          <p class="text-sm text-gray-500 mt-2">Last Updated: <%= new Date().toLocaleDateString('en-MY', { year: 'numeric', month: 'long', day: 'numeric' }) %></p>
+        </div>
+      </div>
 
-<main class="min-h-screen relative z-10" style="padding-top: var(--navbar-height);">
-    <div class="container mx-auto px-4 py-8">
-      <div class="max-w-4xl mx-auto bg-white rounded-2xl shadow-xl p-8">
-        <!-- Header -->
-        <div class="text-center mb-8">
-          <h1 class="text-4xl font-bold text-gray-800 mb-4">Terms of Service</h1>
-          <p class="text-gray-600">Malaysia Pickleball Association</p>
-          <p class="text-sm text-gray-500 mt-2">Last updated: <%= new Date().toLocaleDateString() %></p>
+      <!-- Terms Content -->
+      <div class="bg-white rounded-lg shadow-lg p-8 terms-content">
+        
+        <h2>1. Acceptance of Terms</h2>
+        <p>By registering as a player with the Malaysia Pickleball Association (MPA), you acknowledge that you have read, understood, and agree to be bound by these Terms and Conditions. If you do not agree with any part of these terms, please do not proceed with the registration.</p>
+
+        <h2>2. Membership and Registration</h2>
+        <h3>2.1 Eligibility</h3>
+        <ul>
+          <li>You must be at least 13 years old to register independently. Players under 18 require parental/guardian consent.</li>
+          <li>You must provide accurate and complete information during registration.</li>
+          <li>Each person may only maintain one active membership account.</li>
+          <li>You must be a Malaysian citizen or permanent resident, or have valid documentation to participate in Malaysian sports activities.</li>
+        </ul>
+
+        <h3>2.2 Registration Process</h3>
+        <ul>
+          <li>All registrations are subject to approval by MPA administrators.</li>
+          <li>MPA reserves the right to reject any registration without providing specific reasons.</li>
+          <li>Upon approval, you will receive a unique MPA Player ID.</li>
+          <li>Registration is free of charge, but participation in tournaments may incur fees.</li>
+        </ul>
+
+        <h3>2.3 Account Responsibilities</h3>
+        <ul>
+          <li>You are responsible for maintaining the confidentiality of your account credentials.</li>
+          <li>You must notify MPA immediately of any unauthorized use of your account.</li>
+          <li>You are responsible for all activities that occur under your account.</li>
+        </ul>
+
+        <h2>3. Player Obligations and Conduct</h2>
+        <h3>3.1 Code of Conduct</h3>
+        <p>As an MPA registered player, you agree to:</p>
+        <ul>
+          <li>Conduct yourself in a manner that upholds the integrity and reputation of pickleball and MPA.</li>
+          <li>Show respect for opponents, officials, volunteers, and spectators.</li>
+          <li>Comply with all rules and regulations of pickleball as established by the International Federation of Pickleball (IFP) and MPA.</li>
+          <li>Participate in a spirit of fair play and sportsmanship.</li>
+          <li>Refrain from any form of discrimination, harassment, or inappropriate behavior.</li>
+        </ul>
+
+        <h3>3.2 Anti-Doping Policy</h3>
+        <ul>
+          <li>Players must comply with all anti-doping rules and regulations.</li>
+          <li>MPA reserves the right to conduct drug testing in accordance with national and international standards.</li>
+          <li>Any violation of anti-doping policies may result in suspension or termination of membership.</li>
+        </ul>
+
+        <h2>4. Tournaments and Competitions</h2>
+        <h3>4.1 Participation</h3>
+        <ul>
+          <li>Registration as an MPA player does not guarantee entry into tournaments.</li>
+          <li>Tournament entries are subject to separate registration processes and fees.</li>
+          <li>Players must meet specific eligibility criteria for different tournament categories.</li>
+        </ul>
+
+        <h3>4.2 Rankings and Ratings</h3>
+        <ul>
+          <li>MPA maintains a ranking system based on tournament performance.</li>
+          <li>Rankings are used for seeding and categorization purposes.</li>
+          <li>Players may appeal ranking decisions through the established process.</li>
+        </ul>
+
+        <h2>5. Privacy and Data Protection</h2>
+        <p>Your privacy is important to us. Please refer to our <a href="/privacy-policy" class="text-blue-600 hover:underline">Privacy Policy</a> for detailed information on how we collect, use, and protect your personal information.</p>
+
+        <h2>6. Fees and Payments</h2>
+        <h3>6.1 Registration Fees</h3>
+        <ul>
+          <li>Player registration with MPA is currently free of charge.</li>
+          <li>MPA reserves the right to introduce registration fees in the future with appropriate notice.</li>
+        </ul>
+
+        <h3>6.2 Tournament Fees</h3>
+        <ul>
+          <li>Tournament participation may require entry fees as specified in tournament announcements.</li>
+          <li>Fees are non-refundable unless the tournament is cancelled by MPA.</li>
+        </ul>
+
+        <h2>7. Intellectual Property</h2>
+        <ul>
+          <li>All MPA logos, trademarks, and content are the property of Malaysia Pickleball Association.</li>
+          <li>Players may not use MPA intellectual property without written permission.</li>
+          <li>Any photos or videos taken during MPA events may be used for promotional purposes.</li>
+        </ul>
+
+        <h2>8. Liability and Insurance</h2>
+        <h3>8.1 Assumption of Risk</h3>
+        <p>By participating in pickleball activities, you acknowledge that:</p>
+        <ul>
+          <li>Pickleball involves inherent risks of injury.</li>
+          <li>You participate at your own risk and assume full responsibility for any injuries.</li>
+          <li>MPA is not liable for injuries, accidents, or damages that may occur during participation.</li>
+        </ul>
+
+        <h3>8.2 Insurance</h3>
+        <ul>
+          <li>Players are strongly encouraged to maintain personal health and accident insurance.</li>
+          <li>MPA does not provide insurance coverage for individual players.</li>
+        </ul>
+
+        <h2>9. Disciplinary Actions</h2>
+        <h3>9.1 Violations</h3>
+        <p>MPA may take disciplinary action for violations including but not limited to:</p>
+        <ul>
+          <li>Breach of code of conduct</li>
+          <li>Unsportsmanlike behavior</li>
+          <li>Violation of anti-doping policies</li>
+          <li>Providing false information</li>
+          <li>Failure to comply with MPA rules and regulations</li>
+        </ul>
+
+        <h3>9.2 Penalties</h3>
+        <p>Disciplinary actions may include:</p>
+        <ul>
+          <li>Warning or reprimand</li>
+          <li>Temporary suspension from tournaments</li>
+          <li>Permanent ban from MPA activities</li>
+          <li>Termination of membership</li>
+        </ul>
+
+        <h2>10. Amendments and Updates</h2>
+        <ul>
+          <li>MPA reserves the right to modify these Terms and Conditions at any time.</li>
+          <li>Players will be notified of significant changes via email or website announcement.</li>
+          <li>Continued participation after changes constitutes acceptance of new terms.</li>
+        </ul>
+
+        <h2>11. Termination</h2>
+        <h3>11.1 Voluntary Termination</h3>
+        <ul>
+          <li>Players may terminate their membership at any time by contacting MPA.</li>
+          <li>Termination does not entitle players to refunds of any fees paid.</li>
+        </ul>
+
+        <h3>11.2 Involuntary Termination</h3>
+        <ul>
+          <li>MPA may terminate membership for violations of these terms.</li>
+          <li>Terminated players may appeal the decision through established procedures.</li>
+        </ul>
+
+        <h2>12. Governing Law</h2>
+        <p>These Terms and Conditions are governed by the laws of Malaysia. Any disputes arising from these terms shall be subject to the jurisdiction of Malaysian courts.</p>
+
+        <h2>13. Contact Information</h2>
+        <p>For questions or concerns regarding these Terms and Conditions, please contact:</p>
+        <div class="bg-gray-50 p-4 rounded-lg mt-4">
+          <p><strong>Malaysia Pickleball Association</strong></p>
+          <p><i class="fas fa-envelope mr-2"></i>Email: admin@malaysiapickleball.org</p>
+          <p><i class="fas fa-phone mr-2"></i>Phone: +60 3-XXXX XXXX</p>
+          <p><i class="fas fa-map-marker-alt mr-2"></i>Address: [MPA Official Address]</p>
         </div>
 
-        <!-- Content -->
-        <div class="prose prose-lg max-w-none">
-          <section class="mb-8">
-            <h2 class="text-2xl font-semibold text-gray-800 mb-4">1. Acceptance of Terms</h2>
-            <p class="text-gray-700 mb-4">
-              By accessing and using the Malaysia Pickleball Association website and services, you accept and agree to be bound by the terms and provision of this agreement. If you do not agree to abide by the above, please do not use this service.
-            </p>
-          </section>
-
-          <section class="mb-8">
-            <h2 class="text-2xl font-semibold text-gray-800 mb-4">2. About Our Services</h2>
-            <p class="text-gray-700 mb-4">
-              Malaysia Pickleball Association provides:
-            </p>
-            <ul class="list-disc list-inside text-gray-700 mb-4 space-y-2">
-              <li>Tournament organization and management services</li>
-              <li>Player registration and ranking systems</li>
-              <li>Venue and facility information</li>
-              <li>Coach and referee certification programs</li>
-              <li>Live streaming of tournaments</li>
-              <li>Community messaging and communication platforms</li>
-              <li>Equipment and merchandise sales</li>
-            </ul>
-          </section>
-
-          <section class="mb-8">
-            <h2 class="text-2xl font-semibold text-gray-800 mb-4">3. User Registration and Accounts</h2>
-            <p class="text-gray-700 mb-4">
-              To access certain features of our services, you may be required to register for an account. You agree to:
-            </p>
-            <ul class="list-disc list-inside text-gray-700 mb-4 space-y-2">
-              <li>Provide accurate, current, and complete information during registration</li>
-              <li>Maintain and update your account information</li>
-              <li>Keep your password secure and confidential</li>
-              <li>Accept responsibility for all activities under your account</li>
-              <li>Notify us immediately of any unauthorized use of your account</li>
-            </ul>
-          </section>
-
-          <section class="mb-8">
-            <h2 class="text-2xl font-semibold text-gray-800 mb-4">4. Tournament Participation</h2>
-            <p class="text-gray-700 mb-4">
-              When participating in tournaments organized by Malaysia Pickleball Association:
-            </p>
-            <ul class="list-disc list-inside text-gray-700 mb-4 space-y-2">
-              <li>You must comply with all tournament rules and regulations</li>
-              <li>Registration fees are non-refundable unless the tournament is cancelled</li>
-              <li>You participate at your own risk and waive claims against the organization</li>
-              <li>You consent to photography and video recording for promotional purposes</li>
-              <li>You must provide accurate skill level and ranking information</li>
-            </ul>
-          </section>
-
-          <section class="mb-8">
-            <h2 class="text-2xl font-semibold text-gray-800 mb-4">5. Code of Conduct</h2>
-            <p class="text-gray-700 mb-4">
-              All users must:
-            </p>
-            <ul class="list-disc list-inside text-gray-700 mb-4 space-y-2">
-              <li>Treat all participants, officials, and staff with respect</li>
-              <li>Follow fair play principles and sportsmanship</li>
-              <li>Not engage in harassment, discrimination, or abusive behavior</li>
-              <li>Comply with all applicable laws and regulations</li>
-              <li>Not use the platform for illegal or unauthorized purposes</li>
-            </ul>
-          </section>
-
-          <section class="mb-8">
-            <h2 class="text-2xl font-semibold text-gray-800 mb-4">6. Privacy and Data Protection</h2>
-            <p class="text-gray-700 mb-4">
-              Your privacy is important to us. We collect and use your personal information in accordance with our Privacy Policy. By using our services, you consent to the collection and use of your information as described in our Privacy Policy.
-            </p>
-          </section>
-
-          <section class="mb-8">
-            <h2 class="text-2xl font-semibold text-gray-800 mb-4">7. Payment and Refunds</h2>
-            <p class="text-gray-700 mb-4">
-              For paid services:
-            </p>
-            <ul class="list-disc list-inside text-gray-700 mb-4 space-y-2">
-              <li>All fees must be paid in full before accessing paid services</li>
-              <li>Tournament registration fees are generally non-refundable</li>
-              <li>Refunds may be provided at our discretion for cancelled events</li>
-              <li>Merchandise sales follow standard consumer protection laws</li>
-            </ul>
-          </section>
-
-          <section class="mb-8">
-            <h2 class="text-2xl font-semibold text-gray-800 mb-4">8. Intellectual Property</h2>
-            <p class="text-gray-700 mb-4">
-              All content on this website, including text, graphics, logos, images, and software, is the property of Malaysia Pickleball Association or its licensors and is protected by copyright and other intellectual property laws.
-            </p>
-          </section>
-
-          <section class="mb-8">
-            <h2 class="text-2xl font-semibold text-gray-800 mb-4">9. Limitation of Liability</h2>
-            <p class="text-gray-700 mb-4">
-              Malaysia Pickleball Association shall not be liable for any direct, indirect, incidental, special, or consequential damages resulting from the use or inability to use our services, even if we have been advised of the possibility of such damages.
-            </p>
-          </section>
-
-          <section class="mb-8">
-            <h2 class="text-2xl font-semibold text-gray-800 mb-4">10. Termination</h2>
-            <p class="text-gray-700 mb-4">
-              We reserve the right to terminate or suspend your account and access to our services at any time, without prior notice, for conduct that we believe violates these Terms of Service or is harmful to other users, us, or third parties.
-            </p>
-          </section>
-
-          <section class="mb-8">
-            <h2 class="text-2xl font-semibold text-gray-800 mb-4">11. Technical Partnership</h2>
-            <p class="text-gray-700 mb-4">
-              The Malaysia Pickleball Association website and digital services are developed and maintained by our Technical Partner, <strong>Fenix Digital</strong>. Fenix Digital provides:
-            </p>
-            <ul class="list-disc list-inside text-gray-700 mb-4 space-y-2">
-              <li>Website development and maintenance</li>
-              <li>Digital platform management and hosting</li>
-              <li>Technical support and system administration</li>
-              <li>Data security and backup services</li>
-              <li>Software updates and feature enhancements</li>
-              <li>Mobile application development</li>
-            </ul>
-            <p class="text-gray-700 mb-4">
-              While Fenix Digital handles the technical aspects of our digital presence, Malaysia Pickleball Association remains responsible for all content, policies, and user interactions on the platform.
-            </p>
-          </section>
-
-          <section class="mb-8">
-            <h2 class="text-2xl font-semibold text-gray-800 mb-4">12. Changes to Terms</h2>
-            <p class="text-gray-700 mb-4">
-              We reserve the right to modify these terms at any time. Changes will be effective immediately upon posting on our website. Your continued use of the service after any such changes constitutes your acceptance of the new Terms of Service.
-            </p>
-          </section>
-
-          <section class="mb-8">
-            <h2 class="text-2xl font-semibold text-gray-800 mb-4">13. Contact Information</h2>
-            <p class="text-gray-700 mb-4">
-              If you have any questions about these Terms of Service, please contact us at:
-            </p>
-            <div class="bg-gray-50 p-4 rounded-lg mb-4">
-              <p class="text-gray-700"><strong>Malaysia Pickleball Association</strong></p>
-              <p class="text-gray-700">Email: info@malaysiapickleball.org</p>
-              <p class="text-gray-700">Website: www.malaysiapickleball.org</p>
-            </div>
-            <p class="text-gray-700 mb-2">
-              For technical support and website-related issues, please contact our Technical Partner:
-            </p>
-            <div class="bg-blue-50 p-4 rounded-lg">
-              <p class="text-gray-700"><strong>Fenix Digital</strong></p>
-              <p class="text-gray-700">Technical Partner for Malaysia Pickleball Association</p>
-              <p class="text-gray-700">Email: support@fenixdigital.com</p>
-              <p class="text-gray-700">Website: www.fenixdigital.com</p>
-            </div>
-          </section>
-        </div>
-
-        <!-- Back to Home Button -->
-        <div class="text-center mt-8">
-          <a href="/" class="inline-flex items-center px-6 py-3 bg-green-600 text-white font-semibold rounded-xl hover:bg-green-700 transition-colors duration-300">
-            <i class="fas fa-home mr-2"></i>
-            Back to Home
-          </a>
+        <div class="mt-8 p-4 bg-blue-50 border-l-4 border-blue-500">
+          <p class="text-blue-800"><strong>Important Notice:</strong> By completing your player registration, you acknowledge that you have read, understood, and agree to abide by these Terms and Conditions.</p>
         </div>
       </div>
     </div>
   </main>
+
+  <%- include('../partials/footer') %>
 </body>
-</html> 
+</html>

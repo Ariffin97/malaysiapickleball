@@ -847,6 +847,133 @@ Malaysia Pickleball Association Team`,
       throw error;
     }
   }
+
+  // ========================
+  // NEWS OPERATIONS
+  // ========================
+
+  static async getAllNews() {
+    try {
+      const News = require('../models/News');
+      return await News.find().sort({ createdAt: -1 });
+    } catch (error) {
+      console.error('Error getting all news:', error);
+      throw error;
+    }
+  }
+
+  static async getPublishedNews(limit = null) {
+    try {
+      const News = require('../models/News');
+      let query = News.find({ status: 'published' }).sort({ publishedAt: -1 });
+      if (limit) {
+        query = query.limit(limit);
+      }
+      return await query;
+    } catch (error) {
+      console.error('Error getting published news:', error);
+      throw error;
+    }
+  }
+
+  static async getFeaturedNews() {
+    try {
+      const News = require('../models/News');
+      return await News.find({ status: 'published', featured: true }).sort({ publishedAt: -1 }).limit(3);
+    } catch (error) {
+      console.error('Error getting featured news:', error);
+      throw error;
+    }
+  }
+
+  static async getNewsById(id) {
+    try {
+      const News = require('../models/News');
+      return await News.findById(id);
+    } catch (error) {
+      console.error('Error getting news by ID:', error);
+      throw error;
+    }
+  }
+
+  static async createNews(newsData) {
+    try {
+      const News = require('../models/News');
+      const news = new News(newsData);
+      return await news.save();
+    } catch (error) {
+      console.error('Error creating news:', error);
+      throw error;
+    }
+  }
+
+  static async updateNews(id, updateData) {
+    try {
+      const News = require('../models/News');
+      return await News.findByIdAndUpdate(id, updateData, { new: true });
+    } catch (error) {
+      console.error('Error updating news:', error);
+      throw error;
+    }
+  }
+
+  static async deleteNews(id) {
+    try {
+      const News = require('../models/News');
+      return await News.findByIdAndDelete(id);
+    } catch (error) {
+      console.error('Error deleting news:', error);
+      throw error;
+    }
+  }
+
+  static async incrementNewsViews(id) {
+    try {
+      const News = require('../models/News');
+      return await News.findByIdAndUpdate(id, { $inc: { viewCount: 1 } }, { new: true });
+    } catch (error) {
+      console.error('Error incrementing news views:', error);
+      throw error;
+    }
+  }
+
+  static async getNewsByCategory(category) {
+    try {
+      const News = require('../models/News');
+      return await News.find({ category, status: 'published' }).sort({ publishedAt: -1 });
+    } catch (error) {
+      console.error('Error getting news by category:', error);
+      throw error;
+    }
+  }
+
+  static async searchNews(searchTerm) {
+    try {
+      const News = require('../models/News');
+      return await News.find({
+        $text: { $search: searchTerm },
+        status: 'published'
+      }).sort({ score: { $meta: 'textScore' } });
+    } catch (error) {
+      console.error('Error searching news:', error);
+      throw error;
+    }
+  }
+
+  static async getLatestNews(limit = 5) {
+    try {
+      const News = require('../models/News');
+      return await News.find({ status: 'published' })
+        .sort({ publishedAt: -1 })
+        .limit(limit)
+        .select('title summary publishedAt category featuredImage viewCount');
+    } catch (error) {
+      console.error('Error getting latest news:', error);
+      throw error;
+    }
+  }
+
+
 }
 
 module.exports = DatabaseService; 

@@ -8,26 +8,6 @@
   <link rel="stylesheet" href="/css/styles.css">
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
   <style>
-    .registration-hero {
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      position: relative;
-      overflow: hidden;
-      padding-top: 7rem;
-    }
-    .registration-hero::before {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.1'%3E%3Ccircle cx='30' cy='30' r='2'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E") repeat;
-      animation: float 20s infinite linear;
-    }
-    @keyframes float {
-      0% { transform: translateX(0) translateY(0); }
-      100% { transform: translateX(-60px) translateY(-60px); }
-    }
     .form-card {
       backdrop-filter: blur(10px);
       background: rgba(255, 255, 255, 0.95);
@@ -72,36 +52,8 @@
   const defaultBg = backgroundImage || '/images/defaultbg.png';
 %>
 <body class="bg-gray-100 bg-cover bg-center bg-fixed min-h-screen" style="background-image: url('<%= defaultBg %>')">
-  <%- include('../partials/header') %>
 
-  <!-- Hero Section -->
-  <section class="registration-hero py-16 mb-8">
-    <div class="container mx-auto px-4 text-center relative z-10">
-      <h1 class="text-4xl md:text-6xl font-bold text-white mb-4">
-        <i class="fas fa-user-plus mr-3"></i>
-        Player Registration
-      </h1>
-      <p class="text-xl text-gray-200 mb-6">
-        Join the Malaysia Pickleball Association and become an official registered player
-      </p>
-      <div class="flex justify-center items-center text-white space-x-6">
-        <div class="text-center">
-          <div class="text-3xl font-bold">FREE</div>
-          <div class="text-sm">Registration</div>
-        </div>
-        <div class="text-center">
-          <div class="text-3xl font-bold">INSTANT</div>
-          <div class="text-sm">Unique ID</div>
-        </div>
-        <div class="text-center">
-          <div class="text-3xl font-bold">OFFICIAL</div>
-          <div class="text-sm">Membership</div>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <main class="pb-12">
+  <main class="py-12">
     <div class="container mx-auto px-4 max-w-4xl">
       
       <!-- Registration Form -->
@@ -214,6 +166,169 @@
                         placeholder="Enter your complete address"></textarea>
             </div>
 
+            <!-- City -->
+            <div class="input-group">
+              <label for="city" class="block text-sm font-medium text-gray-700 mb-2">
+                <i class="fas fa-city mr-2"></i>City *
+              </label>
+              <select id="city" name="city" required
+                      class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white">
+                <option value="">Select your city</option>
+                
+                <!-- Kuala Lumpur & Selangor -->
+                <optgroup label="Kuala Lumpur & Selangor">
+                  <option value="Kuala Lumpur">Kuala Lumpur</option>
+                  <option value="Petaling Jaya">Petaling Jaya</option>
+                  <option value="Shah Alam">Shah Alam</option>
+                  <option value="Subang Jaya">Subang Jaya</option>
+                  <option value="Klang">Klang</option>
+                  <option value="Ampang">Ampang</option>
+                  <option value="Cheras">Cheras</option>
+                  <option value="Kajang">Kajang</option>
+                  <option value="Selayang">Selayang</option>
+                  <option value="Rawang">Rawang</option>
+                  <option value="Sepang">Sepang</option>
+                  <option value="Putrajaya">Putrajaya</option>
+                  <option value="Cyberjaya">Cyberjaya</option>
+                </optgroup>
+                
+                <!-- Johor -->
+                <optgroup label="Johor">
+                  <option value="Johor Bahru">Johor Bahru</option>
+                  <option value="Skudai">Skudai</option>
+                  <option value="Iskandar Puteri">Iskandar Puteri</option>
+                  <option value="Muar">Muar</option>
+                  <option value="Batu Pahat">Batu Pahat</option>
+                  <option value="Kluang">Kluang</option>
+                  <option value="Pontian">Pontian</option>
+                  <option value="Segamat">Segamat</option>
+                  <option value="Kota Tinggi">Kota Tinggi</option>
+                </optgroup>
+                
+                <!-- Penang -->
+                <optgroup label="Penang">
+                  <option value="George Town">George Town</option>
+                  <option value="Butterworth">Butterworth</option>
+                  <option value="Bukit Mertajam">Bukit Mertajam</option>
+                  <option value="Nibong Tebal">Nibong Tebal</option>
+                  <option value="Permatang Pauh">Permatang Pauh</option>
+                </optgroup>
+                
+                <!-- Perak -->
+                <optgroup label="Perak">
+                  <option value="Ipoh">Ipoh</option>
+                  <option value="Taiping">Taiping</option>
+                  <option value="Teluk Intan">Teluk Intan</option>
+                  <option value="Kampar">Kampar</option>
+                  <option value="Kuala Kangsar">Kuala Kangsar</option>
+                  <option value="Parit Buntar">Parit Buntar</option>
+                  <option value="Sitiawan">Sitiawan</option>
+                </optgroup>
+                
+                <!-- Kedah -->
+                <optgroup label="Kedah">
+                  <option value="Alor Setar">Alor Setar</option>
+                  <option value="Sungai Petani">Sungai Petani</option>
+                  <option value="Kulim">Kulim</option>
+                  <option value="Langkawi">Langkawi</option>
+                  <option value="Kubang Pasu">Kubang Pasu</option>
+                </optgroup>
+                
+                <!-- Negeri Sembilan -->
+                <optgroup label="Negeri Sembilan">
+                  <option value="Seremban">Seremban</option>
+                  <option value="Port Dickson">Port Dickson</option>
+                  <option value="Nilai">Nilai</option>
+                  <option value="Bahau">Bahau</option>
+                  <option value="Tampin">Tampin</option>
+                </optgroup>
+                
+                <!-- Melaka -->
+                <optgroup label="Melaka">
+                  <option value="Melaka City">Melaka City</option>
+                  <option value="Alor Gajah">Alor Gajah</option>
+                  <option value="Jasin">Jasin</option>
+                  <option value="Merlimau">Merlimau</option>
+                </optgroup>
+                
+                <!-- Pahang -->
+                <optgroup label="Pahang">
+                  <option value="Kuantan">Kuantan</option>
+                  <option value="Temerloh">Temerloh</option>
+                  <option value="Bentong">Bentong</option>
+                  <option value="Raub">Raub</option>
+                  <option value="Jerantut">Jerantut</option>
+                  <option value="Pekan">Pekan</option>
+                  <option value="Kuala Lipis">Kuala Lipis</option>
+                </optgroup>
+                
+                <!-- Terengganu -->
+                <optgroup label="Terengganu">
+                  <option value="Kuala Terengganu">Kuala Terengganu</option>
+                  <option value="Kemaman">Kemaman</option>
+                  <option value="Dungun">Dungun</option>
+                  <option value="Marang">Marang</option>
+                  <option value="Besut">Besut</option>
+                </optgroup>
+                
+                <!-- Kelantan -->
+                <optgroup label="Kelantan">
+                  <option value="Kota Bharu">Kota Bharu</option>
+                  <option value="Tanah Merah">Tanah Merah</option>
+                  <option value="Machang">Machang</option>
+                  <option value="Pasir Mas">Pasir Mas</option>
+                  <option value="Tumpat">Tumpat</option>
+                  <option value="Bachok">Bachok</option>
+                </optgroup>
+                
+                <!-- Perlis -->
+                <optgroup label="Perlis">
+                  <option value="Kangar">Kangar</option>
+                  <option value="Arau">Arau</option>
+                  <option value="Padang Besar">Padang Besar</option>
+                </optgroup>
+                
+                <!-- Sabah -->
+                <optgroup label="Sabah">
+                  <option value="Kota Kinabalu">Kota Kinabalu</option>
+                  <option value="Sandakan">Sandakan</option>
+                  <option value="Tawau">Tawau</option>
+                  <option value="Lahad Datu">Lahad Datu</option>
+                  <option value="Keningau">Keningau</option>
+                  <option value="Semporna">Semporna</option>
+                  <option value="Kudat">Kudat</option>
+                </optgroup>
+                
+                <!-- Sarawak -->
+                <optgroup label="Sarawak">
+                  <option value="Kuching">Kuching</option>
+                  <option value="Miri">Miri</option>
+                  <option value="Sibu">Sibu</option>
+                  <option value="Bintulu">Bintulu</option>
+                  <option value="Limbang">Limbang</option>
+                  <option value="Sarikei">Sarikei</option>
+                  <option value="Sri Aman">Sri Aman</option>
+                  <option value="Kapit">Kapit</option>
+                </optgroup>
+                
+                <!-- Other -->
+                <optgroup label="Other">
+                  <option value="Labuan">Labuan</option>
+                  <option value="Other">Other (Please specify in address)</option>
+                </optgroup>
+              </select>
+            </div>
+
+            <!-- Postcode -->
+            <div class="input-group">
+              <label for="postcode" class="block text-sm font-medium text-gray-700 mb-2">
+                <i class="fas fa-mail-bulk mr-2"></i>Postcode *
+              </label>
+              <input type="text" id="postcode" name="postcode" required pattern="[0-9]{5}"
+                     class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                     placeholder="Enter your postcode (5 digits)" maxlength="5">
+            </div>
+
             <!-- Account Information -->
             <div class="md:col-span-2 mt-6">
               <h3 class="text-xl font-semibold text-gray-800 mb-4 flex items-center">
@@ -287,8 +402,8 @@
                 <label class="flex items-start">
                   <input type="checkbox" id="terms" name="terms" required class="mt-1 mr-3">
                   <span class="text-sm text-gray-700">
-                    I agree to the <a href="#" class="text-blue-600 hover:underline">Terms and Conditions</a> 
-                    and <a href="#" class="text-blue-600 hover:underline">Privacy Policy</a> of Malaysia Pickleball Association. 
+                    I agree to the <a href="#" id="termsLink" class="text-blue-600 hover:underline">Terms and Conditions</a> 
+                    and <a href="#" id="privacyLink" class="text-blue-600 hover:underline">Privacy Policy</a> of Malaysia Pickleball Association. 
                     I understand that my registration is subject to admin approval and I will receive a notification once approved.
                   </span>
                 </label>
@@ -626,11 +741,466 @@
       console.log('Username field blurred:', this.value);
     });
 
+    // Modal functions
+    function openTermsModal() {
+      console.log('openTermsModal function called');
+      const modal = document.getElementById('termsModal');
+      if (modal) {
+        console.log('Terms modal element found, showing modal');
+        modal.classList.remove('hidden');
+        modal.style.display = 'flex';
+        modal.style.alignItems = 'center';
+        modal.style.justifyContent = 'center';
+        modal.style.visibility = 'visible';
+        modal.style.opacity = '1';
+        document.body.style.overflow = 'hidden';
+        console.log('Terms modal should now be visible');
+      } else {
+        console.error('Terms modal element not found!');
+      }
+    }
+
+    function openPrivacyModal() {
+      console.log('openPrivacyModal function called');
+      const modal = document.getElementById('privacyModal');
+      if (modal) {
+        console.log('Privacy modal element found, showing modal');
+        modal.classList.remove('hidden');
+        modal.style.display = 'flex';
+        modal.style.alignItems = 'center';
+        modal.style.justifyContent = 'center';
+        modal.style.visibility = 'visible';
+        modal.style.opacity = '1';
+        document.body.style.overflow = 'hidden';
+        console.log('Privacy modal should now be visible');
+      } else {
+        console.error('Privacy modal element not found!');
+      }
+    }
+
+    function closeModal(modalId) {
+      console.log('closeModal function called for:', modalId);
+      
+      // Get all elements with this ID (there might be duplicates)
+      const allModals = document.querySelectorAll('#' + modalId);
+      console.log('Number of elements with ID ' + modalId + ':', allModals.length);
+      
+      if (allModals.length > 0) {
+        // Hide all elements with this ID using the most aggressive approach
+        allModals.forEach((modal, index) => {
+          console.log('Processing modal element', index);
+          
+          // Method 1: CSS classes and inline styles
+          modal.classList.add('hidden');
+          modal.setAttribute('style', 'display: none !important; visibility: hidden !important; opacity: 0 !important; z-index: -9999 !important; position: fixed !important; top: -9999px !important; left: -9999px !important;');
+          
+          // Method 2: Remove from DOM temporarily
+          const parent = modal.parentNode;
+          if (parent) {
+            modal.style.display = 'none';
+            modal.style.visibility = 'hidden';
+            modal.style.opacity = '0';
+            console.log('Modal', index, 'should be hidden now');
+          }
+        });
+        
+        document.body.style.overflow = 'auto';
+        console.log('All modals with ID', modalId, 'processed');
+        
+        // Final check - look for ANY visible modal-like elements
+        setTimeout(() => {
+          const stillVisible = document.querySelectorAll('#' + modalId + ':not(.hidden)');
+          console.log('Still visible modals after close:', stillVisible.length);
+          stillVisible.forEach(modal => {
+            modal.remove(); // Nuclear option - remove from DOM completely
+            console.log('Removed stubborn modal from DOM');
+          });
+          
+          // Also check for any elements that might be modal overlays
+          const allFixedElements = document.querySelectorAll('div[style*="fixed"], div[style*="z-index"], .fixed');
+          console.log('All fixed positioned elements found:', allFixedElements.length);
+          
+          allFixedElements.forEach((element, index) => {
+            const style = window.getComputedStyle(element);
+            if (style.position === 'fixed' && 
+                (style.backgroundColor.includes('rgba(0, 0, 0') || style.backgroundColor.includes('rgb(0, 0, 0')) &&
+                style.zIndex > 1000) {
+              console.log('Found potential modal overlay element', index, element);
+              element.style.display = 'none !important';
+              element.remove();
+              console.log('Removed potential modal overlay');
+            }
+          });
+          
+          // Nuclear option: hide ALL elements with high z-index that look like modals
+          const highZElements = Array.from(document.querySelectorAll('*')).filter(el => {
+            const style = window.getComputedStyle(el);
+            return parseInt(style.zIndex) > 9000 && style.position === 'fixed';
+          });
+          
+          console.log('High z-index fixed elements:', highZElements.length);
+          highZElements.forEach((element, index) => {
+            console.log('Hiding high z-index element', index, element.id || element.className);
+            element.style.display = 'none !important';
+          });
+          
+        }, 100);
+        
+      } else {
+        console.error('No modal found with ID:', modalId);
+      }
+    }
+
     // Initialize
     document.addEventListener('DOMContentLoaded', function() {
       console.log('Player registration form loaded');
       updateSubmitButton(); // Initially disable submit button
+      
+      // Debug: Check if elements exist
+      const termsLink = document.getElementById('termsLink');
+      const privacyLink = document.getElementById('privacyLink');
+      const termsModal = document.getElementById('termsModal');
+      const privacyModal = document.getElementById('privacyModal');
+      
+      console.log('Terms link found:', !!termsLink);
+      console.log('Privacy link found:', !!privacyLink);
+      console.log('Terms modal found:', !!termsModal);
+      console.log('Privacy modal found:', !!privacyModal);
+      
+      // Terms modal event listeners
+      if (termsLink) {
+        console.log('Adding click listener to terms link');
+        termsLink.addEventListener('click', function(e) {
+          console.log('Terms link clicked!');
+          e.preventDefault();
+          openTermsModal();
+        });
+      } else {
+        console.error('Terms link not found!');
+      }
+      
+      const termsCloseBtn = document.getElementById('termsCloseBtn');
+      const termsCloseFooterBtn = document.getElementById('termsCloseFooterBtn');
+      
+      console.log('Terms close button found:', !!termsCloseBtn);
+      console.log('Terms footer close button found:', !!termsCloseFooterBtn);
+      
+      if (termsCloseBtn) {
+        termsCloseBtn.addEventListener('click', function(e) {
+          console.log('Terms close button clicked');
+          e.preventDefault();
+          e.stopPropagation();
+          closeModal('termsModal');
+        });
+      }
+      
+      if (termsCloseFooterBtn) {
+        termsCloseFooterBtn.addEventListener('click', function(e) {
+          console.log('Terms footer close button clicked');
+          e.preventDefault();
+          e.stopPropagation();
+          closeModal('termsModal');
+        });
+      }
+      
+      // Privacy modal event listeners
+      if (privacyLink) {
+        console.log('Adding click listener to privacy link');
+        privacyLink.addEventListener('click', function(e) {
+          console.log('Privacy link clicked!');
+          e.preventDefault();
+          openPrivacyModal();
+        });
+      } else {
+        console.error('Privacy link not found!');
+      }
+      
+      const privacyCloseBtn = document.getElementById('privacyCloseBtn');
+      const privacyCloseFooterBtn = document.getElementById('privacyCloseFooterBtn');
+      
+      console.log('Privacy close button found:', !!privacyCloseBtn);
+      console.log('Privacy footer close button found:', !!privacyCloseFooterBtn);
+      
+      if (privacyCloseBtn) {
+        privacyCloseBtn.addEventListener('click', function(e) {
+          console.log('Privacy close button clicked');
+          e.preventDefault();
+          e.stopPropagation();
+          closeModal('privacyModal');
+        });
+      }
+      
+      if (privacyCloseFooterBtn) {
+        privacyCloseFooterBtn.addEventListener('click', function(e) {
+          console.log('Privacy footer close button clicked');
+          e.preventDefault();
+          e.stopPropagation();
+          closeModal('privacyModal');
+        });
+      }
+      
+      // Close modals when clicking outside
+      if (termsModal) {
+        termsModal.addEventListener('click', function(e) {
+          if (e.target === termsModal) {
+            console.log('Closing terms modal by outside click');
+            closeModal('termsModal');
+          }
+        });
+      }
+      
+      if (privacyModal) {
+        privacyModal.addEventListener('click', function(e) {
+          if (e.target === privacyModal) {
+            console.log('Closing privacy modal by outside click');
+            closeModal('privacyModal');
+          }
+        });
+      }
+      
+      // Alternative event delegation approach for close buttons
+      document.addEventListener('click', function(e) {
+        if (e.target.id === 'termsCloseBtn' || e.target.id === 'termsCloseFooterBtn') {
+          console.log('Terms close button clicked via delegation');
+          e.preventDefault();
+          e.stopPropagation();
+          closeModal('termsModal');
+        }
+        
+        if (e.target.id === 'privacyCloseBtn' || e.target.id === 'privacyCloseFooterBtn') {
+          console.log('Privacy close button clicked via delegation');
+          e.preventDefault();
+          e.stopPropagation();
+          closeModal('privacyModal');
+        }
+        
+        // Also check if the clicked element is inside a close button
+        const closestCloseBtn = e.target.closest('#termsCloseBtn, #termsCloseFooterBtn, #privacyCloseBtn, #privacyCloseFooterBtn');
+        if (closestCloseBtn) {
+          console.log('Close button clicked via closest:', closestCloseBtn.id);
+          e.preventDefault();
+          e.stopPropagation();
+          
+          if (closestCloseBtn.id.includes('terms')) {
+            closeModal('termsModal');
+          } else if (closestCloseBtn.id.includes('privacy')) {
+            closeModal('privacyModal');
+          }
+        }
+      });
     });
   </script>
+
+  <!-- Terms and Conditions Modal -->
+  <div id="termsModal" class="hidden fixed inset-0 bg-black bg-opacity-50 p-4" style="z-index: 9999; display: none;">
+    <div class="bg-white rounded-lg max-w-4xl w-full overflow-hidden" style="margin: auto; max-height: 90vh; display: flex; flex-direction: column;">
+      <div class="flex justify-between items-center p-6 border-b">
+        <h2 class="text-2xl font-bold text-gray-800">
+          <i class="fas fa-file-contract text-blue-600 mr-2"></i>
+          Terms and Conditions
+        </h2>
+        <button id="termsCloseBtn" class="text-gray-500 hover:text-gray-700 text-2xl">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+      <div class="p-6 overflow-y-auto text-sm leading-relaxed" style="flex: 1; min-height: 0;">
+        <div class="space-y-6">
+          <div>
+            <h3 class="text-lg font-semibold text-blue-600 mb-3">1. Acceptance of Terms</h3>
+            <p>By registering as a player with the Malaysia Pickleball Association (MPA), you acknowledge that you have read, understood, and agree to be bound by these Terms and Conditions.</p>
+          </div>
+
+          <div>
+            <h3 class="text-lg font-semibold text-blue-600 mb-3">2. Membership and Registration</h3>
+            <h4 class="font-semibold mb-2">2.1 Eligibility</h4>
+            <ul class="list-disc pl-6 space-y-1">
+              <li>You must be at least 13 years old to register independently. Players under 18 require parental/guardian consent.</li>
+              <li>You must provide accurate and complete information during registration.</li>
+              <li>Each person may only maintain one active membership account.</li>
+              <li>You must be a Malaysian citizen or permanent resident, or have valid documentation to participate in Malaysian sports activities.</li>
+            </ul>
+            
+            <h4 class="font-semibold mb-2 mt-4">2.2 Registration Process</h4>
+            <ul class="list-disc pl-6 space-y-1">
+              <li>All registrations are subject to approval by MPA administrators.</li>
+              <li>MPA reserves the right to reject any registration without providing specific reasons.</li>
+              <li>Upon approval, you will receive a unique MPA Player ID.</li>
+              <li>Registration is free of charge, but participation in tournaments may incur fees.</li>
+            </ul>
+          </div>
+
+          <div>
+            <h3 class="text-lg font-semibold text-blue-600 mb-3">3. Player Obligations and Conduct</h3>
+            <p>As an MPA registered player, you agree to:</p>
+            <ul class="list-disc pl-6 space-y-1 mt-2">
+              <li>Conduct yourself in a manner that upholds the integrity and reputation of pickleball and MPA.</li>
+              <li>Show respect for opponents, officials, volunteers, and spectators.</li>
+              <li>Comply with all rules and regulations of pickleball as established by the International Federation of Pickleball (IFP) and MPA.</li>
+              <li>Participate in a spirit of fair play and sportsmanship.</li>
+              <li>Refrain from any form of discrimination, harassment, or inappropriate behavior.</li>
+            </ul>
+          </div>
+
+          <div>
+            <h3 class="text-lg font-semibold text-blue-600 mb-3">4. Tournaments and Competitions</h3>
+            <ul class="list-disc pl-6 space-y-1">
+              <li>Registration as an MPA player does not guarantee entry into tournaments.</li>
+              <li>Tournament entries are subject to separate registration processes and fees.</li>
+              <li>Players must meet specific eligibility criteria for different tournament categories.</li>
+              <li>MPA maintains a ranking system based on tournament performance.</li>
+            </ul>
+          </div>
+
+          <div>
+            <h3 class="text-lg font-semibold text-blue-600 mb-3">5. Liability and Insurance</h3>
+            <p><strong>Assumption of Risk:</strong> By participating in pickleball activities, you acknowledge that:</p>
+            <ul class="list-disc pl-6 space-y-1 mt-2">
+              <li>Pickleball involves inherent risks of injury.</li>
+              <li>You participate at your own risk and assume full responsibility for any injuries.</li>
+              <li>MPA is not liable for injuries, accidents, or damages that may occur during participation.</li>
+              <li>Players are strongly encouraged to maintain personal health and accident insurance.</li>
+            </ul>
+          </div>
+
+          <div>
+            <h3 class="text-lg font-semibold text-blue-600 mb-3">6. Disciplinary Actions</h3>
+            <p>MPA may take disciplinary action for violations including breach of code of conduct, unsportsmanlike behavior, or providing false information. Penalties may include warnings, suspension, or termination of membership.</p>
+          </div>
+
+          <div>
+            <h3 class="text-lg font-semibold text-blue-600 mb-3">7. Governing Law</h3>
+            <p>These Terms and Conditions are governed by the laws of Malaysia. Any disputes arising from these terms shall be subject to the jurisdiction of Malaysian courts.</p>
+          </div>
+
+          <div class="bg-blue-50 p-4 rounded-lg border-l-4 border-blue-500">
+            <p class="text-blue-800"><strong>Important:</strong> By completing your registration, you acknowledge that you have read, understood, and agree to abide by these Terms and Conditions.</p>
+          </div>
+        </div>
+      </div>
+      <div class="p-6 border-t bg-gray-50" style="flex-shrink: 0;">
+        <button id="termsCloseFooterBtn" class="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors">
+          Close
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Privacy Policy Modal -->
+  <div id="privacyModal" class="hidden fixed inset-0 bg-black bg-opacity-50 p-4" style="z-index: 9999; display: none;">
+    <div class="bg-white rounded-lg max-w-4xl w-full overflow-hidden" style="margin: auto; max-height: 90vh; display: flex; flex-direction: column;">
+      <div class="flex justify-between items-center p-6 border-b">
+        <h2 class="text-2xl font-bold text-gray-800">
+          <i class="fas fa-shield-alt text-green-600 mr-2"></i>
+          Privacy Policy
+        </h2>
+        <button id="privacyCloseBtn" class="text-gray-500 hover:text-gray-700 text-2xl">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+      <div class="p-6 overflow-y-auto text-sm leading-relaxed" style="flex: 1; min-height: 0;">
+        <div class="space-y-6">
+          <div>
+            <h3 class="text-lg font-semibold text-green-600 mb-3">1. Information We Collect</h3>
+            <p>When you register as a player with MPA, we collect:</p>
+            <ul class="list-disc pl-6 space-y-1 mt-2">
+              <li><strong>Identity Information:</strong> Full name, IC number, age, date of birth</li>
+              <li><strong>Contact Information:</strong> Email address, phone number, address, city, postcode</li>
+              <li><strong>Account Information:</strong> Username, password (encrypted)</li>
+              <li><strong>Profile Information:</strong> Profile picture, playing preferences</li>
+              <li><strong>Tournament Data:</strong> Match results, rankings, statistics</li>
+            </ul>
+          </div>
+
+          <div>
+            <h3 class="text-lg font-semibold text-green-600 mb-3">2. How We Use Your Information</h3>
+            <ul class="list-disc pl-6 space-y-1">
+              <li><strong>Player Registration:</strong> Processing and managing your membership</li>
+              <li><strong>Tournament Management:</strong> Entry processing, scheduling, and results management</li>
+              <li><strong>Communication:</strong> Sending updates, announcements, and important notices</li>
+              <li><strong>Rankings:</strong> Calculating and maintaining player rankings and statistics</li>
+              <li><strong>Event Organization:</strong> Planning and coordinating tournaments and activities</li>
+            </ul>
+          </div>
+
+          <div>
+            <h3 class="text-lg font-semibold text-green-600 mb-3">3. Data Sharing and Disclosure</h3>
+            <h4 class="font-semibold mb-2">Within MPA:</h4>
+            <ul class="list-disc pl-6 space-y-1">
+              <li>MPA administrators and authorized staff</li>
+              <li>Tournament directors and organizers</li>
+              <li>Certified referees and officials</li>
+            </ul>
+            
+            <h4 class="font-semibold mb-2 mt-4">Public Information:</h4>
+            <ul class="list-disc pl-6 space-y-1">
+              <li>Player name and MPA ID</li>
+              <li>Tournament results and rankings</li>
+              <li>Achievement records and statistics</li>
+            </ul>
+          </div>
+
+          <div>
+            <h3 class="text-lg font-semibold text-green-600 mb-3">4. Data Security</h3>
+            <ul class="list-disc pl-6 space-y-1">
+              <li><strong>Encryption:</strong> All sensitive data is encrypted in transit and at rest</li>
+              <li><strong>Access Controls:</strong> Role-based access with authentication requirements</li>
+              <li><strong>Regular Backups:</strong> Secure backup systems with disaster recovery plans</li>
+              <li><strong>Security Monitoring:</strong> Continuous monitoring for unauthorized access</li>
+            </ul>
+          </div>
+
+          <div>
+            <h3 class="text-lg font-semibold text-green-600 mb-3">5. Your Rights</h3>
+            <p>Under the Malaysian PDPA, you have the right to:</p>
+            <ul class="list-disc pl-6 space-y-1 mt-2">
+              <li>Request a copy of your personal data we hold</li>
+              <li>Update or correct inaccurate personal information</li>
+              <li>Request deletion of your personal data (subject to legal requirements)</li>
+              <li>Withdraw consent for processing (where applicable)</li>
+              <li>Object to processing for direct marketing</li>
+            </ul>
+          </div>
+
+          <div>
+            <h3 class="text-lg font-semibold text-green-600 mb-3">6. Data Retention</h3>
+            <ul class="list-disc pl-6 space-y-1">
+              <li><strong>Active Player Records:</strong> Duration of membership + 2 years</li>
+              <li><strong>Tournament Results:</strong> Permanent (anonymized after 10 years)</li>
+              <li><strong>Communication Records:</strong> 3 years</li>
+              <li><strong>Website Logs:</strong> 1 year</li>
+            </ul>
+          </div>
+
+          <div>
+            <h3 class="text-lg font-semibold text-green-600 mb-3">7. Children's Privacy</h3>
+            <ul class="list-disc pl-6 space-y-1">
+              <li>Players under 18 require parental/guardian consent</li>
+              <li>We take extra care to protect children's personal information</li>
+              <li>Parents can request access to or deletion of their child's data</li>
+            </ul>
+          </div>
+
+          <div>
+            <h3 class="text-lg font-semibold text-green-600 mb-3">8. Contact Information</h3>
+            <div class="bg-gray-50 p-4 rounded-lg">
+              <p><strong>Data Protection Officer</strong></p>
+              <p>Email: privacy@malaysiapickleball.org</p>
+              <p>Phone: +60 3-XXXX XXXX</p>
+            </div>
+          </div>
+
+          <div class="bg-green-50 p-4 rounded-lg border-l-4 border-green-500">
+            <p class="text-green-800"><strong>Your Privacy Matters:</strong> We are committed to protecting your personal information and will only use it as described in this policy.</p>
+          </div>
+        </div>
+      </div>
+      <div class="p-6 border-t bg-gray-50" style="flex-shrink: 0;">
+        <button id="privacyCloseFooterBtn" class="bg-green-600 text-white px-6 py-2 rounded-lg hover:bg-green-700 transition-colors">
+          Close
+        </button>
+      </div>
+    </div>
+  </div>
+
 </body>
 </html> 
