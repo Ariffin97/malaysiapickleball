@@ -671,39 +671,21 @@
         gap: 0.5rem;
       }
       
-      /* Video carousel small mobile */
-      .video-carousel-container {
-        height: 400px;
-        margin: 0 -0.5rem;
-        padding: 0 0.5rem;
-      }
-      
-      .video-card {
-        min-width: calc(100vw - 2rem);
-        max-width: calc(100vw - 2rem);
-        height: 360px;
+      /* Video list small mobile */
+      .video-item {
+        margin-bottom: 1rem;
       }
       
       /* Make navigation buttons smaller on mobile */
       #newsScrollLeft,
-      #newsScrollRight,
-      #videoScrollLeft,
-      #videoScrollRight {
+      #newsScrollRight {
         width: 2rem;
         height: 2rem;
       }
       
-      /* Video carousel mobile styles */
-      .video-carousel-container {
-        height: 420px;
-        margin: 0 -1rem;
-        padding: 0 1rem;
-      }
-      
-      .video-card {
-        min-width: calc(100vw - 3rem);
-        max-width: calc(100vw - 3rem);
-        height: 380px;
+      /* Video list mobile styles */
+      .video-item {
+        margin-bottom: 1.5rem;
       }
       
       /* Make the entire video section more mobile-friendly */
@@ -721,33 +703,23 @@
     
     /* Smooth hover effects for navigation buttons */
     #newsScrollLeft:hover,
-    #newsScrollRight:hover,
-    #videoScrollLeft:hover,
-    #videoScrollRight:hover {
+    #newsScrollRight:hover {
       transform: scale(1.1);
       box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
     }
     
-    /* Video Carousel Styles */
-    .video-carousel-container {
-      height: 320px;
+    /* Video List Styles */
+    .video-list-container {
       width: 100%;
-      overflow: hidden;
-      position: relative;
     }
     
-    .video-carousel {
-      transition: transform 0.5s ease-in-out;
-      display: flex;
-      height: 100%;
+    .video-item {
+      width: 100%;
+      margin-bottom: 1.5rem;
     }
     
-    .video-card {
-      min-width: 520px;
-      max-width: 520px;
-      height: 280px;
-      flex-shrink: 0;
-      overflow: hidden;
+    .video-item:last-child {
+      margin-bottom: 0;
     }
     
     /* Line clamp utility moved to main styles.css file */
@@ -953,26 +925,19 @@
                   <h2 class="text-4xl font-bold text-gray-800 mb-2">Featured Videos</h2>
                   <div class="w-20 h-1 bg-gradient-to-r from-purple-400 to-pink-400 rounded-full"></div>
                 </div>
-                <div class="flex items-center space-x-4">
-                  <!-- Navigation Arrows -->
-                  <button id="videoScrollLeft" class="w-10 h-10 rounded-full bg-gray-200 hover:bg-gray-300 flex items-center justify-center transition-colors">
-                    <i class="fas fa-chevron-left text-gray-600"></i>
-                  </button>
-                  <button id="videoScrollRight" class="w-10 h-10 rounded-full bg-gray-200 hover:bg-gray-300 flex items-center justify-center transition-colors">
-                    <i class="fas fa-chevron-right text-gray-600"></i>
-                  </button>
+                <div class="flex items-center">
                   <a href="/videos" class="text-green-400 hover:text-green-300 font-medium flex items-center transition-all duration-300 hover:scale-105 group">
                     <span class="mr-2">View All</span>
                     <i class="fas fa-arrow-right transition-transform duration-300 group-hover:translate-x-1"></i>
                   </a>
                 </div>
               </div>
-              <!-- Auto-scroll Video Cards Container -->
-              <div class="video-carousel-container relative overflow-hidden">
-                <div id="featuredVideosContainer" class="video-carousel flex transition-transform duration-500 ease-in-out">
+              <!-- Video List Container -->
+              <div class="video-list-container">
+                <div id="featuredVideosContainer" class="space-y-6">
                   <% if (video1 && video1 !== 'null' && video1 !== 'Null') { %>
-                    <div class="video-card group transition-all duration-500 hover:scale-105">
-                      <div class="bg-gradient-to-br from-white/90 to-gray-100/90 backdrop-blur-lg rounded-2xl shadow-2xl overflow-hidden border border-gray-200/50 h-full hover:bg-gradient-to-br hover:from-white/95 hover:to-gray-50/95 transition-all duration-500">
+                    <div class="video-item w-full mb-6">
+                      <div class="bg-white rounded-2xl shadow-lg overflow-hidden border border-gray-200 hover:shadow-xl transition-all duration-300">
                         <div class="relative h-48 bg-gray-100 overflow-hidden">
                           <%- video1 %>
                         </div>
@@ -998,8 +963,8 @@
                   <% } %>
 
                   <% if (video2 && video2 !== 'null' && video2 !== 'Null') { %>
-                    <div class="video-card group transition-all duration-500 hover:scale-105">
-                      <div class="bg-gradient-to-br from-white/90 to-gray-100/90 backdrop-blur-lg rounded-2xl shadow-2xl overflow-hidden border border-gray-200/50 h-full hover:bg-gradient-to-br hover:from-white/95 hover:to-gray-50/95 transition-all duration-500">
+                    <div class="video-item w-full mb-6">
+                      <div class="bg-white rounded-2xl shadow-lg overflow-hidden border border-gray-200 hover:shadow-xl transition-all duration-300">
                         <div class="relative h-48 bg-gray-100 overflow-hidden">
                           <%- video2 %>
                         </div>
@@ -1024,9 +989,6 @@
                     </div>
                   <% } %>
                 </div>
-                
-                <!-- Auto-scroll indicator dots -->
-                <div class="flex justify-center mt-4 space-x-2" id="videoIndicators"></div>
               </div>
             </div>
           </div>
@@ -1686,105 +1648,9 @@
       console.log(`🎠 News carousel initialized with ${newsCount} articles`);
     }
 
-    // Initialize video carousel
-    function initializeVideoCarousel() {
-      const videoContainer = document.getElementById('featuredVideosContainer');
-      const leftBtn = document.getElementById('videoScrollLeft');
-      const rightBtn = document.getElementById('videoScrollRight');
-      const indicators = document.getElementById('videoIndicators');
-      
-      if (!videoContainer || !leftBtn || !rightBtn) return;
-      
-      const videoCards = videoContainer.children;
-      const videoCount = videoCards.length;
-      
-      if (videoCount <= 1) {
-        // Hide navigation if only one or no videos
-        leftBtn.style.display = 'none';
-        rightBtn.style.display = 'none';
-        indicators.style.display = 'none';
-        return;
-      }
-      
-      let currentIndex = 0;
-      let isScrolling = false;
-      let autoScrollInterval;
-      
-      // Create indicator dots
-      indicators.innerHTML = '';
-      for (let i = 0; i < videoCount; i++) {
-        const dot = document.createElement('button');
-        dot.className = `w-3 h-3 rounded-full transition-all duration-300 ${i === 0 ? 'bg-purple-600' : 'bg-gray-300'}`;
-        dot.addEventListener('click', () => scrollToIndex(i));
-        indicators.appendChild(dot);
-      }
-      
-      // Update indicator dots
-      function updateIndicators() {
-        const dots = indicators.children;
-        for (let i = 0; i < dots.length; i++) {
-          dots[i].className = `w-3 h-3 rounded-full transition-all duration-300 ${i === currentIndex ? 'bg-purple-600' : 'bg-gray-300'}`;
-        }
-      }
-      
-      // Scroll to specific index
-      function scrollToIndex(index) {
-        if (isScrolling) return;
-        isScrolling = true;
-        
-        currentIndex = index;
-        const scrollAmount = index * (520 + 24); // card width + margin
-        videoContainer.style.transform = `translateX(-${scrollAmount}px)`;
-        updateIndicators();
-        
-        setTimeout(() => {
-          isScrolling = false;
-        }, 500);
-      }
-      
-      // Navigate functions
-      function nextSlide() {
-        const nextIndex = (currentIndex + 1) % videoCount;
-        scrollToIndex(nextIndex);
-      }
-      
-      function prevSlide() {
-        const nextIndex = (currentIndex - 1 + videoCount) % videoCount;
-        scrollToIndex(nextIndex);
-      }
-      
-      // Auto-scroll functionality
-      function startAutoScroll() {
-        autoScrollInterval = setInterval(nextSlide, 5000); // Change slide every 5 seconds
-      }
-      
-      function stopAutoScroll() {
-        clearInterval(autoScrollInterval);
-      }
-      
-      // Event listeners
-      leftBtn.addEventListener('click', () => {
-        stopAutoScroll();
-        prevSlide();
-        setTimeout(startAutoScroll, 3000); // Restart auto-scroll after 3 seconds
-      });
-      
-      rightBtn.addEventListener('click', () => {
-        stopAutoScroll();
-        nextSlide();
-        setTimeout(startAutoScroll, 3000); // Restart auto-scroll after 3 seconds
-      });
-      
-      // Pause auto-scroll on hover
-      videoContainer.addEventListener('mouseenter', stopAutoScroll);
-      videoContainer.addEventListener('mouseleave', startAutoScroll);
-      
-      // Start auto-scroll
-      if (videoCount > 1) {
-        startAutoScroll();
-      }
-      
-      console.log(`🎬 Video carousel initialized with ${videoCount} videos`);
+    // Initialize video list - no carousel functionality
+    function initializeVideoList() {
+      console.log('🎬 Video list loaded - no auto-scroll functionality');
     }
 
     // Initialize when DOM is ready
@@ -1800,7 +1666,7 @@
         console.log('⏰ Timeout triggered, loading news...');
         setupEventListeners();
         loadLatestNews();
-        initializeVideoCarousel();
+        initializeVideoList();
       }, 100);
     });
   </script>
