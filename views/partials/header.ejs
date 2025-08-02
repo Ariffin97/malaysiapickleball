@@ -161,6 +161,9 @@
               <a href="/tournament" class="nav-dropdown-item flex items-center gap-3 px-3 py-2 rounded-lg font-medium text-gray-700 hover:bg-green-50 hover:text-green-600 transition-all duration-200 text-sm">
                 <i class="fas fa-trophy text-green-500 w-4"></i> Tournament
               </a>
+              <button id="faqMenuButton" class="nav-dropdown-item flex items-center gap-3 px-3 py-2 rounded-lg font-medium text-gray-700 hover:bg-yellow-50 hover:text-yellow-600 transition-all duration-200 text-sm w-full text-left">
+                <i class="fas fa-question-circle text-yellow-500 w-4"></i> FAQ
+              </button>
               <% if (session.isAuthenticated) { %>
                 <a href="/admin/dashboard" class="nav-dropdown-item flex items-center gap-3 px-3 py-2 rounded-lg font-medium text-gray-700 hover:bg-green-50 hover:text-green-600 transition-all duration-200 text-sm">
                   <i class="fas fa-tachometer-alt text-green-500 w-4"></i> Dashboard
@@ -370,11 +373,7 @@
   /* Mobile responsive */
   @media (max-width: 768px) {
     .brand-text div {
-      font-size: 0.875rem !important;
-    }
-    
-    .brand-text div:last-child {
-      display: none !important;
+      font-size: 0.75rem !important;
     }
     
     .logo-image {
@@ -671,6 +670,191 @@
       element.addEventListener('mouseleave', function() {
         hideTooltip();
       });
+    });
+  });
+})();
+</script>
+
+<!-- FAQ Floating Button - Hidden, functionality moved to menu -->
+<div id="faqButton" class="hidden">
+</div>
+
+<!-- FAQ Popup Modal -->
+<div id="faqModal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden items-center justify-center p-4">
+  <div class="bg-white rounded-2xl max-w-2xl w-full max-h-[80vh] overflow-hidden shadow-2xl">
+    <!-- Header -->
+    <div class="bg-gradient-to-r from-blue-600 to-blue-700 text-white p-6 relative">
+      <h2 class="text-2xl font-bold">Frequently Asked Questions</h2>
+      <button id="closeFaqModal" class="absolute top-4 right-4 text-white hover:text-gray-200 transition-colors">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+        </svg>
+      </button>
+    </div>
+    
+    <!-- Content -->
+    <div class="p-6 overflow-y-auto max-h-96">
+      <div class="space-y-4">
+        
+        <!-- FAQ Item 1 -->
+        <div class="faq-item border-b border-gray-200 pb-4">
+          <button class="faq-question w-full text-left flex justify-between items-center py-2 font-semibold text-gray-800 hover:text-blue-600 transition-colors">
+            <span>How do I register for tournaments?</span>
+            <svg class="w-5 h-5 transform transition-transform faq-arrow" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+            </svg>
+          </button>
+          <div class="faq-answer hidden mt-2 text-gray-600">
+            <p>To register for tournaments, navigate to the "Tournament" section and click on the tournament you're interested in. You'll need to create a player account first if you haven't already.</p>
+          </div>
+        </div>
+
+        <!-- FAQ Item 2 -->
+        <div class="faq-item border-b border-gray-200 pb-4">
+          <button class="faq-question w-full text-left flex justify-between items-center py-2 font-semibold text-gray-800 hover:text-blue-600 transition-colors">
+            <span>What are the membership requirements?</span>
+            <svg class="w-5 h-5 transform transition-transform faq-arrow" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+            </svg>
+          </button>
+          <div class="faq-answer hidden mt-2 text-gray-600">
+            <p>Membership is open to all pickleball enthusiasts. You need to be at least 12 years old and complete the registration form with valid identification.</p>
+          </div>
+        </div>
+
+        <!-- FAQ Item 3 -->
+        <div class="faq-item border-b border-gray-200 pb-4">
+          <button class="faq-question w-full text-left flex justify-between items-center py-2 font-semibold text-gray-800 hover:text-blue-600 transition-colors">
+            <span>How can I find coaching programs?</span>
+            <svg class="w-5 h-5 transform transition-transform faq-arrow" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+            </svg>
+          </button>
+          <div class="faq-answer hidden mt-2 text-gray-600">
+            <p>Visit our "Coaches" section to find certified coaches in your area. You can also check the "Events" page for upcoming training sessions and workshops.</p>
+          </div>
+        </div>
+
+        <!-- FAQ Item 4 -->
+        <div class="faq-item border-b border-gray-200 pb-4">
+          <button class="faq-question w-full text-left flex justify-between items-center py-2 font-semibold text-gray-800 hover:text-blue-600 transition-colors">
+            <span>What equipment do I need to start playing?</span>
+            <svg class="w-5 h-5 transform transition-transform faq-arrow" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+            </svg>
+          </button>
+          <div class="faq-answer hidden mt-2 text-gray-600">
+            <p>You'll need a pickleball paddle, pickleballs, and appropriate court shoes. Many venues provide equipment for beginners. Check our "Shop" section for recommended equipment.</p>
+          </div>
+        </div>
+
+        <!-- FAQ Item 5 -->
+        <div class="faq-item border-b border-gray-200 pb-4">
+          <button class="faq-question w-full text-left flex justify-between items-center py-2 font-semibold text-gray-800 hover:text-blue-600 transition-colors">
+            <span>How do I contact customer support?</span>
+            <svg class="w-5 h-5 transform transition-transform faq-arrow" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+            </svg>
+          </button>
+          <div class="faq-answer hidden mt-2 text-gray-600">
+            <p>You can reach us through the contact form on our website, email us directly, or call during business hours. Check the footer for complete contact information.</p>
+          </div>
+        </div>
+
+        <!-- FAQ Item 6 -->
+        <div class="faq-item">
+          <button class="faq-question w-full text-left flex justify-between items-center py-2 font-semibold text-gray-800 hover:text-blue-600 transition-colors">
+            <span>Are there different skill level categories?</span>
+            <svg class="w-5 h-5 transform transition-transform faq-arrow" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+            </svg>
+          </button>
+          <div class="faq-answer hidden mt-2 text-gray-600">
+            <p>Yes, we organize players into skill levels from beginner (2.0-2.5) to advanced (4.5+). This ensures fair and enjoyable games for everyone. Check our ranking system for more details.</p>
+          </div>
+        </div>
+
+      </div>
+    </div>
+    
+    <!-- Footer -->
+    <div class="bg-gray-50 px-6 py-4 border-t border-gray-200">
+      <p class="text-sm text-gray-600 text-center">
+        Still have questions? <a href="#" class="text-blue-600 hover:text-blue-700 font-medium">Contact us directly</a>
+      </p>
+    </div>
+  </div>
+</div>
+
+<script>
+// FAQ Modal functionality
+(function() {
+  const faqButton = document.getElementById('faqButton');
+  const faqMenuButton = document.getElementById('faqMenuButton');
+  const faqModal = document.getElementById('faqModal');
+  const closeFaqModal = document.getElementById('closeFaqModal');
+  const faqQuestions = document.querySelectorAll('.faq-question');
+
+  // Function to open FAQ Modal
+  function openFaqModal() {
+    faqModal.classList.remove('hidden');
+    faqModal.classList.add('flex');
+    document.body.style.overflow = 'hidden'; // Prevent background scrolling
+    
+    // Close the navigation menu if it's open
+    const quickActionsDropdown = document.getElementById('quick-actions-dropdown');
+    if (quickActionsDropdown) {
+      quickActionsDropdown.classList.add('opacity-0', 'invisible', 'pointer-events-none');
+    }
+  }
+
+  // Open FAQ Modal from floating button (if exists)
+  if (faqButton) {
+    faqButton.addEventListener('click', openFaqModal);
+  }
+
+  // Open FAQ Modal from menu button
+  if (faqMenuButton) {
+    faqMenuButton.addEventListener('click', openFaqModal);
+  }
+
+  // Close FAQ Modal
+  function closeFaq() {
+    faqModal.classList.add('hidden');
+    faqModal.classList.remove('flex');
+    document.body.style.overflow = 'auto'; // Restore scrolling
+  }
+
+  closeFaqModal.addEventListener('click', closeFaq);
+
+  // Close modal when clicking outside
+  faqModal.addEventListener('click', function(e) {
+    if (e.target === faqModal) {
+      closeFaq();
+    }
+  });
+
+  // Close modal with Escape key
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape' && !faqModal.classList.contains('hidden')) {
+      closeFaq();
+    }
+  });
+
+  // FAQ accordion functionality
+  faqQuestions.forEach(question => {
+    question.addEventListener('click', function() {
+      const answer = this.nextElementSibling;
+      const arrow = this.querySelector('.faq-arrow');
+      
+      // Toggle this answer
+      if (answer.classList.contains('hidden')) {
+        answer.classList.remove('hidden');
+        arrow.style.transform = 'rotate(180deg)';
+      } else {
+        answer.classList.add('hidden');
+        arrow.style.transform = 'rotate(0deg)';
+      }
     });
   });
 })();

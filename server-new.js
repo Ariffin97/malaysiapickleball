@@ -1763,9 +1763,9 @@ function sanitizeEmbedCode(embedCode) {
     sanitized = sanitized.replace('></iframe>', ' allowfullscreen></iframe>');
   }
   
-  // Ensure proper sandbox permissions for interaction
+  // Ensure proper sandbox permissions for interaction (without allow-same-origin to prevent sandbox escape)
   if (!sanitized.includes('sandbox')) {
-    sanitized = sanitized.replace('<iframe', '<iframe sandbox="allow-scripts allow-same-origin allow-presentation allow-forms"');
+    sanitized = sanitized.replace('<iframe', '<iframe sandbox="allow-scripts allow-presentation allow-forms"');
   }
   
   // Remove any potentially dangerous attributes

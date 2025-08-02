@@ -57,6 +57,7 @@
       align-items: center;
     }
     
+    /* Desktop overlay (gradient) */
     .hero-section::before {
       content: '';
       position: absolute;
@@ -66,6 +67,15 @@
       bottom: 0;
       background: linear-gradient(135deg, rgba(59, 130, 246, 0.6) 0%, rgba(251, 191, 36, 0.7) 50%, rgba(59, 130, 246, 0.6) 100%);
       z-index: 1;
+    }
+    
+    /* Ensure desktop keeps gradient overlay */
+    @media (min-width: 769px) {
+      .hero-section::before {
+        background: linear-gradient(135deg, rgba(59, 130, 246, 0.6) 0%, rgba(251, 191, 36, 0.7) 50%, rgba(59, 130, 246, 0.6) 100%) !important;
+        backdrop-filter: none !important;
+        -webkit-backdrop-filter: none !important;
+      }
     }
     
     .hero-content {
@@ -128,13 +138,71 @@
     
     /* Mobile-Specific Hero Optimizations */
     @media (max-width: 768px) {
+      /* Override body gradient behind hero section */
+      body {
+        background: #ffffff !important;
+      }
+      
       .hero-section {
         min-height: 90vh;
         padding: 1rem 0;
+        position: relative;
+        background: none !important;
+      }
+      
+      /* MOBILE ONLY: Blurred background with better text visibility */
+      .hero-section::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: url('/images/defaultbg.png') center/cover no-repeat;
+        filter: blur(3px);
+        z-index: 1;
+      }
+      
+      /* Add dark overlay for better text contrast */
+      .hero-section::after {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0, 0, 0, 0.3);
+        z-index: 2;
+      }
+      
+
+      
+      .hero-section > div[class*="absolute"],
+      .hero-section > div[class*="overlay"] {
+        display: none !important;
+      }
+      
+      /* Hide floating background elements on mobile for cleaner view */
+      .floating-element {
+        display: none !important;
       }
       
       .hero-content {
         padding: 0 1rem;
+        position: relative;
+        z-index: 10;
+      }
+      
+      /* Add text shadow for better readability over blurred background */
+      .hero-section h1,
+      .hero-section p {
+        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.7);
+      }
+      
+      /* Ensure all text elements are visible above blurred background */
+      .hero-content * {
+        position: relative;
+        z-index: 11;
       }
       
       .hero-logo-container {
@@ -146,11 +214,12 @@
         height: 6rem !important;
       }
       
-      /* Mobile typography adjustments */
+      /* Mobile typography adjustments with white text */
       .hero-content h1 {
         font-size: 2rem !important;
         line-height: 1.2 !important;
         margin-bottom: 1rem !important;
+        color: #ffffff !important;
       }
       
       .hero-content p {
@@ -158,22 +227,78 @@
         line-height: 1.5 !important;
         margin-bottom: 1.5rem !important;
         padding: 0 0.5rem;
+        color: #ffffff !important;
       }
 
-      /* Mobile Vision & Mission adjustments */
-      .grid > div h3 {
-        font-size: 1.75rem !important;
-        margin-bottom: 1rem !important;
+      /* Force ALL text in hero section to be white on mobile */
+      .hero-section * {
+        color: #ffffff !important;
+        background: transparent !important;
+        background-image: none !important;
+        -webkit-background-clip: initial !important;
+        background-clip: initial !important;
+        -webkit-text-fill-color: #ffffff !important;
+        position: relative !important;
+        z-index: 100 !important;
       }
-
-      .grid > div p {
-        font-size: 0.875rem !important;
-        line-height: 1.4 !important;
+      
+      .hero-section h1,
+      .hero-section h2, 
+      .hero-section h3,
+      .hero-section h4,
+      .hero-section h5,
+      .hero-section h6 {
+        color: #ffffff !important;
+        -webkit-text-fill-color: #ffffff !important;
+        position: relative !important;
+        z-index: 100 !important;
+      }
+      
+      .hero-section p,
+      .hero-section div,
+      .hero-section span {
+        color: #ffffff !important;
+        -webkit-text-fill-color: #ffffff !important;
+        position: relative !important;
+        z-index: 100 !important;
+      }
+      
+      /* Override gradient text specifically */
+      .hero-section .gradient-text {
+        color: #ffffff !important;
+        background: none !important;
+        background-image: none !important;
+        -webkit-background-clip: initial !important;
+        background-clip: initial !important;
+        -webkit-text-fill-color: #ffffff !important;
+        position: relative !important;
+        z-index: 100 !important;
       }
 
       /* Adjust mission item spacing on mobile */
       .grid > div .space-y-3 {
         gap: 0.5rem !important;
+      }
+      
+      /* Reduce mission point spacing on mobile */
+      .hero-section .space-y-4 > div {
+        margin-bottom: 0.1rem !important;
+      }
+      
+      .hero-section .space-y-4 > div:last-child {
+        margin-bottom: 0 !important;
+      }
+      
+      /* Make mission points more compact on mobile */
+      .hero-section .space-y-4 {
+        gap: 0.1rem !important;
+        display: flex !important;
+        flex-direction: column !important;
+      }
+      
+      /* Override default space-y-4 class on mobile */
+      .hero-section .space-y-4 > * + * {
+        margin-top: 0.1rem !important;
       }
 
       /* Hide divider line on mobile */
@@ -278,10 +403,7 @@
         transform: translateY(-2px);
       }
       
-      /* Disable some effects on mobile for better performance */
-      .optimized-backdrop {
-        backdrop-filter: blur(4px);
-      }
+      /* Removed backdrop blur effects for cleaner appearance */
     }
     
     /* Tablet optimizations */
@@ -347,23 +469,101 @@
 
     /* News Carousel Styles */
     .news-carousel-container {
-      height: 280px; /* Increased height for proper display */
+      height: 320px; /* Increased height for brief summary display */
       width: 100%;
       overflow: hidden;
       position: relative;
+    }
+    
+    /* Flexible layout for desktop view */
+    @media (min-width: 1025px) {
+      .news-carousel-container {
+        overflow: visible; /* Show all cards on desktop */
+        height: auto; /* Allow container to expand with content */
+      }
+      
+      .news-carousel {
+        transform: none !important; /* Disable carousel on desktop */
+        justify-content: flex-start;
+        flex-wrap: wrap;
+      }
+      
+      /* Hide carousel navigation on large desktop */
+      #newsScrollLeft,
+      #newsScrollRight,
+      #newsIndicators {
+        display: none;
+      }
     }
     
     .news-carousel {
       transition: transform 0.5s ease-in-out;
       display: flex;
       height: 100%;
+      gap: 1rem; /* Add gap between flexible width cards */
     }
     
     .news-card {
-      min-width: 480px; /* Optimized card width */
-      max-width: 480px;
-      height: 240px; /* Increased height for better content display */
-      flex-shrink: 0;
+      width: auto; /* Flexible width based on content */
+      min-width: 300px; /* Minimum width to maintain readability */
+      max-width: 600px; /* Maximum width to prevent cards from being too wide */
+      height: 280px; /* Increased height for brief summary */
+      flex: 0 0 auto; /* Allow flexible sizing */
+      overflow: hidden; /* Prevent content overflow */
+    }
+    
+    /* Latest News API cards specific styling for all screen sizes */
+    #latestNewsContainer {
+      display: flex;
+      gap: 1rem;
+      justify-content: flex-start;
+      overflow-x: auto; /* Allow horizontal scrolling on all devices */
+    }
+    
+    #latestNewsContainer .bg-white {
+      width: auto; /* Flexible width based on content */
+      min-width: 250px; /* Minimum width for readability */
+      max-width: 400px; /* Maximum width to prevent cards from being too wide */
+      flex: 0 0 auto; /* Allow flexible sizing */
+    }
+    
+    /* Desktop specific styling */
+    @media (min-width: 768px) {
+      #latestNewsContainer {
+        flex-wrap: wrap; /* Allow wrapping on desktop */
+        overflow-x: visible; /* No horizontal scroll on desktop */
+      }
+      
+      #latestNewsContainer .bg-white {
+        min-height: 32rem; /* Extra tall cards for full summary display */
+        min-width: 300px; /* Minimum width for desktop readability */
+        max-width: 450px; /* Maximum width for desktop */
+      }
+      
+      #latestNewsContainer .bg-white img,
+      #latestNewsContainer .bg-white video,
+      #latestNewsContainer .bg-white > div:first-child {
+        height: 8rem; /* h-32 equivalent for maximum text space */
+      }
+      
+      /* Ensure full summary is visible without truncation */
+      #latestNewsContainer .bg-white p {
+        display: block !important;
+        -webkit-line-clamp: unset !important;
+        -webkit-box-orient: unset !important;
+        overflow: visible !important;
+        text-overflow: unset !important;
+      }
+    }
+    
+    /* Mobile specific API cards */
+    @media (max-width: 767px) {
+      #latestNewsContainer .bg-white {
+        min-width: 220px; /* Smaller minimum for mobile */
+        max-width: calc(100vw - 3rem); /* Maximum width for mobile */
+        height: auto; /* Flexible height for mobile */
+        min-height: 380px; /* Increased minimum height for mobile content */
+      }
     }
     
     /* Auto-scroll indicator animations */
@@ -378,54 +578,179 @@
     /* Responsive design for news cards */
     @media (max-width: 1024px) {
       .news-card {
-        min-width: 420px;
-        max-width: 420px;
-        height: 220px;
+        min-width: 280px;
+        max-width: 500px;
+        width: auto; /* Flexible width for tablet */
+        height: 260px;
       }
       
       .news-carousel-container {
-        height: 260px;
+        height: 300px;
       }
     }
     
     @media (max-width: 768px) {
       .news-card {
-        min-width: 360px;
-        max-width: 360px;
-        height: 200px;
+        width: auto; /* Flexible width based on content */
+        min-width: 250px; /* Minimum width for mobile readability */
+        max-width: calc(100vw - 2rem); /* Maximum width to fit screen */
+        height: 500px; /* Increased height to fit all content */
+        flex: 0 0 auto; /* Allow flexible sizing */
       }
       
       .news-carousel-container {
-        height: 240px;
+        height: 540px; /* Increased to accommodate taller cards */
+        margin: 0 -1rem;
+        padding: 0 1rem;
+        overflow-x: auto; /* Allow horizontal scrolling for flexible cards */
+      }
+      
+      .news-carousel {
+        justify-content: flex-start;
+        gap: 1rem; /* Space between flexible cards */
+        flex-wrap: nowrap; /* Keep cards in single row for mobile scrolling */
+      }
+      
+      /* Make the entire news section more mobile-friendly */
+      .news-section {
+        padding: 0 1rem;
+      }
+      
+      /* Adjust header for mobile */
+      .news-section .flex.items-center.justify-between {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
+      }
+      
+      /* Mobile navigation buttons */
+      .news-section .flex.items-center.space-x-4 {
+        width: 100%;
+        justify-content: space-between;
       }
     }
     
     @media (max-width: 480px) {
       .news-card {
-        min-width: 320px;
-        max-width: 320px;
-        height: 180px;
+        width: auto; /* Flexible width based on content */
+        min-width: 220px; /* Minimum width for small mobile readability */
+        max-width: calc(100vw - 1.5rem); /* Maximum width to fit small screens */
+        height: 480px; /* Increased height to fit all content */
+        flex: 0 0 auto; /* Allow flexible sizing */
       }
       
       .news-carousel-container {
-        height: 220px;
+        height: 520px; /* Increased to accommodate taller cards */
+        margin: 0 -0.5rem;
+        padding: 0 0.5rem;
+        overflow-x: auto; /* Allow horizontal scrolling for flexible cards */
+      }
+      
+      .news-carousel {
+        justify-content: flex-start;
+        gap: 0.75rem; /* Space between flexible cards on small screens */
+        flex-wrap: nowrap; /* Keep cards in single row for mobile scrolling */
+      }
+      
+      /* Further optimize for small screens */
+      .news-section,
+      .video-section {
+        padding: 0 0.5rem;
+      }
+      
+      /* Stack header elements on very small screens */
+      .news-section h2,
+      .video-section h2 {
+        font-size: 2rem !important;
+      }
+      
+      /* Ensure no horizontal overflow */
+      .news-section .flex.items-center.space-x-4,
+      .video-section .flex.items-center.space-x-4 {
+        flex-wrap: wrap;
+        gap: 0.5rem;
+      }
+      
+      /* Video carousel small mobile */
+      .video-carousel-container {
+        height: 400px;
+        margin: 0 -0.5rem;
+        padding: 0 0.5rem;
+      }
+      
+      .video-card {
+        min-width: calc(100vw - 2rem);
+        max-width: calc(100vw - 2rem);
+        height: 360px;
+      }
+      
+      /* Make navigation buttons smaller on mobile */
+      #newsScrollLeft,
+      #newsScrollRight,
+      #videoScrollLeft,
+      #videoScrollRight {
+        width: 2rem;
+        height: 2rem;
+      }
+      
+      /* Video carousel mobile styles */
+      .video-carousel-container {
+        height: 420px;
+        margin: 0 -1rem;
+        padding: 0 1rem;
+      }
+      
+      .video-card {
+        min-width: calc(100vw - 3rem);
+        max-width: calc(100vw - 3rem);
+        height: 380px;
+      }
+      
+      /* Make the entire video section more mobile-friendly */
+      .video-section {
+        padding: 0 1rem;
+      }
+      
+      /* Adjust video header for mobile */
+      .video-section .flex.items-center.justify-between {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
       }
     }
     
     /* Smooth hover effects for navigation buttons */
     #newsScrollLeft:hover,
-    #newsScrollRight:hover {
+    #newsScrollRight:hover,
+    #videoScrollLeft:hover,
+    #videoScrollRight:hover {
       transform: scale(1.1);
       box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
     }
     
-    /* Line clamp utility for consistent text truncation */
-    .line-clamp-2 {
-      display: -webkit-box;
-      -webkit-line-clamp: 2;
-      -webkit-box-orient: vertical;
+    /* Video Carousel Styles */
+    .video-carousel-container {
+      height: 320px;
+      width: 100%;
+      overflow: hidden;
+      position: relative;
+    }
+    
+    .video-carousel {
+      transition: transform 0.5s ease-in-out;
+      display: flex;
+      height: 100%;
+    }
+    
+    .video-card {
+      min-width: 520px;
+      max-width: 520px;
+      height: 280px;
+      flex-shrink: 0;
       overflow: hidden;
     }
+    
+    /* Line clamp utility moved to main styles.css file */
   </style>
 </head>
 <%
@@ -446,7 +771,7 @@
     <!-- Professional Hero Section -->
     <section class="hero-section py-12 md:py-20">
       <div class="container mx-auto px-4 md:px-6">
-        <div class="hero-content text-center text-white max-w-5xl mx-auto">
+        <div class="hero-content text-center max-w-5xl mx-auto">
           <!-- Malaysia Pickleball Association Logo -->
           <div class="flex justify-center mb-6 md:mb-8">
             <div class="hero-logo-container relative">
@@ -456,18 +781,18 @@
           
           <!-- Main Heading -->
           <h1 class="text-3xl sm:text-4xl md:text-6xl lg:text-7xl font-bold mb-4 md:mb-6 leading-tight">
-            <span class="gradient-text">
+            <span class="gradient-text" style="color: #000000 !important;">
               Malaysia
             </span>
             <br class="sm:hidden">
-            <span class="gradient-text">
+            <span class="gradient-text" style="color: #000000 !important;">
               Pickleball Association
             </span>
           </h1>
           
           <!-- Description Text -->
           <div class="max-w-4xl mx-auto px-4 sm:px-6 mb-8 md:mb-12">
-            <p class="text-base md:text-lg text-black leading-relaxed text-center">
+            <p class="text-base md:text-lg text-black leading-relaxed text-center" style="color: #000000 !important;">
               The Malaysia Pickleball Association (MPA), the national governing body for pickleball, promotes and regulates the sport in Malaysia. It organizes tournaments, supports training and certification, advocates for dedicated facilities, and builds inclusive communities. By collaborating with government and sports bodies, the MPA drives pickleball's growth, fostering active lifestyles and positioning Malaysia as a regional hub for this dynamic sport.
             </p>
           </div>
@@ -481,46 +806,46 @@
               
               <!-- Vision & Objective -->
               <div class="text-center lg:text-right lg:pr-8">
-                <h3 class="text-3xl md:text-4xl font-bold mb-6 text-gray-800" style="font-style: italic;">
+                <h3 class="text-3xl md:text-4xl font-bold mb-6 text-gray-800" style="font-style: italic; color: #000000 !important;">
                   Vision
                 </h3>
-                <p class="text-base md:text-lg text-black leading-relaxed mb-8">
+                <p class="text-base md:text-lg text-black leading-relaxed mb-8" style="color: #000000 !important;">
                   Pickleball will be a vibrant and popular sport in Malaysia that contributes towards nation building and social development by reaching out to all Malaysians in its pursuit of glory for the country.
                 </p>
                 
-                <h3 class="text-3xl md:text-4xl font-bold mb-6 text-gray-800" style="font-style: italic;">
+                <h3 class="text-3xl md:text-4xl font-bold mb-6 text-gray-800" style="font-style: italic; color: #000000 !important;">
                   Objective
                 </h3>
-                <p class="text-base md:text-lg text-black leading-relaxed">
+                <p class="text-base md:text-lg text-black leading-relaxed" style="color: #000000 !important;">
                   To establish Malaysia as a leading pickleball nation through comprehensive development programs, world-class facilities, and excellence in international competitions while promoting the sport as an inclusive activity for all Malaysians.
                 </p>
               </div>
 
               <!-- Mission -->
               <div class="text-center lg:text-left lg:pl-8">
-                <h3 class="text-3xl md:text-4xl font-bold mb-6 text-gray-800" style="font-style: italic;">
+                <h3 class="text-3xl md:text-4xl font-bold mb-6 text-gray-800" style="font-style: italic; color: #000000 !important;">
                   Mission
                 </h3>
                 <div class="space-y-4 text-sm md:text-base text-black">
                   <div class="flex items-start justify-center lg:justify-start space-x-4">
                     <div class="w-2 h-2 bg-blue-600 rounded-full mt-2 flex-shrink-0"></div>
-                    <p class="text-left">To inspire and unite Malaysians through pickleball, promoting an active lifestyle for all.</p>
+                    <p class="text-left" style="color: #000000 !important;">To inspire and unite Malaysians through pickleball, promoting an active lifestyle for all.</p>
                   </div>
                   <div class="flex items-start justify-center lg:justify-start space-x-4">
                     <div class="w-2 h-2 bg-blue-600 rounded-full mt-2 flex-shrink-0"></div>
-                    <p class="text-left">To develop a strong pipeline of talented players and coaches to elevate the sport nationally.</p>
+                    <p class="text-left" style="color: #000000 !important;">To develop a strong pipeline of talented players and coaches to elevate the sport nationally.</p>
                   </div>
                   <div class="flex items-start justify-center lg:justify-start space-x-4">
                     <div class="w-2 h-2 bg-blue-600 rounded-full mt-2 flex-shrink-0"></div>
-                    <p class="text-left">To host world-class tournaments that showcase Malaysia's growing pickleball prowess.</p>
+                    <p class="text-left" style="color: #000000 !important;">To host world-class tournaments that showcase Malaysia's growing pickleball prowess.</p>
                   </div>
                   <div class="flex items-start justify-center lg:justify-start space-x-4">
                     <div class="w-2 h-2 bg-blue-600 rounded-full mt-2 flex-shrink-0"></div>
-                    <p class="text-left">To build accessible training facilities across states to support grassroots growth.</p>
+                    <p class="text-left" style="color: #000000 !important;">To build accessible training facilities across states to support grassroots growth.</p>
                   </div>
                   <div class="flex items-start justify-center lg:justify-start space-x-4">
                     <div class="w-2 h-2 bg-blue-600 rounded-full mt-2 flex-shrink-0"></div>
-                    <p class="text-left">To establish pickleball as a leading sport, reflecting national pride and excellence.</p>
+                    <p class="text-left" style="color: #000000 !important;">To establish pickleball as a leading sport, reflecting national pride and excellence.</p>
                   </div>
                 </div>
               </div>
@@ -537,11 +862,8 @@
     <!-- React Content Section -->
     <section class="py-16 relative overflow-hidden">
       <!-- Enhanced Background Effects -->
-      <div class="absolute inset-0 bg-gradient-to-br from-blue-900/20 via-purple-800/10 to-green-900/20"></div>
       <div class="absolute inset-0">
-        <div class="absolute top-10 left-10 w-72 h-72 bg-gradient-to-br from-blue-400/10 to-purple-500/10 rounded-full blur-3xl animate-pulse"></div>
-        <div class="absolute bottom-20 right-10 w-96 h-96 bg-gradient-to-br from-green-400/10 to-yellow-500/10 rounded-full blur-3xl animate-pulse" style="animation-delay: 2s;"></div>
-        <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-80 h-80 bg-gradient-to-br from-purple-400/5 to-pink-500/5 rounded-full blur-3xl animate-pulse" style="animation-delay: 4s;"></div>
+        <!-- Removed blur effects and gradient overlay -->
       </div>
       
       <!-- Content Container -->
@@ -591,11 +913,11 @@
           </div>
 
           <!-- News and Videos Grid -->
-          <div class="grid grid-cols-1 lg:grid-cols-2 gap-12">
+          <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-12 md:gap-8 gap-6">
             
             <!-- Latest News Section -->
             <div class="news-section">
-              <div class="flex items-center justify-between mb-8">
+              <div class="flex items-center justify-between mb-8 md:mb-6 mb-4">
                 <div>
                   <h2 class="text-4xl font-bold text-gray-800 mb-2">Latest News</h2>
                   <div class="w-20 h-1 bg-gradient-to-r from-green-400 to-blue-400 rounded-full"></div>
@@ -626,70 +948,85 @@
 
             <!-- Video Section -->
             <div class="video-section">
-              <div class="flex items-center justify-between mb-8">
+              <div class="flex items-center justify-between mb-8 md:mb-6 mb-4">
                 <div>
                   <h2 class="text-4xl font-bold text-gray-800 mb-2">Featured Videos</h2>
                   <div class="w-20 h-1 bg-gradient-to-r from-purple-400 to-pink-400 rounded-full"></div>
                 </div>
-                <a href="/videos" class="text-green-400 hover:text-green-300 font-medium flex items-center transition-all duration-300 hover:scale-105 group">
-                  <span class="mr-2">View All</span>
-                  <i class="fas fa-arrow-right transition-transform duration-300 group-hover:translate-x-1"></i>
-                </a>
+                <div class="flex items-center space-x-4">
+                  <!-- Navigation Arrows -->
+                  <button id="videoScrollLeft" class="w-10 h-10 rounded-full bg-gray-200 hover:bg-gray-300 flex items-center justify-center transition-colors">
+                    <i class="fas fa-chevron-left text-gray-600"></i>
+                  </button>
+                  <button id="videoScrollRight" class="w-10 h-10 rounded-full bg-gray-200 hover:bg-gray-300 flex items-center justify-center transition-colors">
+                    <i class="fas fa-chevron-right text-gray-600"></i>
+                  </button>
+                  <a href="/videos" class="text-green-400 hover:text-green-300 font-medium flex items-center transition-all duration-300 hover:scale-105 group">
+                    <span class="mr-2">View All</span>
+                    <i class="fas fa-arrow-right transition-transform duration-300 group-hover:translate-x-1"></i>
+                  </a>
+                </div>
               </div>
-              <div class="space-y-6 h-auto">
-                <% if (video1 && video1 !== 'null' && video1 !== 'Null') { %>
-                  <div class="video-container group h-64 transition-all duration-500 hover:scale-105">
-                    <div class="bg-gradient-to-br from-white/90 to-gray-100/90 backdrop-blur-lg rounded-2xl shadow-2xl overflow-hidden border border-gray-200/50 h-full hover:bg-gradient-to-br hover:from-white/95 hover:to-gray-50/95 transition-all duration-500">
-                      <div class="relative h-48 bg-gray-100 overflow-hidden">
-                        <%- video1 %>
-                      </div>
-                      <div class="p-4">
-                        <div class="flex items-center justify-between">
-                          <div class="flex items-center space-x-3">
-                            <div class="w-8 h-8 bg-gradient-to-br from-red-500 to-pink-500 rounded-lg flex items-center justify-center shadow-lg">
-                              <i class="fas fa-play text-white text-sm"></i>
+              <!-- Auto-scroll Video Cards Container -->
+              <div class="video-carousel-container relative overflow-hidden">
+                <div id="featuredVideosContainer" class="video-carousel flex transition-transform duration-500 ease-in-out">
+                  <% if (video1 && video1 !== 'null' && video1 !== 'Null') { %>
+                    <div class="video-card group transition-all duration-500 hover:scale-105">
+                      <div class="bg-gradient-to-br from-white/90 to-gray-100/90 backdrop-blur-lg rounded-2xl shadow-2xl overflow-hidden border border-gray-200/50 h-full hover:bg-gradient-to-br hover:from-white/95 hover:to-gray-50/95 transition-all duration-500">
+                        <div class="relative h-48 bg-gray-100 overflow-hidden">
+                          <%- video1 %>
+                        </div>
+                        <div class="p-4">
+                          <div class="flex items-center justify-between">
+                            <div class="flex items-center space-x-3">
+                              <div class="w-8 h-8 bg-gradient-to-br from-red-500 to-pink-500 rounded-lg flex items-center justify-center shadow-lg">
+                                <i class="fas fa-play text-white text-sm"></i>
+                              </div>
+                              <div>
+                                <h3 class="font-bold text-gray-800 text-sm group-hover:text-green-600 transition-colors"><%= video1Type %></h3>
+                                <p class="text-xs text-gray-600">Pickleball Content</p>
+                              </div>
                             </div>
-                            <div>
-                              <h3 class="font-bold text-gray-800 text-sm group-hover:text-green-600 transition-colors"><%= video1Type %></h3>
-                              <p class="text-xs text-gray-600">Pickleball Content</p>
+                            <div class="flex items-center space-x-1 bg-red-500/20 px-2 py-1 rounded-full border border-red-400/30">
+                              <i class="fab fa-youtube text-red-500 text-xs"></i>
+                              <span class="text-xs font-medium text-red-600">YouTube</span>
                             </div>
-                          </div>
-                          <div class="flex items-center space-x-1 bg-red-500/20 px-2 py-1 rounded-full border border-red-400/30">
-                            <i class="fab fa-youtube text-red-500 text-xs"></i>
-                            <span class="text-xs font-medium text-red-600">YouTube</span>
                           </div>
                         </div>
                       </div>
                     </div>
-                  </div>
-                <% } %>
+                  <% } %>
 
-                <% if (video2 && video2 !== 'null' && video2 !== 'Null') { %>
-                  <div class="video-container group h-64 transition-all duration-500 hover:scale-105">
-                    <div class="bg-gradient-to-br from-white/90 to-gray-100/90 backdrop-blur-lg rounded-2xl shadow-2xl overflow-hidden border border-gray-200/50 h-full hover:bg-gradient-to-br hover:from-white/95 hover:to-gray-50/95 transition-all duration-500">
-                      <div class="relative h-48 bg-gray-100 overflow-hidden">
-                        <%- video2 %>
-                      </div>
-                      <div class="p-4">
-                        <div class="flex items-center justify-between">
-                          <div class="flex items-center space-x-3">
-                            <div class="w-8 h-8 bg-gradient-to-br from-red-500 to-pink-500 rounded-lg flex items-center justify-center shadow-lg">
-                              <i class="fas fa-play text-white text-sm"></i>
+                  <% if (video2 && video2 !== 'null' && video2 !== 'Null') { %>
+                    <div class="video-card group transition-all duration-500 hover:scale-105">
+                      <div class="bg-gradient-to-br from-white/90 to-gray-100/90 backdrop-blur-lg rounded-2xl shadow-2xl overflow-hidden border border-gray-200/50 h-full hover:bg-gradient-to-br hover:from-white/95 hover:to-gray-50/95 transition-all duration-500">
+                        <div class="relative h-48 bg-gray-100 overflow-hidden">
+                          <%- video2 %>
+                        </div>
+                        <div class="p-4">
+                          <div class="flex items-center justify-between">
+                            <div class="flex items-center space-x-3">
+                              <div class="w-8 h-8 bg-gradient-to-br from-red-500 to-pink-500 rounded-lg flex items-center justify-center shadow-lg">
+                                <i class="fas fa-play text-white text-sm"></i>
+                              </div>
+                              <div>
+                                <h3 class="font-bold text-gray-900 text-sm group-hover:text-green-600 transition-colors"><%= video2Type %></h3>
+                                <p class="text-xs text-gray-800">Pickleball Content</p>
+                              </div>
                             </div>
-                            <div>
-                              <h3 class="font-bold text-gray-900 text-sm group-hover:text-green-600 transition-colors"><%= video2Type %></h3>
-                              <p class="text-xs text-gray-800">Pickleball Content</p>
+                            <div class="flex items-center space-x-1 bg-red-500/20 px-2 py-1 rounded-full border border-red-400/30">
+                              <i class="fab fa-youtube text-red-500 text-xs"></i>
+                              <span class="text-xs font-medium text-red-600">YouTube</span>
                             </div>
-                          </div>
-                          <div class="flex items-center space-x-1 bg-red-500/20 px-2 py-1 rounded-full border border-red-400/30">
-                            <i class="fab fa-youtube text-red-500 text-xs"></i>
-                            <span class="text-xs font-medium text-red-600">YouTube</span>
                           </div>
                         </div>
                       </div>
                     </div>
-                  </div>
-                <% } %>
+                  <% } %>
+                </div>
+                
+                <!-- Auto-scroll indicator dots -->
+                <div class="flex justify-center mt-4 space-x-2" id="videoIndicators"></div>
               </div>
             </div>
           </div>
@@ -938,40 +1275,26 @@
     // News data
     const newsData = [
       {
-        title: "Malaysia Pickleball Championship 2025 Registration Now Open",
-        description: "Join the biggest pickleball tournament in Malaysia. Register now for early bird pricing and experience world-class competition.",
-        date: "January 25, 2025",
-        badge: "BREAKING",
+        title: "Malaysia Pickleball Championship 2025",
+        description: "Join the biggest pickleball tournament in Malaysia. Register now for early bird pricing and experience world-class competition with international players.",
+        date: "31/07/2025",
+        badge: "ANNOUNCEMENT",
         size: "col-span-2 row-span-3",
         bgClass: "bg-gradient-to-br from-green-500 via-blue-600 to-purple-600"
       },
       {
         title: "New Coaching Program Launch",
-        description: "Professional coaching now available in KL and Selangor areas with certified instructors.",
+        description: "Professional coaching now available in KL and Selangor areas with certified instructors. Book your sessions today.",
         date: "2 days ago",
         size: "col-span-1 row-span-2",
         bgClass: "bg-gradient-to-br from-blue-500 via-purple-600 to-pink-500"
       },
       {
         title: "Sarawak Open Results",
-        description: "Congratulations to all participants in the recent Sarawak tournament with record participation.",
+        description: "Congratulations to all participants in the recent Sarawak tournament with record participation from across Malaysia.",
         date: "5 days ago",
         size: "col-span-1 row-span-2",
         bgClass: "bg-gradient-to-br from-yellow-500 via-orange-500 to-red-500"
-      },
-      {
-        title: "Equipment Sale",
-        description: "Up to 30% off on paddles and accessories",
-        date: "1 week ago",
-        size: "col-span-1 row-span-1",
-        bgClass: "bg-gradient-to-br from-green-400 via-teal-500 to-blue-500"
-      },
-      {
-        title: "Venue Update",
-        description: "New courts opening in Penang",
-        date: "1 week ago",
-        size: "col-span-1 row-span-1",
-        bgClass: "bg-gradient-to-br from-purple-500 via-pink-500 to-red-500"
       }
     ];
 
@@ -982,7 +1305,7 @@
       card.dataset.index = index;
       
              card.innerHTML = `
-         <div class="relative h-full p-6 flex flex-col justify-end">
+         <div class="relative h-full p-8 flex flex-col justify-end">
            <div class="absolute inset-0 bg-gradient-to-t from-white/95 via-white/80 to-transparent"></div>
            <div class="absolute inset-0 bg-cover bg-center opacity-10 transition-opacity duration-500" style="background-image: url('/images/pic${index + 1}.png');"></div>
            
@@ -993,16 +1316,16 @@
            </div>
            
            <div class="relative z-10">
-             ${news.badge ? `<span class="inline-block px-3 py-1 bg-gradient-to-r from-red-500 to-pink-500 text-white text-xs font-bold rounded-full mb-3 shadow-lg animate-pulse">${news.badge}</span>` : ''}
-             <h3 class="text-xl font-bold text-gray-900 mb-2 group-hover:text-blue-600 transition-colors duration-300">${news.title}</h3>
-             <p class="text-gray-800 text-sm mb-3 opacity-90">${news.description}</p>
+             ${news.badge ? `<span class="inline-block px-2 py-1 bg-gradient-to-r from-red-500 to-pink-500 text-white text-xs font-bold rounded-full mb-2 shadow-lg animate-pulse">${news.badge}</span>` : ''}
+             <h3 class="text-lg font-bold text-gray-900 mb-3 group-hover:text-blue-600 transition-colors duration-300 line-clamp-2">${news.title}</h3>
+             <p class="text-gray-800 text-sm mb-3 opacity-90 line-clamp-3 leading-relaxed">${news.description}</p>
              <div class="flex items-center justify-between">
                <div class="flex items-center text-gray-700 text-xs">
-                 <i class="fas fa-calendar mr-2"></i>
+                 <i class="fas fa-calendar mr-1"></i>
                  <span>${news.date}</span>
                </div>
                <div class="flex items-center text-green-600 text-xs font-medium opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                 <span>Read More</span>
+                 <span class="text-xs">Read More</span>
                  <i class="fas fa-arrow-right ml-1"></i>
                </div>
              </div>
@@ -1111,287 +1434,12 @@
       return card;
     }
 
-          // Initialize the content section
-      function initializeContentSection() {
-        console.log('🎨 Initializing enhanced content section...');
-        
-        const container = document.getElementById('content-section-react');
-        if (!container) {
-          console.error('❌ Content container not found');
-          return;
-        }
+    // Removed duplicate content initialization code
 
-        // Create main structure
-        const mainDiv = document.createElement('div');
-        mainDiv.className = 'max-w-7xl mx-auto';
-        
-        // Create Statistics Section
-        const statsSection = document.createElement('div');
-        statsSection.className = 'mb-8';
-        
-        const statsHeader = document.createElement('div');
-        statsHeader.className = 'text-center mb-4';
-        statsHeader.innerHTML = `
-                   <h2 class="text-2xl font-bold text-gray-900 mb-1">Malaysia Pickleball Statistics</h2>
-         <p class="text-gray-800 text-sm">Growing community across the nation</p>
-        `;
-        
-        const statsGrid = document.createElement('div');
-        statsGrid.className = 'grid grid-cols-1 md:grid-cols-3 gap-4';
-        
-        // Dummy statistics data (will be replaced by API)
-        const statsData = [
-          {
-            icon: 'fas fa-users',
-            number: '2,847',
-            label: 'Total Players',
-            description: 'Registered across Malaysia',
-            color: 'from-blue-500 to-blue-600',
-            bgColor: 'bg-blue-50',
-            textColor: 'text-blue-600'
-          },
-          {
-            icon: 'fas fa-map-marker-alt',
-            number: '156',
-            label: 'Total Courts',
-            description: 'Available for play',
-            color: 'from-green-500 to-green-600',
-            bgColor: 'bg-green-50',
-            textColor: 'text-green-600'
-          },
-          {
-            icon: 'fas fa-chalkboard-teacher',
-            number: '89',
-            label: 'Total Coaches',
-            description: 'Certified instructors',
-            color: 'from-purple-500 to-purple-600',
-            bgColor: 'bg-purple-50',
-            textColor: 'text-purple-600'
-          }
-        ];
-        
-        // Create stat cards
-        statsData.forEach(stat => {
-          const statCard = document.createElement('div');
-          statCard.className = 'bg-white rounded-xl shadow-md border border-gray-200 p-4 hover:shadow-lg transition-all duration-300 transform hover:scale-105';
-          
-          statCard.innerHTML = `
-            <div class="text-center">
-              <div class="w-10 h-10 ${stat.bgColor} rounded-full flex items-center justify-center mx-auto mb-2">
-                <i class="${stat.icon} text-lg ${stat.textColor}"></i>
-              </div>
-              <div class="mb-1">
-                <span class="text-2xl font-bold text-gray-900">${stat.number}</span>
-                <span class="text-lg font-bold bg-gradient-to-r ${stat.color} bg-clip-text text-transparent">+</span>
-              </div>
-              <h3 class="text-sm font-semibold text-gray-900 mb-1">${stat.label}</h3>
-              <p class="text-gray-700 text-xs">${stat.description}</p>
-            </div>
-          `;
-          
-          statsGrid.appendChild(statCard);
-        });
-        
-        statsSection.appendChild(statsHeader);
-        statsSection.appendChild(statsGrid);
-        
-        const gridDiv = document.createElement('div');
-        gridDiv.className = 'grid grid-cols-1 lg:grid-cols-2 gap-12';
-
-      // Create News Section
-      const newsSection = document.createElement('div');
-      newsSection.className = 'news-section';
-      
-            const newsHeader = document.createElement('div');
-      newsHeader.className = 'text-center mb-8';
-             newsHeader.innerHTML = `
-        <div>
-          <h2 class="text-3xl md:text-4xl font-bold text-gray-800 mb-4">
-            <i class="fas fa-newspaper text-blue-600 mr-3"></i>
-            Latest News & Updates
-          </h2>
-          <p class="text-gray-600 text-lg max-w-2xl mx-auto mb-6">
-            Stay updated with the latest happenings in Malaysia's pickleball community
-          </p>
-        </div>
-        <div class="text-center mb-6">
-          <a href="/news" class="inline-flex items-center px-6 py-3 bg-gradient-to-r from-blue-500 to-purple-600 text-white font-medium rounded-lg hover:from-blue-600 hover:to-purple-700 transition-all duration-300 hover:scale-105 shadow-lg">
-            <span class="mr-2">View All News</span>
-            <i class="fas fa-arrow-right"></i>
-          </a>
-        </div>
-      `;
-
-                          const newsGrid = document.createElement('div');
-      newsGrid.className = 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-8';
-      newsGrid.id = 'latestNewsContainer';
-
-      // Add news cards
-      newsData.forEach((news, index) => {
-        newsGrid.appendChild(createNewsCard(news, index));
-      });
-
-      newsSection.appendChild(newsHeader);
-      newsSection.appendChild(newsGrid);
-
-      // Create Video Section
-      const videoSection = document.createElement('div');
-      videoSection.className = 'video-section';
-      
-      const videoHeader = document.createElement('div');
-      videoHeader.className = 'flex items-center justify-between mb-8';
-             videoHeader.innerHTML = `
-         <div>
-           <h2 class="text-4xl font-bold text-gray-800 mb-2">Featured Videos</h2>
-           <div class="w-20 h-1 bg-gradient-to-r from-purple-400 to-pink-400 rounded-full"></div>
-         </div>
-         <a href="/videos" class="text-green-400 hover:text-green-300 font-medium flex items-center transition-all duration-300 hover:scale-105 group">
-           <span class="mr-2">View All</span>
-           <i class="fas fa-arrow-right transition-transform duration-300 group-hover:translate-x-1"></i>
-         </a>
-       `;
-
-             const videoContainer = document.createElement('div');
-       videoContainer.className = 'space-y-6 h-auto';
-
-      // Video cards are handled by the existing HTML template above (not in JavaScript)
-      videoSection.appendChild(videoContainer);
-
-      // Add Upcoming Tournaments Section directly under videos
-      videoSection.appendChild(document.createElement('div')).innerHTML = `
-        <div class="mt-12">
-          <div class="text-center mb-12">
-            <h2 class="text-4xl font-bold text-gray-800 mb-4">Upcoming Tournaments</h2>
-            <div class="w-20 h-1 bg-gradient-to-r from-green-400 to-blue-400 rounded-full mx-auto"></div>
-          </div>
-          
-          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            <!-- Tournament 1 -->
-            <div class="bg-white rounded-xl shadow-lg border border-gray-200/50 overflow-hidden hover:shadow-xl transition-all duration-300 hover:scale-105">
-              <div class="bg-gradient-to-br from-green-500 to-blue-600 p-4 text-white">
-                <div class="flex items-center justify-between mb-2">
-                  <span class="text-xs font-bold bg-white/20 px-2 py-1 rounded-full">LOCAL</span>
-                  <span class="text-xs">Jan 15-17</span>
-                </div>
-                <h3 class="font-bold text-lg mb-1">KGM Autumn Tournament</h3>
-                <p class="text-white/90 text-sm">Kuala Lumpur</p>
-              </div>
-              <div class="p-4">
-                <div class="flex items-center text-sm text-gray-600 mb-3">
-                  <i class="fas fa-map-marker-alt text-red-500 mr-2"></i>
-                  <span>KGM Sports Complex</span>
-                </div>
-                <div class="flex items-center text-sm text-gray-600 mb-3">
-                  <i class="fas fa-calendar text-blue-500 mr-2"></i>
-                  <span>Registration Open</span>
-                </div>
-                <a href="/tournament" class="inline-block bg-green-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-green-700 transition-colors">
-                  View Details
-                </a>
-              </div>
-            </div>
-
-            <!-- Tournament 2 -->
-            <div class="bg-white rounded-xl shadow-lg border border-gray-200/50 overflow-hidden hover:shadow-xl transition-all duration-300 hover:scale-105">
-              <div class="bg-gradient-to-br from-red-500 to-orange-600 p-4 text-white">
-                <div class="flex items-center justify-between mb-2">
-                  <span class="text-xs font-bold bg-white/20 px-2 py-1 rounded-full">STATE</span>
-                  <span class="text-xs">Feb 26-28</span>
-                </div>
-                <h3 class="font-bold text-lg mb-1">MPR@KL (SUKMA)</h3>
-                <p class="text-white/90 text-sm">Selangor</p>
-              </div>
-              <div class="p-4">
-                <div class="flex items-center text-sm text-gray-600 mb-3">
-                  <i class="fas fa-map-marker-alt text-red-500 mr-2"></i>
-                  <span>MPR Sports Center</span>
-                </div>
-                <div class="flex items-center text-sm text-gray-600 mb-3">
-                  <i class="fas fa-calendar text-blue-500 mr-2"></i>
-                  <span>Early Bird Pricing</span>
-                </div>
-                <a href="/tournament" class="inline-block bg-red-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-red-700 transition-colors">
-                  View Details
-                </a>
-              </div>
-            </div>
-
-            <!-- Tournament 3 -->
-            <div class="bg-white rounded-xl shadow-lg border border-gray-200/50 overflow-hidden hover:shadow-xl transition-all duration-300 hover:scale-105">
-              <div class="bg-gradient-to-br from-blue-500 to-purple-600 p-4 text-white">
-                <div class="flex items-center justify-between mb-2">
-                  <span class="text-xs font-bold bg-white/20 px-2 py-1 rounded-full">NATIONAL</span>
-                  <span class="text-xs">Mar 10-12</span>
-                </div>
-                <h3 class="font-bold text-lg mb-1">SPA Grand Finals</h3>
-                <p class="text-white/90 text-sm">Penang</p>
-              </div>
-              <div class="p-4">
-                <div class="flex items-center text-sm text-gray-600 mb-3">
-                  <i class="fas fa-map-marker-alt text-red-500 mr-2"></i>
-                  <span>SPA Arena</span>
-                </div>
-                <div class="flex items-center text-sm text-gray-600 mb-3">
-                  <i class="fas fa-calendar text-blue-500 mr-2"></i>
-                  <span>Limited Spots</span>
-                </div>
-                <a href="/tournament" class="inline-block bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors">
-                  View Details
-                </a>
-              </div>
-            </div>
-
-            <!-- Tournament 4 -->
-            <div class="bg-gradient-to-br from-gray-50 to-gray-100 rounded-xl shadow-lg border border-gray-200/50 overflow-hidden hover:shadow-xl transition-all duration-300 hover:scale-105">
-              <div class="bg-gradient-to-br from-yellow-500 to-yellow-600 p-4 text-white">
-                <div class="flex items-center justify-between mb-2">
-                  <span class="text-xs font-bold bg-yellow-500/90 text-yellow-900 px-2 py-1 rounded-full">W. MALAYSIA</span>
-                  <span class="text-xs">Apr 20-22</span>
-                </div>
-                <h3 class="font-bold text-lg mb-1">IOP Johor</h3>
-                <p class="text-white/90 text-sm">Johor Bahru</p>
-              </div>
-              <div class="p-4 bg-white/80 backdrop-blur-sm">
-                <div class="flex items-center text-sm text-gray-600 mb-3">
-                  <i class="fas fa-map-marker-alt text-yellow-500 mr-2"></i>
-                  <span>IOP Sports Complex</span>
-                </div>
-                <div class="flex items-center text-sm text-gray-600 mb-3">
-                  <i class="fas fa-calendar text-yellow-500 mr-2"></i>
-                  <span>Registration Soon</span>
-                </div>
-                <a href="/tournament" class="inline-block bg-yellow-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-yellow-700 transition-colors">
-                  View Details
-                </a>
-              </div>
-            </div>
-          </div>
-
-          <div class="text-center mt-8">
-            <a href="/tournament" class="inline-flex items-center px-6 py-3 bg-gradient-to-r from-green-500 to-blue-600 text-white font-medium rounded-lg hover:from-green-600 hover:to-blue-700 transition-all duration-300 hover:scale-105">
-              <span class="mr-2">View All Tournaments</span>
-              <i class="fas fa-arrow-right"></i>
-            </a>
-          </div>
-        </div>
-      `;
-
-              // Assemble everything
-        mainDiv.appendChild(statsSection);
-        gridDiv.appendChild(newsSection);
-        gridDiv.appendChild(videoSection);
-        mainDiv.appendChild(gridDiv);
-        container.appendChild(mainDiv);
-
-      // Add event listeners for hover effects (CSP compliant)
-      setupEventListeners();
-      
-      console.log('✅ Enhanced content section loaded successfully!');
-    }
-
-    // Setup event listeners using event delegation (CSP compliant)
+    // Setup event listeners for the actual existing news section
     function setupEventListeners() {
-      const container = document.getElementById('content-section-react');
+      const container = document.querySelector('.news-section');
+      if (!container) return;
       
       // News card hover effects
       container.addEventListener('mouseenter', function(e) {
@@ -1437,10 +1485,13 @@
         
         if (data.success && data.news.length > 0) {
           console.log(`📰 Found ${data.news.length} news articles`);
+          console.log('📄 Sample article data:', data.news[0]);
           container.innerHTML = '';
           
           data.news.forEach((article, index) => {
             console.log(`📝 Creating card for article ${index + 1}:`, article.title);
+            console.log(`📝 Article summary:`, article.summary);
+            console.log(`📝 Article content:`, article.content ? article.content.substring(0, 100) + '...' : 'No content');
             const newsCard = createNewsCard(article);
             container.appendChild(newsCard);
           });
@@ -1475,13 +1526,13 @@
     // Create news card HTML
     function createNewsCard(article) {
       const card = document.createElement('div');
-      card.className = 'bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-all duration-300 transform hover:-translate-y-2';
+      card.className = 'bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-all duration-300 transform hover:-translate-y-2 h-96 md:h-[28rem]';
       
       const mediaHtml = article.featuredImage 
-        ? `<img src="${article.featuredImage}" alt="${article.title}" class="w-full h-48 object-cover">`
+        ? `<img src="${article.featuredImage}" alt="${article.title}" class="w-full h-40 md:h-32 object-cover">`
         : article.featuredVideo
-        ? `<video src="${article.featuredVideo}" class="w-full h-48 object-cover" muted></video>`
-        : `<div class="w-full h-48 bg-gradient-to-br from-blue-100 to-purple-100 flex items-center justify-center">
+        ? `<video src="${article.featuredVideo}" class="w-full h-40 md:h-32 object-cover" muted></video>`
+        : `<div class="w-full h-40 md:h-32 bg-gradient-to-br from-blue-100 to-purple-100 flex items-center justify-center">
              <i class="fas fa-newspaper text-4xl text-blue-400"></i>
            </div>`;
       
@@ -1508,24 +1559,26 @@
             </span>
           </div>
           
-          <h3 class="text-xl font-bold text-gray-800 mb-3 line-clamp-2">
+          <h3 class="text-lg font-bold text-gray-800 mb-2 line-clamp-2">
             ${article.title}
           </h3>
           
-          <p class="text-gray-600 mb-4 line-clamp-3">
-            ${article.summary}
+          <p class="text-gray-600 text-xs md:text-sm mb-4 line-clamp-3 md:line-clamp-none leading-relaxed">
+            ${article.summary ? article.summary : 
+              article.content ? article.content.substring(0, 400) + '...' : 
+              'Brief summary of this news article will appear here'}
           </p>
           
           <div class="flex items-center justify-between">
-            <div class="flex items-center text-sm text-gray-500">
+            <div class="flex items-center text-xs text-gray-500">
               <i class="fas fa-user mr-1"></i>
-              <span>${article.author}</span>
-              <span class="mx-2">•</span>
+              <span class="text-xs">${article.author}</span>
+              <span class="mx-1">•</span>
               <i class="fas fa-eye mr-1"></i>
-              <span>${article.viewCount || 0}</span>
+              <span class="text-xs">${article.viewCount || 0}</span>
             </div>
             
-            <a href="/news/${article._id}" class="text-blue-600 hover:text-blue-800 font-medium text-sm">
+            <a href="/news/${article._id}" class="text-blue-600 hover:text-blue-800 font-medium text-xs">
               Read More <i class="fas fa-arrow-right ml-1"></i>
             </a>
           </div>
@@ -1633,6 +1686,107 @@
       console.log(`🎠 News carousel initialized with ${newsCount} articles`);
     }
 
+    // Initialize video carousel
+    function initializeVideoCarousel() {
+      const videoContainer = document.getElementById('featuredVideosContainer');
+      const leftBtn = document.getElementById('videoScrollLeft');
+      const rightBtn = document.getElementById('videoScrollRight');
+      const indicators = document.getElementById('videoIndicators');
+      
+      if (!videoContainer || !leftBtn || !rightBtn) return;
+      
+      const videoCards = videoContainer.children;
+      const videoCount = videoCards.length;
+      
+      if (videoCount <= 1) {
+        // Hide navigation if only one or no videos
+        leftBtn.style.display = 'none';
+        rightBtn.style.display = 'none';
+        indicators.style.display = 'none';
+        return;
+      }
+      
+      let currentIndex = 0;
+      let isScrolling = false;
+      let autoScrollInterval;
+      
+      // Create indicator dots
+      indicators.innerHTML = '';
+      for (let i = 0; i < videoCount; i++) {
+        const dot = document.createElement('button');
+        dot.className = `w-3 h-3 rounded-full transition-all duration-300 ${i === 0 ? 'bg-purple-600' : 'bg-gray-300'}`;
+        dot.addEventListener('click', () => scrollToIndex(i));
+        indicators.appendChild(dot);
+      }
+      
+      // Update indicator dots
+      function updateIndicators() {
+        const dots = indicators.children;
+        for (let i = 0; i < dots.length; i++) {
+          dots[i].className = `w-3 h-3 rounded-full transition-all duration-300 ${i === currentIndex ? 'bg-purple-600' : 'bg-gray-300'}`;
+        }
+      }
+      
+      // Scroll to specific index
+      function scrollToIndex(index) {
+        if (isScrolling) return;
+        isScrolling = true;
+        
+        currentIndex = index;
+        const scrollAmount = index * (520 + 24); // card width + margin
+        videoContainer.style.transform = `translateX(-${scrollAmount}px)`;
+        updateIndicators();
+        
+        setTimeout(() => {
+          isScrolling = false;
+        }, 500);
+      }
+      
+      // Navigate functions
+      function nextSlide() {
+        const nextIndex = (currentIndex + 1) % videoCount;
+        scrollToIndex(nextIndex);
+      }
+      
+      function prevSlide() {
+        const nextIndex = (currentIndex - 1 + videoCount) % videoCount;
+        scrollToIndex(nextIndex);
+      }
+      
+      // Auto-scroll functionality
+      function startAutoScroll() {
+        autoScrollInterval = setInterval(nextSlide, 5000); // Change slide every 5 seconds
+      }
+      
+      function stopAutoScroll() {
+        clearInterval(autoScrollInterval);
+      }
+      
+      // Event listeners
+      leftBtn.addEventListener('click', () => {
+        stopAutoScroll();
+        prevSlide();
+        setTimeout(startAutoScroll, 3000); // Restart auto-scroll after 3 seconds
+      });
+      
+      rightBtn.addEventListener('click', () => {
+        stopAutoScroll();
+        nextSlide();
+        setTimeout(startAutoScroll, 3000); // Restart auto-scroll after 3 seconds
+      });
+      
+      // Pause auto-scroll on hover
+      videoContainer.addEventListener('mouseenter', stopAutoScroll);
+      videoContainer.addEventListener('mouseleave', startAutoScroll);
+      
+      // Start auto-scroll
+      if (videoCount > 1) {
+        startAutoScroll();
+      }
+      
+      console.log(`🎬 Video carousel initialized with ${videoCount} videos`);
+    }
+
     // Initialize when DOM is ready
     document.addEventListener('DOMContentLoaded', function() {
       console.log('🚀 DOM loaded, initializing content...');
@@ -1643,9 +1797,10 @@
       
       // Add a small delay to ensure everything is ready
       setTimeout(() => {
-        console.log('⏰ Timeout triggered, initializing...');
-        initializeContentSection();
+        console.log('⏰ Timeout triggered, loading news...');
+        setupEventListeners();
         loadLatestNews();
+        initializeVideoCarousel();
       }, 100);
     });
   </script>

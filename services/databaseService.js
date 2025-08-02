@@ -966,7 +966,7 @@ Malaysia Pickleball Association Team`,
       return await News.find({ status: 'published' })
         .sort({ publishedAt: -1 })
         .limit(limit)
-        .select('title summary publishedAt category featuredImage viewCount');
+        .select('title summary content author publishedAt category featuredImage featuredVideo viewCount featured');
     } catch (error) {
       console.error('Error getting latest news:', error);
       throw error;

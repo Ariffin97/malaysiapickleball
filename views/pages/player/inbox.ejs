@@ -151,8 +151,8 @@
                     </div>
                     
                     <h3 class="text-lg font-semibold text-gray-800 mb-2"><%= message.subject %></h3>
-                    <p class="text-gray-600 text-sm line-clamp-2">
-                      <%= message.content.substring(0, 150) %><% if (message.content.length > 150) { %>...<% } %>
+                    <p class="text-gray-600 text-sm line-clamp-4">
+                      <%= message.content.substring(0, 300) %><% if (message.content.length > 300) { %>...<% } %>
                     </p>
                   </div>
                   
