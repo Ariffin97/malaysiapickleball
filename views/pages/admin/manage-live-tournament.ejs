@@ -423,7 +423,7 @@
         // Extract video ID from watch URL
         const videoId = url.split('v=')[1]?.split('&')[0];
         if (videoId) {
-          embedCode = `<iframe width="560" height="315" src="https://www.youtube.com/embed/${videoId}?autoplay=1&mute=1" title="YouTube Live Stream ${streamNumber}" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>`;
+          embedCode = `<iframe width="560" height="315" src="https://www.youtube.com/embed/${videoId}?autoplay=1&mute=1" title="YouTube Live Stream ${streamNumber}" frameborder="0" sandbox="allow-scripts allow-presentation allow-forms" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>`;
         }
       } else if (url.includes('youtube.com/channel/') || url.includes('youtube.com/c/') || url.includes('youtube.com/@')) {
         // Handle channel URLs for live streams
@@ -437,13 +437,13 @@
         }
         
         if (channelId) {
-          embedCode = `<iframe width="560" height="315" src="https://www.youtube.com/embed/live_stream?channel=${channelId}&autoplay=1&mute=1" title="YouTube Live Channel ${streamNumber}" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>`;
+          embedCode = `<iframe width="560" height="315" src="https://www.youtube.com/embed/live_stream?channel=${channelId}&autoplay=1&mute=1" title="YouTube Live Channel ${streamNumber}" frameborder="0" sandbox="allow-scripts allow-presentation allow-forms" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>`;
         }
       } else if (url.includes('youtu.be/')) {
         // Handle shortened YouTube URLs
         const videoId = url.split('youtu.be/')[1]?.split('?')[0];
         if (videoId) {
-          embedCode = `<iframe width="560" height="315" src="https://www.youtube.com/embed/${videoId}?autoplay=1&mute=1" title="YouTube Live Stream ${streamNumber}" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>`;
+          embedCode = `<iframe width="560" height="315" src="https://www.youtube.com/embed/${videoId}?autoplay=1&mute=1" title="YouTube Live Stream ${streamNumber}" frameborder="0" sandbox="allow-scripts allow-presentation allow-forms" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>`;
         }
       }
       

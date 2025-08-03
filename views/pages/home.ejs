@@ -44,10 +44,6 @@
     
     /* Professional Hero Section */
     .hero-section {
-      background: url('/images/defaultbg.png') center center;
-      background-size: cover;
-      background-repeat: no-repeat;
-      background-attachment: fixed;
       position: relative;
       overflow: hidden;
       margin-top: 0;
@@ -57,7 +53,7 @@
       align-items: center;
     }
     
-    /* Desktop overlay (gradient) */
+    /* Blurred background for all screen sizes */
     .hero-section::before {
       content: '';
       position: absolute;
@@ -65,23 +61,71 @@
       left: 0;
       right: 0;
       bottom: 0;
-      background: linear-gradient(135deg, rgba(59, 130, 246, 0.6) 0%, rgba(251, 191, 36, 0.7) 50%, rgba(59, 130, 246, 0.6) 100%);
+      background: url('/images/defaultbg.png') center center;
+      background-size: cover;
+      background-repeat: no-repeat;
+      background-attachment: fixed;
+      filter: blur(5px);
       z-index: 1;
     }
     
-    /* Ensure desktop keeps gradient overlay */
-    @media (min-width: 769px) {
-      .hero-section::before {
-        background: linear-gradient(135deg, rgba(59, 130, 246, 0.6) 0%, rgba(251, 191, 36, 0.7) 50%, rgba(59, 130, 246, 0.6) 100%) !important;
-        backdrop-filter: none !important;
-        -webkit-backdrop-filter: none !important;
-      }
+    /* Dark overlay for better text contrast */
+    .hero-section::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.3);
+      z-index: 2;
     }
     
     .hero-content {
       position: relative;
-      z-index: 2;
+      z-index: 3;
       animation: fadeInUp 0.8s ease-out;
+    }
+    
+    /* Make all hero section text white on all screen sizes */
+    .hero-section h1,
+    .hero-section h2,
+    .hero-section h3,
+    .hero-section h4,
+    .hero-section h5,
+    .hero-section h6,
+    .hero-section p,
+    .hero-section div,
+    .hero-section span {
+      color: #ffffff !important;
+      -webkit-text-fill-color: #ffffff !important;
+    }
+    
+    /* Override gradient text specifically */
+    .hero-section .gradient-text {
+      color: #ffffff !important;
+      background: none !important;
+      background-image: none !important;
+      -webkit-background-clip: initial !important;
+      background-clip: initial !important;
+      -webkit-text-fill-color: #ffffff !important;
+    }
+    
+    /* Comprehensive white text styling for all hero section elements */
+    .hero-section *:not(img):not(svg) {
+      color: #ffffff !important;
+      -webkit-text-fill-color: #ffffff !important;
+    }
+    
+    /* Add text shadow for better readability over blurred background */
+    .hero-section h1,
+    .hero-section h2,
+    .hero-section h3,
+    .hero-section h4,
+    .hero-section h5,
+    .hero-section h6,
+    .hero-section p {
+      text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.7);
     }
     
     /* Enhanced logo with glow effect */
@@ -146,33 +190,12 @@
       .hero-section {
         min-height: 90vh;
         padding: 1rem 0;
-        position: relative;
-        background: none !important;
       }
       
-      /* MOBILE ONLY: Blurred background with better text visibility */
+      /* Increase blur on mobile for better effect */
       .hero-section::before {
-        content: '';
-        position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        background: url('/images/defaultbg.png') center/cover no-repeat;
-        filter: blur(3px);
-        z-index: 1;
-      }
-      
-      /* Add dark overlay for better text contrast */
-      .hero-section::after {
-        content: '';
-        position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        background: rgba(0, 0, 0, 0.3);
-        z-index: 2;
+        filter: blur(8px) !important;
+        background-attachment: scroll !important;
       }
       
 
@@ -190,7 +213,7 @@
       .hero-content {
         padding: 0 1rem;
         position: relative;
-        z-index: 10;
+        z-index: 4;
       }
       
       /* Add text shadow for better readability over blurred background */
@@ -202,7 +225,7 @@
       /* Ensure all text elements are visible above blurred background */
       .hero-content * {
         position: relative;
-        z-index: 11;
+        z-index: 5;
       }
       
       .hero-logo-container {
@@ -239,7 +262,7 @@
         background-clip: initial !important;
         -webkit-text-fill-color: #ffffff !important;
         position: relative !important;
-        z-index: 100 !important;
+        z-index: 5 !important;
       }
       
       .hero-section h1,
@@ -251,7 +274,7 @@
         color: #ffffff !important;
         -webkit-text-fill-color: #ffffff !important;
         position: relative !important;
-        z-index: 100 !important;
+        z-index: 5 !important;
       }
       
       .hero-section p,
@@ -260,7 +283,7 @@
         color: #ffffff !important;
         -webkit-text-fill-color: #ffffff !important;
         position: relative !important;
-        z-index: 100 !important;
+        z-index: 5 !important;
       }
       
       /* Override gradient text specifically */
@@ -272,7 +295,7 @@
         background-clip: initial !important;
         -webkit-text-fill-color: #ffffff !important;
         position: relative !important;
-        z-index: 100 !important;
+        z-index: 5 !important;
       }
 
       /* Adjust mission item spacing on mobile */
@@ -881,6 +904,137 @@
                 <h3 class="text-sm font-semibold text-gray-900 mb-1">Coaches</h3>
                 <p class="text-gray-700 text-xs">Certified trainers</p>
               </div>
+            </div>
+          </div>
+
+          <!-- Guidelines Section -->
+          <div class="mb-12">
+            <div class="text-center mb-8">
+              <h2 class="text-4xl font-bold text-gray-800 mb-2">Guidelines</h2>
+              <div class="w-20 h-1 bg-gradient-to-r from-purple-400 to-pink-400 rounded-full mx-auto"></div>
+              <p class="text-gray-600 mt-4 max-w-2xl mx-auto">Essential guidelines for players, venues, and clubs to ensure fair play and professional standards</p>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+              <!-- Tournament Guideline -->
+              <div class="group bg-white rounded-xl p-8 shadow-lg border border-gray-200/50 hover:shadow-xl transition-all duration-300 hover:scale-105">
+                <div class="text-center mb-6">
+                  <div class="w-16 h-16 bg-gradient-to-br from-blue-500 to-blue-600 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <i class="fas fa-trophy text-white text-2xl"></i>
+                  </div>
+                  <h3 class="text-2xl font-bold text-gray-800 mb-2">Tournament Guidelines</h3>
+                  <div class="w-12 h-1 bg-gradient-to-r from-blue-400 to-blue-600 rounded-full mx-auto"></div>
+                </div>
+                <div class="space-y-4">
+                  <div class="flex items-start space-x-3">
+                    <i class="fas fa-check-circle text-blue-500 mt-1"></i>
+                    <p class="text-gray-700">Official tournament rules and regulations</p>
+                  </div>
+                  <div class="flex items-start space-x-3">
+                    <i class="fas fa-check-circle text-blue-500 mt-1"></i>
+                    <p class="text-gray-700">Player registration requirements</p>
+                  </div>
+                  <div class="flex items-start space-x-3">
+                    <i class="fas fa-check-circle text-blue-500 mt-1"></i>
+                    <p class="text-gray-700">Code of conduct and fair play</p>
+                  </div>
+                  <div class="flex items-start space-x-3">
+                    <i class="fas fa-check-circle text-blue-500 mt-1"></i>
+                    <p class="text-gray-700">Equipment standards and specifications</p>
+                  </div>
+                </div>
+                <div class="mt-6">
+                  <a href="/services/tournament-guidelines" class="inline-flex items-center px-6 py-3 bg-gradient-to-r from-blue-500 to-blue-600 text-white font-medium rounded-lg hover:from-blue-600 hover:to-blue-700 transition-all duration-300 group-hover:scale-105">
+                    <span class="mr-2">Read Guidelines</span>
+                    <i class="fas fa-arrow-right"></i>
+                  </a>
+                </div>
+              </div>
+
+              <!-- Venue Guideline -->
+              <div class="group bg-white rounded-xl p-8 shadow-lg border border-gray-200/50 hover:shadow-xl transition-all duration-300 hover:scale-105">
+                <div class="text-center mb-6">
+                  <div class="w-16 h-16 bg-gradient-to-br from-green-500 to-green-600 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <i class="fas fa-map-marker-alt text-white text-2xl"></i>
+                  </div>
+                  <h3 class="text-2xl font-bold text-gray-800 mb-2">Venue Guidelines</h3>
+                  <div class="w-12 h-1 bg-gradient-to-r from-green-400 to-green-600 rounded-full mx-auto"></div>
+                </div>
+                <div class="space-y-4">
+                  <div class="flex items-start space-x-3">
+                    <i class="fas fa-check-circle text-green-500 mt-1"></i>
+                    <p class="text-gray-700">Court specifications and dimensions</p>
+                  </div>
+                  <div class="flex items-start space-x-3">
+                    <i class="fas fa-check-circle text-green-500 mt-1"></i>
+                    <p class="text-gray-700">Safety standards and requirements</p>
+                  </div>
+                  <div class="flex items-start space-x-3">
+                    <i class="fas fa-check-circle text-green-500 mt-1"></i>
+                    <p class="text-gray-700">Facility management protocols</p>
+                  </div>
+                  <div class="flex items-start space-x-3">
+                    <i class="fas fa-check-circle text-green-500 mt-1"></i>
+                    <p class="text-gray-700">Booking and reservation procedures</p>
+                  </div>
+                </div>
+                <div class="mt-6">
+                  <a href="/services/venue-guidelines" class="inline-flex items-center px-6 py-3 bg-gradient-to-r from-green-500 to-green-600 text-white font-medium rounded-lg hover:from-green-600 hover:to-green-700 transition-all duration-300 group-hover:scale-105">
+                    <span class="mr-2">Read Guidelines</span>
+                    <i class="fas fa-arrow-right"></i>
+                  </a>
+                </div>
+              </div>
+
+              <!-- Club Guideline -->
+              <div class="group bg-white rounded-xl p-8 shadow-lg border border-gray-200/50 hover:shadow-xl transition-all duration-300 hover:scale-105">
+                <div class="text-center mb-6">
+                  <div class="w-16 h-16 bg-gradient-to-br from-purple-500 to-purple-600 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <i class="fas fa-users text-white text-2xl"></i>
+                  </div>
+                  <h3 class="text-2xl font-bold text-gray-800 mb-2">Club Guidelines</h3>
+                  <div class="w-12 h-1 bg-gradient-to-r from-purple-400 to-purple-600 rounded-full mx-auto"></div>
+                </div>
+                <div class="space-y-4">
+                  <div class="flex items-start space-x-3">
+                    <i class="fas fa-check-circle text-purple-500 mt-1"></i>
+                    <p class="text-gray-700">Club registration and certification</p>
+                  </div>
+                  <div class="flex items-start space-x-3">
+                    <i class="fas fa-check-circle text-purple-500 mt-1"></i>
+                    <p class="text-gray-700">Membership management standards</p>
+                  </div>
+                  <div class="flex items-start space-x-3">
+                    <i class="fas fa-check-circle text-purple-500 mt-1"></i>
+                    <p class="text-gray-700">Training and coaching protocols</p>
+                  </div>
+                  <div class="flex items-start space-x-3">
+                    <i class="fas fa-check-circle text-purple-500 mt-1"></i>
+                    <p class="text-gray-700">Event organization guidelines</p>
+                  </div>
+                </div>
+                <div class="mt-6">
+                  <a href="/services/club-guidelines" class="inline-flex items-center px-6 py-3 bg-gradient-to-r from-purple-500 to-purple-600 text-white font-medium rounded-lg hover:from-purple-600 hover:to-purple-700 transition-all duration-300 group-hover:scale-105">
+                    <span class="mr-2">Read Guidelines</span>
+                    <i class="fas fa-arrow-right"></i>
+                  </a>
+                </div>
+              </div>
+            </div>
+            
+            <!-- Action Buttons -->
+            <div class="flex flex-col sm:flex-row gap-4 justify-center items-center mt-10">
+              <a href="/services/registration" class="inline-flex items-center px-8 py-4 bg-gradient-to-r from-blue-500 to-blue-700 text-white font-bold rounded-xl hover:from-blue-600 hover:to-blue-800 transition-all duration-300 hover:scale-105 shadow-lg group">
+                <i class="fas fa-trophy mr-3 text-xl"></i>
+                <span class="text-lg">Register Tournament</span>
+                <i class="fas fa-arrow-right ml-3 transition-transform duration-300 group-hover:translate-x-1"></i>
+              </a>
+              
+              <a href="/venue" class="inline-flex items-center px-8 py-4 bg-gradient-to-r from-blue-600 to-indigo-700 text-white font-bold rounded-xl hover:from-blue-700 hover:to-indigo-800 transition-all duration-300 hover:scale-105 shadow-lg group">
+                <i class="fas fa-map-marker-alt mr-3 text-xl"></i>
+                <span class="text-lg">Register Court</span>
+                <i class="fas fa-arrow-right ml-3 transition-transform duration-300 group-hover:translate-x-1"></i>
+              </a>
             </div>
           </div>
 

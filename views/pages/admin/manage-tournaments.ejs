@@ -346,7 +346,10 @@
        .success-notification.show {
          transform: translateY(0);
        }
+       
+
      }
+
   </style>
 </head>
 <body class="bg-gradient-to-br from-gray-50 to-gray-100 min-h-screen">
@@ -598,7 +601,7 @@
                 <% } %>
                 
                 <div class="flex justify-end space-x-2">
-                  <button class="edit-btn bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg transition-all duration-300 flex items-center text-sm font-semibold" 
+                  <button type="button" class="edit-btn bg-blue-500 hover:bg-blue-600 active:bg-blue-700 text-white px-6 py-3 rounded-lg transition-all duration-300 flex items-center text-sm font-semibold touch-manipulation cursor-pointer select-none" 
                           data-tournament-id="<%= tournament._id %>"
                           data-tournament-name="<%= tournament.name %>"
                           data-tournament-start="<%= tournament.startDate || '' %>"
@@ -609,20 +612,22 @@
                           data-tournament-organizer="<%= tournament.organizer || '' %>"
                           data-tournament-person="<%= tournament.personInCharge || '' %>"
                           data-tournament-phone="<%= tournament.phoneNumber || '' %>"
-                          data-tournament-version="<%= tournament.version || 0 %>">
-                    <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          data-tournament-version="<%= tournament.version || 0 %>"
+                          style="min-height: 48px; min-width: 80px; -webkit-tap-highlight-color: transparent;">
+                    <svg class="w-4 h-4 mr-1 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
                     </svg>
-                    Edit
+                    <span class="pointer-events-none">Edit</span>
                   </button>
-                  <button class="delete-btn bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg transition-all duration-300 flex items-center text-sm font-semibold" 
+                  <button type="button" class="delete-btn bg-red-500 hover:bg-red-600 active:bg-red-700 text-white px-6 py-3 rounded-lg transition-all duration-300 flex items-center text-sm font-semibold touch-manipulation cursor-pointer select-none" 
                           data-tournament-id="<%= tournament._id %>"
                           data-tournament-name="<%= tournament.name %>"
-                          id="delete-btn-<%= tournament._id %>">
-                    <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          id="delete-btn-<%= tournament._id %>"
+                          style="min-height: 48px; min-width: 80px; -webkit-tap-highlight-color: transparent;">
+                    <svg class="w-4 h-4 mr-1 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
                     </svg>
-                    Delete
+                    <span class="pointer-events-none">Delete</span>
                   </button>
                 </div>
               </div>
@@ -645,8 +650,8 @@
   </div>
 
   <!-- Edit Tournament Modal -->
-  <div id="editModal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden items-center justify-center p-4">
-    <div class="bg-white rounded-2xl max-w-4xl w-full max-h-90vh overflow-y-auto transform scale-95 opacity-0 transition-all duration-300" id="editModalContent">
+  <div id="editModal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden" style="display: none;">
+    <div class="bg-white rounded-2xl max-w-4xl w-full mx-auto my-8 transform scale-95 opacity-0 transition-all duration-300" id="editModalContent">
       <div class="p-6 border-b border-gray-200">
         <div class="flex justify-between items-center">
           <h2 class="text-2xl font-bold text-gray-800">
@@ -658,7 +663,7 @@
         </div>
       </div>
       
-      <div class="p-6">
+      <div class="p-6 max-h-96 overflow-y-auto">
         <form id="editTournamentForm" method="POST" enctype="multipart/form-data">
           <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
             <!-- Tournament Name -->
@@ -717,12 +722,12 @@
               <label class="input-label">Person In Charge</label>
             </div>
             
-                          <!-- Phone Number -->
-              <div class="input-group">
-                <input type="text" name="phoneNumber" id="editPhoneNumber" class="input-field" placeholder="e.g., +60 12-345 6789">
-                <label class="input-label">Phone Number</label>
-                <small style="color: #666; font-size: 0.85em; margin-top: 4px; display: block;">If the phone number is not applicable, put 'Not Available'.</small>
-              </div>
+            <!-- Phone Number -->
+            <div class="input-group">
+              <input type="text" name="phoneNumber" id="editPhoneNumber" class="input-field" placeholder="e.g., +60 12-345 6789">
+              <label class="input-label">Phone Number</label>
+              <small style="color: #666; font-size: 0.85em; margin-top: 4px; display: block;">If the phone number is not applicable, put 'Not Available'.</small>
+            </div>
           </div>
           
           <div class="flex justify-end space-x-4 mt-8">
@@ -1008,15 +1013,20 @@
       }
     });
 
-    // Edit Modal Functions with Conflict Detection
+
+
+    // Edit Modal Functions
     function openEditModal(id, name, startDate, endDate, type, venue, city, organizer, personInCharge, phoneNumber, version) {
+      console.log('Opening edit modal for:', name);
+      
       const modal = document.getElementById('editModal');
       const modalContent = document.getElementById('editModalContent');
       const form = document.getElementById('editTournamentForm');
       
-      // Store current version for conflict detection
-      window.currentTournamentVersion = version || 0;
-      window.currentTournamentId = id;
+      if (!modal || !modalContent || !form) {
+        console.error('Modal elements not found!');
+        return;
+      }
       
       // Set form action
       form.action = `/admin/tournaments/update/${id}`;
@@ -1032,10 +1042,23 @@
       }
       versionField.value = version || 0;
       
+      // Helper function to format date for HTML input
+      function formatDateForInput(dateString) {
+        if (!dateString) return '';
+        try {
+          const date = new Date(dateString);
+          if (isNaN(date.getTime())) return '';
+          return date.toISOString().split('T')[0]; // Returns yyyy-MM-dd format
+        } catch (error) {
+          console.error('Error formatting date:', error);
+          return '';
+        }
+      }
+      
       // Populate form fields
       document.getElementById('editName').value = name || '';
-      document.getElementById('editStartDate').value = startDate || '';
-      document.getElementById('editEndDate').value = endDate || '';
+      document.getElementById('editStartDate').value = formatDateForInput(startDate);
+      document.getElementById('editEndDate').value = formatDateForInput(endDate);
       document.getElementById('editType').value = type || '';
       document.getElementById('editVenue').value = venue || '';
       document.getElementById('editCity').value = city || '';
@@ -1052,12 +1075,9 @@
         }
       });
       
-      // Start conflict checking
-      startConflictChecking(id, version);
-      
       // Show modal
+      modal.style.display = 'flex';
       modal.classList.remove('hidden');
-      modal.classList.add('flex');
       
       // Animate modal
       setTimeout(() => {
@@ -1066,158 +1086,8 @@
       }, 10);
     }
 
-    // Conflict Detection System
-    let conflictCheckInterval;
-    
-    function startConflictChecking(tournamentId, currentVersion) {
-      // Clear any existing interval
-      if (conflictCheckInterval) {
-        clearInterval(conflictCheckInterval);
-      }
-      
-      // Check for conflicts every 5 seconds
-      conflictCheckInterval = setInterval(() => {
-        checkForConflicts(tournamentId, currentVersion);
-      }, 5000);
-    }
-    
-    function stopConflictChecking() {
-      if (conflictCheckInterval) {
-        clearInterval(conflictCheckInterval);
-        conflictCheckInterval = null;
-      }
-    }
-    
-    async function checkForConflicts(tournamentId, currentVersion) {
-      try {
-        const response = await fetch(`/api/admin/check-conflicts/tournament/${tournamentId}?version=${currentVersion}`);
-        const result = await response.json();
-        
-        if (result.hasConflict) {
-          showConflictWarning(result.conflictInfo);
-        } else {
-          hideConflictWarning();
-        }
-      } catch (error) {
-        console.error('Error checking for conflicts:', error);
-      }
-    }
-    
-    function showConflictWarning(conflictInfo) {
-      let warningDiv = document.getElementById('conflictWarning');
-      if (!warningDiv) {
-        warningDiv = document.createElement('div');
-        warningDiv.id = 'conflictWarning';
-        warningDiv.className = 'bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4';
-        
-        const form = document.getElementById('editTournamentForm');
-        form.insertBefore(warningDiv, form.firstChild);
-      }
-      
-      warningDiv.innerHTML = `
-        <div class="flex items-center">
-          <i class="fas fa-exclamation-triangle mr-2"></i>
-          <div>
-            <strong>Conflict Detected!</strong><br>
-            This tournament was modified by <strong>${conflictInfo.lastModifiedBy}</strong> 
-            at ${new Date(conflictInfo.lastModifiedAt).toLocaleString()}.<br>
-            <button type="button" class="refresh-data-btn text-red-800 underline">
-              Click here to refresh and get the latest version
-            </button>
-          </div>
-        </div>
-      `;
-      
-      // Disable submit button
-      const submitBtn = document.querySelector('#editModal button[type="submit"]');
-      if (submitBtn) {
-        submitBtn.disabled = true;
-        submitBtn.classList.add('opacity-50', 'cursor-not-allowed');
-      }
-    }
-    
-    function hideConflictWarning() {
-      const warningDiv = document.getElementById('conflictWarning');
-      if (warningDiv) {
-        warningDiv.remove();
-      }
-      
-      // Re-enable submit button
-      const submitBtn = document.querySelector('#editModal button[type="submit"]');
-      if (submitBtn) {
-        submitBtn.disabled = false;
-        submitBtn.classList.remove('opacity-50', 'cursor-not-allowed');
-      }
-    }
-    
-    async function refreshTournamentData() {
-      try {
-        const response = await fetch(`/api/admin/check-conflicts/tournament/${window.currentTournamentId}`);
-        const result = await response.json();
-        
-        if (result.currentData) {
-          const tournament = result.currentData;
-          
-          // Update form with latest data
-          document.getElementById('editName').value = tournament.name || '';
-          document.getElementById('editStartDate').value = tournament.startDate ? tournament.startDate.split('T')[0] : '';
-          document.getElementById('editEndDate').value = tournament.endDate ? tournament.endDate.split('T')[0] : '';
-          document.getElementById('editType').value = tournament.type || '';
-          document.getElementById('editVenue').value = tournament.venue || '';
-          document.getElementById('editCity').value = tournament.city || '';
-          document.getElementById('editOrganizer').value = tournament.organizer || '';
-          document.getElementById('editPersonInCharge').value = tournament.personInCharge || '';
-          document.getElementById('editPhoneNumber').value = tournament.phoneNumber || '';
-          
-          // Update version
-          document.getElementById('tournamentVersion').value = tournament.version;
-          window.currentTournamentVersion = tournament.version;
-          
-          // Update floating labels
-          document.querySelectorAll('#editModal .input-field').forEach(field => {
-            if (field.value) {
-              field.classList.add('has-value');
-            } else {
-              field.classList.remove('has-value');
-            }
-          });
-          
-          hideConflictWarning();
-          
-          // Show success message
-          showNotification('Tournament data refreshed with latest changes', 'success');
-        }
-      } catch (error) {
-        console.error('Error refreshing tournament data:', error);
-        showNotification('Failed to refresh tournament data', 'error');
-      }
-    }
-    
-    function showNotification(message, type = 'info') {
-      const notification = document.createElement('div');
-      notification.className = `fixed top-4 right-4 z-50 px-6 py-3 rounded-lg shadow-lg text-white ${
-        type === 'success' ? 'bg-green-500' : 
-        type === 'error' ? 'bg-red-500' : 'bg-blue-500'
-      }`;
-      notification.innerHTML = `
-        <div class="flex items-center">
-          <i class="fas ${type === 'success' ? 'fa-check' : type === 'error' ? 'fa-times' : 'fa-info'} mr-2"></i>
-          ${message}
-        </div>
-      `;
-      
-      document.body.appendChild(notification);
-      
-      setTimeout(() => {
-        notification.remove();
-      }, 5000);
-    }
-
-    // Close modal and stop conflict checking
+    // Close modal
     function closeEditModal() {
-      stopConflictChecking();
-      hideConflictWarning();
-      
       const modal = document.getElementById('editModal');
       const modalContent = document.getElementById('editModalContent');
       
@@ -1225,39 +1095,68 @@
       modalContent.classList.add('scale-95', 'opacity-0');
       
       setTimeout(() => {
+        modal.style.display = 'none';
         modal.classList.add('hidden');
-        modal.classList.remove('flex');
       }, 200);
     }
 
          // Add event listeners after DOM is loaded
      document.addEventListener('DOMContentLoaded', function() {
-       // Edit button event listeners
-       document.querySelectorAll('.edit-btn').forEach(button => {
-         button.addEventListener('click', function() {
-           const id = this.dataset.tournamentId;
-           const name = this.dataset.tournamentName;
-           const startDate = this.dataset.tournamentStart;
-           const endDate = this.dataset.tournamentEnd;
-           const type = this.dataset.tournamentType;
-           const venue = this.dataset.tournamentVenue;
-           const city = this.dataset.tournamentCity;
-           const organizer = this.dataset.tournamentOrganizer;
-           const personInCharge = this.dataset.tournamentPerson;
-           const phoneNumber = this.dataset.tournamentPhone;
-           const version = this.dataset.tournamentVersion;
+       // Use event delegation for better mobile compatibility
+       document.addEventListener('click', function(e) {
+         // Handle edit button clicks
+         if (e.target.closest('.edit-btn')) {
+           e.preventDefault();
+           e.stopPropagation();
            
+           const button = e.target.closest('.edit-btn');
+           const id = button.dataset.tournamentId;
+           const name = button.dataset.tournamentName;
+           const startDate = button.dataset.tournamentStart;
+           const endDate = button.dataset.tournamentEnd;
+           const type = button.dataset.tournamentType;
+           const venue = button.dataset.tournamentVenue;
+           const city = button.dataset.tournamentCity;
+           const organizer = button.dataset.tournamentOrganizer;
+           const personInCharge = button.dataset.tournamentPerson;
+           const phoneNumber = button.dataset.tournamentPhone;
+           const version = button.dataset.tournamentVersion;
+           
+           console.log('Edit button clicked for tournament:', name);
            openEditModal(id, name, startDate, endDate, type, venue, city, organizer, personInCharge, phoneNumber, version);
-         });
+         }
+         
+         // Handle delete button clicks
+         if (e.target.closest('.delete-btn')) {
+           e.preventDefault();
+           e.stopPropagation();
+           
+           const button = e.target.closest('.delete-btn');
+           const id = button.dataset.tournamentId;
+           const name = button.dataset.tournamentName;
+           
+           console.log('Delete button clicked for tournament:', name);
+           deleteTournament(id, name);
+         }
        });
        
-       // Delete button event listeners
-       document.querySelectorAll('.delete-btn').forEach(button => {
-         button.addEventListener('click', function() {
-           const id = this.dataset.tournamentId;
-           const name = this.dataset.tournamentName;
-           deleteTournament(id, name);
-         });
+       // Add touch event listeners for better mobile support
+       document.addEventListener('touchstart', function(e) {
+         if (e.target.closest('.edit-btn') || e.target.closest('.delete-btn')) {
+           // Add visual feedback for touch
+           const button = e.target.closest('.edit-btn, .delete-btn');
+           button.style.transform = 'scale(0.95)';
+           button.style.opacity = '0.8';
+         }
+       });
+       
+       document.addEventListener('touchend', function(e) {
+         if (e.target.closest('.edit-btn') || e.target.closest('.delete-btn')) {
+           // Remove visual feedback
+           const button = e.target.closest('.edit-btn, .delete-btn');
+           button.style.transform = '';
+           button.style.opacity = '';
+         }
        });
        
        // Close modal button event listeners
@@ -1265,56 +1164,67 @@
          button.addEventListener('click', closeEditModal);
        });
        
-       // Refresh data button event listener (for conflict resolution)
-       document.addEventListener('click', function(e) {
-         if (e.target.classList.contains('refresh-data-btn')) {
-           refreshTournamentData();
-         }
-       });
-       
        // Edit form submission
        const editForm = document.getElementById('editTournamentForm');
        if (editForm) {
          editForm.addEventListener('submit', async function(e) {
-      e.preventDefault();
-      
-      const form = e.target;
-      const formData = new FormData(form);
-      const submitBtn = form.querySelector('button[type="submit"]');
-      const originalText = submitBtn.innerHTML;
-      
-      // Show loading state
-      submitBtn.disabled = true;
-      submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Updating...';
-      
-      try {
-        const response = await fetch(form.action, {
-          method: 'POST',
-          body: formData
-        });
-        
-        const result = await response.json();
-        
-        if (result.success) {
-          showSuccessMessage('Tournament updated successfully! ✅');
-          closeEditModal();
-          
-          // Reload page to show updated data
-          setTimeout(() => {
-            window.location.reload();
-          }, 1000);
-        } else {
-          throw new Error(result.message || 'Failed to update tournament');
-        }
-      } catch (error) {
-        console.error('Update error:', error);
-        showErrorMessage(`Failed to update tournament: ${error.message}`);
-                    } finally {
-         // Restore button state
-         submitBtn.disabled = false;
-         submitBtn.innerHTML = originalText;
-       }
-     });
+           e.preventDefault();
+           
+           const form = e.target;
+           const formData = new FormData(form);
+           const submitBtn = form.querySelector('button[type="submit"]');
+           const originalText = submitBtn.innerHTML;
+           
+           // Show loading state
+           submitBtn.disabled = true;
+           submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Updating...';
+           
+           try {
+             const response = await fetch(form.action, {
+               method: 'POST',
+               headers: {
+                 'X-Requested-With': 'XMLHttpRequest'
+               },
+               body: formData
+             });
+             
+             const result = await response.json();
+             
+             if (response.status === 401) {
+               // Authentication error - redirect to login
+               showErrorMessage('Session expired. Redirecting to login...');
+               setTimeout(() => {
+                 window.location.href = result.redirect || '/login';
+               }, 2000);
+               return;
+             }
+             
+             if (result.success) {
+               showSuccessMessage('Tournament updated successfully! ✅');
+               closeEditModal();
+               
+               // Reload page to show updated data
+               setTimeout(() => {
+                 window.location.reload();
+               }, 1000);
+             } else {
+               throw new Error(result.message || 'Failed to update tournament');
+             }
+           } catch (error) {
+             console.error('Update error:', error);
+             
+             // Check if it's a JSON parsing error (which was the original issue)
+             if (error.message.includes('Unexpected token')) {
+               showErrorMessage('Session may have expired. Please refresh the page and try again.');
+             } else {
+               showErrorMessage(`Failed to update tournament: ${error.message}`);
+             }
+           } finally {
+             // Restore button state
+             submitBtn.disabled = false;
+             submitBtn.innerHTML = originalText;
+           }
+         });
        }
      });
   </script>

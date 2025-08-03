@@ -187,6 +187,16 @@ const adminAuth = async (req, res, next) => {
   if (!req.session.isAuthenticated || !req.session.adminId) {
     console.log('❌ Admin auth failed: No session or adminId');
     console.log('🔍 Full session object:', req.session);
+    
+    // Check if it's an AJAX request
+    if (req.headers['x-requested-with'] === 'XMLHttpRequest') {
+      return res.status(401).json({
+        success: false,
+        message: 'Authentication required',
+        redirect: '/login'
+      });
+    }
+    
     return res.redirect('/login');
   }
   
@@ -196,6 +206,17 @@ const adminAuth = async (req, res, next) => {
     
     if (!admin || !admin.isActive) {
       console.log('❌ Admin auth failed: Admin not found or inactive');
+      
+      // Check if it's an AJAX request
+      if (req.headers['x-requested-with'] === 'XMLHttpRequest') {
+        req.session.destroy();
+        return res.status(401).json({
+          success: false,
+          message: 'Admin account not found or inactive',
+          redirect: '/login?reason=unauthorized'
+        });
+      }
+      
       req.session.destroy(() => {
         res.redirect('/login?reason=unauthorized');
       });
@@ -207,6 +228,16 @@ const adminAuth = async (req, res, next) => {
     const sessionTimeout = 7200000; // 2 hours
     
     if (now - loginTime > sessionTimeout) {
+      // Check if it's an AJAX request
+      if (req.headers['x-requested-with'] === 'XMLHttpRequest') {
+        req.session.destroy();
+        return res.status(401).json({
+          success: false,
+          message: 'Session expired',
+          redirect: '/login?reason=timeout'
+        });
+      }
+      
       req.session.destroy(() => {
         res.redirect('/login?reason=timeout');
       });
@@ -215,6 +246,17 @@ const adminAuth = async (req, res, next) => {
     
     if (req.session.userAgent && req.session.userAgent !== req.get('User-Agent')) {
       console.warn(`Session hijacking attempt detected - IP: ${req.ip}`);
+      
+      // Check if it's an AJAX request
+      if (req.headers['x-requested-with'] === 'XMLHttpRequest') {
+        req.session.destroy();
+        return res.status(401).json({
+          success: false,
+          message: 'Security error detected',
+          redirect: '/login?reason=security'
+        });
+      }
+      
       req.session.destroy(() => {
         res.redirect('/login?reason=security');
       });
@@ -226,6 +268,17 @@ const adminAuth = async (req, res, next) => {
     next();
   } catch (error) {
     console.error('Admin auth error:', error);
+    
+    // Check if it's an AJAX request
+    if (req.headers['x-requested-with'] === 'XMLHttpRequest') {
+      req.session.destroy();
+      return res.status(500).json({
+        success: false,
+        message: 'Authentication error occurred',
+        redirect: '/login?reason=error'
+      });
+    }
+    
     req.session.destroy(() => {
       res.redirect('/login?reason=error');
     });
@@ -817,6 +870,8 @@ app.post('/admin/tournaments/delete/:id', adminAuth, async (req, res) => {
   }
 });
 
+
+
 // Tournament update route
 app.post('/admin/tournaments/update/:id', adminAuth, [
   body('name').notEmpty().trim().withMessage('Tournament name is required'),
@@ -827,7 +882,7 @@ app.post('/admin/tournaments/update/:id', adminAuth, [
   body('city').optional().trim(),
   body('organizer').optional().trim(),
   body('personInCharge').optional().trim(),
-  body('phoneNumber').optional().trim().matches(/^[0-9+\-\s()]+$/).withMessage('Valid phone number format required')
+  body('phoneNumber').optional().trim().matches(/^[0-9+\-\s\(\)]+$|^Not Available$/).withMessage('Valid phone number format required')
 ], async (req, res) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
@@ -1766,6 +1821,10 @@ function sanitizeEmbedCode(embedCode) {
   // Ensure proper sandbox permissions for interaction (without allow-same-origin to prevent sandbox escape)
   if (!sanitized.includes('sandbox')) {
     sanitized = sanitized.replace('<iframe', '<iframe sandbox="allow-scripts allow-presentation allow-forms"');
+  } else {
+    // Clean up any existing problematic sandbox attributes
+    sanitized = sanitized.replace(/sandbox="[^"]*allow-same-origin[^"]*"/gi, 'sandbox="allow-scripts allow-presentation allow-forms"');
+    sanitized = sanitized.replace(/sandbox='[^']*allow-same-origin[^']*'/gi, 'sandbox="allow-scripts allow-presentation allow-forms"');
   }
   
   // Remove any potentially dangerous attributes
@@ -1773,6 +1832,55 @@ function sanitizeEmbedCode(embedCode) {
   sanitized = sanitized.replace(/javascript:/gi, ''); // Remove javascript: protocols
   
   return sanitized;
+}
+
+// One-time cleanup function to fix existing iframe sandbox attributes
+async function cleanupExistingEmbedCodes() {
+  try {
+    console.log('🔧 Starting iframe sandbox cleanup...');
+    
+    // Update video settings
+    const videoSettings = await Settings.findOne({});
+    if (videoSettings) {
+      let needsUpdate = false;
+      
+      if (videoSettings.videoEmbed1 && videoSettings.videoEmbed1.includes('allow-same-origin')) {
+        videoSettings.videoEmbed1 = sanitizeEmbedCode(videoSettings.videoEmbed1);
+        needsUpdate = true;
+        console.log('✅ Fixed video embed 1');
+      }
+      
+      if (videoSettings.videoEmbed2 && videoSettings.videoEmbed2.includes('allow-same-origin')) {
+        videoSettings.videoEmbed2 = sanitizeEmbedCode(videoSettings.videoEmbed2);
+        needsUpdate = true;
+        console.log('✅ Fixed video embed 2');
+      }
+      
+      // Check live streams
+      for (let i = 1; i <= 4; i++) {
+        const streamKey = `liveStream${i}`;
+        if (videoSettings[streamKey] && videoSettings[streamKey].includes('allow-same-origin')) {
+          videoSettings[streamKey] = sanitizeEmbedCode(videoSettings[streamKey]);
+          needsUpdate = true;
+          console.log(`✅ Fixed live stream ${i}`);
+        }
+      }
+      
+      if (needsUpdate) {
+        await videoSettings.save();
+        console.log('✅ Video settings updated successfully');
+      }
+    }
+    
+    console.log('✅ Iframe sandbox cleanup completed');
+  } catch (error) {
+    console.error('❌ Error during iframe cleanup:', error);
+  }
+}
+
+// Run cleanup on server start (only once)
+if (process.env.NODE_ENV !== 'test') {
+  setTimeout(cleanupExistingEmbedCodes, 2000);
 }
 
 // Get current video embed codes for admin page
