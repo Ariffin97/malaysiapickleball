@@ -1214,27 +1214,36 @@
   
   <script src="/js/script.js"></script>
   <script>
-    // Tournament data for JavaScript (simplified for calendar)
-    const tournamentData = <%- JSON.stringify(tournamentData) %>;
-    // Full tournament data with all fields for modal
-    const fullTournamentData = <%- JSON.stringify(tournaments) %>;
+    // Tournament data for JavaScript (safe injection)
+    const tournamentData = JSON.parse(decodeURIComponent('<%- encodeURIComponent(JSON.stringify(tournamentData || [])) %>'));
+    // Full tournament data with all fields for modal (safe injection)
+    const fullTournamentData = JSON.parse(decodeURIComponent('<%- encodeURIComponent(JSON.stringify(tournaments || [])) %>'));
     
     // Wait for DOM to be fully loaded
     document.addEventListener('DOMContentLoaded', function() {
       // Tournament page loaded, setting up filters
       
-      // Add event listeners for tournament clicks (CSP compliant)
-      document.querySelectorAll('.tournament-clickable').forEach(element => {
-        element.addEventListener('click', function() {
-          const index = this.dataset.tournamentIndex;
-          if (index !== undefined) {
-            openTournamentModal(parseInt(index));
-          }
-        });
-      });
+      // Event delegation for tournament clicks (robust on mobile)
+      document.addEventListener('click', function(e) {
+        const target = e.target.closest('.tournament-clickable');
+        if (!target) return;
+        const idx = target.dataset.tournamentIndex;
+        if (idx === undefined) return;
+        try {
+          openTournamentModal(parseInt(idx));
+        } catch (err) {
+          console.error('Failed to open tournament modal:', err);
+          // Fallback: make sure modal is closed and page is interactive
+          try { closeTournamentModal(); } catch (_) {}
+          document.body.style.overflow = '';
+          const modal = document.getElementById('tournament-modal');
+          if (modal) modal.classList.add('hidden');
+        }
+      }, { passive: true });
       
       // Add event listener for close modal button
-      document.querySelector('.close-tournament-modal').addEventListener('click', closeTournamentModal);
+      const closeBtn = document.querySelector('.close-tournament-modal');
+      if (closeBtn) closeBtn.addEventListener('click', closeTournamentModal, { passive: true });
       
       // Mobile functionality
       setupMobileView();
@@ -1653,6 +1662,7 @@
       `;
       
       modal.classList.remove('hidden');
+      void modal.offsetWidth;
       modal.classList.add('show');
       setTimeout(() => {
         modalContent.classList.remove('scale-95', 'opacity-0');
@@ -1677,11 +1687,14 @@
     }
 
     // Close modal when clicking outside
-    document.getElementById('tournament-modal').addEventListener('click', function(e) {
-      if (e.target === this) {
-        closeTournamentModal();
-      }
-    });
+    const overlay = document.getElementById('tournament-modal');
+    if (overlay) {
+      overlay.addEventListener('click', function(e) {
+        if (e.target === this) {
+          closeTournamentModal();
+        }
+      }, { passive: true });
+    }
 
     // Close modal with escape key
     document.addEventListener('keydown', function(e) {

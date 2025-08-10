@@ -429,6 +429,73 @@ app.get('/tournament', async (req, res) => {
   }
 });
 
+// API: Upcoming tournaments (same data source as tournament calendar)
+app.get('/api/tournaments/upcoming', async (req, res) => {
+  try {
+    const limit = parseInt(req.query.limit) || 4;
+    let all = await DatabaseService.getAllTournaments();
+    const now = new Date();
+
+    // Fallback to sample data if DB is empty (mirrors events page behavior)
+    if (!all || all.length === 0) {
+      all = [
+        { name: 'KGM Autumn Tournament', startDate: '2025-01-15', endDate: '2025-01-17', type: 'local', city: 'Kuala Lumpur', venue: 'KGM Sports Complex' },
+        { name: 'MPR@KL (SUKMA)', startDate: '2025-02-26', endDate: '2025-02-28', type: 'state', city: 'Selangor', venue: 'MPR Sports Center' },
+        { name: 'SPA Grand Finals', startDate: '2025-03-10', endDate: '2025-03-12', type: 'national', city: 'Penang', venue: 'SPA Arena' },
+        { name: 'IOP Johor', startDate: '2025-04-20', endDate: '2025-04-22', type: 'wmalaysia', city: 'Johor Bahru', venue: 'IOP Sports Complex' },
+      ];
+    }
+
+    let upcoming = (all || [])
+      // Include future and ongoing tournaments (endDate >= now)
+      .filter(t => {
+        const start = t.startDate ? new Date(t.startDate) : null;
+        const end = t.endDate ? new Date(t.endDate) : start;
+        return start && end && end >= now; 
+      })
+      .sort((a, b) => new Date(a.startDate) - new Date(b.startDate))
+      .slice(0, limit)
+      .map(t => ({
+        id: t._id,
+        name: t.name,
+        type: t.type,
+        startDate: t.startDate,
+        endDate: t.endDate,
+        location: t.location || t.city || '',
+        venue: t.venue || '',
+        status: 'upcoming'
+      }));
+
+    // Fallback: if no future/ongoing found, show the most recent 4 (so UI isn't empty)
+    if (!upcoming || upcoming.length === 0) {
+      upcoming = (all || [])
+        .filter(t => t.startDate)
+        .sort((a, b) => new Date(b.startDate) - new Date(a.startDate))
+        .slice(0, limit)
+        .sort((a, b) => new Date(a.startDate) - new Date(b.startDate))
+        .map(t => ({
+          id: t._id,
+          name: t.name,
+          type: t.type,
+          startDate: t.startDate,
+          endDate: t.endDate,
+          location: t.location || t.city || '',
+          venue: t.venue || '',
+          status: 'completed'
+        }));
+    }
+
+    res.json({
+      success: true,
+      message: 'Upcoming tournaments',
+      data: { tournaments: upcoming }
+    });
+  } catch (error) {
+    console.error('Upcoming tournaments API error:', error);
+    res.status(500).json({ success: false, message: 'Failed to fetch upcoming tournaments' });
+  }
+});
+
 // Events page route
 app.get('/events', async (req, res) => {
   try {
@@ -1848,13 +1915,12 @@ function sanitizeEmbedCode(embedCode) {
     sanitized = sanitized.replace('></iframe>', ' allowfullscreen></iframe>');
   }
   
-  // Ensure proper sandbox permissions for interaction (without allow-same-origin to prevent sandbox escape)
+  // Ensure proper sandbox permissions for YouTube/Vimeo (needs same-origin for player APIs)
   if (!sanitized.includes('sandbox')) {
-    sanitized = sanitized.replace('<iframe', '<iframe sandbox="allow-scripts allow-presentation allow-forms"');
+    sanitized = sanitized.replace('<iframe', '<iframe sandbox="allow-same-origin allow-scripts allow-presentation allow-forms"');
   } else {
-    // Clean up any existing problematic sandbox attributes
-    sanitized = sanitized.replace(/sandbox="[^"]*allow-same-origin[^"]*"/gi, 'sandbox="allow-scripts allow-presentation allow-forms"');
-    sanitized = sanitized.replace(/sandbox='[^']*allow-same-origin[^']*'/gi, 'sandbox="allow-scripts allow-presentation allow-forms"');
+    // Normalize sandbox to include allow-same-origin for trusted players
+    sanitized = sanitized.replace(/sandbox="[^"]*"/gi, 'sandbox="allow-same-origin allow-scripts allow-presentation allow-forms"');
   }
   
   // Remove any potentially dangerous attributes

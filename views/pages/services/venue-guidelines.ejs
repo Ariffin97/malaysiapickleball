@@ -8,79 +8,52 @@
   <link rel="stylesheet" href="/css/styles.css">
   <link rel="icon" href="/favicon.ico" type="image/x-icon">
   <style>
-    .hero-section {
-      background: linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)), url('<%= backgroundImage %>');
-      background-size: cover;
-      background-position: center;
-      background-attachment: fixed;
-    }
-    
     .content-section {
       background: white;
-      box-shadow: 0 -10px 30px rgba(0, 0, 0, 0.1);
-      border-radius: 30px 30px 0 0;
-      margin-top: -30px;
+      box-shadow: 0 0 30px rgba(0, 0, 0, 0.06);
+      border-radius: 0;
+      margin-top: 0;
       position: relative;
       z-index: 2;
-    }
-    
-    @media (max-width: 768px) {
-      .hero-section {
-        background-attachment: scroll;
-      }
     }
   </style>
 </head>
 <body class="bg-gray-50">
   <%- include('../../partials/header') %>
 
-  <!-- Hero Section -->
-  <section class="hero-section min-h-screen flex items-center justify-center text-white relative">
-    <div class="container mx-auto px-4 text-center">
-      <div class="max-w-4xl mx-auto">
-        <h1 class="text-5xl md:text-6xl font-bold mb-6 leading-tight">
-          🏟️ Venue Guidelines
-        </h1>
-        <p class="text-xl md:text-2xl mb-8 opacity-90 leading-relaxed">
-          Guidelines for venue registration and requirements for pickleball facilities
-        </p>
-      </div>
-    </div>
-  </section>
+  <!-- Simple page heading moved into content -->
 
   <!-- Content Section -->
-  <section class="content-section py-16">
+  <section class="content-section py-16" style="padding-top: calc(var(--navbar-height) + 16px);">
     <div class="container mx-auto px-4">
-      <div class="max-w-4xl mx-auto text-center">
-        
-        <!-- Coming Soon Message -->
-        <div class="bg-gradient-to-r from-green-50 to-emerald-50 rounded-2xl p-12 mb-8">
-          <h2 class="text-4xl font-bold text-gray-800 mb-4">🚧 Coming Soon</h2>
-          <p class="text-xl text-gray-600 mb-6">
-            We're currently preparing comprehensive venue guidelines for pickleball facilities in Malaysia.
-          </p>
-          <div class="text-lg text-gray-700">
-            This page will include information about:
-            <ul class="list-disc list-inside mt-4 space-y-2 max-w-md mx-auto text-left">
-              <li>Court specifications and dimensions</li>
-              <li>Safety requirements</li>
-              <li>Equipment standards</li>
-              <li>Registration procedures</li>
-              <li>Certification process</li>
-            </ul>
-          </div>
+      <div class="max-w-4xl mx-auto">
+        <div class="prose max-w-none mb-8 text-gray-700">
+          <p class="font-semibold">The Malaysia Pickleball Association (MPA) emphasizes the importance of standardizing all pickleball courts in Malaysia in accordance with internationally recognized specifications.</p>
+
+          <p class="mt-4 font-semibold">All court owners are required to:</p>
+          <ul class="list-disc list-inside space-y-2 mt-2">
+            <li><span class="font-semibold">Follow Standardized Dimensions</span> – Court measurements, markings, and net heights must strictly comply with MPA-approved dimensions to ensure fair play and consistent game quality across all venues.</li>
+            <li><span class="font-semibold">Ensure Clear Line Markings</span> – Proper line width, color contrast, and surface finish must be implemented to prevent disputes, including “ball in or out” decisions. A well-marked court eliminates unnecessary arguments and upholds the integrity of the game.</li>
+            <li><span class="font-semibold">Maintain Safety & Playability</span> – Surfaces must be non-slip and well-maintained, with sufficient spacing between courts, adequate lighting, and no obstructions within the playing area.</li>
+            <li><span class="font-semibold">Provide Fair Competition Conditions</span> – All facilities must ensure that playing conditions are equal for all players, avoiding any modifications or unofficial adjustments that could give unfair advantages.</li>
+            <li><span class="font-semibold">Support the Growth of Pickleball</span> – Owners are encouraged to work with MPA to promote community participation, organize events, and contribute to the development of the sport nationwide.</li>
+          </ul>
+
+          <p class="mt-4">The MPA’s objective is to ensure that every player in Malaysia enjoys the game under the same professional standards, whether for recreation or competition. We seek full cooperation from all court owners to uphold these principles.</p>
+        </div>
+        <div class="flex justify-center">
+          <img src="/images/courtdiagram.png" alt="Pickleball Court Diagram" class="w-full h-auto rounded-xl shadow-md border border-green-100" loading="lazy">
         </div>
 
-        <!-- Back Button -->
-        <div class="text-center">
-          <a href="/" class="inline-flex items-center px-6 py-3 bg-gray-600 text-white font-medium rounded-lg hover:bg-gray-700 transition-all duration-300">
-            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
-            </svg>
-            Back to Home
-          </a>
+        <!-- MPA Court Recognition Statement -->
+        <div class="mt-10 bg-white rounded-xl border border-gray-200 shadow-sm p-6 text-gray-700">
+          <h2 class="text-xl font-bold text-gray-800 mb-3">MPA Court Recognition Statement</h2>
+          <p class="mb-3">To have a pickleball court officially recognized by the Malaysia Pickleball Association (MPA), the court owner must submit all required information and pay an annual fee of RM100 to MPA. Upon approval, a Digital Recognition Certificate will be issued to the owner.</p>
+          <p class="mb-3">Recognition is valid for one (1) year only. Court owners must renew their application annually by submitting updated information and paying the RM100 fee to maintain certification.</p>
+          <p class="mb-3">If the court fails to meet MPA standards during the evaluation process, the owner must carry out the necessary repairs or upgrades in accordance with MPA specifications and pay the fee again for a re-evaluation.</p>
+          <p class="mb-3">Only courts with valid MPA recognition will be eligible to host official MPA-sanctioned tournaments or events.</p>
+          <p>This process ensures that all recognized courts in Malaysia meet consistent, professional standards for safety, playability, and fairness.</p>
         </div>
-
       </div>
     </div>
   </section>

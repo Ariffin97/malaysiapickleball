@@ -143,6 +143,51 @@ app.get('/tournament', (req, res) => {
   res.render('pages/tournament', { tournaments: formattedTournaments, session: req.session, backgroundImage: dataStore.backgroundImage });
 });
 
+// Lightweight mobile tournaments API for local server
+app.get('/api/mobile/tournaments', (req, res) => {
+  try {
+    const status = req.query.status; // upcoming, ongoing, completed
+    const limit = parseInt(req.query.limit) || 10;
+
+    const now = new Date();
+    const parseDate = (d) => (d ? new Date(d) : null);
+
+    let list = dataStore.tournaments.map(t => ({
+      id: t.name,
+      name: t.name,
+      type: t.type,
+      startDate: parseDate(t.startDate),
+      endDate: parseDate(t.endDate),
+      location: t.city || '',
+      venue: t.venue || '',
+      status: 'upcoming'
+    }));
+
+    if (status === 'upcoming') {
+      list = list.filter(t => t.startDate && t.startDate > now);
+    } else if (status === 'ongoing') {
+      list = list.filter(t => t.startDate && t.endDate && t.startDate <= now && t.endDate >= now);
+    } else if (status === 'completed') {
+      list = list.filter(t => t.endDate && t.endDate < now);
+    }
+
+    list.sort((a, b) => (a.startDate || now) - (b.startDate || now));
+    const sliced = list.slice(0, limit);
+
+    res.json({
+      success: true,
+      message: 'Tournaments retrieved',
+      data: {
+        tournaments: sliced,
+        pagination: { current: 1, pages: 1, total: list.length }
+      }
+    });
+  } catch (err) {
+    console.error('Local mobile tournaments API error:', err);
+    res.status(500).json({ success: false, message: 'Failed to retrieve tournaments' });
+  }
+});
+
 // Events page route
 app.get('/events', (req, res) => {
   console.log('Events Tournaments:', dataStore.tournaments); // Debug log

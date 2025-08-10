@@ -746,6 +746,29 @@
     }
     
     /* Line clamp utility moved to main styles.css file */
+    
+    /* Ensure Latest News cards match Featured Videos height */
+    #latestNewsContainer .latest-news-card {
+      height: 16rem; /* equals Tailwind h-64 used by video cards */
+      display: flex;
+      flex-direction: column;
+    }
+    #latestNewsContainer .latest-news-card > img,
+    #latestNewsContainer .latest-news-card > video,
+    #latestNewsContainer .latest-news-card > div:first-child {
+      flex-shrink: 0;
+    }
+    #latestNewsContainer .latest-news-card .p-6 {
+      flex: 1 1 auto;
+      display: flex;
+      flex-direction: column;
+    }
+    #latestNewsContainer .latest-news-card .p-6 p {
+      display: -webkit-box !important;
+      -webkit-line-clamp: 3;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
   </style>
 </head>
 <%
@@ -1032,7 +1055,7 @@
             
             <!-- Action Buttons -->
             <div class="flex flex-col sm:flex-row gap-4 justify-center items-center mt-10">
-              <a href="/venue" class="inline-flex items-center px-8 py-4 bg-gradient-to-r from-blue-600 to-indigo-700 text-white font-bold rounded-xl hover:from-blue-700 hover:to-indigo-800 transition-all duration-300 hover:scale-105 shadow-lg group">
+              <a href="https://docs.google.com/forms/d/e/1FAIpQLSf6Cq0KAlWQf3ELfJecHgO2ox5OWkui2BB2TvOR_7Oh3b-7eA/viewform?usp=header" class="inline-flex items-center px-8 py-4 bg-gradient-to-r from-blue-600 to-indigo-700 text-white font-bold rounded-xl hover:from-blue-700 hover:to-indigo-800 transition-all duration-300 hover:scale-105 shadow-lg group">
                 <i class="fas fa-map-marker-alt mr-3 text-xl"></i>
                 <span class="text-lg">Register Court</span>
                 <i class="fas fa-arrow-right ml-3 transition-transform duration-300 group-hover:translate-x-1"></i>
@@ -1163,107 +1186,7 @@
             <p class="text-gray-600 mt-4">Don't miss these exciting pickleball events coming up!</p>
           </div>
           
-          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            <!-- Tournament 1 -->
-            <div class="bg-white rounded-xl shadow-lg border border-gray-200/50 overflow-hidden hover:shadow-xl transition-all duration-300 hover:scale-105">
-              <div class="bg-gradient-to-br from-green-500 to-blue-600 p-4 text-white">
-                <div class="flex items-center justify-between mb-2">
-                  <span class="text-xs font-bold bg-white/20 px-2 py-1 rounded-full">LOCAL</span>
-                  <span class="text-xs">Jan 15-17</span>
-                </div>
-                <h3 class="font-bold text-lg mb-1">KGM Autumn Tournament</h3>
-                <p class="text-white/90 text-sm">Kuala Lumpur</p>
-              </div>
-              <div class="p-4">
-                <div class="flex items-center text-sm text-gray-600 mb-3">
-                  <i class="fas fa-map-marker-alt text-red-500 mr-2"></i>
-                  <span>KGM Sports Complex</span>
-                </div>
-                <div class="flex items-center text-sm text-gray-600 mb-3">
-                  <i class="fas fa-calendar text-blue-500 mr-2"></i>
-                  <span>Registration Open</span>
-                </div>
-                <a href="/tournament" class="inline-block bg-green-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-green-700 transition-colors">
-                  View Details
-                </a>
-              </div>
-            </div>
-
-            <!-- Tournament 2 -->
-            <div class="bg-white rounded-xl shadow-lg border border-gray-200/50 overflow-hidden hover:shadow-xl transition-all duration-300 hover:scale-105">
-              <div class="bg-gradient-to-br from-red-500 to-orange-600 p-4 text-white">
-                <div class="flex items-center justify-between mb-2">
-                  <span class="text-xs font-bold bg-white/20 px-2 py-1 rounded-full">STATE</span>
-                  <span class="text-xs">Feb 26-28</span>
-                </div>
-                <h3 class="font-bold text-lg mb-1">MPR@KL (SUKMA)</h3>
-                <p class="text-white/90 text-sm">Selangor</p>
-              </div>
-              <div class="p-4">
-                <div class="flex items-center text-sm text-gray-600 mb-3">
-                  <i class="fas fa-map-marker-alt text-red-500 mr-2"></i>
-                  <span>MPR Sports Center</span>
-                </div>
-                <div class="flex items-center text-sm text-gray-600 mb-3">
-                  <i class="fas fa-calendar text-blue-500 mr-2"></i>
-                  <span>Early Bird Pricing</span>
-                </div>
-                <a href="/tournament" class="inline-block bg-red-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-red-700 transition-colors">
-                  View Details
-                </a>
-              </div>
-            </div>
-
-            <!-- Tournament 3 -->
-            <div class="bg-white rounded-xl shadow-lg border border-gray-200/50 overflow-hidden hover:shadow-xl transition-all duration-300 hover:scale-105">
-              <div class="bg-gradient-to-br from-blue-500 to-purple-600 p-4 text-white">
-                <div class="flex items-center justify-between mb-2">
-                  <span class="text-xs font-bold bg-white/20 px-2 py-1 rounded-full">NATIONAL</span>
-                  <span class="text-xs">Mar 10-12</span>
-                </div>
-                <h3 class="font-bold text-lg mb-1">SPA Grand Finals</h3>
-                <p class="text-white/90 text-sm">Penang</p>
-              </div>
-              <div class="p-4">
-                <div class="flex items-center text-sm text-gray-600 mb-3">
-                  <i class="fas fa-map-marker-alt text-red-500 mr-2"></i>
-                  <span>SPA Arena</span>
-                </div>
-                <div class="flex items-center text-sm text-gray-600 mb-3">
-                  <i class="fas fa-calendar text-blue-500 mr-2"></i>
-                  <span>Limited Spots</span>
-                </div>
-                <a href="/tournament" class="inline-block bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors">
-                  View Details
-                </a>
-              </div>
-            </div>
-
-            <!-- Tournament 4 -->
-            <div class="bg-gradient-to-br from-gray-50 to-gray-100 rounded-xl shadow-lg border border-gray-200/50 overflow-hidden hover:shadow-xl transition-all duration-300 hover:scale-105">
-              <div class="bg-gradient-to-br from-yellow-500 to-yellow-600 p-4 text-white">
-                <div class="flex items-center justify-between mb-2">
-                  <span class="text-xs font-bold bg-yellow-500/90 text-yellow-900 px-2 py-1 rounded-full">W. MALAYSIA</span>
-                  <span class="text-xs">Apr 20-22</span>
-                </div>
-                <h3 class="font-bold text-lg mb-1">IOP Johor</h3>
-                <p class="text-white/90 text-sm">Johor Bahru</p>
-              </div>
-              <div class="p-4 bg-white/80 backdrop-blur-sm">
-                <div class="flex items-center text-sm text-gray-600 mb-3">
-                  <i class="fas fa-map-marker-alt text-yellow-500 mr-2"></i>
-                  <span>IOP Sports Complex</span>
-                </div>
-                <div class="flex items-center text-sm text-gray-600 mb-3">
-                  <i class="fas fa-calendar text-yellow-500 mr-2"></i>
-                  <span>Registration Soon</span>
-                </div>
-                <a href="/tournament" class="inline-block bg-yellow-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-yellow-700 transition-colors">
-                  View Details
-                </a>
-              </div>
-            </div>
-          </div>
+          <div id="upcomingTournamentsContainer" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6"></div>
 
           <div class="text-center mt-8">
             <a href="/tournament" class="inline-flex items-center px-6 py-3 bg-gradient-to-r from-green-500 to-blue-600 text-white font-medium rounded-lg hover:from-green-600 hover:to-blue-700 transition-all duration-300 hover:scale-105">
@@ -1644,7 +1567,7 @@
     // Create news card HTML
     function createNewsCard(article) {
       const card = document.createElement('div');
-      card.className = 'bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-all duration-300 transform hover:-translate-y-2 h-96 md:h-[28rem]';
+      card.className = 'bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-all duration-300 transform hover:-translate-y-2 latest-news-card';
       
       const mediaHtml = article.featuredImage 
         ? `<img src="${article.featuredImage}" alt="${article.title}" class="w-full h-40 md:h-32 object-cover">`
