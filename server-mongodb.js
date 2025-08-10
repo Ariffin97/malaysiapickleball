@@ -24,8 +24,7 @@ const tournamentTypes = {
   local: { color: 'green', label: 'Local' },
   state: { color: 'red', label: 'State' },
   national: { color: 'blue', label: 'National' },
-  sarawak: { color: 'purple', label: 'Miscellaneous Pickleball Events in Sarawak' },
-  wmalaysia: { color: 'yellow', label: 'Miscellaneous Events in W. Malaysia' }
+
 };
 
 // Middleware
@@ -295,26 +294,6 @@ app.get('/tournament/download-pdf-simple', async (req, res) => {
 });
 
 // Service pages
-app.get('/services/registration', async (req, res) => {
-  try {
-    const tournaments = await DatabaseService.getAllTournaments();
-    const backgroundImage = await DatabaseService.getSetting('background_image', '/images/defaultbg.png');
-    res.render('pages/services/registration', { tournaments, session: req.session, backgroundImage });
-  } catch (error) {
-    console.error('Registration page error:', error);
-    res.render('pages/services/registration', { tournaments: [], session: req.session, backgroundImage: '/images/defaultbg.png' });
-  }
-});
-
-app.get('/services/requirement-approval', async (req, res) => {
-  const backgroundImage = await DatabaseService.getSetting('background_image', '/images/defaultbg.png');
-  res.render('pages/services/requirement-approval', { session: req.session, backgroundImage });
-});
-
-app.get('/services/requirement-bidding', async (req, res) => {
-  const backgroundImage = await DatabaseService.getSetting('background_image', '/images/defaultbg.png');
-  res.render('pages/services/requirement-bidding', { session: req.session, backgroundImage });
-});
 
 app.get('/services/application-organizing', async (req, res) => {
   const backgroundImage = await DatabaseService.getSetting('background_image', '/images/defaultbg.png');
@@ -326,20 +305,7 @@ app.get('/services/application-bidding', async (req, res) => {
   res.render('pages/services/application-bidding', { session: req.session, backgroundImage });
 });
 
-app.get('/services/section-33', async (req, res) => {
-  const backgroundImage = await DatabaseService.getSetting('background_image', '/images/defaultbg.png');
-  res.render('pages/services/section-33', { session: req.session, backgroundImage });
-});
 
-app.get('/services/section-34', async (req, res) => {
-  const backgroundImage = await DatabaseService.getSetting('background_image', '/images/defaultbg.png');
-  res.render('pages/services/section-34', { session: req.session, backgroundImage });
-});
-
-app.get('/services/section-36', async (req, res) => {
-  const backgroundImage = await DatabaseService.getSetting('background_image', '/images/defaultbg.png');
-  res.render('pages/services/section-36', { session: req.session, backgroundImage });
-});
 
 app.get('/services/ranking', async (req, res) => {
   const backgroundImage = await DatabaseService.getSetting('background_image', '/images/defaultbg.png');

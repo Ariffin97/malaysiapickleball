@@ -45,8 +45,7 @@ const tournamentTypes = {
   local: { color: 'green', label: 'Local' },
   state: { color: 'red', label: 'State' },
   national: { color: 'blue', label: 'National' },
-  sarawak: { color: 'purple', label: 'Miscellaneous Pickleball Events in Sarawak' },
-  wmalaysia: { color: 'yellow', label: 'Miscellaneous Events in W. Malaysia' }
+
 };
 
 // Middleware
@@ -469,14 +468,10 @@ app.get('/referee', (req, res) => res.render('pages/referee', { referees: dataSt
 app.get('/coaches', (req, res) => res.render('pages/coaches', { coaches: dataStore.coaches, session: req.session, backgroundImage: dataStore.backgroundImage }));
 app.get('/venue', (req, res) => res.render('pages/venue', { venues: dataStore.venues, session: req.session, backgroundImage: dataStore.backgroundImage }));
 app.get('/services/sponsorship', (req, res) => res.render('pages/services/sponsorship', { sponsorships: dataStore.sponsorships, session: req.session, backgroundImage: dataStore.backgroundImage }));
-app.get('/services/registration', (req, res) => res.render('pages/services/registration', { tournaments: dataStore.tournaments, session: req.session, backgroundImage: dataStore.backgroundImage }));
-app.get('/services/requirement-approval', (req, res) => res.render('pages/services/requirement-approval', { session: req.session, backgroundImage: dataStore.backgroundImage }));
-app.get('/services/requirement-bidding', (req, res) => res.render('pages/services/requirement-bidding', { session: req.session, backgroundImage: dataStore.backgroundImage }));
+
 app.get('/services/application-organizing', (req, res) => res.render('pages/services/application-organizing', { session: req.session, backgroundImage: dataStore.backgroundImage }));
 app.get('/services/application-bidding', (req, res) => res.render('pages/services/application-bidding', { session: req.session, backgroundImage: dataStore.backgroundImage }));
-app.get('/services/section-33', (req, res) => res.render('pages/services/section-33', { session: req.session, backgroundImage: dataStore.backgroundImage }));
-app.get('/services/section-34', (req, res) => res.render('pages/services/section-34', { session: req.session, backgroundImage: dataStore.backgroundImage }));
-app.get('/services/section-36', (req, res) => res.render('pages/services/section-36', { session: req.session, backgroundImage: dataStore.backgroundImage }));
+
 app.get('/services/ranking', (req, res) => res.render('pages/services/ranking', { rankings: dataStore.rankings, session: req.session, backgroundImage: dataStore.backgroundImage }));
 app.get('/shop', (req, res) => res.render('pages/shop', { 
   session: req.session, 

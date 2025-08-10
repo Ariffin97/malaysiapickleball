@@ -1,0 +1,877 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tournament Guidelines - Malaysia Pickleball Association</title>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="/css/styles.css">
+  <link rel="icon" href="/favicon.ico" type="image/x-icon">
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+      color: #1a202c;
+      line-height: 1.6;
+    }
+    
+    .content-section {
+      background: transparent;
+      padding-top: 8rem;
+      margin-top: 0;
+      min-height: 100vh;
+    }
+    
+    .main-container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 3rem;
+    }
+    
+    .main-title {
+      text-align: center;
+      margin-bottom: 2.5rem;
+      padding: 2rem 0;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      border-radius: 20px;
+      box-shadow: 0 12px 24px rgba(102, 126, 234, 0.3);
+      color: white;
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .main-title::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grain" width="100" height="100" patternUnits="userSpaceOnUse"><circle cx="50" cy="50" r="1" fill="white" opacity="0.1"/></pattern></defs><rect width="100" height="100" fill="url(%23grain)"/></svg>');
+    }
+    
+    .main-title h1 {
+      font-size: 2.5rem;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      margin: 0;
+      position: relative;
+      z-index: 2;
+      text-shadow: 0 4px 8px rgba(0,0,0,0.3);
+    }
+    
+    .title-underline {
+      width: 100px;
+      height: 4px;
+      background: linear-gradient(90deg, #fbbf24, #f59e0b);
+      margin: 1rem auto 0;
+      border-radius: 2px;
+      box-shadow: 0 3px 8px rgba(251, 191, 36, 0.4);
+    }
+    
+    .guideline-card {
+      background: white;
+      border-radius: 24px;
+      padding: 3rem;
+      margin-bottom: 3rem;
+      position: relative;
+      box-shadow: 0 16px 32px rgba(0, 0, 0, 0.08), 0 4px 8px rgba(0, 0, 0, 0.04);
+      border: 1px solid rgba(255, 255, 255, 0.8);
+      backdrop-filter: blur(10px);
+      transition: all 0.3s ease;
+    }
+    
+    .guideline-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 24px 48px rgba(0, 0, 0, 0.12), 0 8px 16px rgba(0, 0, 0, 0.06);
+    }
+    
+    .guideline-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 8px;
+      height: 100%;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      border-radius: 24px 0 0 24px;
+    }
+    
+    .section-title {
+      color: #2d3748;
+      font-weight: 800;
+      font-size: 1.875rem;
+      margin-bottom: 2rem;
+      display: flex;
+      align-items: center;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+    
+    .section-icon {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      width: 56px;
+      height: 56px;
+      border-radius: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-right: 1.5rem;
+      font-size: 1.5rem;
+      box-shadow: 0 8px 16px rgba(102, 126, 234, 0.3);
+      position: relative;
+    }
+    
+    .section-icon::after {
+      content: '';
+      position: absolute;
+      inset: 2px;
+      border-radius: 14px;
+      background: linear-gradient(135deg, rgba(255,255,255,0.2) 0%, rgba(255,255,255,0.05) 100%);
+      pointer-events: none;
+    }
+    
+    .professional-table {
+      width: 100%;
+      border-collapse: separate;
+      border-spacing: 0;
+      background: white;
+      border-radius: 16px;
+      overflow: hidden;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.06);
+      border: 1px solid #e2e8f0;
+    }
+    
+    .professional-table thead tr {
+      background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+      color: white;
+    }
+    
+    .professional-table th {
+      padding: 1.5rem 1rem;
+      text-align: center;
+      font-weight: 700;
+      font-size: 1rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      border-right: 1px solid rgba(255, 255, 255, 0.2);
+      text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+    }
+    
+    .professional-table th:last-child {
+      border-right: none;
+    }
+    
+    .professional-table td {
+      padding: 1.5rem 1rem;
+      border-right: 1px solid #e2e8f0;
+      border-bottom: 1px solid #e2e8f0;
+      vertical-align: top;
+      font-size: 0.95rem;
+      line-height: 1.7;
+    }
+    
+    .professional-table td:last-child {
+      border-right: none;
+    }
+    
+    .professional-table tbody tr:last-child td {
+      border-bottom: none;
+    }
+    
+    .professional-table tbody tr:hover {
+      background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+    }
+    
+    .category-cell {
+      text-align: center;
+      font-weight: 700;
+      font-size: 1rem;
+      position: relative;
+    }
+    
+    .category-local { background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%); }
+    .category-international { background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%); }
+    .category-licensing { background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%); }
+    .category-sports { background: linear-gradient(135deg, #fed7d7 0%, #fbb6ce 100%); }
+    .category-non-sports { background: linear-gradient(135deg, #e9d5ff 0%, #ddd6fe 100%); }
+    
+    .highlight-box {
+      background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+      border: 2px solid #0ea5e9;
+      border-radius: 20px;
+      padding: 2rem;
+      margin: 2rem 0;
+      position: relative;
+      box-shadow: 0 8px 24px rgba(14, 165, 233, 0.1);
+    }
+    
+    .highlight-box::before {
+      content: '';
+      position: absolute;
+      top: -2px;
+      left: -2px;
+      right: -2px;
+      bottom: -2px;
+      background: linear-gradient(135deg, #0ea5e9, #0284c7);
+      border-radius: 22px;
+      z-index: -1;
+    }
+    
+    .application-link {
+      background: linear-gradient(135deg, #059669 0%, #047857 100%);
+      color: white;
+      padding: 1.25rem 2.5rem;
+      border-radius: 16px;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      font-weight: 700;
+      font-size: 1.125rem;
+      transition: all 0.3s ease;
+      box-shadow: 0 8px 24px rgba(5, 150, 105, 0.3);
+      border: 2px solid transparent;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+    
+    .application-link:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 16px 40px rgba(5, 150, 105, 0.4);
+      text-decoration: none;
+      color: white;
+      border-color: rgba(255, 255, 255, 0.3);
+    }
+    
+    .compliance-list {
+      background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%);
+      border-left: 6px solid #f59e0b;
+      border-radius: 0 16px 16px 0;
+      padding: 2rem;
+      margin: 2rem 0;
+      box-shadow: 0 8px 24px rgba(245, 158, 11, 0.1);
+    }
+    
+    .requirements-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 2rem;
+      margin: 2rem 0;
+    }
+    
+    .requirement-item {
+      background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+      padding: 1.5rem;
+      border-radius: 16px;
+      border-left: 4px solid #6366f1;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    }
+    
+    .legal-section {
+      background: linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%);
+      border: 2px solid #fca5a5;
+      border-radius: 20px;
+      padding: 2rem;
+      margin: 1.5rem 0;
+      position: relative;
+    }
+    
+    .penalty-box {
+      background: linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%);
+      border: 2px solid #dc2626;
+      border-radius: 16px;
+      padding: 1.5rem;
+      margin: 1rem 0;
+      box-shadow: 0 8px 24px rgba(220, 38, 38, 0.1);
+    }
+    
+    .important-note {
+      background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
+      border: 2px solid #22c55e;
+      border-radius: 16px;
+      padding: 1.5rem;
+      margin: 1rem 0;
+      box-shadow: 0 8px 24px rgba(34, 197, 94, 0.1);
+    }
+  </style>
+</head>
+<body>
+  <%- include('../../partials/header') %>
+
+  <!-- Content Section -->
+  <section class="content-section">
+    <div class="main-container">
+        
+        <!-- Main Title -->
+        <div class="main-title">
+          <h1>PANDUAN PEMBIDAAN PENGANJURAN DAN PELESENAN ACARA SUKAN</h1>
+          <div class="title-underline"></div>
+        </div>
+
+        <!-- Sports Event Application Guidelines -->
+        <div class="guideline-card">
+          <div class="section-title">
+            <div class="section-icon">📋</div>
+            KAEDAH PERMOHONAN KEBENARAN PENGANJURAN/ PEMBIDAAN ACARA SUKAN
+          </div>
+          <table class="professional-table">
+            <thead>
+              <tr>
+                <th>KATEGORI</th>
+                <th>KETERANGAN</th>
+                <th>PEMOHON</th>
+              </tr>
+            </thead>
+            <tbody>
+              <!-- Local Level -->
+              <tr>
+                <td class="category-cell category-local">
+                  <strong>🏘️ PERINGKAT TEMPATAN</strong>
+                </td>
+                <td>
+                  Mana-mana penganjuran pertandingan acara sukan di peringkat kebangsaan, negeri, daerah, bahagian atau mana-mana kawasan pentadbiran pihak berkuasa tempatan yang melibatkan penyertaan warganegara tempatan atau pemastautin tetap.
+                </td>
+                <td class="category-cell">
+                  <strong>Mengikut jenis organisasi</strong>
+                </td>
+              </tr>
+              <!-- International Level -->
+              <tr>
+                <td class="category-cell category-international">
+                  <strong>🌍 PERINGKAT ANTARABANGSA</strong>
+                </td>
+                <td>
+                  Penganjuran pertandingan acara sukan di Malaysia yang melibatkan penyertaan oleh mana-mana bukan warganegara yang mewakili sesuatu negara atau secara individu tidak termasuk yang menetap dan bekerja atau belajar di mana-mana bahagian dalam persekutuan (Malaysia).
+                </td>
+                <td class="category-cell">
+                  <strong>Mengikut jenis organisasi</strong>
+                </td>
+              </tr>
+              <!-- Company Licensing -->
+              <tr>
+                <td class="category-cell category-licensing">
+                  <strong>📜 PERLESENAN</strong><br>
+                  <span style="font-size: 0.8rem; font-weight: normal;">Akta 777 Akta Syarikat 2016</span>
+                </td>
+                <td>
+                  Mana-mana syarikat yang berdaftar dibawah <strong>Akta 777 Akta Syarikat 2016</strong>
+                </td>
+                <td class="category-cell">
+                  <strong>Wakil Syarikat</strong><br>
+                  <span style="font-size: 0.8rem; font-weight: normal;">(Permohonan Oleh Wakil Syarikat)</span>
+                </td>
+              </tr>
+              <!-- Sports Body -->
+              <tr>
+                <td class="category-cell category-sports">
+                  <strong>🏃 BADAN SUKAN</strong><br>
+                  <span style="font-size: 0.8rem; font-weight: normal;">Akta Pembangunan Sukan 1997 [Akta 576]</span>
+                </td>
+                <td>
+                  Badan sukan yang berdaftar di Pejabat Pesuruhjaya Sukan dibawah <strong>Akta Pembangunan Sukan 1997 [Akta 576]</strong>
+                </td>
+                <td class="category-cell">
+                  <strong>Setiausaha</strong><br>
+                  <span style="font-size: 0.8rem; font-weight: normal;">(Permohonan Oleh Setiausaha)</span>
+                </td>
+              </tr>
+              <!-- Non-Sports Body -->
+              <tr>
+                <td class="category-cell category-non-sports">
+                  <strong>🏢 BUKAN BADAN SUKAN</strong><br>
+                  <span style="font-size: 0.8rem; font-weight: normal;">Selain Akta 777 Akta 576</span>
+                </td>
+                <td>
+                  Mana-mana organisasi atau pertubuhan yang berdaftar selain dibawah Akta 777 Akta 576<br><br>
+                  <strong>Termasuk:</strong>
+                  <ul style="list-style-type: disc; margin-left: 1.5rem; margin-top: 0.5rem;">
+                    <li>Agensi Kerajaan Awam Persekutuan</li>
+                    <li>Agensi Kerajaan Awam Negeri</li>
+                    <li>Pihak Berkuasa Tempatan</li>
+                    <li>Bukan Badan Sukan/ NGO</li>
+                  </ul>
+                </td>
+                <td class="category-cell">
+                  <strong>Wakil Organisasi</strong><br>
+                  <span style="font-size: 0.8rem; font-weight: normal;">(Permohonan Oleh Wakil Organisasi)</span>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+          
+          <!-- Application Link -->
+          <div class="highlight-box">
+            <div style="display: flex; align-items: center;">
+              <div style="margin-right: 1.5rem;">
+                <span style="font-size: 2.5rem;">🌐</span>
+              </div>
+              <div>
+                <h4 style="font-size: 1.5rem; font-weight: 700; color: #0f172a; margin-bottom: 0.5rem;">Permohonan melalui pautan:</h4>
+                <a href="http://erosa.kbs.gov.my" target="_blank" class="application-link">
+                  AKSES PORTAL EROSA
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Requirements for Permission/Licensing -->
+        <div class="guideline-card">
+          <div class="section-title">
+            <div class="section-icon">📋</div>
+            KEPERLUAN PERMOHONAN KEBENARAN/ PELESENAN UNTUK PERTANDINGAN ACARA SUKAN
+          </div>
+          <table class="professional-table">
+            <tbody>
+              <tr>
+                <td class="category-cell category-local" style="width: 80px;">1.</td>
+                <td>
+                  <strong>Perakuan Pendaftaran - SSM (Syarikat) Perakuan PJS (Badan Sukan)/ Lain-lain perakuan pendaftaran untuk bukan badan sukan (ROS/ ROY/ Koperasi dan yang berkaitan)</strong>
+                </td>
+              </tr>
+              <tr>
+                <td class="category-cell category-international" style="width: 80px;">2.</td>
+                <td>
+                  <strong>Kebenaran (Sanction) penganjuran acara sukan tertakluk kepada tatacara dan garis panduan yang ditetapkan oleh sesuatu badan pengelola yang mewakili sukannya termasuk langkah keselamatan dan kesihatan.</strong>
+                </td>
+              </tr>
+              <tr>
+                <td class="category-cell category-licensing" style="width: 80px;">3.</td>
+                <td>
+                  <strong>Insurans - Salah satu syarat WAJIB yang dikenakan dalam permohonan penganjuran aktiviti sukan dan pelesenan.</strong>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Requirements for Bidding Events -->
+        <div class="guideline-card">
+          <div class="section-title">
+            <div class="section-icon">🏆</div>
+            KEPERLUAN PERMOHONAN KEBENARAN/ PELESENAN UNTUK PEMBIDAAN ACARA SUKAN
+          </div>
+          <table class="professional-table">
+            <tbody>
+              <tr>
+                <td class="category-cell category-sports" style="width: 80px;">1.</td>
+                <td>
+                  <strong>Perakuan Pendaftaran - SSM (Syarikat) Perakuan PJS (Badan Sukan)/ Lain-lain perakuan pendaftaran untuk bukan badan sukan (ROS/ ROY/ Koperasi dan yang berkaitan)</strong>
+                </td>
+              </tr>
+              <tr>
+                <td class="category-cell category-non-sports" style="width: 80px;">2.</td>
+                <td>
+                  <strong>Borang permohonan dan dokumen bidaan yang ditawarkan oleh badan pengelola/ pemilik acara yang hendak dibida.</strong>
+                </td>
+              </tr>
+              <tr>
+                <td class="category-cell category-licensing" style="width: 80px;">3.</td>
+                <td>
+                  <strong>Maklumat berkaitan kewangan, fasiliti dan lain-lain yang berkaitan dengan keupayaan untuk menganjurkan acara yang hendak dibida.</strong>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Additional Compliance Requirements -->
+        <div class="guideline-card">
+          <div class="section-title">
+            <div class="section-icon">✅</div>
+            TAMBAHAN KEPERLUAN PEMATUHAN PENGANJURAN
+          </div>
+          <div class="content-text">
+            <ul style="list-style-type: disc; margin-left: 1.5rem; font-size: 1.1rem;">
+              <li><strong>Memberi komitmen dengan pelaksanaan Kod Sukan Selamat</strong></li>
+              <li><strong>Memberi komitmen dengan pelaksanaan Peraturan-peraturan Anti-Doping</strong></li>
+              <li><strong>Mendapatkan kebenaran (sanction) dari badan sukan pengelola sukan yang dianjurkan (jika berkaitan) dan menyediakan insurans.</strong></li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- Application Procedures Table -->
+        <div class="guideline-card">
+          <div class="section-title">
+            <div class="section-icon">📊</div>
+            PERMOHONAN PENGANJURAN/ PELESENAN ACARA SUKAN
+          </div>
+          <table class="professional-table">
+              <thead>
+                <tr >
+                  <th >KATEGORI</th>
+                  <th >PERINGKAT</th>
+                  <th >TEMPOH</th>
+                  <th >DOKUMEN</th>
+                </tr>
+              </thead>
+              <tbody>
+                <!-- Sports Body - Local -->
+                <tr>
+                  <td class="category-cell category-sports" rowspan="2">
+                    <strong>BADAN SUKAN</strong><br>
+                    <span style="font-size: 0.9rem;">berdaftar di bawah Akta Pembangunan Sukan 1997 [Akta 576]</span>
+                  </td>
+                  <td class="category-cell">
+                    <strong>TEMPATAN</strong><br>
+                    <span style="font-size: 0.9rem;">tidak perlu mendapatkan kelulusan PJS</span>
+                  </td>
+                  <td class="category-cell">
+                    <strong>Tiada</strong>
+                  </td>
+                  <td >
+                    <ul style="list-style-type: disc; margin-left: 1.5rem;">
+                      <li>Kebenaran (Sanction) Badan Pengelola Sukan berkaitan</li>
+                      <li>Nota Perlindungan Insurans Acara/ Peserta</li>
+                    </ul>
+                  </td>
+                </tr>
+                <!-- Sports Body - International -->
+                <tr>
+                  <td class="category-cell">
+                    <strong>ANTARABANGSA</strong><br>
+                    <span style="font-size: 0.9rem;">perlu mendapatkan kelulusan bertulis Menteri Belia dan Sukan melalui PJS</span>
+                  </td>
+                  <td class="category-cell">
+                    <strong>30 hari sebelum acara</strong>
+                  </td>
+                  <td >
+                    <ul style="list-style-type: disc; margin-left: 1.5rem;">
+                      <li>Perakuan Pendaftaran Badan Sukan</li>
+                      <li>Kebenaran (Sanction) Badan Pengelola Sukan berkaitan</li>
+                      <li>Nota Perlindungan Insurans Acara/ Peserta</li>
+                    </ul>
+                    <div class="highlight-box" style="margin-top: 1rem; padding: 1rem; font-size: 0.8rem;">
+                      <strong>Permohonan hendaklah dibuat melalui Sistem eROSA:</strong><br>
+                      <a href="https://erosa.kbs.gov.my" target="_blank" style="color: #0ea5e9; text-decoration: underline; font-weight: 600;">(https://erosa.kbs.gov.my)</a>
+                    </div>
+                  </td>
+                </tr>
+                <!-- Non-Sports Body - Local -->
+                <tr>
+                  <td class="category-cell category-sports" rowspan="2">
+                    <strong>BUKAN BADAN SUKAN</strong><br>
+                    <span style="font-size: 0.9rem;">termasuk pertubuhan dan NGO</span>
+                  </td>
+                  <td class="category-cell">
+                    <strong>TEMPATAN</strong><br>
+                    <span style="font-size: 0.9rem;">tidak perlu mendapatkan kelulusan PJS</span>
+                  </td>
+                  <td class="category-cell">
+                    <strong>Tiada</strong>
+                  </td>
+                  <td >
+                    <ul style="list-style-type: disc; margin-left: 1.5rem;">
+                      <li>Kebenaran (Sanction) Badan Pengelola Sukan berkaitan</li>
+                      <li>Nota Perlindungan Insurans Acara/ Peserta</li>
+                    </ul>
+                  </td>
+                </tr>
+                <!-- Non-Sports Body - International -->
+                <tr>
+                  <td class="category-cell">
+                    <strong>ANTARABANGSA</strong><br>
+                    <span style="font-size: 0.9rem;">perlu mendapatkan kelulusan bertulis Menteri Belia dan Sukan melalui PJS</span>
+                  </td>
+                  <td class="category-cell">
+                    <strong>30 hari sebelum acara</strong>
+                  </td>
+                  <td >
+                    <ul style="list-style-type: disc; margin-left: 1.5rem;">
+                      <li>Perakuan Pendaftaran Persatuan/ Pertubuhan dan agensi Kerajaan</li>
+                      <li>Kebenaran (Sanction) Badan Pengelola Sukan berkaitan</li>
+                      <li>Nota Perlindungan Insurans Acara/ Peserta</li>
+                    </ul>
+                    <div class="highlight-box" style="margin-top: 1rem; padding: 1rem; font-size: 0.8rem;">
+                      <strong>Permohonan hendaklah dibuat melalui Sistem eROSA:</strong><br>
+                      <a href="https://erosa.kbs.gov.my" target="_blank" style="color: #0ea5e9; text-decoration: underline; font-weight: 600;">(https://erosa.kbs.gov.my)</a>
+                    </div>
+                  </td>
+                </tr>
+
+                <!-- Footer Note -->
+                <tr>
+                  <td colspan="4" class="border-2 border-gray-400 p-3 category-cell category-licensing">
+                    <strong>Tiada Fi Dikenakan</strong>
+                  </td>
+                </tr>
+              </tbody>
+          </table>
+        </div>
+
+        <!-- Company Licensing Section -->
+        <div class="guideline-card">
+          <div class="section-title">
+            <div class="section-icon">🏢</div>
+            SYARIKAT (PELESENAN) - AKTA 777 AKTA SYARIKAT 2016
+          </div>
+          <table class="professional-table">
+              <thead>
+                <tr >
+                  <th >KATEGORI</th>
+                  <th >PERINGKAT</th>
+                  <th >TEMPOH</th>
+                  <th >DOKUMEN</th>
+                </tr>
+              </thead>
+              <tbody>
+                <!-- Company Licensing - Local -->
+                <tr>
+                  <td class="category-cell category-sports" rowspan="2">
+                    <strong>SYARIKAT (PELESENAN)</strong><br>
+                    <span style="font-size: 0.9rem;">berdaftar di bawah Akta 777 Akta Syarikat 2016</span>
+                  </td>
+                  <td class="category-cell">
+                    <strong>TEMPATAN</strong><br>
+                    <span style="font-size: 0.9rem;">perlu mendapatkan kelulusan bertulis Menteri Belia dan Sukan melalui PJS</span>
+                  </td>
+                  <td class="category-cell">
+                    <strong>14 hari sebelum acara</strong>
+                  </td>
+                  <td >
+                    <ul style="list-style-type: disc; margin-left: 1.5rem;">
+                      <li>Salinan perakuan pendaftaran Syarikat</li>
+                      <li>Kebenaran (Sanction) Badan Pengelola Sukan berkaitan (Badan Sukan Kebangsaan atau yang lebih tinggi)</li>
+                      <li>Nota Perlindungan Insurans (Cover Note)/ Polisi Perlindungan Insurans Acara/ Peserta</li>
+                    </ul>
+                    <div class="highlight-box" style="margin-top: 1rem; padding: 1rem; font-size: 0.8rem;">
+                      <strong>Permohonan hendaklah dibuat melalui Sistem eROSA:</strong><br>
+                      <a href="https://erosa.kbs.gov.my" target="_blank" style="color: #0ea5e9; text-decoration: underline; font-weight: 600;">(https://erosa.kbs.gov.my)</a>
+                    </div>
+                  </td>
+                </tr>
+                <!-- Company Licensing - International -->
+                <tr>
+                  <td class="category-cell">
+                    <strong>ANTARABANGSA</strong><br>
+                    <span style="font-size: 0.9rem;">perlu mendapatkan kelulusan bertulis Menteri Belia dan Sukan melalui PJS</span>
+                  </td>
+                  <td class="category-cell">
+                    <strong>30 hari sebelum acara</strong>
+                  </td>
+                  <td >
+                    <ul style="list-style-type: disc; margin-left: 1.5rem;">
+                      <li>Salinan perakuan pendaftaran Syarikat</li>
+                      <li>Kebenaran (Sanction) Badan Pengelola Sukan berkaitan (Badan Sukan Kebangsaan atau yang lebih tinggi)</li>
+                      <li>Nota Perlindungan Insurans (Cover Note)/ Polisi Perlindungan Insurans Acara/ Peserta</li>
+                    </ul>
+                    <div class="highlight-box" style="margin-top: 1rem; padding: 1rem; font-size: 0.8rem;">
+                      <strong>Permohonan hendaklah dibuat melalui Sistem eROSA:</strong><br>
+                      <a href="https://erosa.kbs.gov.my" target="_blank" style="color: #0ea5e9; text-decoration: underline; font-weight: 600;">(https://erosa.kbs.gov.my)</a>
+                    </div>
+                  </td>
+                </tr>
+                <!-- License Fee Exemption Notice -->
+                <tr>
+                  <td colspan="4" class="border-2 border-gray-400 p-3 category-cell category-international">
+                    <strong>Fi Lesen dikecualikan sehingga 31 Disember 2025</strong>
+                  </td>
+                </tr>
+              </tbody>
+          </table>
+        </div>
+
+        <!-- Bidding Procedures Section -->
+        <div class="guideline-card">
+          <div class="section-title">
+            <div class="section-icon">🎯</div>
+            PERMOHONAN PEMBIDAAN PENGANJURAN/ PELESENAN ACARA SUKAN
+          </div>
+          <table class="professional-table">
+              <thead>
+                <tr >
+                  <th >KATEGORI</th>
+                  <th >PERINGKAT</th>
+                  <th >TEMPOH</th>
+                  <th >DOKUMEN</th>
+                </tr>
+              </thead>
+              <tbody>
+                <!-- Sports Body Bidding -->
+                <tr>
+                  <td class="category-cell category-sports">
+                    <strong>BADAN SUKAN</strong><br>
+                    <span style="font-size: 0.9rem;">berdaftar di bawah Akta Pembangunan Sukan 1997 [Akta 576]</span>
+                  </td>
+                  <td class="category-cell">
+                    <strong>ANTARABANGSA</strong>
+                  </td>
+                  <td class="category-cell">
+                    <strong>90 hari sebelum tarikh tutup bidaan</strong>
+                  </td>
+                  <td >
+                    <ul style="list-style-type: disc; margin-left: 1.5rem;">
+                      <li>Perakuan pendaftaran PJS.</li>
+                      <li>Borang permohonan dan dokumen bidaan yang ditawarkan oleh badan pengelola/ pemilik acara yang hendak dibida.</li>
+                      <li>Maklumat berkaitan kewangan, fasiliti dan lain-lain yang berkaitan dengan keupayaan untuk menganjurkan acara yang hendak dibida.</li>
+                    </ul>
+                  </td>
+                </tr>
+                <!-- Non-Sports Body Bidding -->
+                <tr>
+                  <td class="category-cell category-sports">
+                    <strong>BUKAN BADAN SUKAN</strong><br>
+                    <span style="font-size: 0.9rem;">termasuk pertubuhan/ NGO dan Agensi Kerajaan</span>
+                  </td>
+                  <td class="category-cell">
+                    <strong>ANTARABANGSA</strong>
+                  </td>
+                  <td class="category-cell">
+                    <strong>90 hari sebelum tarikh tutup bidaan</strong>
+                  </td>
+                  <td >
+                    <ul style="list-style-type: disc; margin-left: 1.5rem;">
+                      <li>Perakuan pendaftaran untuk bukan badan sukan (ROS/ ROY/ Koperasi dan lain-lain yang berkaitan.</li>
+                      <li>Borang permohonan dan dokumen bidaan yang ditawarkan oleh badan pengelola/ pemilik acara yang hendak dibida.</li>
+                      <li>Maklumat berkaitan kewangan, fasiliti dan lain-lain yang berkaitan dengan keupayaan untuk menganjurkan acara yang hendak dibida.</li>
+                    </ul>
+                  </td>
+                </tr>
+                <!-- Footer Note -->
+                <tr>
+                  <td colspan="4" class="border-2 border-gray-400 p-3 category-cell category-licensing">
+                    <strong>Tiada Fi Dikenakan</strong>
+                  </td>
+                </tr>
+              </tbody>
+          </table>
+        </div>
+
+        <!-- Company Bidding Procedures Section -->
+        <div class="guideline-card">
+          <div class="section-title">
+            <div class="section-icon">🏢</div>
+            PERMOHONAN PEMBIDAAN SYARIKAT (PELESENAN)
+          </div>
+          <table class="professional-table">
+              <thead>
+                <tr >
+                  <th >KATEGORI</th>
+                  <th >PERINGKAT</th>
+                  <th >TEMPOH</th>
+                  <th >DOKUMEN</th>
+                </tr>
+              </thead>
+              <tbody>
+                <!-- Company Bidding -->
+                <tr>
+                  <td class="category-cell category-sports">
+                    <strong>SYARIKAT (PELESENAN)</strong><br>
+                    <span style="font-size: 0.9rem;">berdaftar di bawah Akta Syarikat 2016 dan Ordinan Negeri</span>
+                  </td>
+                  <td class="category-cell">
+                    <strong>ANTARABANGSA</strong>
+                  </td>
+                  <td class="category-cell">
+                    <strong>90 hari sebelum tarikh tutup bidaan</strong>
+                  </td>
+                  <td >
+                    <ul style="list-style-type: disc; margin-left: 1.5rem;">
+                      <li>Perakuan pendaftaran syarikat.</li>
+                      <li>Borang permohonan dan dokumen bidaan yang ditawarkan oleh badan pengelola/ pemilik acara yang hendak dibida.</li>
+                      <li>Maklumat berkaitan kewangan, fasiliti dan lain-lain yang berkaitan dengan keupayaan untuk menganjurkan acara yang hendak dibida.</li>
+                    </ul>
+                  </td>
+                </tr>
+                <!-- License Fee Exemption Notice -->
+                <tr>
+                  <td colspan="4" class="border-2 border-gray-400 p-3 category-cell category-international">
+                    <strong>Fi Lesen Dikecualikan Sehingga 31 Disember 2025</strong>
+                  </td>
+                </tr>
+              </tbody>
+          </table>
+        </div>
+
+        <!-- Legal Sections from Sports Development Act -->
+        <div class="guideline-card">
+          <div class="section-title">
+            <div class="section-icon">⚖️</div>
+            SEKSYEN UNDANG-UNDANG AKTA PEMBANGUNAN SUKAN 1997 [AKTA 576]
+          </div>
+          
+          <!-- Section 33 -->
+          <div class="content-text mb-6">
+            <h4 class="font-bold text-lg text-blue-800 mb-3">SEKSYEN 33 - Kelulusan untuk menjadi tuan rumah pertandingan atau acara sukan antarabangsa</h4>
+            
+            <div class="bg-blue-50 p-4 rounded-lg mb-4">
+              <p class="font-semibold mb-2">Seksyen 33 (1)</p>
+              <p class="mb-3">Memperuntukkan bahawa tiada seorang pun boleh membuat tawaran atau menawarkan diri menjadi tuan rumah bagi apa-apa pertandingan atau acara sukan antarabangsa di Malaysia tanpa kelulusan bertulis Menteri terlebih dahulu dan keputusan Menteri adalah muktamad.</p>
+            </div>
+            
+            <div class="bg-red-50 p-4 rounded-lg border-l-4 border-red-500">
+              <p class="font-semibold mb-2 text-red-800">Seksyen 33 (2) - PENALTI</p>
+              <p class="text-red-700">Memperuntukkan bahawa mana-mana orang yang melanggar subseksyen (1) melakukan suatu kesalahan dan apabila disabitkan boleh didenda <strong>tidak kurang daripada lima puluh ribu ringgit tetapi tidak lebih daripada lima ratus ribu ringgit</strong> atau dipenjarakan selama tempoh <strong>tidak melebihi lima tahun</strong> atau kedua-duanya.</p>
+            </div>
+          </div>
+
+          <!-- Section 34 -->
+          <div class="content-text mb-6">
+            <h4 class="font-bold text-lg text-blue-800 mb-3">SEKSYEN 34 - Penggunaan kaedah dan garis panduan antarabangsa yang diiktiraf untuk pertandingan</h4>
+            
+            <div class="bg-green-50 p-4 rounded-lg">
+              <p>Sesuatu badan sukan hendaklah memastikan bahawa semua pertandingan dan acara sukan yang dibenarkan, dijalankan atau disertai olehnya serta pertandingan dan acara sukan yang diadakan di bawah naungannya, adalah mengikut kaedah dan garis panduan yang diiktiraf oleh semua badan pengelola dan pengawalseliaan bagi sukannya dalam semua perkara, termasuk:</p>
+              <ul class="list-disc list-inside mt-3 space-y-1">
+                <li>Standard dan kelayakan semua peserta dan pegawai</li>
+                <li>Langkah kesihatan dan keselamatan bagi peserta, pegawai dan penonton di pertandingan atau acara itu</li>
+              </ul>
+            </div>
+          </div>
+
+          <!-- Section 36 -->
+          <div class="content-text">
+            <h4 class="font-bold text-lg text-blue-800 mb-3">SEKSYEN 36 - Syarikat hendaklah memohon untuk mendapatkan lesen untuk beroperasi</h4>
+            
+            <div class="bg-yellow-50 p-4 rounded-lg mb-4">
+              <p class="font-semibold mb-2">Seksyen 36 (1)</p>
+              <p class="mb-3">Memperuntukkan bahawa sesuatu syarikat tidak boleh terlibat dalam apa-apa aktiviti sukan atau dalam apa-apa aktiviti lain yang berkaitan dengan sukan, yang ditetapkan oleh Menteri dalam peraturan-peraturan, melainkan jika ia dilesenkan untuk berbuat demikian oleh Pesuruhjaya.</p>
+              
+              <div class="bg-orange-100 p-3 rounded border-l-4 border-orange-500 mt-3">
+                <p class="font-semibold text-orange-800">* PENTING:</p>
+                <p class="text-orange-700">Mana-mana syarikat (berdaftar dibawah Akta Syarikat) ingin menganjurkan penganjuran acara sukan perlu dilesenkan.</p>
+              </div>
+            </div>
+            
+            <div class="bg-red-50 p-4 rounded-lg border-l-4 border-red-500">
+              <p class="font-semibold mb-2 text-red-800">Seksyen 36 (4) - PENALTI</p>
+              <p class="text-red-700">Memperuntukkan bahawa mana-mana syarikat yang melanggar subseksyen (1) melakukan suatu kesalahan dan apabila disabitkan boleh didenda <strong>tidak kurang daripada lima puluh ribu ringgit tetapi tidak lebih daripada lima ratus ribu ringgit</strong> atau dipenjarakan selama tempoh <strong>tidak melebihi lima tahun</strong> atau kedua-duanya.</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Application Process -->
+        <div class="highlight-box text-center">
+          <h3 class="text-2xl font-bold text-blue-800 mb-4">📝 Cara Permohonan</h3>
+          <p class="text-lg text-gray-700 mb-6">
+            Semua permohonan boleh dibuat melalui portal rasmi:
+          </p>
+          <a href="http://erosa.kbs.gov.my" target="_blank" class="application-link">
+            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path>
+            </svg>
+            Mohon Melalui Portal eROSA
+          </a>
+        </div>
+
+
+
+        <!-- Back Button -->
+        <div style="text-align: center; margin-top: 3rem;">
+          <a href="/" class="application-link" style="background: linear-gradient(135deg, #4b5563 0%, #374151 100%); color: white;">
+            <svg style="width: 1.25rem; height: 1.25rem; margin-right: 0.5rem;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+            </svg>
+            Kembali ke Laman Utama
+          </a>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <%- include('../../partials/footer') %>
+
+  <script src="/js/script.js"></script>
+</body>
+</html>

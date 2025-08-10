@@ -8,6 +8,7 @@ const Settings = require('../models/Settings');
 const Notification = require('../models/Notification');
 const TournamentUpdate = require('../models/TournamentUpdate');
 const Announcement = require('../models/Announcement');
+const TournamentNotice = require('../models/TournamentNotice');
 
 class DatabaseService {
   // Tournament operations
@@ -964,16 +965,128 @@ Malaysia Pickleball Association Team`,
     try {
       const News = require('../models/News');
       return await News.find({ status: 'published' })
-        .sort({ publishedAt: -1 })
-        .limit(limit)
-        .select('title summary content author publishedAt category featuredImage featuredVideo viewCount featured');
+        .sort({ createdAt: -1 })
+        .limit(limit);
     } catch (error) {
       console.error('Error getting latest news:', error);
       throw error;
     }
   }
 
+  // Tournament Notice operations
+  static async getAllTournamentNotices() {
+    try {
+      return await TournamentNotice.find({ status: 'active' })
+        .sort({ priority: -1, createdAt: -1 });
+    } catch (error) {
+      console.error('Error getting tournament notices:', error);
+      throw error;
+    }
+  }
 
+  static async getTournamentNoticeById(id) {
+    try {
+      return await TournamentNotice.findById(id);
+    } catch (error) {
+      console.error('Error getting tournament notice by ID:', error);
+      throw error;
+    }
+  }
+
+  static async createTournamentNotice(noticeData) {
+    try {
+      const notice = new TournamentNotice(noticeData);
+      return await notice.save();
+    } catch (error) {
+      console.error('Error creating tournament notice:', error);
+      throw error;
+    }
+  }
+
+  static async updateTournamentNotice(id, updateData, currentVersion = null, modifiedBy = null) {
+    try {
+      // Add modification tracking
+      if (modifiedBy) {
+        updateData.lastModifiedBy = modifiedBy;
+      }
+
+      // If version is provided, use optimistic locking
+      if (currentVersion !== null) {
+        const notice = await TournamentNotice.findOneAndUpdate(
+          { 
+            _id: id, 
+            version: currentVersion // Only update if version matches
+          },
+          updateData,
+          { 
+            new: true,
+            runValidators: true
+          }
+        );
+
+        if (!notice) {
+          // Check if notice exists but version doesn't match
+          const existingNotice = await TournamentNotice.findById(id);
+          if (existingNotice) {
+            throw new Error(`Conflict detected: Notice was modified by ${existingNotice.lastModifiedBy || 'another admin'} at ${existingNotice.updatedAt}. Please refresh and try again.`);
+          } else {
+            throw new Error('Tournament notice not found');
+          }
+        }
+
+        return notice;
+      } else {
+        // Fallback to regular update (less safe)
+        return await TournamentNotice.findByIdAndUpdate(id, updateData, { new: true });
+      }
+    } catch (error) {
+      console.error('Error updating tournament notice:', error);
+      throw error;
+    }
+  }
+
+  static async deleteTournamentNotice(id) {
+    try {
+      return await TournamentNotice.findByIdAndDelete(id);
+    } catch (error) {
+      console.error('Error deleting tournament notice:', error);
+      throw error;
+    }
+  }
+
+  static async getActiveTournamentNotices() {
+    try {
+      return await TournamentNotice.find({ status: 'active' })
+        .sort({ priority: -1, createdAt: -1 });
+    } catch (error) {
+      console.error('Error getting active tournament notices:', error);
+      throw error;
+    }
+  }
+
+  static async getTournamentNoticesByType(type) {
+    try {
+      return await TournamentNotice.find({ 
+        status: 'active', 
+        type: type 
+      }).sort({ createdAt: -1 });
+    } catch (error) {
+      console.error('Error getting tournament notices by type:', error);
+      throw error;
+    }
+  }
+
+  static async getTournamentNoticesByTournament(tournamentName) {
+    try {
+      return await TournamentNotice.find({ 
+        status: 'active', 
+        tournamentName: { $regex: tournamentName, $options: 'i' }
+      }).sort({ createdAt: -1 });
+    } catch (error) {
+      console.error('Error getting tournament notices by tournament:', error);
+      throw error;
+    }
+  }
 }
 
 module.exports = DatabaseService; 

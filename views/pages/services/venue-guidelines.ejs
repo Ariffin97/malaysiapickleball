@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Venue Guidelines - Malaysia Pickleball Association</title>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="/css/styles.css">
+  <link rel="icon" href="/favicon.ico" type="image/x-icon">
+  <style>
+    .hero-section {
+      background: linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)), url('<%= backgroundImage %>');
+      background-size: cover;
+      background-position: center;
+      background-attachment: fixed;
+    }
+    
+    .content-section {
+      background: white;
+      box-shadow: 0 -10px 30px rgba(0, 0, 0, 0.1);
+      border-radius: 30px 30px 0 0;
+      margin-top: -30px;
+      position: relative;
+      z-index: 2;
+    }
+    
+    @media (max-width: 768px) {
+      .hero-section {
+        background-attachment: scroll;
+      }
+    }
+  </style>
+</head>
+<body class="bg-gray-50">
+  <%- include('../../partials/header') %>
+
+  <!-- Hero Section -->
+  <section class="hero-section min-h-screen flex items-center justify-center text-white relative">
+    <div class="container mx-auto px-4 text-center">
+      <div class="max-w-4xl mx-auto">
+        <h1 class="text-5xl md:text-6xl font-bold mb-6 leading-tight">
+          🏟️ Venue Guidelines
+        </h1>
+        <p class="text-xl md:text-2xl mb-8 opacity-90 leading-relaxed">
+          Guidelines for venue registration and requirements for pickleball facilities
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Content Section -->
+  <section class="content-section py-16">
+    <div class="container mx-auto px-4">
+      <div class="max-w-4xl mx-auto text-center">
+        
+        <!-- Coming Soon Message -->
+        <div class="bg-gradient-to-r from-green-50 to-emerald-50 rounded-2xl p-12 mb-8">
+          <h2 class="text-4xl font-bold text-gray-800 mb-4">🚧 Coming Soon</h2>
+          <p class="text-xl text-gray-600 mb-6">
+            We're currently preparing comprehensive venue guidelines for pickleball facilities in Malaysia.
+          </p>
+          <div class="text-lg text-gray-700">
+            This page will include information about:
+            <ul class="list-disc list-inside mt-4 space-y-2 max-w-md mx-auto text-left">
+              <li>Court specifications and dimensions</li>
+              <li>Safety requirements</li>
+              <li>Equipment standards</li>
+              <li>Registration procedures</li>
+              <li>Certification process</li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- Back Button -->
+        <div class="text-center">
+          <a href="/" class="inline-flex items-center px-6 py-3 bg-gray-600 text-white font-medium rounded-lg hover:bg-gray-700 transition-all duration-300">
+            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+            </svg>
+            Back to Home
+          </a>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <%- include('../../partials/footer') %>
+
+  <script src="/js/script.js"></script>
+</body>
+</html>

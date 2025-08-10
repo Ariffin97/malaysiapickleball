@@ -29,8 +29,7 @@ const tournamentTypes = {
   state: { color: 'red', label: 'State' },
   national: { color: 'blue', label: 'National' },
       international: { color: 'orange', label: 'International' },
-  sarawak: { color: 'purple', label: 'Miscellaneous Pickleball Events in Sarawak' },
-  wmalaysia: { color: 'yellow', label: 'Miscellaneous Events in W. Malaysia' }
+
 };
 
 // Middleware
@@ -405,6 +404,7 @@ app.get('/', async (req, res) => {
 app.get('/tournament', async (req, res) => {
   try {
     const tournaments = await DatabaseService.getAllTournaments();
+    const notices = await DatabaseService.getActiveTournamentNotices();
     const backgroundImage = await DatabaseService.getSetting('background_image', '/images/defaultbg.png');
     
     const formattedTournaments = tournaments.map(t => ({
@@ -414,6 +414,7 @@ app.get('/tournament', async (req, res) => {
     
     res.render('pages/tournament', { 
       tournaments: formattedTournaments, 
+      notices: notices,
       session: req.session, 
       backgroundImage 
     });
@@ -421,6 +422,7 @@ app.get('/tournament', async (req, res) => {
     console.error('Tournament page error:', error);
     res.render('pages/tournament', { 
       tournaments: [], 
+      notices: [],
       session: req.session, 
       backgroundImage: '/images/defaultbg.png'
     });
@@ -790,6 +792,34 @@ app.get('/admin/tournaments', adminAuth, async (req, res) => {
       session: req.session,
       errors: [{ msg: 'Failed to load tournaments.' }],
       formData: {}
+    });
+  }
+});
+
+app.get('/admin/tournaments/view-all', adminAuth, async (req, res) => {
+  try {
+    const tournaments = await DatabaseService.getAllTournaments();
+    const notices = await DatabaseService.getActiveTournamentNotices();
+    const backgroundImage = await DatabaseService.getSetting('background_image', '/images/defaultbg.png');
+    
+    const formattedTournaments = tournaments.map(t => ({
+      ...t.toObject(),
+      color: tournamentTypes[t.type]?.color || 'green'
+    }));
+    
+    res.render('pages/admin/view-all-tournaments', {
+      tournaments: formattedTournaments || [],
+      notices: notices || [],
+      session: req.session,
+      backgroundImage: backgroundImage
+    });
+  } catch (error) {
+    console.error('Error loading all tournaments:', error);
+    res.render('pages/admin/view-all-tournaments', {
+      tournaments: [],
+      notices: [],
+      session: req.session,
+      backgroundImage: '/images/defaultbg.png'
     });
   }
 });
@@ -2363,56 +2393,7 @@ app.get('/test-images', (req, res) => {
   `);
 });
 
-app.get('/services/registration', async (req, res) => {
-  try {
-    const backgroundImage = await DatabaseService.getSetting('background_image', '/images/defaultbg.png');
-    const tournaments = await DatabaseService.getAllTournaments();
-    res.render('pages/services/registration', { 
-      tournaments: tournaments, 
-      session: req.session, 
-      backgroundImage 
-    });
-  } catch (error) {
-    console.error('Registration page error:', error);
-    res.render('pages/services/registration', { 
-      tournaments: [], 
-      session: req.session, 
-      backgroundImage: '/images/defaultbg.png' 
-    });
-  }
-});
 
-app.get('/services/requirement-approval', async (req, res) => {
-  try {
-    const backgroundImage = await DatabaseService.getSetting('background_image', '/images/defaultbg.png');
-    res.render('pages/services/requirement-approval', { 
-      session: req.session, 
-      backgroundImage 
-    });
-  } catch (error) {
-    console.error('Requirement approval page error:', error);
-    res.render('pages/services/requirement-approval', { 
-      session: req.session, 
-      backgroundImage: '/images/defaultbg.png' 
-    });
-  }
-});
-
-app.get('/services/requirement-bidding', async (req, res) => {
-  try {
-    const backgroundImage = await DatabaseService.getSetting('background_image', '/images/defaultbg.png');
-    res.render('pages/services/requirement-bidding', { 
-      session: req.session, 
-      backgroundImage 
-    });
-  } catch (error) {
-    console.error('Requirement bidding page error:', error);
-    res.render('pages/services/requirement-bidding', { 
-      session: req.session, 
-      backgroundImage: '/images/defaultbg.png' 
-    });
-  }
-});
 
 app.get('/services/application-organizing', async (req, res) => {
   try {
@@ -2446,48 +2427,51 @@ app.get('/services/application-bidding', async (req, res) => {
   }
 });
 
-app.get('/services/section-33', async (req, res) => {
+
+
+// Guideline pages
+app.get('/services/tournament-guidelines', async (req, res) => {
   try {
     const backgroundImage = await DatabaseService.getSetting('background_image', '/images/defaultbg.png');
-    res.render('pages/services/section-33', { 
+    res.render('pages/services/tournament-guidelines', { 
       session: req.session, 
-      backgroundImage 
+      backgroundImage: backgroundImage 
     });
   } catch (error) {
-    console.error('Section 33 page error:', error);
-    res.render('pages/services/section-33', { 
+    console.error('Error loading tournament guidelines page:', error);
+    res.render('pages/services/tournament-guidelines', { 
       session: req.session, 
       backgroundImage: '/images/defaultbg.png' 
     });
   }
 });
 
-app.get('/services/section-34', async (req, res) => {
+app.get('/services/venue-guidelines', async (req, res) => {
   try {
     const backgroundImage = await DatabaseService.getSetting('background_image', '/images/defaultbg.png');
-    res.render('pages/services/section-34', { 
+    res.render('pages/services/venue-guidelines', { 
       session: req.session, 
-      backgroundImage 
+      backgroundImage: backgroundImage 
     });
   } catch (error) {
-    console.error('Section 34 page error:', error);
-    res.render('pages/services/section-34', { 
+    console.error('Error loading venue guidelines page:', error);
+    res.render('pages/services/venue-guidelines', { 
       session: req.session, 
       backgroundImage: '/images/defaultbg.png' 
     });
   }
 });
 
-app.get('/services/section-36', async (req, res) => {
+app.get('/services/club-guidelines', async (req, res) => {
   try {
     const backgroundImage = await DatabaseService.getSetting('background_image', '/images/defaultbg.png');
-    res.render('pages/services/section-36', { 
+    res.render('pages/services/club-guidelines', { 
       session: req.session, 
-      backgroundImage 
+      backgroundImage: backgroundImage 
     });
   } catch (error) {
-    console.error('Section 36 page error:', error);
-    res.render('pages/services/section-36', { 
+    console.error('Error loading club guidelines page:', error);
+    res.render('pages/services/club-guidelines', { 
       session: req.session, 
       backgroundImage: '/images/defaultbg.png' 
     });
@@ -3837,6 +3821,149 @@ app.post('/sarawak-admin-delete-announcement/:id', sarawakAdminAuth, async (req,
       return res.json({ success: false });
     }
     res.redirect('/sarawak-admin-dashboard?error=delete_announcement');
+  }
+});
+
+// Tournament Notice API Routes
+
+// Get all tournament notices (for admin)
+app.get('/admin/tournament-notices', adminAuth, async (req, res) => {
+  try {
+    const notices = await DatabaseService.getAllTournamentNotices();
+    res.json({ success: true, notices });
+  } catch (error) {
+    console.error('Error getting tournament notices:', error);
+    res.status(500).json({ success: false, message: 'Failed to get tournament notices' });
+  }
+});
+
+// Get active tournament notices (for public)
+app.get('/api/tournament-notices', async (req, res) => {
+  try {
+    const notices = await DatabaseService.getActiveTournamentNotices();
+    res.json({ success: true, notices });
+  } catch (error) {
+    console.error('Error getting active tournament notices:', error);
+    res.status(500).json({ success: false, message: 'Failed to get tournament notices' });
+  }
+});
+
+// Create tournament notice
+app.post('/admin/tournament-notices', adminAuth, [
+  body('title').notEmpty().trim().escape().withMessage('Title is required'),
+  body('tournamentName').notEmpty().trim().escape().withMessage('Tournament name is required'),
+  body('type').isIn(['date_change', 'cancellation', 'venue_change', 'registration_deadline', 'general']).withMessage('Invalid notice type'),
+  body('message').notEmpty().trim().escape().withMessage('Message is required'),
+  body('priority').isIn(['low', 'medium', 'high', 'urgent']).withMessage('Invalid priority level')
+], async (req, res) => {
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    return res.status(400).json({ 
+      success: false, 
+      message: 'Validation failed', 
+      errors: errors.array() 
+    });
+  }
+
+  try {
+    const noticeData = {
+      ...req.body,
+      createdBy: req.session.username || 'admin',
+      details: {
+        originalDate: req.body.originalDate || '',
+        newDate: req.body.newDate || '',
+        originalVenue: req.body.originalVenue || '',
+        newVenue: req.body.newVenue || '',
+        reason: req.body.reason || '',
+        deadline: req.body.deadline || ''
+      }
+    };
+
+    const notice = await DatabaseService.createTournamentNotice(noticeData);
+    res.json({ success: true, notice });
+  } catch (error) {
+    console.error('Error creating tournament notice:', error);
+    res.status(500).json({ success: false, message: 'Failed to create tournament notice' });
+  }
+});
+
+// Update tournament notice
+app.put('/admin/tournament-notices/:id', adminAuth, [
+  body('title').notEmpty().trim().escape().withMessage('Title is required'),
+  body('tournamentName').notEmpty().trim().escape().withMessage('Tournament name is required'),
+  body('type').isIn(['date_change', 'cancellation', 'venue_change', 'registration_deadline', 'general']).withMessage('Invalid notice type'),
+  body('message').notEmpty().trim().escape().withMessage('Message is required'),
+  body('priority').isIn(['low', 'medium', 'high', 'urgent']).withMessage('Invalid priority level')
+], async (req, res) => {
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    return res.status(400).json({ 
+      success: false, 
+      message: 'Validation failed', 
+      errors: errors.array() 
+    });
+  }
+
+  try {
+    const { id } = req.params;
+    const currentVersion = req.body.version ? parseInt(req.body.version) : null;
+    
+    const updateData = {
+      ...req.body,
+      details: {
+        originalDate: req.body.originalDate || '',
+        newDate: req.body.newDate || '',
+        originalVenue: req.body.originalVenue || '',
+        newVenue: req.body.newVenue || '',
+        reason: req.body.reason || '',
+        deadline: req.body.deadline || ''
+      }
+    };
+
+    const notice = await DatabaseService.updateTournamentNotice(
+      id, 
+      updateData, 
+      currentVersion, 
+      req.session.username || 'admin'
+    );
+    
+    res.json({ success: true, notice });
+  } catch (error) {
+    console.error('Error updating tournament notice:', error);
+    if (error.message.includes('Conflict detected')) {
+      res.status(409).json({ success: false, message: error.message });
+    } else {
+      res.status(500).json({ success: false, message: 'Failed to update tournament notice' });
+    }
+  }
+});
+
+// Delete tournament notice
+app.delete('/admin/tournament-notices/:id', adminAuth, async (req, res) => {
+  try {
+    const { id } = req.params;
+    await DatabaseService.deleteTournamentNotice(id);
+    res.json({ success: true });
+  } catch (error) {
+    console.error('Error deleting tournament notice:', error);
+    res.status(500).json({ success: false, message: 'Failed to delete tournament notice' });
+  }
+});
+
+// Get tournament notice by ID
+app.get('/admin/tournament-notices/:id', adminAuth, async (req, res) => {
+  try {
+    const { id } = req.params;
+    const notice = await DatabaseService.getTournamentNoticeById(id);
+    
+    if (!notice) {
+      return res.status(404).json({ success: false, message: 'Tournament notice not found' });
+    }
+    
+    res.json({ success: true, notice });
+  } catch (error) {
+    console.error('Error getting tournament notice:', error);
+    res.status(500).json({ success: false, message: 'Failed to get tournament notice' });
   }
 });
 

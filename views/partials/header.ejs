@@ -1,3 +1,6 @@
+<!-- Font Awesome for icons -->
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+
 <nav class="navbar-modern fixed w-full top-0 z-50 transition-all duration-300">
   <div class="container mx-auto flex justify-between items-center px-2 h-full max-w-5xl">
     <!-- Left Side - Logo & Brand -->
@@ -101,7 +104,7 @@
           </button>
           
           <!-- Dropdown Menu -->
-          <div class="dropdown-menu absolute right-0 mt-2 w-48 bg-white rounded-xl shadow-2xl border border-gray-200 opacity-0 invisible transform translate-y-2 transition-all duration-300" id="user-dropdown" style="z-index: 9998;">
+          <div class="dropdown-menu absolute right-0 mt-2 w-48 bg-white rounded-xl shadow-2xl border border-gray-200 opacity-0 invisible transform translate-y-2 transition-all duration-300" id="user-dropdown" style="z-index: 9998; top: 100%;">
             <div class="py-2">
               <a href="/admin/dashboard" class="dropdown-item flex items-center space-x-3 px-4 py-3 text-gray-700 hover:bg-green-50 hover:text-green-600 transition-colors duration-200">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -239,30 +242,9 @@
               <a href="/services/sponsorship" class="nav-dropdown-item flex items-center gap-3 px-3 py-2 rounded-lg font-medium text-gray-700 hover:bg-orange-50 hover:text-orange-600 transition-all duration-200 text-sm">
                 <i class="fas fa-handshake text-orange-500 w-4"></i> Sponsorship
               </a>
-              <a href="/services/registration" class="nav-dropdown-item flex items-center gap-3 px-3 py-2 rounded-lg font-medium text-gray-700 hover:bg-green-50 hover:text-green-600 transition-all duration-200 text-sm">
-                <i class="fas fa-calendar-plus text-green-500 w-4"></i> Event Organization
-              </a>
-              <a href="/services/requirement-approval" class="nav-dropdown-item flex items-center gap-3 px-3 py-2 rounded-lg font-medium text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition-all duration-200 text-sm">
-                <i class="fas fa-check-circle text-blue-500 w-4"></i> Approval Requirements
-              </a>
-              <a href="/services/requirement-bidding" class="nav-dropdown-item flex items-center gap-3 px-3 py-2 rounded-lg font-medium text-gray-700 hover:bg-purple-50 hover:text-purple-600 transition-all duration-200 text-sm">
-                <i class="fas fa-gavel text-purple-500 w-4"></i> Bidding Requirements
-              </a>
             </div>
 
-            <!-- Legal Framework -->
-            <div class="nav-section mt-3">
-              <div class="px-3 py-2 text-xs font-bold text-gray-500 uppercase tracking-wide border-b border-gray-100 mb-2">Legal Framework</div>
-              <a href="/services/section-33" class="nav-dropdown-item flex items-center gap-3 px-3 py-2 rounded-lg font-medium text-gray-700 hover:bg-red-50 hover:text-red-600 transition-all duration-200 text-sm">
-                <i class="fas fa-file-alt text-red-500 w-4"></i> Section 33 (Act 576)
-              </a>
-              <a href="/services/section-34" class="nav-dropdown-item flex items-center gap-3 px-3 py-2 rounded-lg font-medium text-gray-700 hover:bg-pink-50 hover:text-pink-600 transition-all duration-200 text-sm">
-                <i class="fas fa-file-contract text-pink-500 w-4"></i> Section 34 (Act 576)
-            </a>
-              <a href="/services/section-36" class="nav-dropdown-item flex items-center gap-3 px-3 py-2 rounded-lg font-medium text-gray-700 hover:bg-cyan-50 hover:text-cyan-600 transition-all duration-200 text-sm">
-                <i class="fas fa-balance-scale text-cyan-500 w-4"></i> Section 36 (Act 576)
-              </a>
-            </div>
+
 
             <!-- Player Access -->
             <div class="nav-section mt-3">
@@ -351,6 +333,28 @@
     opacity: 1;
     visibility: visible;
     transform: translateY(0);
+  }
+  
+  /* Fix dropdown positioning */
+  .user-menu-dropdown {
+    position: relative;
+  }
+  
+  .dropdown-menu {
+    position: absolute;
+    top: 100%;
+    right: 0;
+    margin-top: 0.5rem;
+    min-width: 12rem;
+  }
+  
+  /* Ensure dropdown doesn't go off screen */
+  @media (max-width: 768px) {
+    .dropdown-menu {
+      right: 0;
+      left: auto;
+      max-width: calc(100vw - 2rem);
+    }
   }
   
   .user-menu-dropdown:hover #user-menu-arrow {

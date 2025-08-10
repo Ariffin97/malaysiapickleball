@@ -25,12 +25,6 @@
       width: 100%;
       height: 100%;
       background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
-      animation: float 6s ease-in-out infinite;
-    }
-    
-    @keyframes float {
-      0%, 100% { transform: translateY(0px) rotate(0deg); }
-      50% { transform: translateY(-20px) rotate(180deg); }
     }
     
     .form-card {
@@ -158,20 +152,7 @@
       overflow: hidden;
     }
     
-    .btn-primary::before {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: -100%;
-      width: 100%;
-      height: 100%;
-      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
-      transition: left 0.5s;
-    }
-    
-    .btn-primary:hover::before {
-      left: 100%;
-    }
+
     
     .btn-primary:hover {
       transform: translateY(-2px);
@@ -183,31 +164,70 @@
       border-radius: 15px;
       padding: 1.5rem;
       box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
-      transition: all 0.3s ease;
       border: 1px solid #f1f5f9;
       position: relative;
       overflow: hidden;
     }
     
-    .tournament-card::before {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      height: 4px;
-      background: linear-gradient(90deg, #667eea, #764ba2);
-      transform: scaleX(0);
-      transition: transform 0.3s ease;
+    /* Remove ALL animations and transitions from buttons */
+    .tournament-card .edit-btn,
+    .tournament-card .delete-btn {
+      transition: none !important;
+      animation: none !important;
+      transform: none !important;
     }
     
-    .tournament-card:hover::before {
-      transform: scaleX(1);
+    .tournament-card .edit-btn:hover,
+    .tournament-card .delete-btn:hover,
+    .tournament-card .edit-btn:active,
+    .tournament-card .delete-btn:active,
+    .tournament-card .edit-btn:focus,
+    .tournament-card .delete-btn:focus {
+      transition: none !important;
+      animation: none !important;
+      transform: none !important;
     }
     
-    .tournament-card:hover {
-      transform: translateY(-5px);
-      box-shadow: 0 15px 35px rgba(0, 0, 0, 0.15);
+    /* Modal fixes */
+    #editModal {
+      align-items: center !important;
+      justify-content: center !important;
+    }
+    
+    #editModalContent {
+      margin: 0 !important;
+      max-height: 90vh !important;
+      width: 100% !important;
+      max-width: 1024px !important;
+    }
+    
+    @media (max-width: 768px) {
+      #editModalContent {
+        max-height: 95vh !important;
+        margin: 1rem !important;
+        width: calc(100% - 2rem) !important;
+      }
+    }
+    
+    /* View All Tournaments button styling */
+    a[href="/admin/tournaments/view-all"] {
+      position: relative;
+      overflow: hidden;
+    }
+    
+    a[href="/admin/tournaments/view-all"]:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+    }
+    
+    /* Tournament count badge pulse effect */
+    a[href="/admin/tournaments/view-all"] span:last-child {
+      animation: subtle-pulse 2s infinite;
+    }
+    
+    @keyframes subtle-pulse {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.05); }
     }
     
     .page-header {
@@ -228,12 +248,6 @@
       width: 200%;
       height: 200%;
       background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
-      animation: rotate 20s linear infinite;
-    }
-    
-    @keyframes rotate {
-      0% { transform: rotate(0deg); }
-      100% { transform: rotate(360deg); }
     }
     
     .header-content {
@@ -319,8 +333,8 @@
      
      @media (max-width: 768px) {
        .form-container {
-         padding: 1rem;
-         border-radius: 15px;
+         padding: 0.75rem;
+         border-radius: 12px;
        }
        
        .month-grid {
@@ -328,12 +342,68 @@
        }
        
        .page-header {
-         padding: 1.5rem;
+         padding: 1rem;
          text-align: center;
+         border-radius: 14px;
+         margin: 0.5rem;
+         margin-bottom: 1rem;
+       }
+       
+       .page-header h1 {
+         font-size: 1.75rem !important;
+         margin-bottom: 0.25rem !important;
+         line-height: 1.1;
+       }
+       
+       .page-header p {
+         font-size: 0.875rem !important;
+         opacity: 0.8 !important;
+         margin-bottom: 0.75rem;
+       }
+       
+       .header-content {
+         gap: 0.75rem !important;
+       }
+       
+       .header-content > div:last-child {
+         width: 100%;
+         gap: 0.5rem !important;
+       }
+       
+       a[href="/admin/tournaments/view-all"] {
+         width: 100% !important;
+         justify-content: center !important;
+         padding: 0.75rem 1rem !important;
+         font-size: 0.875rem !important;
+         border-radius: 10px !important;
+         box-shadow: 0 3px 8px rgba(0, 0, 0, 0.12) !important;
+         text-decoration: none !important;
+       }
+       
+       a[href="/admin/tournaments/view-all"] span:first-child {
+         padding: 0.375rem !important;
+         margin-right: 0.5rem !important;
+       }
+       
+       a[href="/admin/tournaments/view-all"] span:last-child {
+         margin-left: auto !important;
+         padding: 0.375rem 0.625rem !important;
+         font-size: 0.75rem !important;
+       }
+       
+       .page-header a[href="/admin/dashboard"] {
+         width: 100% !important;
+         justify-content: center !important;
+         padding: 0.75rem 1rem !important;
+         font-size: 0.875rem !important;
+         border-radius: 10px !important;
+         box-shadow: 0 3px 8px rgba(0, 0, 0, 0.08) !important;
+         background-color: rgba(255, 255, 255, 0.15) !important;
+         border: 1px solid rgba(255, 255, 255, 0.2) !important;
        }
        
        .tournament-card {
-         padding: 1rem;
+         padding: 0.75rem;
        }
        
        .success-notification {
@@ -347,6 +417,74 @@
          transform: translateY(0);
        }
        
+       main.p-4 {
+         padding: 0.5rem !important;
+       }
+       
+       .form-container {
+         margin: 0.5rem !important;
+         margin-bottom: 1rem !important;
+       }
+       
+       .form-card {
+         border-radius: 12px !important;
+         padding: 0.75rem !important;
+       }
+       
+       .form-card h2 {
+         font-size: 1.25rem !important;
+         margin-bottom: 1rem !important;
+         line-height: 1.2;
+       }
+       
+       .form-card h2 span {
+         padding: 0.375rem !important;
+         margin-right: 0.5rem !important;
+       }
+       
+       /* Compact form styling */
+       .input-group {
+         margin-bottom: 1rem !important;
+       }
+       
+       .input-field {
+         padding: 0.75rem !important;
+         font-size: 0.875rem !important;
+         border-radius: 8px !important;
+       }
+       
+       .input-label {
+         font-size: 0.75rem !important;
+         padding: 0 0.375rem !important;
+       }
+       
+       .btn-primary {
+         padding: 0.75rem 1.5rem !important;
+         font-size: 0.875rem !important;
+         border-radius: 8px !important;
+       }
+       
+       /* Compact grid layout */
+       .grid.gap-6 {
+         gap: 0.75rem !important;
+       }
+       
+       /* Enhanced button hover effects for mobile */
+       a[href="/admin/tournaments/view-all"]:active {
+         transform: scale(0.98) !important;
+         transition: transform 0.1s ease !important;
+       }
+       
+       .page-header a[href="/admin/dashboard"]:active {
+         transform: scale(0.98) !important;
+         transition: transform 0.1s ease !important;
+       }
+       
+       /* Improved visual hierarchy */
+       .container {
+         max-width: 100% !important;
+         padding: 0 !important;
+       }
 
      }
 
@@ -363,9 +501,17 @@
             <h1 class="text-4xl font-bold mb-2">🏆 Manage Tournaments</h1>
             <p class="text-lg opacity-90">Create and manage your pickleball tournaments</p>
           </div>
-          <a href="/admin/dashboard" class="mt-4 md:mt-0 bg-white bg-opacity-20 text-white px-6 py-3 rounded-xl hover:bg-opacity-30 transition-all duration-300 font-semibold backdrop-filter backdrop-blur-sm">
-            ← Back to Dashboard
-          </a>
+          <div class="flex flex-col md:flex-row gap-3 mt-4 md:mt-0">
+            <a href="/admin/tournaments/view-all" class="bg-white bg-opacity-20 text-white px-6 py-3 rounded-xl hover:bg-opacity-30 font-semibold backdrop-filter backdrop-blur-sm transition-all duration-300 flex items-center">
+              <span class="bg-gradient-to-r from-green-500 to-blue-500 text-white p-1 rounded-lg mr-2">📋</span>
+              <span>View All Tournaments</span>
+              <span class="ml-2 text-lg">👀</span>
+              <span class="ml-2 bg-gradient-to-r from-orange-400 to-orange-500 text-white px-3 py-1 rounded-full text-sm font-bold shadow-lg"><%= tournaments.length %></span>
+            </a>
+            <a href="/admin/dashboard" class="bg-white bg-opacity-20 text-white px-6 py-3 rounded-xl hover:bg-opacity-30 transition-all duration-300 font-semibold backdrop-filter backdrop-blur-sm">
+              ← Back to Dashboard
+            </a>
+          </div>
         </div>
       </div>
 
@@ -422,8 +568,7 @@
                   <option value="state" <%= formData?.type === 'state' ? 'selected' : '' %>>🏛️ State</option>
                   <option value="national" <%= formData?.type === 'national' ? 'selected' : '' %>>🇲🇾 National</option>
                   <option value="international" <%= formData?.type === 'international' ? 'selected' : '' %>>🌍 International</option>
-                  <option value="sarawak" <%= formData?.type === 'sarawak' ? 'selected' : '' %>>🏝️ Miscellaneous Pickleball Events in Sarawak</option>
-                  <option value="wmalaysia" <%= formData?.type === 'wmalaysia' ? 'selected' : '' %>>🏢 Miscellaneous Events in W. Malaysia</option>
+
                 </select>
                 <label class="input-label">Tournament Type</label>
               </div>
@@ -511,8 +656,8 @@
         </div>
       </div>
 
-      <!-- Current Tournaments -->
-      <div class="mt-8">
+      <!-- Current Tournaments - Moved to separate page -->
+      <div id="tournamentsSection" class="mt-8 hidden" style="display: none !important;">
         <h2 class="text-3xl font-bold mb-6 text-gray-800 flex items-center">
           <span class="bg-gradient-to-r from-green-500 to-blue-500 text-white p-2 rounded-lg mr-3">📋</span>
           Current Tournaments
@@ -529,8 +674,6 @@
                         tournament.type === 'state' ? 'bg-red-100 text-red-800' : 
                         tournament.type === 'national' ? 'bg-blue-100 text-blue-800' : 
                         tournament.type === 'international' ? 'bg-orange-100 text-orange-800' :
-                        tournament.type === 'sarawak' ? 'bg-purple-100 text-purple-800' :
-                        tournament.type === 'wmalaysia' ? 'bg-yellow-100 text-yellow-800' :
                         'bg-gray-100 text-gray-800' %>">
                     <%= tournament.type ? tournament.type.toUpperCase() : 'GENERAL' %>
                   </span>
@@ -601,7 +744,7 @@
                 <% } %>
                 
                 <div class="flex justify-end space-x-2">
-                  <button type="button" class="edit-btn bg-blue-500 hover:bg-blue-600 active:bg-blue-700 text-white px-6 py-3 rounded-lg transition-all duration-300 flex items-center text-sm font-semibold touch-manipulation cursor-pointer select-none" 
+                  <button type="button" class="edit-btn bg-blue-500 text-white px-6 py-3 rounded-lg flex items-center text-sm font-semibold touch-manipulation cursor-pointer select-none" 
                           data-tournament-id="<%= tournament._id %>"
                           data-tournament-name="<%= tournament.name %>"
                           data-tournament-start="<%= tournament.startDate || '' %>"
@@ -619,7 +762,7 @@
                     </svg>
                     <span class="pointer-events-none">Edit</span>
                   </button>
-                  <button type="button" class="delete-btn bg-red-500 hover:bg-red-600 active:bg-red-700 text-white px-6 py-3 rounded-lg transition-all duration-300 flex items-center text-sm font-semibold touch-manipulation cursor-pointer select-none" 
+                  <button type="button" class="delete-btn bg-red-500 text-white px-6 py-3 rounded-lg flex items-center text-sm font-semibold touch-manipulation cursor-pointer select-none" 
                           data-tournament-id="<%= tournament._id %>"
                           data-tournament-name="<%= tournament.name %>"
                           id="delete-btn-<%= tournament._id %>"
@@ -650,9 +793,9 @@
   </div>
 
   <!-- Edit Tournament Modal -->
-  <div id="editModal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden" style="display: none;">
-    <div class="bg-white rounded-2xl max-w-4xl w-full mx-auto my-8 transform scale-95 opacity-0 transition-all duration-300" id="editModalContent">
-      <div class="p-6 border-b border-gray-200">
+  <div id="editModal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden flex items-center justify-center p-4" style="display: none;">
+    <div class="bg-white rounded-2xl w-full max-w-4xl max-h-[90vh] flex flex-col transform scale-95 opacity-0 transition-all duration-300" id="editModalContent">
+      <div class="p-6 border-b border-gray-200 flex-shrink-0">
         <div class="flex justify-between items-center">
           <h2 class="text-2xl font-bold text-gray-800">
             <i class="fas fa-edit mr-3 text-blue-500"></i>Edit Tournament
@@ -663,7 +806,7 @@
         </div>
       </div>
       
-      <div class="p-6 max-h-96 overflow-y-auto">
+      <div class="p-6 flex-1 overflow-y-auto">
         <form id="editTournamentForm" method="POST" enctype="multipart/form-data">
           <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
             <!-- Tournament Name -->
@@ -692,8 +835,7 @@
                 <option value="state">State</option>
                 <option value="national">National</option>
                 <option value="international">International</option>
-                <option value="sarawak">Sarawak</option>
-                <option value="wmalaysia">W. Malaysia</option>
+
               </select>
               <label class="input-label">Tournament Type</label>
             </div>
@@ -978,10 +1120,12 @@
        // Set up form submission
        setupFormSubmission();
        
-       // Initial month update if dates are pre-filled
-       updateMonthsFromDates();
-       
-       // Add smooth scroll behavior
+             // Initial month update if dates are pre-filled
+      updateMonthsFromDates();
+      
+      // Tournament toggle functionality removed - now links to view-all page
+      
+      // Add smooth scroll behavior
        document.documentElement.style.scrollBehavior = 'smooth';
        
        // Add entrance animations
@@ -1099,6 +1243,8 @@
         modal.classList.add('hidden');
       }, 200);
     }
+
+    // Tournament toggle functionality removed - tournaments now displayed on separate page
 
          // Add event listeners after DOM is loaded
      document.addEventListener('DOMContentLoaded', function() {
