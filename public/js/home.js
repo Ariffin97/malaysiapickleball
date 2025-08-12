@@ -60,6 +60,74 @@ document.addEventListener('DOMContentLoaded', async () => {
     if (container.children.length === 0) {
       container.innerHTML = '<div class="col-span-full text-center text-gray-500">No upcoming tournaments.</div>';
     }
+    // Initialize auto carousel for latest news if available
+    try {
+      const carousel = document.getElementById('latestNewsContainer');
+      const leftBtn = document.getElementById('newsScrollLeft');
+      const rightBtn = document.getElementById('newsScrollRight');
+      const indicators = document.getElementById('newsIndicators');
+      if (carousel && indicators) {
+        const cards = Array.from(carousel.children);
+        // Ensure cards render before measuring
+        if (cards.length === 0) return;
+        const newsCount = cards.length;
+        if (newsCount === 0) return;
+        let currentIndex = 0;
+        let autoTimer;
+
+        // Create indicators
+        indicators.innerHTML = '';
+        for (let i = 0; i < newsCount; i++) {
+          const dot = document.createElement('button');
+          dot.className = `w-2.5 h-2.5 rounded-full ${i===0?'bg-blue-600':'bg-gray-300'}`;
+          dot.addEventListener('click', ()=> goTo(i));
+          indicators.appendChild(dot);
+        }
+
+        function updateDots(){
+          Array.from(indicators.children).forEach((d, i)=>{
+            d.className = `w-2.5 h-2.5 rounded-full ${i===currentIndex?'bg-blue-600':'bg-gray-300'}`;
+          });
+        }
+
+        function getStepHeight(){
+          const first = cards[0];
+          if (!first) return 0;
+          const style = getComputedStyle(carousel);
+          const gap = parseFloat(style.gap || '16');
+          return first.getBoundingClientRect().height + gap;
+        }
+        function goTo(index){
+          currentIndex = (index + newsCount) % newsCount;
+          const top = Math.round(currentIndex * getStepHeight());
+          carousel.scrollTo({ top, behavior: 'smooth' });
+          updateDots();
+        }
+
+        function next(){ goTo(currentIndex + 1); }
+        function prev(){ goTo((currentIndex - 1 + newsCount) % newsCount); }
+
+        // Buttons
+        leftBtn && leftBtn.addEventListener('click', ()=>{ stop(); prev(); start(); });
+        rightBtn && rightBtn.addEventListener('click', ()=>{ stop(); next(); start(); });
+
+        function start(){
+          stop();
+          autoTimer = setInterval(next, 4000);
+        }
+        function stop(){ if (autoTimer) clearInterval(autoTimer); }
+
+        // Pause on hover
+        carousel.addEventListener('mouseenter', stop);
+        carousel.addEventListener('mouseleave', start);
+
+        // Recalculate on resize
+        window.addEventListener('resize', ()=>{ goTo(currentIndex); });
+
+        // Start auto-scroll
+        if (newsCount > 1) start();
+      }
+    } catch(err){ console.warn('News carousel init failed:', err); }
   } catch (e) {
     console.error('Failed to load upcoming tournaments:', e);
   }

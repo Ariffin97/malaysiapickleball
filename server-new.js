@@ -1915,12 +1915,15 @@ function sanitizeEmbedCode(embedCode) {
     sanitized = sanitized.replace('></iframe>', ' allowfullscreen></iframe>');
   }
   
-  // Ensure proper sandbox permissions for YouTube/Vimeo (needs same-origin for player APIs)
+  // Ensure proper sandbox permissions for YouTube/Vimeo
+  // If CSP allows it and you want to silence security errors, include allow-same-origin; otherwise, fall back without it
+  const sandboxAttrs = (process.env.IFRAME_RELAXED === 'true')
+    ? 'allow-same-origin allow-scripts allow-presentation allow-forms'
+    : 'allow-scripts allow-presentation allow-forms';
   if (!sanitized.includes('sandbox')) {
-    sanitized = sanitized.replace('<iframe', '<iframe sandbox="allow-same-origin allow-scripts allow-presentation allow-forms"');
+    sanitized = sanitized.replace('<iframe', `<iframe sandbox="${sandboxAttrs}"`);
   } else {
-    // Normalize sandbox to include allow-same-origin for trusted players
-    sanitized = sanitized.replace(/sandbox="[^"]*"/gi, 'sandbox="allow-same-origin allow-scripts allow-presentation allow-forms"');
+    sanitized = sanitized.replace(/sandbox="[^"]*"/gi, `sandbox="${sandboxAttrs}"`);
   }
   
   // Remove any potentially dangerous attributes

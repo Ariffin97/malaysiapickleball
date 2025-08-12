@@ -492,7 +492,7 @@
 
     /* News Carousel Styles */
     .news-carousel-container {
-      height: 320px; /* Increased height for brief summary display */
+      height: auto; /* Let content define height to avoid clipping */
       width: 100%;
       overflow: hidden;
       position: relative;
@@ -500,30 +500,21 @@
     
     /* Flexible layout for desktop view */
     @media (min-width: 1025px) {
-      .news-carousel-container {
-        overflow: visible; /* Show all cards on desktop */
-        height: auto; /* Allow container to expand with content */
-      }
-      
-      .news-carousel {
-        transform: none !important; /* Disable carousel on desktop */
-        justify-content: flex-start;
-        flex-wrap: wrap;
-      }
-      
-      /* Hide carousel navigation on large desktop */
-      #newsScrollLeft,
-      #newsScrollRight,
-      #newsIndicators {
-        display: none;
-      }
+      /* Enable carousel behavior on desktop and increase card widths */
+      .news-carousel-container { overflow: hidden; height: auto; }
+      .news-carousel { justify-content: flex-start; flex-wrap: nowrap; }
+      #latestNewsContainer .bg-white { min-width: 380px; max-width: 620px; }
     }
     
     .news-carousel {
-      transition: transform 0.5s ease-in-out;
       display: flex;
-      height: 100%;
-      gap: 1rem; /* Add gap between flexible width cards */
+      flex-direction: column; /* stack vertically */
+      gap: 1rem;
+      overflow-y: auto; /* vertical scroll */
+      scroll-behavior: smooth;
+      -webkit-overflow-scrolling: touch;
+      scroll-snap-type: y mandatory;
+      max-height: 700px; /* show stacked cards without clipping */
     }
     
     .news-card {
@@ -538,16 +529,18 @@
     /* Latest News API cards specific styling for all screen sizes */
     #latestNewsContainer {
       display: flex;
+      flex-direction: column;
       gap: 1rem;
       justify-content: flex-start;
-      overflow-x: auto; /* Allow horizontal scrolling on all devices */
+      overflow-y: auto; /* vertical scrolling */
+      scroll-snap-type: y mandatory; /* snap vertically */
+      max-height: 700px;
     }
     
     #latestNewsContainer .bg-white {
-      width: auto; /* Flexible width based on content */
-      min-width: 250px; /* Minimum width for readability */
-      max-width: 400px; /* Maximum width to prevent cards from being too wide */
-      flex: 0 0 auto; /* Allow flexible sizing */
+      width: 100%;
+      flex: 0 0 auto;
+      scroll-snap-align: start;
     }
     
     /* Desktop specific styling */
@@ -749,7 +742,7 @@
     
     /* Ensure Latest News cards match Featured Videos height */
     #latestNewsContainer .latest-news-card {
-      height: 16rem; /* equals Tailwind h-64 used by video cards */
+      height: auto; /* Natural height */
       display: flex;
       flex-direction: column;
     }
@@ -942,7 +935,7 @@
             
             <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
               <!-- Tournament Guideline -->
-              <div class="group bg-white rounded-xl p-8 shadow-lg border border-gray-200/50 hover:shadow-xl transition-all duration-300 hover:scale-105">
+              <div class="group bg-white rounded-xl p-8 shadow-lg border border-gray-200/50 hover:shadow-xl transition-all duration-300 hover:scale-105 flex flex-col h-full">
                 <div class="text-center mb-6">
                   <div class="w-16 h-16 bg-gradient-to-br from-blue-500 to-blue-600 rounded-full flex items-center justify-center mx-auto mb-4">
                     <i class="fas fa-trophy text-white text-2xl"></i>
@@ -950,7 +943,7 @@
                   <h3 class="text-2xl font-bold text-gray-800 mb-2">Tournament Guidelines</h3>
                   <div class="w-12 h-1 bg-gradient-to-r from-blue-400 to-blue-600 rounded-full mx-auto"></div>
                 </div>
-                <div class="space-y-4">
+                <div class="space-y-4 flex-1">
                   <div class="flex items-start space-x-3">
                     <i class="fas fa-check-circle text-blue-500 mt-1"></i>
                     <p class="text-gray-700">Application methods for local & international sports events</p>
@@ -968,7 +961,7 @@
                     <p class="text-gray-700">Legal compliance under Sports Development Act 1997</p>
                   </div>
                 </div>
-                <div class="mt-6">
+                <div class="mt-6 flex justify-center">
                   <a href="/services/tournament-guidelines" class="inline-flex items-center px-6 py-3 bg-gradient-to-r from-blue-500 to-blue-600 text-white font-medium rounded-lg hover:from-blue-600 hover:to-blue-700 transition-all duration-300 group-hover:scale-105">
                     <span class="mr-2">Read Guidelines</span>
                     <i class="fas fa-arrow-right"></i>
@@ -977,18 +970,16 @@
               </div>
 
               <!-- Venue Guideline -->
-              <div class="group bg-white rounded-xl p-8 shadow-lg border border-gray-200/50 hover:shadow-xl transition-all duration-300 hover:scale-105">
+              <div class="group bg-white rounded-xl p-8 shadow-lg border border-gray-200/50 hover:shadow-xl transition-all duration-300 hover:scale-105 flex flex-col h-full">
                 <div class="text-center mb-6">
                   <div class="w-16 h-16 bg-gradient-to-br from-green-500 to-green-600 rounded-full flex items-center justify-center mx-auto mb-4">
                     <i class="fas fa-map-marker-alt text-white text-2xl"></i>
                   </div>
                   <h3 class="text-2xl font-bold text-gray-800 mb-2">Venue Guidelines</h3>
-                  <div class="bg-red-100 border border-red-300 text-red-700 px-3 py-1 rounded-lg text-center mb-3">
-                    <span class="font-semibold text-sm">Coming Soon</span>
-                  </div>
+                  
                   <div class="w-12 h-1 bg-gradient-to-r from-green-400 to-green-600 rounded-full mx-auto"></div>
                 </div>
-                <div class="space-y-4">
+                <div class="space-y-4 flex-1">
                   <div class="flex items-start space-x-3">
                     <i class="fas fa-check-circle text-green-500 mt-1"></i>
                     <p class="text-gray-700">Court specifications and dimensions</p>
@@ -1006,7 +997,7 @@
                     <p class="text-gray-700">Booking and reservation procedures</p>
                   </div>
                 </div>
-                <div class="mt-6">
+                <div class="mt-6 flex justify-center">
                   <a href="/services/venue-guidelines" class="inline-flex items-center px-6 py-3 bg-gradient-to-r from-green-500 to-green-600 text-white font-medium rounded-lg hover:from-green-600 hover:to-green-700 transition-all duration-300 group-hover:scale-105">
                     <span class="mr-2">Read Guidelines</span>
                     <i class="fas fa-arrow-right"></i>
@@ -1015,7 +1006,7 @@
               </div>
 
               <!-- Club Guideline -->
-              <div class="group bg-white rounded-xl p-8 shadow-lg border border-gray-200/50 hover:shadow-xl transition-all duration-300 hover:scale-105">
+              <div class="group bg-white rounded-xl p-8 shadow-lg border border-gray-200/50 hover:shadow-xl transition-all duration-300 hover:scale-105 flex flex-col h-full">
                 <div class="text-center mb-6">
                   <div class="w-16 h-16 bg-gradient-to-br from-purple-500 to-purple-600 rounded-full flex items-center justify-center mx-auto mb-4">
                     <i class="fas fa-users text-white text-2xl"></i>
@@ -1026,7 +1017,7 @@
                   </div>
                   <div class="w-12 h-1 bg-gradient-to-r from-purple-400 to-purple-600 rounded-full mx-auto"></div>
                 </div>
-                <div class="space-y-4">
+                <div class="space-y-4 flex-1">
                   <div class="flex items-start space-x-3">
                     <i class="fas fa-check-circle text-purple-500 mt-1"></i>
                     <p class="text-gray-700">Club registration and certification</p>
@@ -1044,7 +1035,7 @@
                     <p class="text-gray-700">Event organization guidelines</p>
                   </div>
                 </div>
-                <div class="mt-6">
+                <div class="mt-6 flex justify-center">
                   <a href="/services/club-guidelines" class="inline-flex items-center px-6 py-3 bg-gradient-to-r from-purple-500 to-purple-600 text-white font-medium rounded-lg hover:from-purple-600 hover:to-purple-700 transition-all duration-300 group-hover:scale-105">
                     <span class="mr-2">Read Guidelines</span>
                     <i class="fas fa-arrow-right"></i>
@@ -1074,13 +1065,6 @@
                   <div class="w-20 h-1 bg-gradient-to-r from-green-400 to-blue-400 rounded-full"></div>
                 </div>
                 <div class="flex items-center space-x-4">
-                  <!-- Navigation Arrows -->
-                  <button id="newsScrollLeft" class="w-10 h-10 rounded-full bg-gray-200 hover:bg-gray-300 flex items-center justify-center transition-colors">
-                    <i class="fas fa-chevron-left text-gray-600"></i>
-                  </button>
-                  <button id="newsScrollRight" class="w-10 h-10 rounded-full bg-gray-200 hover:bg-gray-300 flex items-center justify-center transition-colors">
-                    <i class="fas fa-chevron-right text-gray-600"></i>
-                  </button>
                   <a href="/news" class="text-green-400 hover:text-green-300 font-medium flex items-center transition-all duration-300 hover:scale-105 group">
                     <span class="mr-2">View All</span>
                     <i class="fas fa-arrow-right transition-transform duration-300 group-hover:translate-x-1"></i>
@@ -1091,9 +1075,6 @@
               <!-- Auto-scroll News Cards Container -->
               <div class="news-carousel-container relative overflow-hidden">
                 <div id="latestNewsContainer" class="news-carousel flex transition-transform duration-500 ease-in-out"></div>
-                
-                <!-- Auto-scroll indicator dots -->
-                <div class="flex justify-center mt-4 space-x-2" id="newsIndicators"></div>
               </div>
             </div>
 
@@ -1481,6 +1462,51 @@
     function setupEventListeners() {
       const container = document.querySelector('.news-section');
       if (!container) return;
+      // Global image error handler for news images with multi-path retry
+      window.handleNewsImgError = function(img){
+        try {
+          const orig = img.getAttribute('data-orig') || '';
+          if (orig && !orig.startsWith('/') && !/^https?:\/\//i.test(orig)) {
+            if (!img.dataset.retry) {
+              img.dataset.retry = 'news';
+              img.onerror = handleNewsImgError;
+              img.src = '/uploads/news/' + orig;
+              return;
+            }
+            if (img.dataset.retry === 'news') {
+              img.dataset.retry = 'uploads';
+              img.onerror = handleNewsImgError;
+              img.src = '/uploads/' + orig;
+              return;
+            }
+          } else if (orig.startsWith('/uploads/') && !orig.startsWith('/uploads/news/')) {
+            // Handle paths like /uploads/<filename> → try /uploads/news/<filename>
+            const file = orig.split('/').pop();
+            if (file && img.dataset.retry !== 'uploads-news') {
+              img.dataset.retry = 'uploads-news';
+              img.onerror = handleNewsImgError;
+              img.src = '/uploads/news/' + file;
+              return;
+            }
+          }
+        } catch(_){}
+        img.onerror = null;
+        img.src = '/images/defaultbg.png';
+      };
+      // Global image error handler for news images
+      window.handleNewsImgError = function(img){
+        try {
+          const orig = img.getAttribute('data-orig') || '';
+          if (orig && !orig.startsWith('/') && !/^https?:\/\//i.test(orig)) {
+            // Try prefixing uploads/news once
+            img.onerror = function(){ this.onerror=null; this.src='/images/defaultbg.png'; };
+            img.src = '/uploads/news/' + orig;
+            return;
+          }
+        } catch(_){}
+        img.onerror = null;
+        img.src = '/images/defaultbg.png';
+      };
       
       // News card hover effects
       container.addEventListener('mouseenter', function(e) {
@@ -1538,6 +1564,9 @@
           });
           
           console.log('✅ News articles loaded successfully!');
+
+          // Attach carousel behavior after cards exist
+          attachNewsCarousel();
         } else {
           console.log('📭 No news articles found, showing placeholder');
           // Show placeholder if no news
@@ -1569,8 +1598,14 @@
       const card = document.createElement('div');
       card.className = 'bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-all duration-300 transform hover:-translate-y-2 latest-news-card';
       
-      const mediaHtml = article.featuredImage 
-        ? `<img src="${article.featuredImage}" alt="${article.title}" class="w-full h-40 md:h-32 object-cover">`
+      function normalizeImageUrl(url){
+        if (!url) return null;
+        if (/^https?:\/\//i.test(url) || url.startsWith('/')) return url;
+        return `/uploads/news/${url}`;
+      }
+      const imageUrl = normalizeImageUrl(article.featuredImage);
+      const mediaHtml = imageUrl 
+        ? `<img src="${imageUrl}" alt="${article.title}" class="w-full h-40 md:h-32 object-cover" data-orig="${article.featuredImage || ''}" onerror="handleNewsImgError(this)">`
         : article.featuredVideo
         ? `<video src="${article.featuredVideo}" class="w-full h-40 md:h-32 object-cover" muted></video>`
         : `<div class="w-full h-40 md:h-32 bg-gradient-to-br from-blue-100 to-purple-100 flex items-center justify-center">
@@ -1638,6 +1673,60 @@
     }
 
     // Duplicate function removed - using the primary loadLatestNews function above
+
+    // Attach vertical auto-scroll carousel for latest news
+    function attachNewsCarousel() {
+      const carousel = document.getElementById('latestNewsContainer');
+      const leftBtn = document.getElementById('newsScrollLeft');
+      const rightBtn = document.getElementById('newsScrollRight');
+      const dots = document.getElementById('newsIndicators');
+      if (!carousel) return;
+      const cards = Array.from(carousel.children);
+      const count = cards.length;
+      if (count <= 1) return;
+      let index = 0;
+      function stepHeight(){
+        const first = cards[0];
+        if (!first) return 0;
+        const style = getComputedStyle(carousel);
+        const gap = parseFloat(style.gap || '16');
+        return first.getBoundingClientRect().height + gap;
+      }
+      function goTo(i){
+        index = i;
+        if (index >= count) index = 0; // jump back to start
+        if (index < 0) index = count - 1; // jump to end
+        const top = Math.round(index * stepHeight());
+        carousel.scrollTo({ top, behavior: 'smooth' });
+        updateDots(index);
+      }
+      function next(){ goTo(index + 1); }
+      function prev(){ goTo(index - 1); }
+      function updateDots(activeIdx){
+        if (!dots) return;
+        if (!dots.children.length) {
+          dots.innerHTML = '';
+          for (let i=0;i<count;i++){
+            const b=document.createElement('button');
+            b.className = `w-2.5 h-2.5 rounded-full ${i===0?'bg-blue-600':'bg-gray-300'}`;
+            b.addEventListener('click', ()=> goTo(i));
+            dots.appendChild(b);
+          }
+        }
+        const active = (typeof activeIdx === 'number') ? activeIdx : index;
+        Array.from(dots.children).forEach((d, i)=>{
+          d.className = `w-2.5 h-2.5 rounded-full ${i===active?'bg-blue-600':'bg-gray-300'}`;
+        });
+      }
+      leftBtn && (leftBtn.onclick = ()=>{ stop(); prev(); start(); });
+      rightBtn && (rightBtn.onclick = ()=>{ stop(); next(); start(); });
+      let timer; function start(){ stop(); timer=setInterval(next, 4000);} function stop(){ if(timer) clearInterval(timer);} 
+      carousel.addEventListener('mouseenter', stop);
+      carousel.addEventListener('mouseleave', start);
+      window.addEventListener('resize', ()=> goTo(index));
+      updateDots(0);
+      start();
+    }
 
     // Initialize news carousel with auto-scroll
     function initializeNewsCarousel(newsCount) {
