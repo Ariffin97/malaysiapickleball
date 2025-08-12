@@ -28,7 +28,7 @@
     <div class="container mx-auto px-4">
       <div class="max-w-4xl mx-auto">
         <div class="prose max-w-none mb-8 text-gray-700">
-          <p class="font-semibold">The Malaysia Pickleball Association (MPA) emphasizes the importance of standardizing all pickleball courts in Malaysia in accordance with internationally recognized specifications.</p>
+          <p class="text-lg md:text-xl font-semibold text-center">The Malaysia Pickleball Association (MPA) emphasizes the importance of standardizing all pickleball courts in Malaysia in accordance with internationally recognized specifications.</p>
 
           <p class="mt-4 font-semibold">All court owners are required to:</p>
           <ul class="list-disc list-inside space-y-2 mt-2">
@@ -41,13 +41,63 @@
 
           <p class="mt-4">The MPA’s objective is to ensure that every player in Malaysia enjoys the game under the same professional standards, whether for recreation or competition. We seek full cooperation from all court owners to uphold these principles.</p>
         </div>
-        <div class="flex justify-center">
-          <img src="/images/courtdiagram.png" alt="Pickleball Court Diagram" class="w-full h-auto rounded-xl shadow-md border border-green-100" loading="lazy">
+        <!-- Images side by side on desktop, stacked on mobile -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-8 items-start">
+          <div class="flex justify-center">
+            <img src="/images/courtdimension2.png" alt="Pickleball Court Dimensions" class="w-full max-w-md md:max-w-sm h-auto object-contain" loading="lazy">
+          </div>
+          <div class="flex flex-col items-center">
+            <img src="/images/Net.png" alt="Pickleball Net Diagram" class="w-full max-w-xl h-auto object-contain" loading="lazy">
+            <div class="mt-4 text-sm text-gray-700 w-full max-w-xl">
+              <div class="font-semibold mb-1">Line Tolerances:</div>
+              <ul class="list-disc list-inside space-y-1">
+                <li>Net line to outside of NVZ line: 7’ +/- 1⁄8”</li>
+                <li>Net line to outside of baseline: 22’ +/- 1⁄4”</li>
+                <li>Outside sideline to outside sideline: 20’ +/- 1⁄4”</li>
+                <li>Outside sideline to centerline: 10’ +/- 1⁄8”</li>
+                <li>Diagonal dimension to out of lines: 48’ 4” +/- 3⁄4”</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <!-- Court specification narrative -->
+        <div class="mt-12 space-y-8 text-gray-700">
+          <section>
+            <h2 class="text-lg font-semibold text-gray-800 mb-2 tracking-tight">COURT LAYOUT</h2>
+            <ul class="list-disc list-inside space-y-1">
+              <li><span class="font-semibold">Baselines</span>: sit parallel to the net at the end of the court.</li>
+              <li><span class="font-semibold">Sidelines</span>: running the length of the court.</li>
+              <li><span class="font-semibold">Non-volley zone (NVZ)</span>: the area on either side of the net bound in by a line parallel to and 7 feet from the net and two sidelines.</li>
+              <li><span class="font-semibold">Centerline</span>: extends down the center from the baselines to the NVZ, dividing the court.</li>
+              <li><span class="font-semibold">Service area</span>: the area beyond the NVZ on either side of the centerline, including the centerline, sideline, and baseline.</li>
+            </ul>
+          </section>
+
+          <section>
+            <h2 class="text-lg font-semibold text-gray-800 mb-2 tracking-tight">SURFACE</h2>
+            <p>Any hard surface (i.e. concrete or asphalt) will suffice for outdoor gameplay, so long as it’s free of debris. Grass will not allow the ball to bounce, but driveways or cul-du-sacs can work fine with enough space. Ideally, the surface area should be about 30 feet by 60 feet. For more professional and permanent outdoor court surfacing, there are sport surfacing systems and services available.</p>
+          </section>
+
+          <section>
+            <h2 class="text-lg font-semibold text-gray-800 mb-2 tracking-tight">NETTING</h2>
+            <p>The net can be made out of any mesh material that will not allow a ball to pass through. It should be at least 21 feet 9 inches long, stretching from post to post; from the bottom edge to the top, it should be at least 30 inches wide. The posts should be 22 feet apart, and no more than 3 inches in diameter. Once the net is suspended from the posts across the center of the court, it should be 36 inches tall at the sidelines, and 34 inches tall in the center. The top edge of the net should have a cord or cable and it should be covered with a 2-inch tape.</p>
+          </section>
+
+          <section>
+            <h2 class="text-lg font-semibold text-gray-800 mb-2 tracking-tight">LINES</h2>
+            <p>Lines can be made with chalk, tape, paint, or even crayons, but generally tape is the best option for DIY.</p>
+          </section>
+
+          <section>
+            <h2 class="text-lg font-semibold text-gray-800 mb-2 tracking-tight">INDOOR</h2>
+            <p>The lines, netting, and space requirements for indoor pickleball play are the same as outdoor, but different lighting, fencing, and surfacing options are available, and should be considered. Indoor play allows for fluorescent lighting options that cannot function outside like HID and LED lights would. Indoor play also allows for different flooring options that are not feasible outdoors, like hardwood or rubberized surfaces. Fencing considerations can also vary more with indoor courts, as the surrounding environment does not pose as much a risk as it may outdoors.</p>
+          </section>
         </div>
 
         <!-- MPA Court Recognition Statement -->
         <div class="mt-10 bg-white rounded-xl border border-gray-200 shadow-sm p-6 text-gray-700">
-          <h2 class="text-xl font-bold text-gray-800 mb-3">MPA Court Recognition Statement</h2>
+          <h2 class="text-lg font-semibold text-gray-800 mb-3 tracking-tight">MPA Court Recognition Statement</h2>
           <p class="mb-3">To have a pickleball court officially recognized by the Malaysia Pickleball Association (MPA), the court owner must submit all required information and pay an annual fee of RM100 to MPA. Upon approval, a Digital Recognition Certificate will be issued to the owner.</p>
           <p class="mb-3">Recognition is valid for one (1) year only. Court owners must renew their application annually by submitting updated information and paying the RM100 fee to maintain certification.</p>
           <p class="mb-3">If the court fails to meet MPA standards during the evaluation process, the owner must carry out the necessary repairs or upgrades in accordance with MPA specifications and pay the fee again for a re-evaluation.</p>
