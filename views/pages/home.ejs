@@ -887,10 +887,11 @@
               <h2 class="text-4xl font-bold text-gray-800 mb-2">Quick Stats</h2>
               <div class="w-20 h-1 bg-gradient-to-r from-blue-400 to-green-400 rounded-full mx-auto"></div>
             </div>
+            <% var QS = (typeof quickStats !== 'undefined' && quickStats) ? quickStats : { players: 0, tournaments: 0, venues: 0, coaches: 0 }; %>
             <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
               <div class="bg-white rounded-xl p-6 shadow-lg border border-gray-200/50 text-center">
                 <div class="flex items-center justify-center mb-2">
-                  <span class="text-2xl font-bold text-gray-900">500+</span>
+                  <span class="text-2xl font-bold text-gray-900"><%= QS.players %></span>
                   <span class="text-lg font-bold bg-gradient-to-r from-green-400 to-blue-400 bg-clip-text text-transparent">+</span>
                 </div>
                 <h3 class="text-sm font-semibold text-gray-900 mb-1">Active Players</h3>
@@ -898,7 +899,7 @@
               </div>
               <div class="bg-white rounded-xl p-6 shadow-lg border border-gray-200/50 text-center">
                 <div class="flex items-center justify-center mb-2">
-                  <span class="text-2xl font-bold text-gray-900">25</span>
+                  <span class="text-2xl font-bold text-gray-900"><%= QS.tournaments %></span>
                   <span class="text-lg font-bold bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">+</span>
                 </div>
                 <h3 class="text-sm font-semibold text-gray-900 mb-1">Tournaments</h3>
@@ -906,7 +907,7 @@
               </div>
               <div class="bg-white rounded-xl p-6 shadow-lg border border-gray-200/50 text-center">
                 <div class="flex items-center justify-center mb-2">
-                  <span class="text-2xl font-bold text-gray-900">15</span>
+                  <span class="text-2xl font-bold text-gray-900"><%= QS.venues %></span>
                   <span class="text-lg font-bold bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">+</span>
                 </div>
                 <h3 class="text-sm font-semibold text-gray-900 mb-1">Venues</h3>
@@ -914,7 +915,7 @@
               </div>
               <div class="bg-white rounded-xl p-6 shadow-lg border border-gray-200/50 text-center">
                 <div class="flex items-center justify-center mb-2">
-                  <span class="text-2xl font-bold text-gray-900">50+</span>
+                  <span class="text-2xl font-bold text-gray-900"><%= QS.coaches %></span>
                   <span class="text-lg font-bold bg-gradient-to-r from-pink-400 to-red-400 bg-clip-text text-transparent">+</span>
                 </div>
                 <h3 class="text-sm font-semibold text-gray-900 mb-1">Coaches</h3>
@@ -1048,7 +1049,7 @@
             <div class="flex flex-col sm:flex-row gap-4 justify-center items-center mt-10">
               <a href="https://docs.google.com/forms/d/e/1FAIpQLSf6Cq0KAlWQf3ELfJecHgO2ox5OWkui2BB2TvOR_7Oh3b-7eA/viewform?usp=header" class="inline-flex items-center px-8 py-4 bg-gradient-to-r from-blue-600 to-indigo-700 text-white font-bold rounded-xl hover:from-blue-700 hover:to-indigo-800 transition-all duration-300 hover:scale-105 shadow-lg group">
                 <i class="fas fa-map-marker-alt mr-3 text-xl"></i>
-                <span class="text-lg">Register Court</span>
+                <span class="text-lg">Register Tournament</span>
                 <i class="fas fa-arrow-right ml-3 transition-transform duration-300 group-hover:translate-x-1"></i>
               </a>
             </div>

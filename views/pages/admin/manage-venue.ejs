@@ -14,7 +14,7 @@
       <h1 class="text-3xl font-bold mb-4">Manage Venues</h1>
       <div class="bg-white p-4 rounded shadow">
         <h2 class="text-xl mb-2">Add New Venue</h2>
-        <form action="/admin/venues" method="POST">
+        <form action="/admin/venues" method="POST" enctype="multipart/form-data">
           <div class="mb-4">
             <label class="block mb-1">Venue Name</label>
             <input type="text" name="name" class="w-full p-2 border rounded" required>
@@ -22,6 +22,42 @@
           <div class="mb-4">
             <label class="block mb-1">Address</label>
             <textarea name="address" class="w-full p-2 border rounded" required></textarea>
+          </div>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label class="block mb-1">Booking URL</label>
+              <input type="url" name="bookingUrl" class="w-full p-2 border rounded" placeholder="https://...">
+            </div>
+            <div class="md:col-span-2">
+              <label class="block mb-1">Upload Images</label>
+              <input type="file" name="imageFiles" accept="image/*" multiple class="w-full p-2 border rounded bg-white">
+              <p class="text-xs text-gray-500 mt-1">You can select multiple images. Max 5MB each.</p>
+            </div>
+            <div>
+              <label class="block mb-1">Total Courts</label>
+              <input type="number" min="0" name="totalCourts" class="w-full p-2 border rounded" value="0">
+            </div>
+            <div>
+              <label class="block mb-1">Owner</label>
+              <input type="text" name="owner" class="w-full p-2 border rounded">
+            </div>
+            <div>
+              <label class="block mb-1">Phone</label>
+              <input type="text" name="phone" class="w-full p-2 border rounded">
+            </div>
+            <div>
+              <label class="block mb-1">Maps URL</label>
+              <input type="url" name="mapsUrl" class="w-full p-2 border rounded" placeholder="https://maps.google.com/...">
+            </div>
+            <div class="md:col-span-2">
+              <label class="block mb-1">Supported Tournament Levels (comma separated)</label>
+              <input type="text" name="tournamentLevels" class="w-full p-2 border rounded" placeholder="Beginner, Intermediate, Pro, National, International">
+              <p class="text-xs text-gray-500 mt-1">List the levels/types of tournaments this venue can host.</p>
+            </div>
+          </div>
+          <div class="mt-4">
+            <label class="block mb-1">Description</label>
+            <textarea name="description" class="w-full p-2 border rounded" rows="3"></textarea>
           </div>
           <button type="submit" class="bg-green-600 text-white p-2 rounded hover:bg-green-700">Save</button>
         </form>
@@ -32,8 +68,18 @@
           <ul class="grid grid-cols-1 gap-4">
             <% venues.forEach(venue => { %>
               <li class="p-4 bg-white rounded shadow card">
-                <h3 class="font-bold"><%= venue.name %></h3>
-                <p><%= venue.address %></p>
+                <div class="flex items-start justify-between">
+                  <div>
+                    <h3 class="font-bold"><a href="/venue/<%= venue.slug %>" class="text-blue-600 hover:text-blue-800 underline"><%= venue.name %></a></h3>
+                    <p class="text-gray-600"><%= venue.address %></p>
+                  </div>
+                  <div class="flex items-center space-x-2">
+                    <a href="/admin/venues/<%= venue._id %>/edit" class="px-3 py-1 bg-blue-600 text-white rounded hover:bg-blue-700 text-sm">Edit</a>
+                    <form action="/admin/venues/<%= venue._id %>/delete" method="POST" onsubmit="return confirm('Delete this venue?');">
+                      <button type="submit" class="px-3 py-1 bg-red-600 text-white rounded hover:bg-red-700 text-sm">Delete</button>
+                    </form>
+                  </div>
+                </div>
               </li>
             <% }) %>
           </ul>

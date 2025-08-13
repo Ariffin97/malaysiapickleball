@@ -369,6 +369,14 @@ app.get('/', async (req, res) => {
     const video1Type = await DatabaseService.getSetting('homepage_video_1_type', 'Featured Video');
     const video2Type = await DatabaseService.getSetting('homepage_video_2_type', 'Featured Video');
     
+    // Get homepage Quick Stats (admin-managed)
+    const quickStats = await DatabaseService.getSetting('homepage_quick_stats', {
+      players: 500,
+      tournaments: 25,
+      venues: 15,
+      coaches: 50,
+    });
+    
     console.log('Homepage popup data:', { popupActive, popupTitle, popupContent, popupImage }); // Debug log
     console.log('Homepage video data:', { video1: video1 ? 'Present' : 'Null', video2: video2 ? 'Present' : 'Null' }); // Debug log
     console.log('Video types:', { video1Type, video2Type }); // Debug log
@@ -380,6 +388,7 @@ app.get('/', async (req, res) => {
       video2: video2,
       video1Type: video1Type,
       video2Type: video2Type,
+      quickStats,
       popupMessage: {
         active: popupActive,
         title: popupTitle,
@@ -396,6 +405,7 @@ app.get('/', async (req, res) => {
       video2: null,
       video1Type: 'Featured Video',
       video2Type: 'Featured Video',
+      quickStats: { players: 500, tournaments: 25, venues: 15, coaches: 50 },
       popupMessage: { active: false, title: '', content: '', image: null }
     });
   }
@@ -1683,6 +1693,157 @@ app.get('/admin/home', adminAuth, async (req, res) => {
   }
 });
 
+// Admin: Manage Quick Stats (for homepage)
+app.get('/admin/home-stats', adminAuth, async (req, res) => {
+  try {
+    const quickStats = await DatabaseService.getSetting('homepage_quick_stats', {
+      players: 500,
+      tournaments: 25,
+      venues: 15,
+      coaches: 50,
+    });
+    res.render('pages/admin/manage-stats', { quickStats, session: req.session });
+  } catch (error) {
+    console.error('Admin home-stats page error:', error);
+    res.render('pages/admin/manage-stats', { quickStats: { players: 500, tournaments: 25, venues: 15, coaches: 50 }, session: req.session });
+  }
+});
+
+app.post('/admin/home-stats', adminAuth, async (req, res) => {
+  try {
+    const parseNum = (v, def) => {
+      const n = parseInt(v, 10);
+      return Number.isFinite(n) && n >= 0 ? n : def;
+    };
+
+    const updated = {
+      players: parseNum(req.body.players, 500),
+      tournaments: parseNum(req.body.tournaments, 25),
+      venues: parseNum(req.body.venues, 15),
+      coaches: parseNum(req.body.coaches, 50),
+    };
+
+    await DatabaseService.setSetting('homepage_quick_stats', updated, 'Homepage quick stats', 'appearance', req.session?.username || 'admin');
+    res.redirect('/admin/home-stats?success=1');
+  } catch (error) {
+    console.error('Saving home-stats failed:', error);
+    res.redirect('/admin/home-stats?error=1');
+  }
+});
+
+// Admin: Manage Venues
+app.get('/admin/venues', adminAuth, async (req, res) => {
+  try {
+    const venues = await DatabaseService.listVenues();
+    res.render('pages/admin/manage-venue', { venues: venues || [], session: req.session });
+  } catch (error) {
+    console.error('Admin venues page error:', error);
+    res.render('pages/admin/manage-venue', { venues: [], session: req.session });
+  }
+});
+
+app.post('/admin/venues', adminAuth, async (req, res) => {
+  try {
+    const { name, address, bookingUrl, totalCourts, owner, phone, mapsUrl, description, tournamentLevels } = req.body;
+
+    // Handle multiple image uploads
+    const pathModule = require('path');
+    const fs = require('fs');
+    const uploadsDir = pathModule.join(__dirname, 'public', 'uploads', 'venues');
+    if (!fs.existsSync(uploadsDir)) {
+      fs.mkdirSync(uploadsDir, { recursive: true });
+    }
+
+    let imageUrls = [];
+    if (req.files && req.files.imageFiles) {
+      const files = Array.isArray(req.files.imageFiles) ? req.files.imageFiles : [req.files.imageFiles];
+      for (const file of files) {
+        const safeName = Date.now() + '-' + file.name.replace(/[^a-zA-Z0-9._-]/g, '_');
+        const savePath = pathModule.join(uploadsDir, safeName);
+        await file.mv(savePath);
+        imageUrls.push(`/uploads/venues/${safeName}`);
+      }
+    }
+
+    const levels = (tournamentLevels || '')
+      .split(',')
+      .map(s => s.trim())
+      .filter(Boolean);
+
+    await DatabaseService.createVenue({ name, address, bookingUrl, imageUrls, totalCourts, owner, phone, mapsUrl, description, tournamentLevels: levels });
+    res.redirect('/admin/venues');
+  } catch (error) {
+    console.error('Create venue failed:', error);
+    res.redirect('/admin/venues?error=1');
+  }
+});
+
+app.get('/admin/venues/:id/edit', adminAuth, async (req, res) => {
+  try {
+    const venues = await DatabaseService.listVenues();
+    const venue = venues.find(v => String(v._id) === String(req.params.id));
+    if (!venue) {
+      return res.redirect('/admin/venues');
+    }
+    res.render('pages/admin/edit-venue', { venue, session: req.session });
+  } catch (error) {
+    console.error('Edit venue page error:', error);
+    res.redirect('/admin/venues?error=1');
+  }
+});
+
+app.post('/admin/venues/:id', adminAuth, async (req, res) => {
+  try {
+    const { name, address, bookingUrl, totalCourts, owner, phone, mapsUrl, description, tournamentLevels } = req.body;
+
+    // Handle additional image uploads (append)
+    const pathModule = require('path');
+    const fs = require('fs');
+    const uploadsDir = pathModule.join(__dirname, 'public', 'uploads', 'venues');
+    if (!fs.existsSync(uploadsDir)) {
+      fs.mkdirSync(uploadsDir, { recursive: true });
+    }
+
+    let newImages = [];
+    if (req.files && req.files.imageFiles) {
+      const files = Array.isArray(req.files.imageFiles) ? req.files.imageFiles : [req.files.imageFiles];
+      for (const file of files) {
+        const safeName = Date.now() + '-' + file.name.replace(/[^a-zA-Z0-9._-]/g, '_');
+        const savePath = pathModule.join(uploadsDir, safeName);
+        await file.mv(savePath);
+        newImages.push(`/uploads/venues/${safeName}`);
+      }
+    }
+
+    const levels = (tournamentLevels || '')
+      .split(',')
+      .map(s => s.trim())
+      .filter(Boolean);
+
+    const existing = await DatabaseService.getVenueBySlug(undefined); // placeholder to avoid linter issues
+    // Fetch existing by id directly via mongoose to merge images
+    const VenueModel = require('./models/Venue');
+    const current = await VenueModel.findById(req.params.id);
+    const mergedImages = [...(current?.imageUrls || []), ...newImages];
+
+    await DatabaseService.updateVenue(req.params.id, { name, address, bookingUrl, imageUrls: mergedImages, totalCourts, owner, phone, mapsUrl, description, tournamentLevels: levels });
+    res.redirect('/admin/venues');
+  } catch (error) {
+    console.error('Update venue failed:', error);
+    res.redirect('/admin/venues?error=1');
+  }
+});
+
+app.post('/admin/venues/:id/delete', adminAuth, async (req, res) => {
+  try {
+    await DatabaseService.deleteVenue(req.params.id);
+    res.redirect('/admin/venues');
+  } catch (error) {
+    console.error('Delete venue failed:', error);
+    res.redirect('/admin/venues?error=1');
+  }
+});
+
 app.post('/admin/home', adminAuth, async (req, res) => {
   try {
     if (req.files && req.files.backgroundImage) {
@@ -1937,40 +2098,71 @@ function sanitizeEmbedCode(embedCode) {
 async function cleanupExistingEmbedCodes() {
   try {
     console.log('🔧 Starting iframe sandbox cleanup...');
-    
-    // Update video settings
-    const videoSettings = await Settings.findOne({});
-    if (videoSettings) {
-      let needsUpdate = false;
-      
-      if (videoSettings.videoEmbed1 && videoSettings.videoEmbed1.includes('allow-same-origin')) {
-        videoSettings.videoEmbed1 = sanitizeEmbedCode(videoSettings.videoEmbed1);
-        needsUpdate = true;
-        console.log('✅ Fixed video embed 1');
+
+    // Homepage featured videos (current keys)
+    const video1 = await DatabaseService.getSetting('homepage_video_1', null);
+    const video2 = await DatabaseService.getSetting('homepage_video_2', null);
+
+    if (video1) {
+      const sanitized = sanitizeEmbedCode(video1);
+      if (sanitized !== video1) {
+        await DatabaseService.setSetting(
+          'homepage_video_1',
+          sanitized,
+          'Homepage featured video 1 (sanitized)',
+          'appearance',
+          'system'
+        );
+        console.log('✅ Fixed homepage video 1');
       }
-      
-      if (videoSettings.videoEmbed2 && videoSettings.videoEmbed2.includes('allow-same-origin')) {
-        videoSettings.videoEmbed2 = sanitizeEmbedCode(videoSettings.videoEmbed2);
-        needsUpdate = true;
-        console.log('✅ Fixed video embed 2');
+    }
+
+    if (video2) {
+      const sanitized = sanitizeEmbedCode(video2);
+      if (sanitized !== video2) {
+        await DatabaseService.setSetting(
+          'homepage_video_2',
+          sanitized,
+          'Homepage featured video 2 (sanitized)',
+          'appearance',
+          'system'
+        );
+        console.log('✅ Fixed homepage video 2');
       }
-      
-      // Check live streams
-      for (let i = 1; i <= 4; i++) {
-        const streamKey = `liveStream${i}`;
-        if (videoSettings[streamKey] && videoSettings[streamKey].includes('allow-same-origin')) {
-          videoSettings[streamKey] = sanitizeEmbedCode(videoSettings[streamKey]);
-          needsUpdate = true;
+    }
+
+    // Live streams (support both new and legacy keys)
+    const maxStreams = await DatabaseService.getSetting(
+      'live_tournament_max_streams',
+      await DatabaseService.getSetting('maxStreams', 4)
+    );
+
+    for (let i = 1; i <= maxStreams; i++) {
+      const newKey = `live_stream_${i}`;      // new convention
+      const legacyKey = `liveStream${i}`;     // legacy convention
+
+      // Prefer new key, fall back to legacy
+      const current = await DatabaseService.getSetting(
+        newKey,
+        await DatabaseService.getSetting(legacyKey, null)
+      );
+
+      if (current) {
+        const sanitized = sanitizeEmbedCode(current);
+        if (sanitized !== current) {
+          // Write back using the new canonical key
+          await DatabaseService.setSetting(
+            newKey,
+            sanitized,
+            `Live stream ${i} embed code (sanitized)`,
+            'tournament',
+            'system'
+          );
           console.log(`✅ Fixed live stream ${i}`);
         }
       }
-      
-      if (needsUpdate) {
-        await videoSettings.save();
-        console.log('✅ Video settings updated successfully');
-      }
     }
-    
+
     console.log('✅ Iframe sandbox cleanup completed');
   } catch (error) {
     console.error('❌ Error during iframe cleanup:', error);
@@ -2204,8 +2396,9 @@ app.get('/coaches', async (req, res) => {
 app.get('/venue', async (req, res) => {
   try {
     const backgroundImage = await DatabaseService.getSetting('background_image', '/images/defaultbg.png');
+    const venues = await DatabaseService.listVenues();
     res.render('pages/venue', { 
-      venues: [], // Empty array since it's coming soon
+      venues: venues || [],
       session: req.session, 
       backgroundImage 
     });
@@ -2216,6 +2409,21 @@ app.get('/venue', async (req, res) => {
       session: req.session, 
       backgroundImage: '/images/defaultbg.png' 
     });
+  }
+});
+
+// Venue detail page
+app.get('/venue/:slug', async (req, res) => {
+  try {
+    const backgroundImage = await DatabaseService.getSetting('background_image', '/images/defaultbg.png');
+    const venue = await DatabaseService.getVenueBySlug(req.params.slug);
+    if (!venue) {
+      return res.status(404).render('pages/404', { session: req.session });
+    }
+    res.render('pages/venue-detail', { venue, session: req.session, backgroundImage });
+  } catch (error) {
+    console.error('Venue detail error:', error);
+    res.status(500).render('pages/404', { session: req.session });
   }
 });
 

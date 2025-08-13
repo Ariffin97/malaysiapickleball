@@ -572,7 +572,7 @@
             <% if (tournamentData && tournamentData.length) { %>
               <% tournamentData.forEach((t, index) => { %>
                 <!-- Tournament Name Cell -->
-                <div class="grid-tournament-name tournament-clickable" data-type="<%= t.type %>" data-tournament-index="<%= index %>">
+                <div class="grid-tournament-name tournament-clickable" data-type="<%= (t.type || 'local').toLowerCase() %>" data-tournament-index="<%= index %>">
                   <div class="flex items-start">
                     <i class="fas fa-trophy mr-3 text-yellow-500 mt-1"></i>
                     <div>
@@ -665,7 +665,7 @@
               <% if (tournamentData && tournamentData.length) { %>
                 <% tournamentData.forEach((t, index) => { %>
                   <div class="mobile-tournament-card tournament-clickable bg-gradient-to-r from-gray-50 to-white border border-gray-200 rounded-xl p-4 shadow-sm" 
-                       data-type="<%= t.type %>" data-tournament-index="<%= index %>">
+                       data-type="<%= (t.type || 'local').toLowerCase() %>" data-tournament-index="<%= index %>">
                     <div class="flex items-start justify-between">
                       <div class="flex-1">
                         <div class="flex items-center mb-2">
@@ -1277,12 +1277,13 @@
           // Applying filter
         
         // Filter grid elements
-        const filterGridElements = (filter) => {
+          const filterGridElements = (filter) => {
           const tournamentNames = document.querySelectorAll('.grid-tournament-name');
           let visibleCount = 0;
           
           tournamentNames.forEach((nameCell, index) => {
-            const shouldShow = filter === 'all' || nameCell.dataset.type === filter;
+            const cellType = (nameCell.dataset.type || '').toLowerCase();
+            const shouldShow = filter === 'all' || cellType === filter;
             
             // Get all month cells for this tournament (next 12 siblings)
             const monthCells = [];

@@ -163,6 +163,19 @@
       opacity: 1;
     }
 
+    /* Ensure Add Notice modal never overflows viewport (Tailwind CDN can't parse max-h-[90vh]) */
+    #noticeModal { 
+      align-items: center; 
+      justify-content: center; 
+    }
+    #noticeModalContent {
+      max-height: 90vh; /* clamp */
+      display: flex;
+      flex-direction: column;
+      width: 100%;
+      max-width: 64rem; /* ~max-w-4xl */
+    }
+
     /* Mobile optimizations */
     @media (max-width: 768px) {
       .page-header {
@@ -363,7 +376,7 @@
              <i class="fas fa-bell text-orange-500 mr-3"></i>
              Tournament Notices
            </h2>
-           <button id="addNoticeBtn" class="bg-gradient-to-r from-orange-500 to-red-500 text-white px-4 py-2 rounded-lg hover:from-orange-600 hover:to-red-600 transition-all duration-300 flex items-center text-sm font-semibold">
+            <button id="addNoticeBtn" class="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition-all duration-300 flex items-center text-sm font-semibold">
              <i class="fas fa-plus mr-2"></i>
              Add Notice
            </button>
@@ -379,7 +392,7 @@
            <div class="text-4xl mb-4">📢</div>
            <h3 class="text-lg font-semibold text-gray-600 mb-2">No notices yet</h3>
            <p class="text-gray-500 mb-4">All tournaments are running as scheduled</p>
-           <button id="addFirstNoticeBtn" class="bg-gradient-to-r from-orange-500 to-red-500 text-white px-6 py-3 rounded-lg hover:from-orange-600 hover:to-red-600 transition-all duration-300">
+            <button id="addFirstNoticeBtn" class="bg-red-600 text-white px-6 py-3 rounded-lg hover:bg-red-700 transition-all duration-300">
              <i class="fas fa-plus mr-2"></i>Add First Notice
            </button>
          </div>
@@ -629,7 +642,7 @@
 
   <!-- Add/Edit Notice Modal -->
   <div id="noticeModal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden flex items-center justify-center p-4" style="display: none;">
-    <div class="bg-white rounded-2xl w-full max-w-4xl max-h-[90vh] flex flex-col transform scale-95 opacity-0 transition-all duration-300" id="noticeModalContent">
+    <div class="bg-white rounded-2xl w-full flex flex-col transform scale-95 opacity-0 transition-all duration-300" id="noticeModalContent">
       <div class="p-6 border-b border-gray-200 flex-shrink-0">
         <div class="flex justify-between items-center">
           <h2 class="text-2xl font-bold text-gray-800">
@@ -641,7 +654,7 @@
         </div>
       </div>
       
-      <div class="p-6 flex-1 overflow-y-auto">
+      <div class="p-6 flex-1 overflow-y-auto" style="overflow-y: auto;">
         <form id="noticeForm">
           <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
             <!-- Notice Title -->

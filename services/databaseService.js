@@ -9,6 +9,7 @@ const Notification = require('../models/Notification');
 const TournamentUpdate = require('../models/TournamentUpdate');
 const Announcement = require('../models/Announcement');
 const TournamentNotice = require('../models/TournamentNotice');
+const Venue = require('../models/Venue');
 
 class DatabaseService {
   // Tournament operations
@@ -652,6 +653,53 @@ class DatabaseService {
       };
     } catch (error) {
       console.error('Error getting statistics:', error);
+      throw error;
+    }
+  }
+
+  // Venue operations
+  static async listVenues() {
+    try {
+      return await Venue.find().sort({ name: 1 });
+    } catch (error) {
+      console.error('Error listing venues:', error);
+      throw error;
+    }
+  }
+
+  static async getVenueBySlug(slug) {
+    try {
+      return await Venue.findOne({ slug });
+    } catch (error) {
+      console.error('Error getting venue by slug:', error);
+      throw error;
+    }
+  }
+
+  static async createVenue(data) {
+    try {
+      const venue = new Venue(data);
+      return await venue.save();
+    } catch (error) {
+      console.error('Error creating venue:', error);
+      throw error;
+    }
+  }
+
+  static async updateVenue(id, data) {
+    try {
+      return await Venue.findByIdAndUpdate(id, data, { new: true });
+    } catch (error) {
+      console.error('Error updating venue:', error);
+      throw error;
+    }
+  }
+
+  static async deleteVenue(id) {
+    try {
+      return await Venue.findByIdAndDelete(id);
+    } catch (error) {
+      console.error('Error deleting venue:', error);
       throw error;
     }
   }
