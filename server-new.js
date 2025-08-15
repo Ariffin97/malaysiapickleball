@@ -2755,6 +2755,432 @@ app.get('/services/club-guidelines', async (req, res) => {
   }
 });
 
+// Organization Chart
+app.get('/organization-chart', async (req, res) => {
+  try {
+    const backgroundImage = await DatabaseService.getSetting('background_image', '/images/defaultbg.png');
+    
+    // Get organization chart data from database
+    const orgChartDataString = await DatabaseService.getSetting('organization_chart_data', null);
+    let orgChartData = null;
+    
+    if (orgChartDataString) {
+      try {
+        orgChartData = JSON.parse(orgChartDataString);
+      } catch (parseError) {
+        console.error('Error parsing organization chart data:', parseError);
+      }
+    }
+    
+    // Default data if none exists in database
+    const defaultOrgChartData = {
+      advisors: [
+        { name: "Tan Sri Dr. Lim", phone: "+60 12-345 6789", photo: "👨‍💼" },
+        { name: "Dato' Sarah Ismail", phone: "+60 12-345 6790", photo: "👩‍💼" },
+        { name: "Prof. Dr. Raj Kumar", phone: "+60 12-345 6791", photo: "👨‍💼" }
+      ],
+      president: { name: "Datuk Ahmad Zulkarnain", phone: "+60 12-345 6780", photo: "👨‍💼" },
+      vicePresidents: [
+        { name: "Dato' Dr. Lim Chong", phone: "+60 12-345 6781", photo: "👨‍💼" },
+        { name: "Datuk Seri Wong Lee", phone: "+60 12-345 6782", photo: "👨‍💼" }
+      ],
+      secretary: { name: "Mohd Azlan bin Abdullah", phone: "+60 12-345 6783", photo: "👨‍💼" },
+      treasurer: { name: "Wong Mei Ling", phone: "+60 12-345 6784", photo: "👩‍💼" },
+      committees: [
+        { name: "Chairman: Ahmad Fadzil", phone: "+60 12-345 6785", photo: "👨‍💼", type: "Development" },
+        { name: "Chairman: Lim Wei Chen", phone: "+60 12-345 6786", photo: "👨‍💼", type: "Tournament" },
+        { name: "Chairman: Dr. Kamal Singh", phone: "+60 12-345 6787", photo: "👨‍💼", type: "Disciplinary" }
+      ]
+    };
+    
+    res.render('pages/organization-chart', { 
+      session: req.session, 
+      backgroundImage: backgroundImage,
+      orgChartData: orgChartData || defaultOrgChartData
+    });
+  } catch (error) {
+    console.error('Error loading organization chart page:', error);
+    res.render('pages/organization-chart', { 
+      session: req.session, 
+      backgroundImage: '/images/defaultbg.png',
+      orgChartData: null
+    });
+  }
+});
+
+// Admin Login Routes
+app.get('/admin/login', (req, res) => {
+  try {
+    const backgroundImage = '/images/bg1.png';
+    res.render('pages/login', { 
+      session: req.session, 
+      backgroundImage: backgroundImage,
+      error: req.query.error,
+      success: req.query.success
+    });
+  } catch (error) {
+    console.error('Error loading admin login page:', error);
+    res.render('pages/login', { 
+      session: req.session, 
+      backgroundImage: '/images/bg1.png',
+      error: 'An error occurred',
+      success: null
+    });
+  }
+});
+
+app.post('/admin/login', async (req, res) => {
+  try {
+    const { username, password } = req.body;
+
+    if (!username || !password) {
+      return res.redirect('/admin/login?error=Please provide both username and password');
+    }
+
+    // Find admin by username
+    const admin = await DatabaseService.getAdminByUsername(username);
+    
+    if (!admin) {
+      console.log('Admin login failed: Invalid username:', username);
+      return res.redirect('/admin/login?error=Invalid username or password');
+    }
+
+    // Check if account is locked
+    if (admin.isLocked) {
+      console.log('Admin login failed: Account locked:', username);
+      return res.redirect('/admin/login?error=Account is locked. Please contact administrator.');
+    }
+
+    // Verify password
+    const isValidPassword = await admin.comparePassword(password);
+    
+    if (!isValidPassword) {
+      // Increment login attempts
+      if (admin.incLoginAttempts) {
+        await admin.incLoginAttempts();
+      }
+      
+      console.log('Admin login failed: Invalid password for:', username);
+      return res.redirect('/admin/login?error=Invalid username or password');
+    }
+
+    // Reset login attempts on successful login
+    if (admin.resetLoginAttempts) {
+      await admin.resetLoginAttempts();
+    }
+    
+    // Update last login
+    await DatabaseService.updateAdminLastLogin(admin._id);
+
+    // Set session
+    req.session.admin = {
+      id: admin._id,
+      username: admin.username,
+      email: admin.email,
+      role: admin.role || 'admin'
+    };
+
+    console.log('Admin login successful:', admin.username);
+    res.redirect('/admin');
+  } catch (error) {
+    console.error('Admin login error:', error);
+    res.redirect('/admin/login?error=An error occurred during login');
+  }
+});
+
+// Admin Logout
+app.get('/admin/logout', (req, res) => {
+  req.session.destroy((err) => {
+    if (err) {
+      console.error('Error destroying session:', err);
+    }
+    res.redirect('/admin/login');
+  });
+});
+
+// Admin Dashboard
+app.get('/admin', async (req, res) => {
+  try {
+    if (!req.session.admin) {
+      return res.redirect('/admin/login');
+    }
+
+    const backgroundImage = await DatabaseService.getSetting('background_image', '/images/defaultbg.png');
+    
+    // Get admin data
+    const admin = await DatabaseService.getAdminByUsername(req.session.admin.username);
+    
+    // Get quick stats
+    const quickStats = await DatabaseService.getSetting('homepage_quick_stats', null);
+    let parsedQuickStats = null;
+    if (quickStats) {
+      try {
+        parsedQuickStats = JSON.parse(quickStats);
+      } catch (parseError) {
+        console.error('Error parsing quick stats:', parseError);
+      }
+    }
+
+    // Get counts for dashboard
+    const tournamentCount = await DatabaseService.getTournamentCount();
+    const playerCount = await DatabaseService.getPlayerCount();
+    const venueCount = await DatabaseService.getVenueCount();
+
+    res.render('pages/admin/dashboard', { 
+      session: req.session, 
+      backgroundImage: backgroundImage,
+      admin: admin,
+      quickStats: parsedQuickStats,
+      tournamentCount: tournamentCount,
+      playerCount: playerCount,
+      venueCount: venueCount
+    });
+  } catch (error) {
+    console.error('Error loading admin dashboard:', error);
+    res.redirect('/admin/login');
+  }
+});
+
+// Admin Organization Chart Management
+app.get('/admin/organization-chart', adminAuth, async (req, res) => {
+  try {
+    
+    const backgroundImage = await DatabaseService.getSetting('background_image', '/images/defaultbg.png');
+    
+    // Get existing organization chart data
+    const orgChartDataString = await DatabaseService.getSetting('organization_chart_data', null);
+    let orgChartData = null;
+    
+    if (orgChartDataString) {
+      try {
+        orgChartData = JSON.parse(orgChartDataString);
+      } catch (parseError) {
+        console.error('Error parsing organization chart data:', parseError);
+      }
+    }
+    
+    // Default data if none exists
+    const defaultOrgChartData = {
+      advisors: [
+        { name: "Tan Sri Dr. Lim", phone: "+60 12-345 6789", photo: "👨‍💼" },
+        { name: "Dato' Sarah Ismail", phone: "+60 12-345 6790", photo: "👩‍💼" },
+        { name: "Prof. Dr. Raj Kumar", phone: "+60 12-345 6791", photo: "👨‍💼" }
+      ],
+      president: { name: "Datuk Ahmad Zulkarnain", phone: "+60 12-345 6780", photo: "👨‍💼" },
+      vicePresidents: [
+        { name: "Dato' Dr. Lim Chong", phone: "+60 12-345 6781", photo: "👨‍💼" },
+        { name: "Datuk Seri Wong Lee", phone: "+60 12-345 6782", photo: "👨‍💼" }
+      ],
+      secretary: { name: "Mohd Azlan bin Abdullah", phone: "+60 12-345 6783", photo: "👨‍💼" },
+      treasurer: { name: "Wong Mei Ling", phone: "+60 12-345 6784", photo: "👩‍💼" },
+      committees: [
+        { name: "Chairman: Ahmad Fadzil", phone: "+60 12-345 6785", photo: "👨‍💼", type: "Development" },
+        { name: "Chairman: Lim Wei Chen", phone: "+60 12-345 6786", photo: "👨‍💼", type: "Tournament" },
+        { name: "Chairman: Dr. Kamal Singh", phone: "+60 12-345 6787", photo: "👨‍💼", type: "Disciplinary" }
+      ]
+    };
+    
+    const data = orgChartData || defaultOrgChartData;
+    
+    res.render('pages/admin/manage-organization-chart', { 
+      session: req.session, 
+      backgroundImage: backgroundImage,
+      orgChartData: data,
+      success: req.query.success === 'true',
+      error: req.query.error === 'true'
+    });
+  } catch (error) {
+    console.error('Error loading admin organization chart page:', error);
+    res.render('pages/admin/manage-organization-chart', { 
+      session: req.session, 
+      backgroundImage: '/images/defaultbg.png',
+      orgChartData: null,
+      success: false,
+      error: true
+    });
+  }
+});
+
+// Handle Organization Chart Updates
+app.post('/admin/organization-chart/update', adminAuth, async (req, res) => {
+  try {
+    console.log('📁 Organization Chart Update - Files received:', req.files ? Object.keys(req.files) : 'No files');
+    console.log('📁 Organization Chart Update - Body fields:', Object.keys(req.body));
+    
+    // Debug: Check if files object exists and has properties
+    if (req.files) {
+      console.log('📁 Files object keys:', Object.keys(req.files));
+      Object.keys(req.files).forEach(key => {
+        console.log(`📁 File ${key}:`, {
+          name: req.files[key].name,
+          size: req.files[key].size,
+          mimetype: req.files[key].mimetype
+        });
+      });
+    } else {
+      console.log('📁 No files object in request');
+    }
+    
+    // Handle file uploads
+    const uploadPromises = [];
+    const photoFields = [
+      'advisor1_photo', 'advisor2_photo', 'advisor3_photo',
+      'president_photo', 'vp1_photo', 'vp2_photo',
+      'secretary_photo', 'treasurer_photo',
+      'dev_committee_photo', 'tournament_committee_photo', 'disciplinary_committee_photo'
+    ];
+
+    const uploadedPhotos = {};
+
+    // Process file uploads
+    for (const field of photoFields) {
+      if (req.files && req.files[field]) {
+        console.log(`📁 Processing upload for ${field}:`, req.files[field].name);
+        const file = req.files[field];
+        const timestamp = Date.now() + Math.random().toString(36).substr(2, 9);
+        const fileName = `org_chart_${field}_${timestamp}_${file.name}`;
+        const uploadPath = `./public/uploads/org_chart/${fileName}`;
+        
+        // Ensure directory exists
+        const fs = require('fs');
+        const path = require('path');
+        const dir = path.dirname(uploadPath);
+        if (!fs.existsSync(dir)) {
+          fs.mkdirSync(dir, { recursive: true });
+        }
+        
+        uploadPromises.push(
+          file.mv(uploadPath).then(() => {
+            console.log(`✅ Successfully uploaded ${field} to ${uploadPath}`);
+            uploadedPhotos[field] = `/uploads/org_chart/${fileName}`;
+          }).catch(err => {
+            console.error(`❌ Error uploading ${field}:`, err);
+          })
+        );
+      } else {
+        console.log(`📁 No file uploaded for ${field}`);
+      }
+    }
+
+    // Wait for all uploads to complete
+    await Promise.all(uploadPromises);
+
+    const {
+      // Advisors
+      advisor1_name, advisor1_phone,
+      advisor2_name, advisor2_phone,
+      advisor3_name, advisor3_phone,
+      // President
+      president_name, president_phone,
+      // Vice Presidents
+      vp1_name, vp1_phone,
+      vp2_name, vp2_phone,
+      // Secretary & Treasurer
+      secretary_name, secretary_phone,
+      treasurer_name, treasurer_phone,
+      // Committees
+      dev_committee_name, dev_committee_phone,
+      tournament_committee_name, tournament_committee_phone,
+      disciplinary_committee_name, disciplinary_committee_phone
+    } = req.body;
+
+    // Get existing organization chart data to preserve photos if no new upload
+    const existingDataString = await DatabaseService.getSetting('organization_chart_data', null);
+    let existingData = null;
+    if (existingDataString) {
+      try {
+        existingData = JSON.parse(existingDataString);
+      } catch (parseError) {
+        console.error('Error parsing existing organization chart data:', parseError);
+      }
+    }
+
+    // Create organization chart data object with uploaded photos or existing ones
+    const orgChartData = {
+      advisors: [
+        { 
+          name: advisor1_name, 
+          phone: advisor1_phone, 
+          photo: uploadedPhotos.advisor1_photo || (existingData?.advisors?.[0]?.photo || '👨‍💼')
+        },
+        { 
+          name: advisor2_name, 
+          phone: advisor2_phone, 
+          photo: uploadedPhotos.advisor2_photo || (existingData?.advisors?.[1]?.photo || '👩‍💼')
+        },
+        { 
+          name: advisor3_name, 
+          phone: advisor3_phone, 
+          photo: uploadedPhotos.advisor3_photo || (existingData?.advisors?.[2]?.photo || '👨‍💼')
+        }
+      ],
+      president: { 
+        name: president_name, 
+        phone: president_phone, 
+        photo: uploadedPhotos.president_photo || (existingData?.president?.photo || '👨‍💼')
+      },
+      vicePresidents: [
+        { 
+          name: vp1_name, 
+          phone: vp1_phone, 
+          photo: uploadedPhotos.vp1_photo || (existingData?.vicePresidents?.[0]?.photo || '👨‍💼')
+        },
+        { 
+          name: vp2_name, 
+          phone: vp2_phone, 
+          photo: uploadedPhotos.vp2_photo || (existingData?.vicePresidents?.[1]?.photo || '👨‍💼')
+        }
+      ],
+      secretary: { 
+        name: secretary_name, 
+        phone: secretary_phone, 
+        photo: uploadedPhotos.secretary_photo || (existingData?.secretary?.photo || '👨‍💼')
+      },
+      treasurer: { 
+        name: treasurer_name, 
+        phone: treasurer_phone, 
+        photo: uploadedPhotos.treasurer_photo || (existingData?.treasurer?.photo || '👩‍💼')
+      },
+      committees: [
+        { 
+          name: dev_committee_name, 
+          phone: dev_committee_phone, 
+          photo: uploadedPhotos.dev_committee_photo || (existingData?.committees?.[0]?.photo || '👨‍💼'), 
+          type: 'Development' 
+        },
+        { 
+          name: tournament_committee_name, 
+          phone: tournament_committee_phone, 
+          photo: uploadedPhotos.tournament_committee_photo || (existingData?.committees?.[1]?.photo || '👨‍💼'), 
+          type: 'Tournament' 
+        },
+        { 
+          name: disciplinary_committee_name, 
+          phone: disciplinary_committee_phone, 
+          photo: uploadedPhotos.disciplinary_committee_photo || (existingData?.committees?.[2]?.photo || '👨‍💼'), 
+          type: 'Disciplinary' 
+        }
+      ]
+    };
+
+    console.log('📁 Final uploaded photos:', uploadedPhotos);
+    console.log('📁 Committees photos:', {
+      dev: uploadedPhotos.dev_committee_photo || 'No upload',
+      tournament: uploadedPhotos.tournament_committee_photo || 'No upload',
+      disciplinary: uploadedPhotos.disciplinary_committee_photo || 'No upload'
+    });
+
+    // Save to database using DatabaseService
+    await DatabaseService.setSetting('organization_chart_data', JSON.stringify(orgChartData));
+
+    // Redirect with success message
+    res.redirect('/admin/organization-chart?success=true');
+  } catch (error) {
+    console.error('Error updating organization chart:', error);
+    res.redirect('/admin/organization-chart?error=true');
+  }
+});
+
 // Tournament PDF Download Routes
 app.get('/tournament/download-pdf', async (req, res) => {
   // Redirect to enhanced version with fallback

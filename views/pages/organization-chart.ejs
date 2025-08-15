@@ -1,0 +1,727 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Organization Chart - Malaysia Pickleball Association</title>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="/css/styles.css">
+  <link rel="icon" href="/favicon.ico" type="image/x-icon">
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+      color: #1a202c;
+      line-height: 1.6;
+    }
+    
+    .content-section {
+      background: transparent;
+      padding-top: 8rem;
+      margin-top: 0;
+      min-height: 100vh;
+    }
+    
+    .main-container {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 0 2rem;
+    }
+    
+         .main-title {
+       text-align: center;
+       margin-bottom: 2rem;
+       padding: 1.5rem 0;
+       background: #1a202c;
+       border-radius: 12px;
+       box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+       color: white;
+       position: relative;
+       overflow: hidden;
+     }
+    
+         .main-title::before {
+       content: '';
+       position: absolute;
+       top: 0;
+       left: 0;
+       right: 0;
+       bottom: 0;
+       background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grain" width="100" height="100" patternUnits="userSpaceOnUse"><circle cx="50" cy="50" r="1" fill="white" opacity="0.05"/></pattern></defs><rect width="100" height="100" fill="url(%23grain)"/></svg>');
+     }
+    
+    .main-title h1 {
+      font-size: 2.5rem;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      margin: 0;
+      position: relative;
+      z-index: 2;
+      text-shadow: 0 4px 8px rgba(0,0,0,0.3);
+    }
+    
+         .title-underline {
+       width: 80px;
+       height: 3px;
+       background: #e2e8f0;
+       margin: 0.8rem auto 0;
+       border-radius: 2px;
+     }
+    
+         .org-chart-container {
+       background: white;
+       border-radius: 12px;
+       padding: 2rem;
+       margin-bottom: 2rem;
+       position: relative;
+       box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+       border: 1px solid #e2e8f0;
+       overflow-x: auto;
+     }
+    
+         .org-chart {
+       display: flex;
+       flex-direction: column;
+       align-items: center;
+       min-width: 1000px;
+       padding: 1rem 0;
+     }
+     
+     .level {
+       display: flex;
+       justify-content: center;
+       align-items: center;
+       margin-bottom: 1.5rem;
+       width: 100%;
+       position: relative;
+     }
+     
+     .level-1 {
+       margin-bottom: 2rem;
+     }
+     
+     .level-2 {
+       margin-bottom: 2rem;
+     }
+     
+     .level-3 {
+       margin-bottom: 2rem;
+     }
+     
+     .level-4 {
+       margin-bottom: 2rem;
+     }
+     
+     .level-5 {
+       margin-bottom: 2rem;
+     }
+     
+     .level-6 {
+       margin-bottom: 2rem;
+     }
+     
+           .advisors-section {
+        position: absolute;
+        left: 50px;
+        top: 50%;
+        transform: translateY(-50%);
+        display: flex;
+        flex-direction: column;
+        gap: 0.8rem;
+        width: 200px;
+      }
+     
+           .main-structure {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        margin-left: 290px;
+        width: calc(100% - 290px);
+      }
+    
+         .position-card {
+       background: white;
+       color: #1a202c;
+       padding: 1.2rem 1rem;
+       border-radius: 12px;
+       text-align: center;
+       box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+       border: 2px solid #1a202c;
+       transition: all 0.3s ease;
+       min-width: 180px;
+       position: relative;
+     }
+    
+         .position-card:hover {
+       transform: translateY(-2px);
+       box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+       border-color: #cbd5e0;
+     }
+    
+         .position-card.president {
+       background: white;
+       color: #1a202c;
+       box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+       min-width: 220px;
+       border: 2px solid #1a202c;
+     }
+     
+     .position-card.president .position-title {
+       color: #1a202c;
+     }
+     
+     .position-card.president .position-photo {
+       background: #e2e8f0;
+       border-color: #1a202c;
+       color: #1a202c;
+     }
+     
+     .position-card.president .position-phone {
+       color: #4a5568;
+     }
+     
+     .position-card.president:hover {
+       box-shadow: 0 6px 16px rgba(0, 0, 0, 0.25);
+       transform: translateY(-3px) scale(1.01);
+     }
+     
+     .position-card.vice-president {
+       background: white;
+       color: #1a202c;
+       box-shadow: 0 3px 10px rgba(0, 0, 0, 0.15);
+       min-width: 200px;
+       border: 2px solid #1a202c;
+     }
+     
+     .position-card.vice-president .position-title {
+       color: #1a202c;
+     }
+     
+     .position-card.vice-president .position-photo {
+       background: #e2e8f0;
+       border-color: #1a202c;
+       color: #1a202c;
+     }
+     
+     .position-card.vice-president .position-phone {
+       color: #4a5568;
+     }
+     
+     .position-card.vice-president:hover {
+       box-shadow: 0 5px 14px rgba(0, 0, 0, 0.2);
+       transform: translateY(-2px) scale(1.01);
+     }
+     
+     .position-card.advisor {
+       background: white;
+       color: #1a202c;
+       box-shadow: 0 3px 10px rgba(0, 0, 0, 0.15);
+       min-width: 200px;
+       border: 2px solid #1a202c;
+     }
+     
+     .position-card.advisor .position-title {
+       color: #1a202c;
+     }
+     
+     .position-card.advisor .position-photo {
+       background: #e2e8f0;
+       border-color: #1a202c;
+       color: #1a202c;
+     }
+     
+     .position-card.advisor .position-phone {
+       color: #4a5568;
+     }
+     
+     .position-card.advisor:hover {
+       box-shadow: 0 5px 14px rgba(0, 0, 0, 0.2);
+       transform: translateY(-2px) scale(1.01);
+     }
+     
+     .position-card.executive {
+       background: white;
+       color: #1a202c;
+       box-shadow: 0 3px 10px rgba(0, 0, 0, 0.15);
+       min-width: 180px;
+       border: 2px solid #1a202c;
+     }
+     
+     .position-card.executive .position-title {
+       color: #1a202c;
+     }
+     
+     .position-card.executive .position-photo {
+       background: #e2e8f0;
+       border-color: #1a202c;
+       color: #1a202c;
+     }
+     
+     .position-card.executive .position-phone {
+       color: #4a5568;
+     }
+     
+     .position-card.executive:hover {
+       box-shadow: 0 5px 14px rgba(0, 0, 0, 0.2);
+       transform: translateY(-2px) scale(1.01);
+     }
+     
+     .position-card.committee {
+       background: white;
+       color: #1a202c;
+       box-shadow: 0 3px 10px rgba(0, 0, 0, 0.15);
+       min-width: 200px;
+       border: 2px solid #1a202c;
+     }
+     
+     .position-card.committee .position-title {
+       color: #1a202c;
+     }
+     
+     .position-card.committee .position-photo {
+       background: #e2e8f0;
+       border-color: #1a202c;
+       color: #1a202c;
+     }
+     
+     .position-card.committee .position-phone {
+       color: #4a5568;
+     }
+     
+     .position-card.committee:hover {
+       box-shadow: 0 5px 14px rgba(0, 0, 0, 0.2);
+       transform: translateY(-2px) scale(1.01);
+     }
+    
+         .position-title {
+       font-weight: 700;
+       font-size: 0.9rem;
+       margin-bottom: 0.8rem;
+       text-transform: uppercase;
+       letter-spacing: 0.05em;
+       color: #4a5568;
+     }
+     
+     .position-photo {
+       width: 60px;
+       height: 60px;
+       border-radius: 50%;
+       margin: 0 auto 0.8rem;
+       background: #e2e8f0;
+       display: flex;
+       align-items: center;
+       justify-content: center;
+       font-size: 1.5rem;
+       color: #718096;
+       border: 2px solid #cbd5e0;
+     }
+     
+     .position-name {
+       font-weight: 600;
+       font-size: 0.85rem;
+       margin-bottom: 0.3rem;
+       line-height: 1.3;
+     }
+     
+     .position-phone {
+       font-weight: 400;
+       font-size: 0.75rem;
+       color: #718096;
+       line-height: 1.2;
+     }
+    
+         .connector-line {
+       display: none;
+     }
+     
+     .advisor-connector {
+       display: none;
+     }
+    
+    .horizontal-connector {
+      width: 100%;
+      height: 2px;
+      background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+      position: relative;
+      margin: 1rem 0;
+    }
+    
+    .horizontal-connector::before {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 0;
+      height: 0;
+      border-left: 6px solid transparent;
+      border-right: 6px solid transparent;
+      border-top: 8px solid #667eea;
+    }
+    
+         .level-2 .position-card {
+       margin: 0 0.8rem;
+     }
+     
+     .level-3 .position-card {
+       margin: 0 1.2rem;
+     }
+     
+     .level-4 .position-card {
+       margin: 0 0.8rem;
+     }
+     
+     .level-5 .position-card {
+       margin: 0 1.5rem;
+     }
+    
+    .info-section {
+      background: white;
+      border-radius: 20px;
+      padding: 2rem;
+      margin-bottom: 2rem;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.06);
+      border: 1px solid #e2e8f0;
+    }
+    
+    .info-title {
+      color: #2d3748;
+      font-weight: 800;
+      font-size: 1.5rem;
+      margin-bottom: 1rem;
+      display: flex;
+      align-items: center;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+    
+    .info-icon {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      width: 48px;
+      height: 48px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-right: 1rem;
+      font-size: 1.25rem;
+      box-shadow: 0 6px 12px rgba(102, 126, 234, 0.3);
+    }
+    
+    .back-button {
+      background: linear-gradient(135deg, #4b5563 0%, #374151 100%);
+      color: white;
+      padding: 1rem 2rem;
+      border-radius: 12px;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      font-weight: 700;
+      font-size: 1rem;
+      transition: all 0.3s ease;
+      box-shadow: 0 6px 16px rgba(75, 85, 99, 0.3);
+      border: 2px solid transparent;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+    
+    .back-button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 12px 24px rgba(75, 85, 99, 0.4);
+      text-decoration: none;
+      color: white;
+      border-color: rgba(255, 255, 255, 0.3);
+    }
+    
+         @media (max-width: 768px) {
+       .org-chart {
+         min-width: 800px;
+         padding: 1rem 0;
+       }
+       
+       .advisors-section {
+         position: relative;
+         left: auto;
+         top: auto;
+         transform: none;
+         width: 100%;
+         margin-bottom: 2rem;
+         flex-direction: row;
+         justify-content: center;
+         gap: 1rem;
+       }
+       
+       .main-structure {
+         margin-left: 0;
+         width: 100%;
+       }
+       
+       .position-card {
+         padding: 1rem 1.5rem;
+         min-width: 150px;
+         font-size: 0.9rem;
+       }
+       
+       .position-card.president {
+         min-width: 200px;
+         font-size: 1rem;
+       }
+       
+       .position-card.advisor {
+         min-width: 180px;
+       }
+       
+       .level-2 .position-card,
+       .level-3 .position-card,
+       .level-4 .position-card,
+       .level-5 .position-card {
+         margin: 0 0.5rem;
+       }
+       
+       .main-title h1 {
+         font-size: 2rem;
+       }
+       
+       .main-container {
+         padding: 0 1rem;
+       }
+     }
+  </style>
+</head>
+<body>
+  <%- include('../partials/header') %>
+
+  <!-- Content Section -->
+  <section class="content-section">
+    <div class="main-container">
+        
+        
+
+                 <!-- Organization Chart -->
+         <div class="org-chart-container">
+           <div class="org-chart">
+                                               <!-- Advisors Section (Left Side) -->
+                   <div class="advisors-section">
+                     <% if (orgChartData && orgChartData.advisors) { %>
+                       <% orgChartData.advisors.forEach(advisor => { %>
+                         <div class="position-card advisor">
+                           <div class="position-title">Advisor</div>
+                           <div class="position-photo">
+                             <% if (advisor.photo && advisor.photo !== '👨‍💼' && advisor.photo !== '👩‍💼') { %>
+                               <img src="<%= advisor.photo %>" alt="<%= advisor.name %>" class="w-full h-full object-cover rounded-full">
+                             <% } else { %>
+                               <span class="text-2xl"><%= advisor.photo || '👨‍💼' %></span>
+                             <% } %>
+                           </div>
+                           <div class="position-name"><%= advisor.name %></div>
+                           <div class="position-phone"><%= advisor.phone %></div>
+                         </div>
+                       <% }) %>
+                     <% } else { %>
+                       <div class="position-card advisor">
+                         <div class="position-title">Advisor</div>
+                         <div class="position-photo">
+                           <span class="text-2xl">👨‍💼</span>
+                         </div>
+                         <div class="position-name">Tan Sri Dr. Lim</div>
+                         <div class="position-phone">+60 12-345 6789</div>
+                       </div>
+                       <div class="position-card advisor">
+                         <div class="position-title">Advisor</div>
+                         <div class="position-photo">
+                           <span class="text-2xl">👩‍💼</span>
+                         </div>
+                         <div class="position-name">Dato' Sarah Ismail</div>
+                         <div class="position-phone">+60 12-345 6790</div>
+                       </div>
+                       <div class="position-card advisor">
+                         <div class="position-title">Advisor</div>
+                         <div class="position-photo">
+                           <span class="text-2xl">👨‍💼</span>
+                         </div>
+                         <div class="position-name">Prof. Dr. Raj Kumar</div>
+                         <div class="position-phone">+60 12-345 6791</div>
+                       </div>
+                     <% } %>
+                   </div>
+             
+             <!-- Main Structure (Right Side) -->
+             <div class="main-structure">
+                                                     <!-- Level 1: President -->
+                     <div class="level level-1">
+                       <div class="position-card president">
+                         <div class="position-title">President</div>
+                         <div class="position-photo">
+                           <% if (orgChartData?.president?.photo && orgChartData.president.photo !== '👨‍💼' && orgChartData.president.photo !== '👩‍💼') { %>
+                             <img src="<%= orgChartData.president.photo %>" alt="<%= orgChartData.president.name %>" class="w-full h-full object-cover rounded-full">
+                           <% } else { %>
+                             <span class="text-2xl"><%= orgChartData?.president?.photo || '👨‍💼' %></span>
+                           <% } %>
+                         </div>
+                         <div class="position-name"><%= orgChartData?.president?.name || 'Datuk Ahmad Zulkarnain' %></div>
+                         <div class="position-phone"><%= orgChartData?.president?.phone || '+60 12-345 6780' %></div>
+                       </div>
+                     </div>
+                 
+                                      <!-- Level 2: Vice Presidents -->
+                     <div class="level level-2">
+                       <% if (orgChartData && orgChartData.vicePresidents) { %>
+                         <% orgChartData.vicePresidents.forEach(vp => { %>
+                           <div class="position-card vice-president">
+                             <div class="position-title">Vice President</div>
+                             <div class="position-photo">
+                               <% if (vp.photo && vp.photo !== '👨‍💼' && vp.photo !== '👩‍💼') { %>
+                                 <img src="<%= vp.photo %>" alt="<%= vp.name %>" class="w-full h-full object-cover rounded-full">
+                               <% } else { %>
+                                 <span class="text-2xl"><%= vp.photo || '👨‍💼' %></span>
+                               <% } %>
+                             </div>
+                             <div class="position-name"><%= vp.name %></div>
+                             <div class="position-phone"><%= vp.phone %></div>
+                           </div>
+                         <% }) %>
+                       <% } else { %>
+                         <div class="position-card vice-president">
+                           <div class="position-title">Vice President</div>
+                           <div class="position-photo">
+                             <span class="text-2xl">👨‍💼</span>
+                           </div>
+                           <div class="position-name">Dato' Dr. Lim Chong</div>
+                           <div class="position-phone">+60 12-345 6781</div>
+                         </div>
+                         <div class="position-card vice-president">
+                           <div class="position-title">Vice President</div>
+                           <div class="position-photo">
+                             <span class="text-2xl">👨‍💼</span>
+                           </div>
+                           <div class="position-name">Datuk Seri Wong Lee</div>
+                           <div class="position-phone">+60 12-345 6782</div>
+                         </div>
+                       <% } %>
+                     </div>
+                 
+                                      <!-- Level 3: Secretary & Treasurer -->
+                     <div class="level level-3">
+                       <div class="position-card executive">
+                         <div class="position-title">Secretary</div>
+                         <div class="position-photo">
+                           <% if (orgChartData?.secretary?.photo && orgChartData.secretary.photo !== '👨‍💼' && orgChartData.secretary.photo !== '👩‍💼') { %>
+                             <img src="<%= orgChartData.secretary.photo %>" alt="<%= orgChartData.secretary.name %>" class="w-full h-full object-cover rounded-full">
+                           <% } else { %>
+                             <span class="text-2xl"><%= orgChartData?.secretary?.photo || '👨‍💼' %></span>
+                           <% } %>
+                         </div>
+                         <div class="position-name"><%= orgChartData?.secretary?.name || 'Mohd Azlan bin Abdullah' %></div>
+                         <div class="position-phone"><%= orgChartData?.secretary?.phone || '+60 12-345 6783' %></div>
+                       </div>
+                       <div class="position-card executive">
+                         <div class="position-title">Treasurer</div>
+                         <div class="position-photo">
+                           <% if (orgChartData?.treasurer?.photo && orgChartData.treasurer.photo !== '👨‍💼' && orgChartData.treasurer.photo !== '👩‍💼') { %>
+                             <img src="<%= orgChartData.treasurer.photo %>" alt="<%= orgChartData.treasurer.name %>" class="w-full h-full object-cover rounded-full">
+                           <% } else { %>
+                             <span class="text-2xl"><%= orgChartData?.treasurer?.photo || '👩‍💼' %></span>
+                           <% } %>
+                         </div>
+                         <div class="position-name"><%= orgChartData?.treasurer?.name || 'Wong Mei Ling' %></div>
+                         <div class="position-phone"><%= orgChartData?.treasurer?.phone || '+60 12-345 6784' %></div>
+                       </div>
+                     </div>
+                 
+                                      <!-- Level 4: Sub-Committees -->
+                     <div class="level level-4">
+                       <% if (orgChartData && orgChartData.committees) { %>
+                         <% orgChartData.committees.forEach(committee => { %>
+                           <div class="position-card committee">
+                             <div class="position-title"><%= committee.type %> Committee</div>
+                             <div class="position-photo">
+                               <% if (committee.photo && committee.photo !== '👨‍💼' && committee.photo !== '👩‍💼') { %>
+                                 <img src="<%= committee.photo %>" alt="<%= committee.name %>" class="w-full h-full object-cover rounded-full">
+                               <% } else { %>
+                                 <span class="text-2xl"><%= committee.photo || '👨‍💼' %></span>
+                               <% } %>
+                             </div>
+                             <div class="position-name"><%= committee.name %></div>
+                             <div class="position-phone"><%= committee.phone %></div>
+                           </div>
+                         <% }) %>
+                       <% } else { %>
+                         <div class="position-card committee">
+                           <div class="position-title">Development Committee</div>
+                           <div class="position-photo">
+                             <span class="text-2xl">👨‍💼</span>
+                           </div>
+                           <div class="position-name">Chairman: Ahmad Fadzil</div>
+                           <div class="position-phone">+60 12-345 6785</div>
+                         </div>
+                         <div class="position-card committee">
+                           <div class="position-title">Tournament Committee</div>
+                           <div class="position-photo">
+                             <span class="text-2xl">👨‍💼</span>
+                           </div>
+                           <div class="position-name">Chairman: Lim Wei Chen</div>
+                           <div class="position-phone">+60 12-345 6786</div>
+                         </div>
+                         <div class="position-card committee">
+                           <div class="position-title">Disciplinary Committee</div>
+                           <div class="position-photo">
+                             <span class="text-2xl">👨‍💼</span>
+                           </div>
+                           <div class="position-name">Chairman: Dr. Kamal Singh</div>
+                           <div class="position-phone">+60 12-345 6787</div>
+                         </div>
+                       <% } %>
+                     </div>
+             </div>
+           </div>
+         </div>
+
+        <!-- Information Section -->
+        <div class="info-section">
+          <div class="info-title">
+            <div class="info-icon">ℹ️</div>
+            About Our Organization Structure
+          </div>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+              <h3 class="font-bold text-lg text-gray-800 mb-3">Leadership Structure</h3>
+              <p class="text-gray-700 mb-4">The Malaysia Pickleball Association (MPA) operates under a structured leadership hierarchy designed to ensure effective governance and development of the sport across Malaysia.</p>
+                             <ul class="list-disc list-inside text-gray-700 space-y-2">
+                 <li><strong>President:</strong> Provides overall leadership and strategic direction</li>
+                 <li><strong>Vice Presidents:</strong> Support the president and oversee specific operational areas</li>
+                 <li><strong>Advisors:</strong> Offer guidance and expertise in key areas</li>
+                 <li><strong>Secretary:</strong> Manages administrative operations and communications</li>
+                 <li><strong>Treasurer:</strong> Oversees financial management and budgeting</li>
+               </ul>
+            </div>
+            <div>
+              <h3 class="font-bold text-lg text-gray-800 mb-3">Committee Functions</h3>
+              <ul class="list-disc list-inside text-gray-700 space-y-2">
+                <li><strong>Development Committee:</strong> Focuses on grassroots development, coaching programs, and facility expansion</li>
+                <li><strong>Tournament Committee:</strong> Organizes and manages all competitive events and championships</li>
+                <li><strong>Disciplinary Committee:</strong> Ensures fair play and handles rule violations and disputes</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <!-- Back Button -->
+        <div style="text-align: center; margin-top: 3rem;">
+          <a href="/" class="back-button">
+            <svg style="width: 1.25rem; height: 1.25rem; margin-right: 0.5rem;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+            </svg>
+            Kembali ke Laman Utama
+          </a>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <%- include('../partials/footer') %>
+
+  <script src="/js/script.js"></script>
+</body>
+</html>

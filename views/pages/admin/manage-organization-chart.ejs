@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Manage Organization Chart - Admin Dashboard</title>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="/css/styles.css">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+  <style>
+    .admin-card {
+      transition: all 0.3s ease;
+      border-left: 4px solid transparent;
+    }
+    .admin-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+      border-left-color: #3B82F6;
+    }
+    .form-input {
+      transition: all 0.3s ease;
+    }
+    .form-input:focus {
+      border-color: #3B82F6;
+      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+    }
+    .position-section {
+      border: 2px solid #e5e7eb;
+      border-radius: 12px;
+      padding: 1.5rem;
+      margin-bottom: 1.5rem;
+      transition: all 0.3s ease;
+    }
+    .position-section:hover {
+      border-color: #3B82F6;
+      box-shadow: 0 4px 12px rgba(59, 130, 246, 0.1);
+    }
+    .alert {
+      padding: 1rem;
+      border-radius: 8px;
+      margin-bottom: 1rem;
+      font-weight: 500;
+    }
+    .alert-success {
+      background-color: #d1fae5;
+      border: 1px solid #10b981;
+      color: #065f46;
+    }
+    .alert-error {
+      background-color: #fee2e2;
+      border: 1px solid #ef4444;
+      color: #991b1b;
+    }
+  </style>
+</head>
+<body class="bg-gray-50">
+  <div class="min-h-screen bg-gray-50">
+    <div class="container mx-auto px-4 py-8">
+      <!-- Admin Header -->
+      <div class="mb-8 bg-white rounded-xl shadow-lg p-6">
+        <div class="flex flex-col md:flex-row justify-between items-start md:items-center">
+          <div class="flex items-center space-x-4">
+            <img src="/images/mpa.png" alt="MPA Logo" class="w-12 h-12 object-contain">
+            <div>
+              <h1 class="text-3xl font-bold text-gray-800 mb-1">Manage Organization Chart</h1>
+              <p class="text-gray-600">Edit organization structure and member details</p>
+            </div>
+          </div>
+          <div class="mt-4 md:mt-0 flex items-center space-x-3">
+            <a href="/admin" class="bg-gray-600 text-white px-4 py-2 rounded-lg hover:bg-gray-700 transition-colors text-sm flex items-center">
+              <i class="fas fa-arrow-left mr-2"></i>
+              Back to Dashboard
+            </a>
+            <a href="/organization-chart" target="_blank" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors text-sm flex items-center">
+              <i class="fas fa-eye mr-2"></i>
+              View Public Page
+            </a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Success/Error Messages -->
+      <% if (success) { %>
+        <div class="alert alert-success">
+          <i class="fas fa-check-circle mr-2"></i>
+          Organization chart updated successfully!
+        </div>
+      <% } %>
+      <% if (error) { %>
+        <div class="alert alert-error">
+          <i class="fas fa-exclamation-circle mr-2"></i>
+          Error updating organization chart. Please try again.
+        </div>
+      <% } %>
+
+      <!-- Organization Chart Management Form -->
+      <div class="admin-card bg-white p-6 rounded-xl shadow-lg">
+        <h2 class="text-2xl font-bold text-gray-800 mb-6 flex items-center">
+          <i class="fas fa-sitemap text-purple-600 mr-3"></i>
+          Organization Structure Management
+        </h2>
+
+                 <form action="/admin/organization-chart/update" method="POST" enctype="multipart/form-data" class="space-y-6">
+          <!-- Advisors Section -->
+          <div class="position-section">
+            <h3 class="text-xl font-bold text-gray-800 mb-4 flex items-center">
+              <i class="fas fa-user-tie text-blue-600 mr-2"></i>
+              Advisors
+            </h3>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <!-- Advisor 1 -->
+              <div class="space-y-3">
+                <label class="block text-sm font-medium text-gray-700">Advisor 1</label>
+                <input type="text" name="advisor1_name" value="<%= orgChartData?.advisors?.[0]?.name || 'Tan Sri Dr. Lim' %>" class="form-input w-full p-3 border border-gray-300 rounded-lg focus:outline-none" placeholder="Full Name" required>
+                <input type="tel" name="advisor1_phone" value="<%= orgChartData?.advisors?.[0]?.phone || '+60 12-345 6789' %>" class="form-input w-full p-3 border border-gray-300 rounded-lg focus:outline-none" placeholder="Phone Number" required>
+                                 <div class="space-y-2">
+                   <label class="block text-sm font-medium text-gray-700">Photo</label>
+                   <input type="file" name="advisor1_photo" accept="image/*" class="form-input w-full p-2 border border-gray-300 rounded-lg focus:outline-none">
+                   <% if (orgChartData?.advisors?.[0]?.photo && orgChartData.advisors[0].photo !== '👨‍💼' && orgChartData.advisors[0].photo !== '👩‍💼') { %>
+                     <div class="mt-2">
+                       <img src="<%= orgChartData.advisors[0].photo %>" alt="Current photo" class="w-16 h-16 object-cover rounded-lg border">
+                       <p class="text-xs text-gray-500 mt-1">Current photo</p>
+                     </div>
+                   <% } %>
+                 </div>
+              </div>
+              
+              <!-- Advisor 2 -->
+              <div class="space-y-3">
+                <label class="block text-sm font-medium text-gray-700">Advisor 2</label>
+                <input type="text" name="advisor2_name" value="<%= orgChartData?.advisors?.[1]?.name || 'Dato\' Sarah Ismail' %>" class="form-input w-full p-3 border border-gray-300 rounded-lg focus:outline-none" placeholder="Full Name" required>
+                <input type="tel" name="advisor2_phone" value="<%= orgChartData?.advisors?.[1]?.phone || '+60 12-345 6790' %>" class="form-input w-full p-3 border border-gray-300 rounded-lg focus:outline-none" placeholder="Phone Number" required>
+                                 <div class="space-y-2">
+                   <label class="block text-sm font-medium text-gray-700">Photo</label>
+                   <input type="file" name="advisor2_photo" accept="image/*" class="form-input w-full p-2 border border-gray-300 rounded-lg focus:outline-none">
+                   <% if (orgChartData?.advisors?.[1]?.photo && orgChartData.advisors[1].photo !== '👨‍💼' && orgChartData.advisors[1].photo !== '👩‍💼') { %>
+                     <div class="mt-2">
+                       <img src="<%= orgChartData.advisors[1].photo %>" alt="Current photo" class="w-16 h-16 object-cover rounded-lg border">
+                       <p class="text-xs text-gray-500 mt-1">Current photo</p>
+                     </div>
+                   <% } %>
+                 </div>
+              </div>
+              
+              <!-- Advisor 3 -->
+              <div class="space-y-3">
+                <label class="block text-sm font-medium text-gray-700">Advisor 3</label>
+                <input type="text" name="advisor3_name" value="<%= orgChartData?.advisors?.[2]?.name || 'Prof. Dr. Raj Kumar' %>" class="form-input w-full p-3 border border-gray-300 rounded-lg focus:outline-none" placeholder="Full Name" required>
+                <input type="tel" name="advisor3_phone" value="<%= orgChartData?.advisors?.[2]?.phone || '+60 12-345 6791' %>" class="form-input w-full p-3 border border-gray-300 rounded-lg focus:outline-none" placeholder="Phone Number" required>
+                                 <div class="space-y-2">
+                   <label class="block text-sm font-medium text-gray-700">Photo</label>
+                   <input type="file" name="advisor3_photo" accept="image/*" class="form-input w-full p-2 border border-gray-300 rounded-lg focus:outline-none">
+                   <% if (orgChartData?.advisors?.[2]?.photo && orgChartData.advisors[2].photo !== '👨‍💼' && orgChartData.advisors[2].photo !== '👩‍💼') { %>
+                     <div class="mt-2">
+                       <img src="<%= orgChartData.advisors[2].photo %>" alt="Current photo" class="w-16 h-16 object-cover rounded-lg border">
+                       <p class="text-xs text-gray-500 mt-1">Current photo</p>
+                     </div>
+                   <% } %>
+                 </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- President Section -->
+          <div class="position-section">
+            <h3 class="text-xl font-bold text-gray-800 mb-4 flex items-center">
+              <i class="fas fa-crown text-yellow-600 mr-2"></i>
+              President
+            </h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div class="space-y-3">
+                <label class="block text-sm font-medium text-gray-700">President Name</label>
+                <input type="text" name="president_name" value="<%= orgChartData?.president?.name || 'Datuk Ahmad Zulkarnain' %>" class="form-input w-full p-3 border border-gray-300 rounded-lg focus:outline-none" placeholder="Full Name" required>
+                <input type="tel" name="president_phone" value="<%= orgChartData?.president?.phone || '+60 12-345 6780' %>" class="form-input w-full p-3 border border-gray-300 rounded-lg focus:outline-none" placeholder="Phone Number" required>
+              </div>
+              <div class="space-y-3">
+                <label class="block text-sm font-medium text-gray-700">Photo</label>
+                                 <div class="space-y-2">
+                   <label class="block text-sm font-medium text-gray-700">Photo</label>
+                   <input type="file" name="president_photo" accept="image/*" class="form-input w-full p-2 border border-gray-300 rounded-lg focus:outline-none">
+                   <% if (orgChartData?.president?.photo && orgChartData.president.photo !== '👨‍💼' && orgChartData.president.photo !== '👩‍💼') { %>
+                     <div class="mt-2">
+                       <img src="<%= orgChartData.president.photo %>" alt="Current photo" class="w-16 h-16 object-cover rounded-lg border">
+                       <p class="text-xs text-gray-500 mt-1">Current photo</p>
+                     </div>
+                   <% } %>
+                 </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Vice Presidents Section -->
+          <div class="position-section">
+            <h3 class="text-xl font-bold text-gray-800 mb-4 flex items-center">
+              <i class="fas fa-user-graduate text-green-600 mr-2"></i>
+              Vice Presidents
+            </h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <!-- Vice President 1 -->
+              <div class="space-y-3">
+                <label class="block text-sm font-medium text-gray-700">Vice President 1</label>
+                <input type="text" name="vp1_name" value="<%= orgChartData?.vicePresidents?.[0]?.name || 'Dato\' Dr. Lim Chong' %>" class="form-input w-full p-3 border border-gray-300 rounded-lg focus:outline-none" placeholder="Full Name" required>
+                <input type="tel" name="vp1_phone" value="<%= orgChartData?.vicePresidents?.[0]?.phone || '+60 12-345 6781' %>" class="form-input w-full p-3 border border-gray-300 rounded-lg focus:outline-none" placeholder="Phone Number" required>
+                                 <div class="space-y-2">
+                   <label class="block text-sm font-medium text-gray-700">Photo</label>
+                   <input type="file" name="vp1_photo" accept="image/*" class="form-input w-full p-2 border border-gray-300 rounded-lg focus:outline-none">
+                   <% if (orgChartData?.vicePresidents?.[0]?.photo && orgChartData.vicePresidents[0].photo !== '👨‍💼' && orgChartData.vicePresidents[0].photo !== '👩‍💼') { %>
+                     <div class="mt-2">
+                       <img src="<%= orgChartData.vicePresidents[0].photo %>" alt="Current photo" class="w-16 h-16 object-cover rounded-lg border">
+                       <p class="text-xs text-gray-500 mt-1">Current photo</p>
+                     </div>
+                   <% } %>
+                 </div>
+              </div>
+              
+              <!-- Vice President 2 -->
+              <div class="space-y-3">
+                <label class="block text-sm font-medium text-gray-700">Vice President 2</label>
+                <input type="text" name="vp2_name" value="<%= orgChartData?.vicePresidents?.[1]?.name || 'Datuk Seri Wong Lee' %>" class="form-input w-full p-3 border border-gray-300 rounded-lg focus:outline-none" placeholder="Full Name" required>
+                <input type="tel" name="vp2_phone" value="<%= orgChartData?.vicePresidents?.[1]?.phone || '+60 12-345 6782' %>" class="form-input w-full p-3 border border-gray-300 rounded-lg focus:outline-none" placeholder="Phone Number" required>
+                                 <div class="space-y-2">
+                   <label class="block text-sm font-medium text-gray-700">Photo</label>
+                   <input type="file" name="vp2_photo" accept="image/*" class="form-input w-full p-2 border border-gray-300 rounded-lg focus:outline-none">
+                   <% if (orgChartData?.vicePresidents?.[1]?.photo && orgChartData.vicePresidents[1].photo !== '👨‍💼' && orgChartData.vicePresidents[1].photo !== '👩‍💼') { %>
+                     <div class="mt-2">
+                       <img src="<%= orgChartData.vicePresidents[1].photo %>" alt="Current photo" class="w-16 h-16 object-cover rounded-lg border">
+                       <p class="text-xs text-gray-500 mt-1">Current photo</p>
+                     </div>
+                   <% } %>
+                 </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Secretary & Treasurer Section -->
+          <div class="position-section">
+            <h3 class="text-xl font-bold text-gray-800 mb-4 flex items-center">
+              <i class="fas fa-briefcase text-indigo-600 mr-2"></i>
+              Secretary & Treasurer
+            </h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <!-- Secretary -->
+              <div class="space-y-3">
+                <label class="block text-sm font-medium text-gray-700">Secretary</label>
+                <input type="text" name="secretary_name" value="<%= orgChartData?.secretary?.name || 'Mohd Azlan bin Abdullah' %>" class="form-input w-full p-3 border border-gray-300 rounded-lg focus:outline-none" placeholder="Full Name" required>
+                <input type="tel" name="secretary_phone" value="<%= orgChartData?.secretary?.phone || '+60 12-345 6783' %>" class="form-input w-full p-3 border border-gray-300 rounded-lg focus:outline-none" placeholder="Phone Number" required>
+                                 <div class="space-y-2">
+                   <label class="block text-sm font-medium text-gray-700">Photo</label>
+                   <input type="file" name="secretary_photo" accept="image/*" class="form-input w-full p-2 border border-gray-300 rounded-lg focus:outline-none">
+                   <% if (orgChartData?.secretary?.photo && orgChartData.secretary.photo !== '👨‍💼' && orgChartData.secretary.photo !== '👩‍💼') { %>
+                     <div class="mt-2">
+                       <img src="<%= orgChartData.secretary.photo %>" alt="Current photo" class="w-16 h-16 object-cover rounded-lg border">
+                       <p class="text-xs text-gray-500 mt-1">Current photo</p>
+                     </div>
+                   <% } %>
+                 </div>
+              </div>
+              
+              <!-- Treasurer -->
+              <div class="space-y-3">
+                <label class="block text-sm font-medium text-gray-700">Treasurer</label>
+                <input type="text" name="treasurer_name" value="<%= orgChartData?.treasurer?.name || 'Wong Mei Ling' %>" class="form-input w-full p-3 border border-gray-300 rounded-lg focus:outline-none" placeholder="Full Name" required>
+                <input type="tel" name="treasurer_phone" value="<%= orgChartData?.treasurer?.phone || '+60 12-345 6784' %>" class="form-input w-full p-3 border border-gray-300 rounded-lg focus:outline-none" placeholder="Phone Number" required>
+                                 <div class="space-y-2">
+                   <label class="block text-sm font-medium text-gray-700">Photo</label>
+                   <input type="file" name="treasurer_photo" accept="image/*" class="form-input w-full p-2 border border-gray-300 rounded-lg focus:outline-none">
+                   <% if (orgChartData?.treasurer?.photo && orgChartData.treasurer.photo !== '👨‍💼' && orgChartData.treasurer.photo !== '👩‍💼') { %>
+                     <div class="mt-2">
+                       <img src="<%= orgChartData.treasurer.photo %>" alt="Current photo" class="w-16 h-16 object-cover rounded-lg border">
+                       <p class="text-xs text-gray-500 mt-1">Current photo</p>
+                     </div>
+                   <% } %>
+                 </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Committees Section -->
+          <div class="position-section">
+            <h3 class="text-xl font-bold text-gray-800 mb-4 flex items-center">
+              <i class="fas fa-users-cog text-red-600 mr-2"></i>
+              Committees
+            </h3>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <!-- Development Committee -->
+              <div class="space-y-3">
+                <label class="block text-sm font-medium text-gray-700">Development Committee</label>
+                <input type="text" name="dev_committee_name" value="<%= orgChartData?.committees?.[0]?.name || 'Chairman: Ahmad Fadzil' %>" class="form-input w-full p-3 border border-gray-300 rounded-lg focus:outline-none" placeholder="Chairman Name" required>
+                <input type="tel" name="dev_committee_phone" value="<%= orgChartData?.committees?.[0]?.phone || '+60 12-345 6785' %>" class="form-input w-full p-3 border border-gray-300 rounded-lg focus:outline-none" placeholder="Phone Number" required>
+                                 <div class="space-y-2">
+                   <label class="block text-sm font-medium text-gray-700">Photo</label>
+                   <input type="file" name="dev_committee_photo" accept="image/*" class="form-input w-full p-2 border border-gray-300 rounded-lg focus:outline-none" onchange="console.log('📁 Dev committee photo selected:', this.files[0]?.name)">
+                   <% if (orgChartData?.committees?.[0]?.photo && orgChartData.committees[0].photo !== '👨‍💼' && orgChartData.committees[0].photo !== '👩‍💼') { %>
+                     <div class="mt-2">
+                       <img src="<%= orgChartData.committees[0].photo %>" alt="Current photo" class="w-16 h-16 object-cover rounded-lg border">
+                       <p class="text-xs text-gray-500 mt-1">Current photo</p>
+                     </div>
+                   <% } %>
+                 </div>
+              </div>
+              
+              <!-- Tournament Committee -->
+              <div class="space-y-3">
+                <label class="block text-sm font-medium text-gray-700">Tournament Committee</label>
+                <input type="text" name="tournament_committee_name" value="<%= orgChartData?.committees?.[1]?.name || 'Chairman: Lim Wei Chen' %>" class="form-input w-full p-3 border border-gray-300 rounded-lg focus:outline-none" placeholder="Chairman Name" required>
+                <input type="tel" name="tournament_committee_phone" value="<%= orgChartData?.committees?.[1]?.phone || '+60 12-345 6786' %>" class="form-input w-full p-3 border border-gray-300 rounded-lg focus:outline-none" placeholder="Phone Number" required>
+                                 <div class="space-y-2">
+                   <label class="block text-sm font-medium text-gray-700">Photo</label>
+                   <input type="file" name="tournament_committee_photo" accept="image/*" class="form-input w-full p-2 border border-gray-300 rounded-lg focus:outline-none" onchange="console.log('📁 Tournament committee photo selected:', this.files[0]?.name)">
+                   <% if (orgChartData?.committees?.[1]?.photo && orgChartData.committees[1].photo !== '👨‍💼' && orgChartData.committees[1].photo !== '👩‍💼') { %>
+                     <div class="mt-2">
+                       <img src="<%= orgChartData.committees[1].photo %>" alt="Current photo" class="w-16 h-16 object-cover rounded-lg border">
+                       <p class="text-xs text-gray-500 mt-1">Current photo</p>
+                     </div>
+                   <% } %>
+                 </div>
+              </div>
+              
+              <!-- Disciplinary Committee -->
+              <div class="space-y-3">
+                <label class="block text-sm font-medium text-gray-700">Disciplinary Committee</label>
+                <input type="text" name="disciplinary_committee_name" value="<%= orgChartData?.committees?.[2]?.name || 'Chairman: Dr. Kamal Singh' %>" class="form-input w-full p-3 border border-gray-300 rounded-lg focus:outline-none" placeholder="Chairman Name" required>
+                <input type="tel" name="disciplinary_committee_phone" value="<%= orgChartData?.committees?.[2]?.phone || '+60 12-345 6787' %>" class="form-input w-full p-3 border border-gray-300 rounded-lg focus:outline-none" placeholder="Phone Number" required>
+                                 <div class="space-y-2">
+                   <label class="block text-sm font-medium text-gray-700">Photo</label>
+                   <input type="file" name="disciplinary_committee_photo" accept="image/*" class="form-input w-full p-2 border border-gray-300 rounded-lg focus:outline-none" onchange="console.log('📁 Disciplinary committee photo selected:', this.files[0]?.name)">
+                   <% if (orgChartData?.committees?.[2]?.photo && orgChartData.committees[2].photo !== '👨‍💼' && orgChartData.committees[2].photo !== '👩‍💼') { %>
+                     <div class="mt-2">
+                       <img src="<%= orgChartData.committees[2].photo %>" alt="Current photo" class="w-16 h-16 object-cover rounded-lg border">
+                       <p class="text-xs text-gray-500 mt-1">Current photo</p>
+                     </div>
+                   <% } %>
+                 </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Submit Buttons -->
+          <div class="flex flex-col sm:flex-row gap-4 pt-6">
+            <button type="submit" class="bg-green-600 text-white px-6 py-3 rounded-lg hover:bg-green-700 transition-colors font-medium flex items-center justify-center">
+              <i class="fas fa-save mr-2"></i>
+              Save Changes
+            </button>
+            <button type="button" onclick="resetForm()" class="bg-gray-600 text-white px-6 py-3 rounded-lg hover:bg-gray-700 transition-colors font-medium flex items-center justify-center">
+              <i class="fas fa-undo mr-2"></i>
+              Reset to Default
+            </button>
+            <button type="button" onclick="console.log('📁 Test button clicked!')" class="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors font-medium flex items-center justify-center">
+              <i class="fas fa-bug mr-2"></i>
+              Test JavaScript
+            </button>
+          </div>
+        </form>
+      </div>
+
+      <!-- Preview Section -->
+      <div class="admin-card bg-white p-6 rounded-xl shadow-lg mt-8">
+        <h2 class="text-2xl font-bold text-gray-800 mb-6 flex items-center">
+          <i class="fas fa-eye text-blue-600 mr-3"></i>
+          Preview
+        </h2>
+        <div class="bg-gray-100 rounded-lg p-4">
+          <p class="text-gray-600 mb-4">Changes will be reflected on the public organization chart page after saving.</p>
+          <a href="/organization-chart" target="_blank" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors inline-flex items-center">
+            <i class="fas fa-external-link-alt mr-2"></i>
+            View Current Organization Chart
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    console.log('📁 Organization Chart Management Script Loaded');
+    
+    // Immediate test to verify JavaScript is working
+    window.addEventListener('load', function() {
+      console.log('📁 Page fully loaded');
+      console.log('📁 Current URL:', window.location.href);
+      console.log('📁 Form elements found:', document.querySelectorAll('form').length);
+    });
+    
+    function resetForm() {
+      if (confirm('Are you sure you want to reset all fields to their default values?')) {
+        // Reset form to default values
+        document.querySelector('form').reset();
+      }
+    }
+
+    // Wait for DOM to be fully loaded
+    document.addEventListener('DOMContentLoaded', function() {
+      console.log('📁 DOM loaded, setting up form handlers');
+      
+      const form = document.querySelector('form');
+      if (form) {
+        console.log('📁 Form found, adding submit listener');
+        
+        // Add form validation and debugging
+        form.addEventListener('submit', function(e) {
+          console.log('📁 Form submission started');
+          
+          // Log file inputs
+          const fileInputs = document.querySelectorAll('input[type="file"]');
+          console.log(`📁 Found ${fileInputs.length} file inputs`);
+          
+          fileInputs.forEach(input => {
+            console.log(`📁 File input ${input.name}:`, input.files.length > 0 ? input.files[0].name : 'No file selected');
+          });
+          
+          const requiredFields = document.querySelectorAll('input[type="text"], input[type="tel"]');
+          let isValid = true;
+
+          requiredFields.forEach(field => {
+            if (!field.value.trim()) {
+              field.style.borderColor = '#ef4444';
+              isValid = false;
+            } else {
+              field.style.borderColor = '#d1d5db';
+            }
+          });
+
+          if (!isValid) {
+            e.preventDefault();
+            alert('Please fill in all required fields.');
+            return;
+          }
+          
+          console.log('📁 Form validation passed, submitting...');
+        });
+      } else {
+        console.error('📁 Form not found!');
+      }
+    });
+
+    // Auto-hide success/error messages after 5 seconds
+    setTimeout(function() {
+      const alerts = document.querySelectorAll('.alert');
+      alerts.forEach(alert => {
+        alert.style.opacity = '0';
+        alert.style.transition = 'opacity 0.5s ease';
+        setTimeout(() => alert.remove(), 500);
+      });
+    }, 5000);
+  </script>
+</body>
+</html>
