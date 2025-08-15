@@ -10,6 +10,7 @@ const TournamentUpdate = require('../models/TournamentUpdate');
 const Announcement = require('../models/Announcement');
 const TournamentNotice = require('../models/TournamentNotice');
 const Venue = require('../models/Venue');
+const LocalStorageService = require('./localStorageService');
 
 class DatabaseService {
   // Tournament operations
@@ -550,6 +551,11 @@ class DatabaseService {
       return await Settings.getSetting(key, defaultValue);
     } catch (error) {
       console.error('Error getting setting:', error);
+      // Fallback to local storage for organization chart data
+      if (key === 'organization_chart_data') {
+        console.log('📁 Using local storage fallback for organization chart data');
+        return LocalStorageService.getSetting(key, defaultValue);
+      }
       return defaultValue;
     }
   }
@@ -559,6 +565,11 @@ class DatabaseService {
       return await Settings.setSetting(key, value, description, category, modifiedBy);
     } catch (error) {
       console.error('Error setting setting:', error);
+      // Fallback to local storage for organization chart data
+      if (key === 'organization_chart_data') {
+        console.log('📁 Using local storage fallback to save organization chart data');
+        return LocalStorageService.setSetting(key, value);
+      }
       throw error;
     }
   }

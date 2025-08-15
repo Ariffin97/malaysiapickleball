@@ -508,10 +508,12 @@
                          <div class="position-card advisor">
                            <div class="position-title">Advisor</div>
                            <div class="position-photo">
-                             <% if (advisor.photo && advisor.photo !== '👨‍💼' && advisor.photo !== '👩‍💼') { %>
+                             <% if (advisor.photo && advisor.photo !== '👨‍💼' && advisor.photo !== '👩‍💼' && advisor.photo !== null) { %>
                                <img src="<%= advisor.photo %>" alt="<%= advisor.name %>" class="w-full h-full object-cover rounded-full">
                              <% } else { %>
-                               <span class="text-2xl"><%= advisor.photo || '👨‍💼' %></span>
+                               <div class="w-full h-full bg-gray-200 rounded-full flex items-center justify-center text-gray-400 text-xs font-medium">
+                                 <i class="fas fa-user"></i>
+                               </div>
                              <% } %>
                            </div>
                            <div class="position-name"><%= advisor.name %></div>
@@ -522,7 +524,9 @@
                        <div class="position-card advisor">
                          <div class="position-title">Advisor</div>
                          <div class="position-photo">
-                           <span class="text-2xl">👨‍💼</span>
+                           <div class="w-full h-full bg-gray-200 rounded-full flex items-center justify-center text-gray-400 text-xs font-medium">
+                             <i class="fas fa-user"></i>
+                           </div>
                          </div>
                          <div class="position-name">Tan Sri Dr. Lim</div>
                          <div class="position-phone">+60 12-345 6789</div>
@@ -530,7 +534,9 @@
                        <div class="position-card advisor">
                          <div class="position-title">Advisor</div>
                          <div class="position-photo">
-                           <span class="text-2xl">👩‍💼</span>
+                           <div class="w-full h-full bg-gray-200 rounded-full flex items-center justify-center text-gray-400 text-xs font-medium">
+                             <i class="fas fa-user"></i>
+                           </div>
                          </div>
                          <div class="position-name">Dato' Sarah Ismail</div>
                          <div class="position-phone">+60 12-345 6790</div>
@@ -538,7 +544,9 @@
                        <div class="position-card advisor">
                          <div class="position-title">Advisor</div>
                          <div class="position-photo">
-                           <span class="text-2xl">👨‍💼</span>
+                           <div class="w-full h-full bg-gray-200 rounded-full flex items-center justify-center text-gray-400 text-xs font-medium">
+                             <i class="fas fa-user"></i>
+                           </div>
                          </div>
                          <div class="position-name">Prof. Dr. Raj Kumar</div>
                          <div class="position-phone">+60 12-345 6791</div>
@@ -553,10 +561,12 @@
                        <div class="position-card president">
                          <div class="position-title">President</div>
                          <div class="position-photo">
-                           <% if (orgChartData?.president?.photo && orgChartData.president.photo !== '👨‍💼' && orgChartData.president.photo !== '👩‍💼') { %>
+                           <% if (orgChartData?.president?.photo && orgChartData.president.photo !== '👨‍💼' && orgChartData.president.photo !== '👩‍💼' && orgChartData.president.photo !== null) { %>
                              <img src="<%= orgChartData.president.photo %>" alt="<%= orgChartData.president.name %>" class="w-full h-full object-cover rounded-full">
                            <% } else { %>
-                             <span class="text-2xl"><%= orgChartData?.president?.photo || '👨‍💼' %></span>
+                             <div class="w-full h-full bg-gray-200 rounded-full flex items-center justify-center text-gray-400 text-lg">
+                               <i class="fas fa-user"></i>
+                             </div>
                            <% } %>
                          </div>
                          <div class="position-name"><%= orgChartData?.president?.name || 'Datuk Ahmad Zulkarnain' %></div>
@@ -571,10 +581,12 @@
                            <div class="position-card vice-president">
                              <div class="position-title">Vice President</div>
                              <div class="position-photo">
-                               <% if (vp.photo && vp.photo !== '👨‍💼' && vp.photo !== '👩‍💼') { %>
+                               <% if (vp.photo && vp.photo !== '👨‍💼' && vp.photo !== '👩‍💼' && vp.photo !== null) { %>
                                  <img src="<%= vp.photo %>" alt="<%= vp.name %>" class="w-full h-full object-cover rounded-full">
                                <% } else { %>
-                                 <span class="text-2xl"><%= vp.photo || '👨‍💼' %></span>
+                                 <div class="w-full h-full bg-gray-200 rounded-full flex items-center justify-center text-gray-400 text-lg">
+                                   <i class="fas fa-user"></i>
+                                 </div>
                                <% } %>
                              </div>
                              <div class="position-name"><%= vp.name %></div>
@@ -585,7 +597,9 @@
                          <div class="position-card vice-president">
                            <div class="position-title">Vice President</div>
                            <div class="position-photo">
-                             <span class="text-2xl">👨‍💼</span>
+                             <div class="w-full h-full bg-gray-200 rounded-full flex items-center justify-center text-gray-400 text-lg">
+                               <i class="fas fa-user"></i>
+                             </div>
                            </div>
                            <div class="position-name">Dato' Dr. Lim Chong</div>
                            <div class="position-phone">+60 12-345 6781</div>
@@ -593,7 +607,9 @@
                          <div class="position-card vice-president">
                            <div class="position-title">Vice President</div>
                            <div class="position-photo">
-                             <span class="text-2xl">👨‍💼</span>
+                             <div class="w-full h-full bg-gray-200 rounded-full flex items-center justify-center text-gray-400 text-lg">
+                               <i class="fas fa-user"></i>
+                             </div>
                            </div>
                            <div class="position-name">Datuk Seri Wong Lee</div>
                            <div class="position-phone">+60 12-345 6782</div>
@@ -606,10 +622,12 @@
                        <div class="position-card executive">
                          <div class="position-title">Secretary</div>
                          <div class="position-photo">
-                           <% if (orgChartData?.secretary?.photo && orgChartData.secretary.photo !== '👨‍💼' && orgChartData.secretary.photo !== '👩‍💼') { %>
+                           <% if (orgChartData?.secretary?.photo && orgChartData.secretary.photo !== '👨‍💼' && orgChartData.secretary.photo !== '👩‍💼' && orgChartData.secretary.photo !== null) { %>
                              <img src="<%= orgChartData.secretary.photo %>" alt="<%= orgChartData.secretary.name %>" class="w-full h-full object-cover rounded-full">
                            <% } else { %>
-                             <span class="text-2xl"><%= orgChartData?.secretary?.photo || '👨‍💼' %></span>
+                             <div class="w-full h-full bg-gray-200 rounded-full flex items-center justify-center text-gray-400 text-lg">
+                               <i class="fas fa-user"></i>
+                             </div>
                            <% } %>
                          </div>
                          <div class="position-name"><%= orgChartData?.secretary?.name || 'Mohd Azlan bin Abdullah' %></div>
@@ -618,10 +636,12 @@
                        <div class="position-card executive">
                          <div class="position-title">Treasurer</div>
                          <div class="position-photo">
-                           <% if (orgChartData?.treasurer?.photo && orgChartData.treasurer.photo !== '👨‍💼' && orgChartData.treasurer.photo !== '👩‍💼') { %>
+                           <% if (orgChartData?.treasurer?.photo && orgChartData.treasurer.photo !== '👨‍💼' && orgChartData.treasurer.photo !== '👩‍💼' && orgChartData.treasurer.photo !== null) { %>
                              <img src="<%= orgChartData.treasurer.photo %>" alt="<%= orgChartData.treasurer.name %>" class="w-full h-full object-cover rounded-full">
                            <% } else { %>
-                             <span class="text-2xl"><%= orgChartData?.treasurer?.photo || '👩‍💼' %></span>
+                             <div class="w-full h-full bg-gray-200 rounded-full flex items-center justify-center text-gray-400 text-lg">
+                               <i class="fas fa-user"></i>
+                             </div>
                            <% } %>
                          </div>
                          <div class="position-name"><%= orgChartData?.treasurer?.name || 'Wong Mei Ling' %></div>
@@ -636,10 +656,12 @@
                            <div class="position-card committee">
                              <div class="position-title"><%= committee.type %> Committee</div>
                              <div class="position-photo">
-                               <% if (committee.photo && committee.photo !== '👨‍💼' && committee.photo !== '👩‍💼') { %>
+                               <% if (committee.photo && committee.photo !== '👨‍💼' && committee.photo !== '👩‍💼' && committee.photo !== null) { %>
                                  <img src="<%= committee.photo %>" alt="<%= committee.name %>" class="w-full h-full object-cover rounded-full">
                                <% } else { %>
-                                 <span class="text-2xl"><%= committee.photo || '👨‍💼' %></span>
+                                 <div class="w-full h-full bg-gray-200 rounded-full flex items-center justify-center text-gray-400 text-lg">
+                                   <i class="fas fa-user"></i>
+                                 </div>
                                <% } %>
                              </div>
                              <div class="position-name"><%= committee.name %></div>
@@ -650,7 +672,9 @@
                          <div class="position-card committee">
                            <div class="position-title">Development Committee</div>
                            <div class="position-photo">
-                             <span class="text-2xl">👨‍💼</span>
+                             <div class="w-full h-full bg-gray-200 rounded-full flex items-center justify-center text-gray-400 text-lg">
+                               <i class="fas fa-user"></i>
+                             </div>
                            </div>
                            <div class="position-name">Chairman: Ahmad Fadzil</div>
                            <div class="position-phone">+60 12-345 6785</div>
@@ -658,7 +682,9 @@
                          <div class="position-card committee">
                            <div class="position-title">Tournament Committee</div>
                            <div class="position-photo">
-                             <span class="text-2xl">👨‍💼</span>
+                             <div class="w-full h-full bg-gray-200 rounded-full flex items-center justify-center text-gray-400 text-lg">
+                               <i class="fas fa-user"></i>
+                             </div>
                            </div>
                            <div class="position-name">Chairman: Lim Wei Chen</div>
                            <div class="position-phone">+60 12-345 6786</div>
@@ -666,7 +692,9 @@
                          <div class="position-card committee">
                            <div class="position-title">Disciplinary Committee</div>
                            <div class="position-photo">
-                             <span class="text-2xl">👨‍💼</span>
+                             <div class="w-full h-full bg-gray-200 rounded-full flex items-center justify-center text-gray-400 text-lg">
+                               <i class="fas fa-user"></i>
+                             </div>
                            </div>
                            <div class="position-name">Chairman: Dr. Kamal Singh</div>
                            <div class="position-phone">+60 12-345 6787</div>

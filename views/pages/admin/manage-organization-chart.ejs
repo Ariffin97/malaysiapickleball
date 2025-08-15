@@ -111,11 +111,13 @@
               <!-- Advisor 1 -->
               <div class="space-y-3">
                 <label class="block text-sm font-medium text-gray-700">Advisor 1</label>
-                <input type="text" name="advisor1_name" value="<%= orgChartData?.advisors?.[0]?.name || 'Tan Sri Dr. Lim' %>" class="form-input w-full p-3 border border-gray-300 rounded-lg focus:outline-none" placeholder="Full Name" required>
-                <input type="tel" name="advisor1_phone" value="<%= orgChartData?.advisors?.[0]?.phone || '+60 12-345 6789' %>" class="form-input w-full p-3 border border-gray-300 rounded-lg focus:outline-none" placeholder="Phone Number" required>
+                <label for="advisor1_name" class="block text-xs text-gray-600">Full Name</label>
+                <input type="text" id="advisor1_name" name="advisor1_name" value="<%= orgChartData?.advisors?.[0]?.name || 'Tan Sri Dr. Lim' %>" class="form-input w-full p-3 border border-gray-300 rounded-lg focus:outline-none" placeholder="Full Name" required>
+                <label for="advisor1_phone" class="block text-xs text-gray-600">Phone Number</label>
+                <input type="tel" id="advisor1_phone" name="advisor1_phone" value="<%= orgChartData?.advisors?.[0]?.phone || '+60 12-345 6789' %>" class="form-input w-full p-3 border border-gray-300 rounded-lg focus:outline-none" placeholder="Phone Number" required>
                                  <div class="space-y-2">
-                   <label class="block text-sm font-medium text-gray-700">Photo</label>
-                   <input type="file" name="advisor1_photo" accept="image/*" class="form-input w-full p-2 border border-gray-300 rounded-lg focus:outline-none">
+                   <label for="advisor1_photo" class="block text-sm font-medium text-gray-700">Photo</label>
+                   <input type="file" id="advisor1_photo" name="advisor1_photo" accept="image/*" class="form-input w-full p-2 border border-gray-300 rounded-lg focus:outline-none">
                    <% if (orgChartData?.advisors?.[0]?.photo && orgChartData.advisors[0].photo !== '👨‍💼' && orgChartData.advisors[0].photo !== '👩‍💼') { %>
                      <div class="mt-2">
                        <img src="<%= orgChartData.advisors[0].photo %>" alt="Current photo" class="w-16 h-16 object-cover rounded-lg border">
@@ -131,8 +133,8 @@
                 <input type="text" name="advisor2_name" value="<%= orgChartData?.advisors?.[1]?.name || 'Dato\' Sarah Ismail' %>" class="form-input w-full p-3 border border-gray-300 rounded-lg focus:outline-none" placeholder="Full Name" required>
                 <input type="tel" name="advisor2_phone" value="<%= orgChartData?.advisors?.[1]?.phone || '+60 12-345 6790' %>" class="form-input w-full p-3 border border-gray-300 rounded-lg focus:outline-none" placeholder="Phone Number" required>
                                  <div class="space-y-2">
-                   <label class="block text-sm font-medium text-gray-700">Photo</label>
-                   <input type="file" name="advisor2_photo" accept="image/*" class="form-input w-full p-2 border border-gray-300 rounded-lg focus:outline-none">
+                   <label for="advisor2_photo" class="block text-sm font-medium text-gray-700">Photo</label>
+                   <input type="file" id="advisor2_photo" name="advisor2_photo" accept="image/*" class="form-input w-full p-2 border border-gray-300 rounded-lg focus:outline-none">
                    <% if (orgChartData?.advisors?.[1]?.photo && orgChartData.advisors[1].photo !== '👨‍💼' && orgChartData.advisors[1].photo !== '👩‍💼') { %>
                      <div class="mt-2">
                        <img src="<%= orgChartData.advisors[1].photo %>" alt="Current photo" class="w-16 h-16 object-cover rounded-lg border">
@@ -148,8 +150,8 @@
                 <input type="text" name="advisor3_name" value="<%= orgChartData?.advisors?.[2]?.name || 'Prof. Dr. Raj Kumar' %>" class="form-input w-full p-3 border border-gray-300 rounded-lg focus:outline-none" placeholder="Full Name" required>
                 <input type="tel" name="advisor3_phone" value="<%= orgChartData?.advisors?.[2]?.phone || '+60 12-345 6791' %>" class="form-input w-full p-3 border border-gray-300 rounded-lg focus:outline-none" placeholder="Phone Number" required>
                                  <div class="space-y-2">
-                   <label class="block text-sm font-medium text-gray-700">Photo</label>
-                   <input type="file" name="advisor3_photo" accept="image/*" class="form-input w-full p-2 border border-gray-300 rounded-lg focus:outline-none">
+                   <label for="advisor3_photo" class="block text-sm font-medium text-gray-700">Photo</label>
+                   <input type="file" id="advisor3_photo" name="advisor3_photo" accept="image/*" class="form-input w-full p-2 border border-gray-300 rounded-lg focus:outline-none">
                    <% if (orgChartData?.advisors?.[2]?.photo && orgChartData.advisors[2].photo !== '👨‍💼' && orgChartData.advisors[2].photo !== '👩‍💼') { %>
                      <div class="mt-2">
                        <img src="<%= orgChartData.advisors[2].photo %>" alt="Current photo" class="w-16 h-16 object-cover rounded-lg border">
@@ -174,10 +176,9 @@
                 <input type="tel" name="president_phone" value="<%= orgChartData?.president?.phone || '+60 12-345 6780' %>" class="form-input w-full p-3 border border-gray-300 rounded-lg focus:outline-none" placeholder="Phone Number" required>
               </div>
               <div class="space-y-3">
-                <label class="block text-sm font-medium text-gray-700">Photo</label>
                                  <div class="space-y-2">
-                   <label class="block text-sm font-medium text-gray-700">Photo</label>
-                   <input type="file" name="president_photo" accept="image/*" class="form-input w-full p-2 border border-gray-300 rounded-lg focus:outline-none">
+                   <label for="president_photo" class="block text-sm font-medium text-gray-700">Photo</label>
+                   <input type="file" id="president_photo" name="president_photo" accept="image/*" class="form-input w-full p-2 border border-gray-300 rounded-lg focus:outline-none">
                    <% if (orgChartData?.president?.photo && orgChartData.president.photo !== '👨‍💼' && orgChartData.president.photo !== '👩‍💼') { %>
                      <div class="mt-2">
                        <img src="<%= orgChartData.president.photo %>" alt="Current photo" class="w-16 h-16 object-cover rounded-lg border">
@@ -202,8 +203,8 @@
                 <input type="text" name="vp1_name" value="<%= orgChartData?.vicePresidents?.[0]?.name || 'Dato\' Dr. Lim Chong' %>" class="form-input w-full p-3 border border-gray-300 rounded-lg focus:outline-none" placeholder="Full Name" required>
                 <input type="tel" name="vp1_phone" value="<%= orgChartData?.vicePresidents?.[0]?.phone || '+60 12-345 6781' %>" class="form-input w-full p-3 border border-gray-300 rounded-lg focus:outline-none" placeholder="Phone Number" required>
                                  <div class="space-y-2">
-                   <label class="block text-sm font-medium text-gray-700">Photo</label>
-                   <input type="file" name="vp1_photo" accept="image/*" class="form-input w-full p-2 border border-gray-300 rounded-lg focus:outline-none">
+                   <label for="vp1_photo" class="block text-sm font-medium text-gray-700">Photo</label>
+                   <input type="file" id="vp1_photo" name="vp1_photo" accept="image/*" class="form-input w-full p-2 border border-gray-300 rounded-lg focus:outline-none">
                    <% if (orgChartData?.vicePresidents?.[0]?.photo && orgChartData.vicePresidents[0].photo !== '👨‍💼' && orgChartData.vicePresidents[0].photo !== '👩‍💼') { %>
                      <div class="mt-2">
                        <img src="<%= orgChartData.vicePresidents[0].photo %>" alt="Current photo" class="w-16 h-16 object-cover rounded-lg border">
@@ -219,8 +220,8 @@
                 <input type="text" name="vp2_name" value="<%= orgChartData?.vicePresidents?.[1]?.name || 'Datuk Seri Wong Lee' %>" class="form-input w-full p-3 border border-gray-300 rounded-lg focus:outline-none" placeholder="Full Name" required>
                 <input type="tel" name="vp2_phone" value="<%= orgChartData?.vicePresidents?.[1]?.phone || '+60 12-345 6782' %>" class="form-input w-full p-3 border border-gray-300 rounded-lg focus:outline-none" placeholder="Phone Number" required>
                                  <div class="space-y-2">
-                   <label class="block text-sm font-medium text-gray-700">Photo</label>
-                   <input type="file" name="vp2_photo" accept="image/*" class="form-input w-full p-2 border border-gray-300 rounded-lg focus:outline-none">
+                   <label for="vp2_photo" class="block text-sm font-medium text-gray-700">Photo</label>
+                   <input type="file" id="vp2_photo" name="vp2_photo" accept="image/*" class="form-input w-full p-2 border border-gray-300 rounded-lg focus:outline-none">
                    <% if (orgChartData?.vicePresidents?.[1]?.photo && orgChartData.vicePresidents[1].photo !== '👨‍💼' && orgChartData.vicePresidents[1].photo !== '👩‍💼') { %>
                      <div class="mt-2">
                        <img src="<%= orgChartData.vicePresidents[1].photo %>" alt="Current photo" class="w-16 h-16 object-cover rounded-lg border">
@@ -245,8 +246,8 @@
                 <input type="text" name="secretary_name" value="<%= orgChartData?.secretary?.name || 'Mohd Azlan bin Abdullah' %>" class="form-input w-full p-3 border border-gray-300 rounded-lg focus:outline-none" placeholder="Full Name" required>
                 <input type="tel" name="secretary_phone" value="<%= orgChartData?.secretary?.phone || '+60 12-345 6783' %>" class="form-input w-full p-3 border border-gray-300 rounded-lg focus:outline-none" placeholder="Phone Number" required>
                                  <div class="space-y-2">
-                   <label class="block text-sm font-medium text-gray-700">Photo</label>
-                   <input type="file" name="secretary_photo" accept="image/*" class="form-input w-full p-2 border border-gray-300 rounded-lg focus:outline-none">
+                   <label for="secretary_photo" class="block text-sm font-medium text-gray-700">Photo</label>
+                   <input type="file" id="secretary_photo" name="secretary_photo" accept="image/*" class="form-input w-full p-2 border border-gray-300 rounded-lg focus:outline-none">
                    <% if (orgChartData?.secretary?.photo && orgChartData.secretary.photo !== '👨‍💼' && orgChartData.secretary.photo !== '👩‍💼') { %>
                      <div class="mt-2">
                        <img src="<%= orgChartData.secretary.photo %>" alt="Current photo" class="w-16 h-16 object-cover rounded-lg border">
@@ -262,8 +263,8 @@
                 <input type="text" name="treasurer_name" value="<%= orgChartData?.treasurer?.name || 'Wong Mei Ling' %>" class="form-input w-full p-3 border border-gray-300 rounded-lg focus:outline-none" placeholder="Full Name" required>
                 <input type="tel" name="treasurer_phone" value="<%= orgChartData?.treasurer?.phone || '+60 12-345 6784' %>" class="form-input w-full p-3 border border-gray-300 rounded-lg focus:outline-none" placeholder="Phone Number" required>
                                  <div class="space-y-2">
-                   <label class="block text-sm font-medium text-gray-700">Photo</label>
-                   <input type="file" name="treasurer_photo" accept="image/*" class="form-input w-full p-2 border border-gray-300 rounded-lg focus:outline-none">
+                   <label for="treasurer_photo" class="block text-sm font-medium text-gray-700">Photo</label>
+                   <input type="file" id="treasurer_photo" name="treasurer_photo" accept="image/*" class="form-input w-full p-2 border border-gray-300 rounded-lg focus:outline-none">
                    <% if (orgChartData?.treasurer?.photo && orgChartData.treasurer.photo !== '👨‍💼' && orgChartData.treasurer.photo !== '👩‍💼') { %>
                      <div class="mt-2">
                        <img src="<%= orgChartData.treasurer.photo %>" alt="Current photo" class="w-16 h-16 object-cover rounded-lg border">
@@ -288,8 +289,8 @@
                 <input type="text" name="dev_committee_name" value="<%= orgChartData?.committees?.[0]?.name || 'Chairman: Ahmad Fadzil' %>" class="form-input w-full p-3 border border-gray-300 rounded-lg focus:outline-none" placeholder="Chairman Name" required>
                 <input type="tel" name="dev_committee_phone" value="<%= orgChartData?.committees?.[0]?.phone || '+60 12-345 6785' %>" class="form-input w-full p-3 border border-gray-300 rounded-lg focus:outline-none" placeholder="Phone Number" required>
                                  <div class="space-y-2">
-                   <label class="block text-sm font-medium text-gray-700">Photo</label>
-                   <input type="file" name="dev_committee_photo" accept="image/*" class="form-input w-full p-2 border border-gray-300 rounded-lg focus:outline-none" onchange="console.log('📁 Dev committee photo selected:', this.files[0]?.name)">
+                   <label for="dev_committee_photo" class="block text-sm font-medium text-gray-700">Photo</label>
+                   <input type="file" id="dev_committee_photo" name="dev_committee_photo" accept="image/*" class="form-input w-full p-2 border border-gray-300 rounded-lg focus:outline-none">
                    <% if (orgChartData?.committees?.[0]?.photo && orgChartData.committees[0].photo !== '👨‍💼' && orgChartData.committees[0].photo !== '👩‍💼') { %>
                      <div class="mt-2">
                        <img src="<%= orgChartData.committees[0].photo %>" alt="Current photo" class="w-16 h-16 object-cover rounded-lg border">
@@ -305,8 +306,8 @@
                 <input type="text" name="tournament_committee_name" value="<%= orgChartData?.committees?.[1]?.name || 'Chairman: Lim Wei Chen' %>" class="form-input w-full p-3 border border-gray-300 rounded-lg focus:outline-none" placeholder="Chairman Name" required>
                 <input type="tel" name="tournament_committee_phone" value="<%= orgChartData?.committees?.[1]?.phone || '+60 12-345 6786' %>" class="form-input w-full p-3 border border-gray-300 rounded-lg focus:outline-none" placeholder="Phone Number" required>
                                  <div class="space-y-2">
-                   <label class="block text-sm font-medium text-gray-700">Photo</label>
-                   <input type="file" name="tournament_committee_photo" accept="image/*" class="form-input w-full p-2 border border-gray-300 rounded-lg focus:outline-none" onchange="console.log('📁 Tournament committee photo selected:', this.files[0]?.name)">
+                   <label for="tournament_committee_photo" class="block text-sm font-medium text-gray-700">Photo</label>
+                   <input type="file" id="tournament_committee_photo" name="tournament_committee_photo" accept="image/*" class="form-input w-full p-2 border border-gray-300 rounded-lg focus:outline-none">
                    <% if (orgChartData?.committees?.[1]?.photo && orgChartData.committees[1].photo !== '👨‍💼' && orgChartData.committees[1].photo !== '👩‍💼') { %>
                      <div class="mt-2">
                        <img src="<%= orgChartData.committees[1].photo %>" alt="Current photo" class="w-16 h-16 object-cover rounded-lg border">
@@ -322,8 +323,8 @@
                 <input type="text" name="disciplinary_committee_name" value="<%= orgChartData?.committees?.[2]?.name || 'Chairman: Dr. Kamal Singh' %>" class="form-input w-full p-3 border border-gray-300 rounded-lg focus:outline-none" placeholder="Chairman Name" required>
                 <input type="tel" name="disciplinary_committee_phone" value="<%= orgChartData?.committees?.[2]?.phone || '+60 12-345 6787' %>" class="form-input w-full p-3 border border-gray-300 rounded-lg focus:outline-none" placeholder="Phone Number" required>
                                  <div class="space-y-2">
-                   <label class="block text-sm font-medium text-gray-700">Photo</label>
-                   <input type="file" name="disciplinary_committee_photo" accept="image/*" class="form-input w-full p-2 border border-gray-300 rounded-lg focus:outline-none" onchange="console.log('📁 Disciplinary committee photo selected:', this.files[0]?.name)">
+                   <label for="disciplinary_committee_photo" class="block text-sm font-medium text-gray-700">Photo</label>
+                   <input type="file" id="disciplinary_committee_photo" name="disciplinary_committee_photo" accept="image/*" class="form-input w-full p-2 border border-gray-300 rounded-lg focus:outline-none">
                    <% if (orgChartData?.committees?.[2]?.photo && orgChartData.committees[2].photo !== '👨‍💼' && orgChartData.committees[2].photo !== '👩‍💼') { %>
                      <div class="mt-2">
                        <img src="<%= orgChartData.committees[2].photo %>" alt="Current photo" class="w-16 h-16 object-cover rounded-lg border">
@@ -373,11 +374,37 @@
   <script>
     console.log('📁 Organization Chart Management Script Loaded');
     
+    // Nuclear option: Custom file handler function
+    function handleFileSelect(input, type) {
+      console.log('🚀 NUCLEAR FILE HANDLER TRIGGERED for:', type);
+      
+      if (input.files && input.files[0]) {
+        const file = input.files[0];
+        console.log('🚀 File selected:', file.name, 'Size:', file.size, 'Type:', file.type);
+        
+        // Update the display
+        const displayElement = document.getElementById(type + '_file_display');
+        if (displayElement) {
+          displayElement.innerHTML = `
+            <i class="fas fa-check-circle text-green-500 mb-2"></i><br>
+            <span class="text-green-600 font-medium">${file.name}</span><br>
+            <span class="text-xs text-gray-500">${(file.size / 1024).toFixed(1)} KB</span>
+          `;
+          console.log('🚀 Display updated for:', type);
+        } else {
+          console.error('🚀 Display element not found for:', type);
+        }
+      } else {
+        console.error('🚀 No file selected or input.files is null');
+      }
+    }
+    
     // Immediate test to verify JavaScript is working
     window.addEventListener('load', function() {
       console.log('📁 Page fully loaded');
       console.log('📁 Current URL:', window.location.href);
       console.log('📁 Form elements found:', document.querySelectorAll('form').length);
+      console.log('🚀 File handler function available:', typeof handleFileSelect);
     });
     
     function resetForm() {

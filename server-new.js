@@ -2761,16 +2761,48 @@ app.get('/organization-chart', async (req, res) => {
     const backgroundImage = await DatabaseService.getSetting('background_image', '/images/defaultbg.png');
     
     // Get organization chart data from database
-    const orgChartDataString = await DatabaseService.getSetting('organization_chart_data', null);
+    console.log('🔍 Loading organization chart display page...');
+    let orgChartDataString = await DatabaseService.getSetting('organization_chart_data', null);
     let orgChartData = null;
+    let dataSource = 'default';
     
     if (orgChartDataString) {
       try {
         orgChartData = JSON.parse(orgChartDataString);
+        dataSource = 'database';
+        console.log('🔍 Organization chart data loaded from database');
+        console.log('🔍 VP2 photo:', orgChartData.vicePresidents?.[1]?.photo || 'Not found');
+        console.log('🔍 Secretary photo:', orgChartData.secretary?.photo || 'Not found');
+        console.log('🔍 Treasurer photo:', orgChartData.treasurer?.photo || 'Not found');
+        console.log('🔍 Dev Committee photo:', orgChartData.committees?.[0]?.photo || 'Not found');
       } catch (parseError) {
-        console.error('Error parsing organization chart data:', parseError);
+        console.error('Error parsing organization chart data from database:', parseError);
+        orgChartData = null;
       }
     }
+    
+    // If no data from database, try local storage
+    if (!orgChartData) {
+      console.log('🔍 No valid data from database, checking local storage...');
+      try {
+        const LocalStorageService = require('./services/localStorageService');
+        orgChartDataString = LocalStorageService.getSetting('organization_chart_data', null);
+        if (orgChartDataString) {
+          orgChartData = JSON.parse(orgChartDataString);
+          dataSource = 'local_storage';
+          console.log('🔍 Organization chart data loaded from local storage');
+          console.log('🔍 VP2 photo:', orgChartData.vicePresidents?.[1]?.photo || 'Not found');
+          console.log('🔍 Secretary photo:', orgChartData.secretary?.photo || 'Not found');
+          console.log('🔍 Treasurer photo:', orgChartData.treasurer?.photo || 'Not found');
+        } else {
+          console.log('🔍 No organization chart data found in local storage either, using defaults');
+        }
+      } catch (localError) {
+        console.error('Error loading from local storage:', localError);
+      }
+    }
+    
+    console.log('🔍 Data source:', dataSource);
     
     // Default data if none exists in database
     const defaultOrgChartData = {
@@ -2948,16 +2980,40 @@ app.get('/admin/organization-chart', adminAuth, async (req, res) => {
     const backgroundImage = await DatabaseService.getSetting('background_image', '/images/defaultbg.png');
     
     // Get existing organization chart data
-    const orgChartDataString = await DatabaseService.getSetting('organization_chart_data', null);
+    let orgChartDataString = await DatabaseService.getSetting('organization_chart_data', null);
     let orgChartData = null;
+    let dataSource = 'default';
     
     if (orgChartDataString) {
       try {
         orgChartData = JSON.parse(orgChartDataString);
+        dataSource = 'database';
+        console.log('📋 Admin: Organization chart data loaded from database');
       } catch (parseError) {
-        console.error('Error parsing organization chart data:', parseError);
+        console.error('Error parsing organization chart data from database:', parseError);
+        orgChartData = null;
       }
     }
+    
+    // If no data from database, try local storage
+    if (!orgChartData) {
+      console.log('📋 Admin: No valid data from database, checking local storage...');
+      try {
+        const LocalStorageService = require('./services/localStorageService');
+        orgChartDataString = LocalStorageService.getSetting('organization_chart_data', null);
+        if (orgChartDataString) {
+          orgChartData = JSON.parse(orgChartDataString);
+          dataSource = 'local_storage';
+          console.log('📋 Admin: Organization chart data loaded from local storage');
+        } else {
+          console.log('📋 Admin: No organization chart data found in local storage either, using defaults');
+        }
+      } catch (localError) {
+        console.error('Admin: Error loading from local storage:', localError);
+      }
+    }
+    
+    console.log('📋 Admin data source:', dataSource);
     
     // Default data if none exists
     const defaultOrgChartData = {
@@ -3004,8 +3060,20 @@ app.get('/admin/organization-chart', adminAuth, async (req, res) => {
 // Handle Organization Chart Updates
 app.post('/admin/organization-chart/update', adminAuth, async (req, res) => {
   try {
-    console.log('📁 Organization Chart Update - Files received:', req.files ? Object.keys(req.files) : 'No files');
-    console.log('📁 Organization Chart Update - Body fields:', Object.keys(req.body));
+    console.log('\n=== ORGANIZATION CHART UPDATE START ===');
+    console.log('📁 Timestamp:', new Date().toISOString());
+    console.log('📁 Admin user:', req.session.adminUsername || 'Unknown');
+    console.log('📁 Files received:', req.files ? Object.keys(req.files) : 'No files');
+    console.log('📁 Body fields:', Object.keys(req.body));
+    
+    // Log specific file details
+    if (req.files) {
+      console.log('📁 File details:');
+      Object.keys(req.files).forEach(key => {
+        const file = req.files[key];
+        console.log(`  ${key}: ${file.name} (${file.size} bytes, ${file.mimetype})`);
+      });
+    }
     
     // Debug: Check if files object exists and has properties
     if (req.files) {
@@ -3037,8 +3105,11 @@ app.post('/admin/organization-chart/update', adminAuth, async (req, res) => {
       if (req.files && req.files[field]) {
         console.log(`📁 Processing upload for ${field}:`, req.files[field].name);
         const file = req.files[field];
-        const timestamp = Date.now() + Math.random().toString(36).substr(2, 9);
-        const fileName = `org_chart_${field}_${timestamp}_${file.name}`;
+        const timestamp = Date.now();
+        const randomId = Math.random().toString(36).substr(2, 9);
+        const fileExtension = file.name.split('.').pop();
+        const baseName = file.name.split('.').slice(0, -1).join('.');
+        const fileName = `org_chart_${field}_${timestamp}_${randomId}_${baseName}.${fileExtension}`;
         const uploadPath = `./public/uploads/org_chart/${fileName}`;
         
         // Ensure directory exists
@@ -3095,89 +3166,290 @@ app.post('/admin/organization-chart/update', adminAuth, async (req, res) => {
       }
     }
 
+    // Helper function to get photo path - prioritize uploads, keep existing real photos, default to null
+    function getPhotoPath(uploadedPhoto, existingPhoto) {
+      // If new photo uploaded, use it
+      if (uploadedPhoto) {
+        console.log(`📸 Using newly uploaded photo: ${uploadedPhoto}`);
+        return uploadedPhoto;
+      }
+      
+      // If existing photo exists and is not an emoji, keep it
+      if (existingPhoto && !existingPhoto.includes('👨‍💼') && !existingPhoto.includes('👩‍💼') && existingPhoto !== null) {
+        console.log(`📸 Keeping existing photo: ${existingPhoto}`);
+        return existingPhoto;
+      }
+      
+      // Otherwise return null (no photo)
+      console.log(`📸 No photo available, using null`);
+      return null;
+    }
+
     // Create organization chart data object with uploaded photos or existing ones
     const orgChartData = {
       advisors: [
         { 
           name: advisor1_name, 
           phone: advisor1_phone, 
-          photo: uploadedPhotos.advisor1_photo || (existingData?.advisors?.[0]?.photo || '👨‍💼')
+          photo: getPhotoPath(uploadedPhotos.advisor1_photo, existingData?.advisors?.[0]?.photo)
         },
         { 
           name: advisor2_name, 
           phone: advisor2_phone, 
-          photo: uploadedPhotos.advisor2_photo || (existingData?.advisors?.[1]?.photo || '👩‍💼')
+          photo: getPhotoPath(uploadedPhotos.advisor2_photo, existingData?.advisors?.[1]?.photo)
         },
         { 
           name: advisor3_name, 
           phone: advisor3_phone, 
-          photo: uploadedPhotos.advisor3_photo || (existingData?.advisors?.[2]?.photo || '👨‍💼')
+          photo: getPhotoPath(uploadedPhotos.advisor3_photo, existingData?.advisors?.[2]?.photo)
         }
       ],
       president: { 
         name: president_name, 
         phone: president_phone, 
-        photo: uploadedPhotos.president_photo || (existingData?.president?.photo || '👨‍💼')
+        photo: getPhotoPath(uploadedPhotos.president_photo, existingData?.president?.photo)
       },
       vicePresidents: [
         { 
           name: vp1_name, 
           phone: vp1_phone, 
-          photo: uploadedPhotos.vp1_photo || (existingData?.vicePresidents?.[0]?.photo || '👨‍💼')
+          photo: getPhotoPath(uploadedPhotos.vp1_photo, existingData?.vicePresidents?.[0]?.photo)
         },
         { 
           name: vp2_name, 
           phone: vp2_phone, 
-          photo: uploadedPhotos.vp2_photo || (existingData?.vicePresidents?.[1]?.photo || '👨‍💼')
+          photo: getPhotoPath(uploadedPhotos.vp2_photo, existingData?.vicePresidents?.[1]?.photo)
         }
       ],
       secretary: { 
         name: secretary_name, 
         phone: secretary_phone, 
-        photo: uploadedPhotos.secretary_photo || (existingData?.secretary?.photo || '👨‍💼')
+        photo: getPhotoPath(uploadedPhotos.secretary_photo, existingData?.secretary?.photo)
       },
       treasurer: { 
         name: treasurer_name, 
         phone: treasurer_phone, 
-        photo: uploadedPhotos.treasurer_photo || (existingData?.treasurer?.photo || '👩‍💼')
+        photo: getPhotoPath(uploadedPhotos.treasurer_photo, existingData?.treasurer?.photo)
       },
       committees: [
         { 
           name: dev_committee_name, 
           phone: dev_committee_phone, 
-          photo: uploadedPhotos.dev_committee_photo || (existingData?.committees?.[0]?.photo || '👨‍💼'), 
+          photo: getPhotoPath(uploadedPhotos.dev_committee_photo, existingData?.committees?.[0]?.photo), 
           type: 'Development' 
         },
         { 
           name: tournament_committee_name, 
           phone: tournament_committee_phone, 
-          photo: uploadedPhotos.tournament_committee_photo || (existingData?.committees?.[1]?.photo || '👨‍💼'), 
+          photo: getPhotoPath(uploadedPhotos.tournament_committee_photo, existingData?.committees?.[1]?.photo), 
           type: 'Tournament' 
         },
         { 
           name: disciplinary_committee_name, 
           phone: disciplinary_committee_phone, 
-          photo: uploadedPhotos.disciplinary_committee_photo || (existingData?.committees?.[2]?.photo || '👨‍💼'), 
+          photo: getPhotoPath(uploadedPhotos.disciplinary_committee_photo, existingData?.committees?.[2]?.photo), 
           type: 'Disciplinary' 
         }
       ]
     };
 
     console.log('📁 Final uploaded photos:', uploadedPhotos);
-    console.log('📁 Committees photos:', {
+    console.log('📁 Individual uploads status:', {
+      president: uploadedPhotos.president_photo || 'No upload',
+      vp1: uploadedPhotos.vp1_photo || 'No upload',
+      vp2: uploadedPhotos.vp2_photo || 'No upload',
+      secretary: uploadedPhotos.secretary_photo || 'No upload',
+      treasurer: uploadedPhotos.treasurer_photo || 'No upload',
       dev: uploadedPhotos.dev_committee_photo || 'No upload',
       tournament: uploadedPhotos.tournament_committee_photo || 'No upload',
       disciplinary: uploadedPhotos.disciplinary_committee_photo || 'No upload'
     });
 
     // Save to database using DatabaseService
-    await DatabaseService.setSetting('organization_chart_data', JSON.stringify(orgChartData));
+    console.log('💾 Saving organization chart data to database...');
+    console.log('💾 Data being saved:', JSON.stringify(orgChartData, null, 2));
+    
+    try {
+      // First, try to save the data
+      const saveResult = await DatabaseService.setSetting('organization_chart_data', JSON.stringify(orgChartData), 'Organization chart structure and member details', 'general', req.session.adminUsername || 'admin');
+      console.log('✅ Successfully saved to database, result:', saveResult?._id ? 'Document created/updated' : 'No result');
+      
+      // Verify the save by reading back immediately
+      const savedData = await DatabaseService.getSetting('organization_chart_data', null);
+      if (savedData) {
+        console.log('✅ Verification: Data successfully retrieved from database');
+        const parsedData = JSON.parse(savedData);
+        console.log('✅ VP2 photo in database:', parsedData.vicePresidents?.[1]?.photo || 'Not found');
+        console.log('✅ Secretary photo in database:', parsedData.secretary?.photo || 'Not found');
+        console.log('✅ Treasurer photo in database:', parsedData.treasurer?.photo || 'Not found');
+        
+        // Additional verification: check a few more fields
+        console.log('✅ President name:', parsedData.president?.name || 'Not found');
+        console.log('✅ Total advisors:', parsedData.advisors?.length || 0);
+        console.log('✅ Total committees:', parsedData.committees?.length || 0);
+      } else {
+        console.error('❌ Verification failed: Could not retrieve data from database');
+        console.error('❌ This indicates a database connection or persistence issue');
+        
+        // Try to save to local storage as fallback
+        console.log('💾 Attempting to save to local storage as fallback...');
+        const LocalStorageService = require('./services/localStorageService');
+        const localSaveResult = LocalStorageService.setSetting('organization_chart_data', JSON.stringify(orgChartData));
+        if (localSaveResult) {
+          console.log('✅ Data saved to local storage successfully');
+        } else {
+          console.error('❌ Local storage save also failed');
+        }
+      }
+    } catch (dbError) {
+      console.error('❌ Database save error:', dbError);
+      console.error('❌ Error details:', {
+        name: dbError.name,
+        message: dbError.message,
+        stack: dbError.stack?.split('\n')[0]
+      });
+      
+      // Try to save to local storage as fallback
+      console.log('💾 Attempting to save to local storage as fallback due to database error...');
+      try {
+        const LocalStorageService = require('./services/localStorageService');
+        const localSaveResult = LocalStorageService.setSetting('organization_chart_data', JSON.stringify(orgChartData));
+        if (localSaveResult) {
+          console.log('✅ Data saved to local storage successfully as fallback');
+        } else {
+          console.error('❌ Local storage save also failed');
+          return res.redirect('/admin/organization-chart?error=save_failed');
+        }
+      } catch (localError) {
+        console.error('❌ Local storage fallback also failed:', localError);
+        return res.redirect('/admin/organization-chart?error=all_saves_failed');
+      }
+    }
 
     // Redirect with success message
+    console.log('=== ORGANIZATION CHART UPDATE END ===\n');
     res.redirect('/admin/organization-chart?success=true');
   } catch (error) {
     console.error('Error updating organization chart:', error);
+    console.log('=== ORGANIZATION CHART UPDATE FAILED ===\n');
     res.redirect('/admin/organization-chart?error=true');
+  }
+});
+
+// Diagnostic endpoint to check current organization chart data
+app.get('/admin/organization-chart/debug', adminAuth, async (req, res) => {
+  try {
+    const data = await DatabaseService.getSetting('organization_chart_data', null);
+    
+    res.json({
+      hasData: !!data,
+      timestamp: new Date().toISOString(),
+      data: data ? JSON.parse(data) : null,
+      photoPaths: data ? (() => {
+        const parsed = JSON.parse(data);
+        return {
+          president: parsed.president?.photo,
+          vp1: parsed.vicePresidents?.[0]?.photo,
+          vp2: parsed.vicePresidents?.[1]?.photo,
+          secretary: parsed.secretary?.photo,
+          treasurer: parsed.treasurer?.photo,
+          committees: parsed.committees?.map(c => c.photo)
+        };
+      })() : null
+    });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Force-fix endpoint to manually update database with existing uploaded photos
+app.post('/admin/organization-chart/force-fix', adminAuth, async (req, res) => {
+  try {
+    const fs = require('fs');
+    const path = require('path');
+    
+    // Get list of uploaded files
+    const uploadDir = path.join(__dirname, 'public/uploads/org_chart');
+    let uploadedFiles = [];
+    
+    if (fs.existsSync(uploadDir)) {
+      uploadedFiles = fs.readdirSync(uploadDir);
+    }
+    
+    console.log('🔧 Force-fix: Found uploaded files:', uploadedFiles);
+    
+    // Get current data
+    const currentDataString = await DatabaseService.getSetting('organization_chart_data', null);
+    let currentData = null;
+    
+    if (currentDataString) {
+      currentData = JSON.parse(currentDataString);
+    }
+    
+    if (!currentData) {
+      return res.json({ success: false, message: 'No existing organization chart data found' });
+    }
+    
+    // Find the most recent file for each position
+    const positions = ['president', 'vp1', 'vp2', 'secretary', 'treasurer', 'advisor1', 'advisor2', 'advisor3', 'dev_committee', 'tournament_committee', 'disciplinary_committee'];
+    const photoUpdates = {};
+    
+    positions.forEach(position => {
+      const positionFiles = uploadedFiles.filter(file => file.includes(`${position}_photo`));
+      if (positionFiles.length > 0) {
+        // Get the most recent file (highest timestamp)
+        const mostRecent = positionFiles.sort().pop();
+        photoUpdates[position] = `/uploads/org_chart/${mostRecent}`;
+        console.log(`🔧 Found photo for ${position}: ${mostRecent}`);
+      }
+    });
+    
+    // Update the data structure - replace ALL emojis with uploaded photos or remove emojis entirely
+    
+    // Helper function to replace emoji or keep existing real photo
+    function updatePhoto(currentPhoto, newPhoto, fallbackPhoto = null) {
+      // If new photo uploaded, use it
+      if (newPhoto) return newPhoto;
+      
+      // If current photo is emoji, replace with fallback or remove
+      if (currentPhoto && (currentPhoto.includes('👨‍💼') || currentPhoto.includes('👩‍💼'))) {
+        return fallbackPhoto || null; // Remove emoji, use fallback if available
+      }
+      
+      // Keep existing real photo
+      return currentPhoto;
+    }
+    
+    // Update each position
+    currentData.president.photo = updatePhoto(currentData.president.photo, photoUpdates.president);
+    currentData.vicePresidents[0].photo = updatePhoto(currentData.vicePresidents[0].photo, photoUpdates.vp1);
+    currentData.vicePresidents[1].photo = updatePhoto(currentData.vicePresidents[1].photo, photoUpdates.vp2);
+    currentData.secretary.photo = updatePhoto(currentData.secretary.photo, photoUpdates.secretary);
+    currentData.treasurer.photo = updatePhoto(currentData.treasurer.photo, photoUpdates.treasurer);
+    currentData.advisors[0].photo = updatePhoto(currentData.advisors[0].photo, photoUpdates.advisor1);
+    currentData.advisors[1].photo = updatePhoto(currentData.advisors[1].photo, photoUpdates.advisor2);
+    currentData.advisors[2].photo = updatePhoto(currentData.advisors[2].photo, photoUpdates.advisor3);
+    currentData.committees[0].photo = updatePhoto(currentData.committees[0].photo, photoUpdates.dev_committee);
+    currentData.committees[1].photo = updatePhoto(currentData.committees[1].photo, photoUpdates.tournament_committee);
+    currentData.committees[2].photo = updatePhoto(currentData.committees[2].photo, photoUpdates.disciplinary_committee);
+    
+    console.log('🔧 Force-fix: Removed emojis and updated with uploaded photos');
+    
+    // Save updated data
+    await DatabaseService.setSetting('organization_chart_data', JSON.stringify(currentData), 'Organization chart structure updated via force-fix', 'general', req.session.adminUsername || 'admin');
+    
+    console.log('🔧 Force-fix: Database updated with photo paths');
+    
+    res.json({ 
+      success: true, 
+      message: 'Organization chart photos updated successfully',
+      updatedPositions: Object.keys(photoUpdates),
+      photoUpdates
+    });
+    
+  } catch (error) {
+    console.error('Force-fix error:', error);
+    res.status(500).json({ success: false, error: error.message });
   }
 });
 
@@ -4124,13 +4396,7 @@ app.post('/admin/settings/reject-admin/:id', adminAuth, async (req, res) => {
 // API routes already added at the top of the file
 console.log('✅ API routes enabled at /api endpoint');
 
-const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
-  console.log(`🚀 Server running on port ${PORT}`);
-  console.log(`🌐 Access your application at: http://localhost:${PORT}`);
-  console.log(`🔧 Admin panel: http://localhost:${PORT}/admin/dashboard`);
-  console.log(`📡 API endpoints available at: http://localhost:${PORT}/api`);
-});
+// Server startup moved to bottom of file with proper database initialization
 
 module.exports = app; 
 
@@ -4669,4 +4935,44 @@ app.get('/admin/tournament-notices/:id', adminAuth, async (req, res) => {
     res.status(500).json({ success: false, message: 'Failed to get tournament notice' });
   }
 });
+
+// Start the server
+const PORT = process.env.PORT || 3000;
+
+// Initialize database connection and start server
+async function startServer() {
+  try {
+    console.log('🚀 Starting Malaysia Pickleball Server...');
+    
+    // Connect to database
+    await connectDB();
+    console.log('📊 Database connected successfully');
+    
+    // Start HTTP server
+    app.listen(PORT, () => {
+      console.log(`✅ Server running on port ${PORT}`);
+      console.log(`🌐 Admin panel: http://localhost:${PORT}/admin/login`);
+      console.log(`🏓 Public site: http://localhost:${PORT}`);
+      console.log(`📋 Organization Chart: http://localhost:${PORT}/organization-chart`);
+    });
+    
+  } catch (error) {
+    console.error('❌ Failed to start server:', error);
+    process.exit(1);
+  }
+}
+
+// Handle uncaught exceptions
+process.on('uncaughtException', (error) => {
+  console.error('💥 Uncaught Exception:', error);
+  process.exit(1);
+});
+
+process.on('unhandledRejection', (reason, promise) => {
+  console.error('💥 Unhandled Rejection at:', promise, 'reason:', reason);
+  process.exit(1);
+});
+
+// Start the server
+startServer();
 
