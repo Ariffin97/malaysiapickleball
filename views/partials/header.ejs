@@ -18,25 +18,6 @@
         </div>
         </div>
 
-        <!-- State Dropdown - Hidden on Mobile -->
-        <div class="state-dropdown relative hidden md:block">
-            <button class="nav-button flex items-center justify-center w-10 h-10 rounded-xl font-medium text-black transition-all duration-300 hover:bg-black hover:bg-opacity-10 hover:text-black" id="state-menu-button" type="button" aria-expanded="false" data-tooltip="State">
-              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
-              </svg>
-            </button>
-          
-          <!-- State Dropdown Content -->
-          <div class="absolute left-0 mt-2 w-64 rounded-xl shadow-2xl border border-gray-200 opacity-0 invisible pointer-events-none transition-all duration-300 bg-white" id="state-dropdown" style="z-index: 9998;">
-            <div class="flex flex-col gap-1 p-4">
-              <div class="px-3 py-2 text-xs font-bold text-gray-500 uppercase tracking-wide border-b border-gray-100 mb-2">State Associations</div>
-                        <a href="/sarawak-pickleball-association" class="nav-dropdown-item flex items-center gap-3 px-3 py-2 rounded-lg font-medium text-gray-700 hover:bg-amber-50 hover:text-amber-600 transition-all duration-200 text-sm">
-            <img src="/images/spa.png" alt="Sarawak" class="w-5 h-5 object-contain" onerror="console.log('SPA logo failed to load'); this.style.display='none'" onload="console.log('SPA logo loaded successfully')"> Sarawak Pickleball Association
-          </a>
-            </div>
-          </div>
-        </div>
 
         <!-- Committee Dropdown - Hidden on Mobile -->
         <div class="committee-dropdown relative hidden md:block">
@@ -183,13 +164,6 @@
               <% } %>
             </div>
 
-            <!-- State Associations - Mobile Only -->
-            <div class="nav-section md:hidden">
-              <div class="px-3 py-2 text-xs font-bold text-gray-500 uppercase tracking-wide border-b border-gray-100 mb-2">State Associations</div>
-              <a href="/sarawak-pickleball-association" class="nav-dropdown-item flex items-center gap-3 px-3 py-2 rounded-lg font-medium text-gray-700 hover:bg-amber-50 hover:text-amber-600 transition-all duration-200 text-sm">
-                <img src="/images/spa.png" alt="Sarawak" class="w-4 h-4 object-contain" onerror="this.style.display='none'"> Sarawak Pickleball Association
-              </a>
-            </div>
 
             <!-- Committee - Mobile Only -->
             <div class="nav-section md:hidden">
@@ -412,20 +386,10 @@
     
     /* Hide dropdown arrows on mobile since text is hidden */
     #user-menu-arrow,
-    #quick-actions-menu-arrow,
-    #state-menu-arrow {
+    #quick-actions-menu-arrow {
       display: none !important;
     }
 
-    /* Hide State dropdown text on mobile */
-    .state-dropdown .nav-button span {
-      display: none !important;
-    }
-
-    /* Adjust State dropdown positioning on mobile */
-    .state-dropdown {
-      margin-left: 0.5rem;
-    }
     
     .brand-container {
       space-x: 0.5rem;
@@ -512,7 +476,6 @@
 
   /* Ensure dropdowns appear above everything */
   #quick-actions-dropdown,
-  #state-dropdown,
   #committee-dropdown,
   #user-dropdown {
     backdrop-filter: blur(10px);
@@ -562,42 +525,6 @@
   });
 })();
 
-// State Dropdown Toggle
-(function() {
-  const btn = document.getElementById('state-menu-button');
-  const dropdown = document.getElementById('state-dropdown');
-  let open = false;
-
-  function openMenu() {
-    dropdown.classList.remove('opacity-0', 'invisible', 'pointer-events-none');
-    dropdown.classList.add('opacity-100', 'visible');
-    btn.setAttribute('aria-expanded', 'true');
-    open = true;
-  }
-  function closeMenu() {
-    dropdown.classList.add('opacity-0', 'invisible', 'pointer-events-none');
-    dropdown.classList.remove('opacity-100', 'visible');
-    btn.setAttribute('aria-expanded', 'false');
-    open = false;
-  }
-  btn && btn.addEventListener('click', function(e) {
-    e.stopPropagation();
-    if (open) {
-      closeMenu();
-    } else {
-      openMenu();
-    }
-  });
-  document.addEventListener('click', function(e) {
-    if (open && !dropdown.contains(e.target) && e.target !== btn) {
-      closeMenu();
-    }
-  });
-  // Optional: close on ESC
-  document.addEventListener('keydown', function(e) {
-    if (open && e.key === 'Escape') closeMenu();
-  });
-})();
 
 // Committee Dropdown Toggle
 (function() {
