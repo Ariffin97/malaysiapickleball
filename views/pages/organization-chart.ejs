@@ -303,9 +303,9 @@
      }
      
      .position-photo {
-       width: 60px;
-       height: 60px;
-       border-radius: 50%;
+       width: 80px;
+       height: 80px;
+       border-radius: 8px;
        margin: 0 auto 0.8rem;
        background: #e2e8f0;
        display: flex;
@@ -313,7 +313,6 @@
        justify-content: center;
        font-size: 1.5rem;
        color: #718096;
-       border: 2px solid #cbd5e0;
      }
      
      .position-name {
@@ -496,7 +495,11 @@
   <section class="content-section">
     <div class="main-container">
         
-        
+        <!-- Page Title -->
+        <div style="text-align: center; margin-bottom: 2rem;">
+          <h1 style="font-size: 2.5rem; font-weight: 800; color: #1a202c; margin-bottom: 0.8rem;">MPA Committee</h1>
+          <div style="width: 200px; height: 3px; background: #1a202c; margin: 0 auto; border-radius: 2px;"></div>
+        </div>
 
                  <!-- Organization Chart -->
          <div class="org-chart-container">
@@ -509,9 +512,9 @@
                            <div class="position-title">Advisor</div>
                            <div class="position-photo">
                              <% if (advisor.photo && advisor.photo !== '👨‍💼' && advisor.photo !== '👩‍💼' && advisor.photo !== null) { %>
-                               <img src="<%= advisor.photo %>" alt="<%= advisor.name %>" class="w-full h-full object-cover rounded-full">
+                               <img src="<%= advisor.photo %>" alt="<%= advisor.name %>" class="w-full h-full object-cover rounded-lg">
                              <% } else { %>
-                               <div class="w-full h-full bg-gray-200 rounded-full flex items-center justify-center text-gray-400 text-xs font-medium">
+                               <div class="w-full h-full bg-gray-200 rounded-lg flex items-center justify-center text-gray-400 text-xs font-medium">
                                  <i class="fas fa-user"></i>
                                </div>
                              <% } %>
@@ -524,7 +527,7 @@
                        <div class="position-card advisor">
                          <div class="position-title">Advisor</div>
                          <div class="position-photo">
-                           <div class="w-full h-full bg-gray-200 rounded-full flex items-center justify-center text-gray-400 text-xs font-medium">
+                           <div class="w-full h-full bg-gray-200 rounded-lg flex items-center justify-center text-gray-400 text-xs font-medium">
                              <i class="fas fa-user"></i>
                            </div>
                          </div>
@@ -534,7 +537,7 @@
                        <div class="position-card advisor">
                          <div class="position-title">Advisor</div>
                          <div class="position-photo">
-                           <div class="w-full h-full bg-gray-200 rounded-full flex items-center justify-center text-gray-400 text-xs font-medium">
+                           <div class="w-full h-full bg-gray-200 rounded-lg flex items-center justify-center text-gray-400 text-xs font-medium">
                              <i class="fas fa-user"></i>
                            </div>
                          </div>
@@ -544,7 +547,7 @@
                        <div class="position-card advisor">
                          <div class="position-title">Advisor</div>
                          <div class="position-photo">
-                           <div class="w-full h-full bg-gray-200 rounded-full flex items-center justify-center text-gray-400 text-xs font-medium">
+                           <div class="w-full h-full bg-gray-200 rounded-lg flex items-center justify-center text-gray-400 text-xs font-medium">
                              <i class="fas fa-user"></i>
                            </div>
                          </div>
@@ -562,9 +565,9 @@
                          <div class="position-title">President</div>
                          <div class="position-photo">
                            <% if (orgChartData?.president?.photo && orgChartData.president.photo !== '👨‍💼' && orgChartData.president.photo !== '👩‍💼' && orgChartData.president.photo !== null) { %>
-                             <img src="<%= orgChartData.president.photo %>" alt="<%= orgChartData.president.name %>" class="w-full h-full object-cover rounded-full">
+                             <img src="<%= orgChartData.president.photo %>" alt="<%= orgChartData.president.name %>" class="w-full h-full object-cover rounded-lg">
                            <% } else { %>
-                             <div class="w-full h-full bg-gray-200 rounded-full flex items-center justify-center text-gray-400 text-lg">
+                             <div class="w-full h-full bg-gray-200 rounded-lg flex items-center justify-center text-gray-400 text-lg">
                                <i class="fas fa-user"></i>
                              </div>
                            <% } %>
@@ -582,9 +585,9 @@
                              <div class="position-title">Vice President</div>
                              <div class="position-photo">
                                <% if (vp.photo && vp.photo !== '👨‍💼' && vp.photo !== '👩‍💼' && vp.photo !== null) { %>
-                                 <img src="<%= vp.photo %>" alt="<%= vp.name %>" class="w-full h-full object-cover rounded-full">
+                                 <img src="<%= vp.photo %>" alt="<%= vp.name %>" class="w-full h-full object-cover rounded-lg">
                                <% } else { %>
-                                 <div class="w-full h-full bg-gray-200 rounded-full flex items-center justify-center text-gray-400 text-lg">
+                                 <div class="w-full h-full bg-gray-200 rounded-lg flex items-center justify-center text-gray-400 text-lg">
                                    <i class="fas fa-user"></i>
                                  </div>
                                <% } %>
@@ -597,7 +600,7 @@
                          <div class="position-card vice-president">
                            <div class="position-title">Vice President</div>
                            <div class="position-photo">
-                             <div class="w-full h-full bg-gray-200 rounded-full flex items-center justify-center text-gray-400 text-lg">
+                             <div class="w-full h-full bg-gray-200 rounded-lg flex items-center justify-center text-gray-400 text-lg">
                                <i class="fas fa-user"></i>
                              </div>
                            </div>
@@ -607,7 +610,7 @@
                          <div class="position-card vice-president">
                            <div class="position-title">Vice President</div>
                            <div class="position-photo">
-                             <div class="w-full h-full bg-gray-200 rounded-full flex items-center justify-center text-gray-400 text-lg">
+                             <div class="w-full h-full bg-gray-200 rounded-lg flex items-center justify-center text-gray-400 text-lg">
                                <i class="fas fa-user"></i>
                              </div>
                            </div>
@@ -623,9 +626,9 @@
                          <div class="position-title">Secretary</div>
                          <div class="position-photo">
                            <% if (orgChartData?.secretary?.photo && orgChartData.secretary.photo !== '👨‍💼' && orgChartData.secretary.photo !== '👩‍💼' && orgChartData.secretary.photo !== null) { %>
-                             <img src="<%= orgChartData.secretary.photo %>" alt="<%= orgChartData.secretary.name %>" class="w-full h-full object-cover rounded-full">
+                             <img src="<%= orgChartData.secretary.photo %>" alt="<%= orgChartData.secretary.name %>" class="w-full h-full object-cover rounded-lg">
                            <% } else { %>
-                             <div class="w-full h-full bg-gray-200 rounded-full flex items-center justify-center text-gray-400 text-lg">
+                             <div class="w-full h-full bg-gray-200 rounded-lg flex items-center justify-center text-gray-400 text-lg">
                                <i class="fas fa-user"></i>
                              </div>
                            <% } %>
@@ -637,9 +640,9 @@
                          <div class="position-title">Treasurer</div>
                          <div class="position-photo">
                            <% if (orgChartData?.treasurer?.photo && orgChartData.treasurer.photo !== '👨‍💼' && orgChartData.treasurer.photo !== '👩‍💼' && orgChartData.treasurer.photo !== null) { %>
-                             <img src="<%= orgChartData.treasurer.photo %>" alt="<%= orgChartData.treasurer.name %>" class="w-full h-full object-cover rounded-full">
+                             <img src="<%= orgChartData.treasurer.photo %>" alt="<%= orgChartData.treasurer.name %>" class="w-full h-full object-cover rounded-lg">
                            <% } else { %>
-                             <div class="w-full h-full bg-gray-200 rounded-full flex items-center justify-center text-gray-400 text-lg">
+                             <div class="w-full h-full bg-gray-200 rounded-lg flex items-center justify-center text-gray-400 text-lg">
                                <i class="fas fa-user"></i>
                              </div>
                            <% } %>
@@ -657,9 +660,9 @@
                              <div class="position-title"><%= committee.type %> Committee</div>
                              <div class="position-photo">
                                <% if (committee.photo && committee.photo !== '👨‍💼' && committee.photo !== '👩‍💼' && committee.photo !== null) { %>
-                                 <img src="<%= committee.photo %>" alt="<%= committee.name %>" class="w-full h-full object-cover rounded-full">
+                                 <img src="<%= committee.photo %>" alt="<%= committee.name %>" class="w-full h-full object-cover rounded-lg">
                                <% } else { %>
-                                 <div class="w-full h-full bg-gray-200 rounded-full flex items-center justify-center text-gray-400 text-lg">
+                                 <div class="w-full h-full bg-gray-200 rounded-lg flex items-center justify-center text-gray-400 text-lg">
                                    <i class="fas fa-user"></i>
                                  </div>
                                <% } %>
@@ -672,7 +675,7 @@
                          <div class="position-card committee">
                            <div class="position-title">Development Committee</div>
                            <div class="position-photo">
-                             <div class="w-full h-full bg-gray-200 rounded-full flex items-center justify-center text-gray-400 text-lg">
+                             <div class="w-full h-full bg-gray-200 rounded-lg flex items-center justify-center text-gray-400 text-lg">
                                <i class="fas fa-user"></i>
                              </div>
                            </div>
@@ -682,7 +685,7 @@
                          <div class="position-card committee">
                            <div class="position-title">Tournament Committee</div>
                            <div class="position-photo">
-                             <div class="w-full h-full bg-gray-200 rounded-full flex items-center justify-center text-gray-400 text-lg">
+                             <div class="w-full h-full bg-gray-200 rounded-lg flex items-center justify-center text-gray-400 text-lg">
                                <i class="fas fa-user"></i>
                              </div>
                            </div>
@@ -692,7 +695,7 @@
                          <div class="position-card committee">
                            <div class="position-title">Disciplinary Committee</div>
                            <div class="position-photo">
-                             <div class="w-full h-full bg-gray-200 rounded-full flex items-center justify-center text-gray-400 text-lg">
+                             <div class="w-full h-full bg-gray-200 rounded-lg flex items-center justify-center text-gray-400 text-lg">
                                <i class="fas fa-user"></i>
                              </div>
                            </div>
@@ -705,34 +708,6 @@
            </div>
          </div>
 
-        <!-- Information Section -->
-        <div class="info-section">
-          <div class="info-title">
-            <div class="info-icon">ℹ️</div>
-            About Our Organization Structure
-          </div>
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div>
-              <h3 class="font-bold text-lg text-gray-800 mb-3">Leadership Structure</h3>
-              <p class="text-gray-700 mb-4">The Malaysia Pickleball Association (MPA) operates under a structured leadership hierarchy designed to ensure effective governance and development of the sport across Malaysia.</p>
-                             <ul class="list-disc list-inside text-gray-700 space-y-2">
-                 <li><strong>President:</strong> Provides overall leadership and strategic direction</li>
-                 <li><strong>Vice Presidents:</strong> Support the president and oversee specific operational areas</li>
-                 <li><strong>Advisors:</strong> Offer guidance and expertise in key areas</li>
-                 <li><strong>Secretary:</strong> Manages administrative operations and communications</li>
-                 <li><strong>Treasurer:</strong> Oversees financial management and budgeting</li>
-               </ul>
-            </div>
-            <div>
-              <h3 class="font-bold text-lg text-gray-800 mb-3">Committee Functions</h3>
-              <ul class="list-disc list-inside text-gray-700 space-y-2">
-                <li><strong>Development Committee:</strong> Focuses on grassroots development, coaching programs, and facility expansion</li>
-                <li><strong>Tournament Committee:</strong> Organizes and manages all competitive events and championships</li>
-                <li><strong>Disciplinary Committee:</strong> Ensures fair play and handles rule violations and disputes</li>
-              </ul>
-            </div>
-          </div>
-        </div>
 
         <!-- Back Button -->
         <div style="text-align: center; margin-top: 3rem;">

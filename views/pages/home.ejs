@@ -501,9 +501,9 @@
     /* Flexible layout for desktop view */
     @media (min-width: 1025px) {
       /* Enable carousel behavior on desktop and increase card widths */
-      .news-carousel-container { overflow: hidden; height: auto; }
-      .news-carousel { justify-content: flex-start; flex-wrap: nowrap; }
-      #latestNewsContainer .bg-white { min-width: 380px; max-width: 620px; }
+      .news-carousel-container { overflow: hidden; height: auto; width: 100%; }
+      .news-carousel { justify-content: flex-start; flex-wrap: nowrap; width: 100%; }
+      #latestNewsContainer .bg-white { width: 100%; min-width: 100%; max-width: 100%; }
     }
     
     .news-carousel {
@@ -528,38 +528,66 @@
     
     /* Latest News API cards specific styling for all screen sizes */
     #latestNewsContainer {
-      display: flex;
-      flex-direction: column;
-      gap: 1rem;
-      justify-content: flex-start;
-      overflow-y: auto; /* vertical scrolling */
-      scroll-snap-type: y mandatory; /* snap vertically */
-      max-height: 700px;
+      display: flex; /* Horizontal flex layout */
+      flex-direction: row; /* Side by side layout */
+      gap: 1rem; /* Space between cards */
+      overflow: hidden; /* Hide all scrollbars */
+      height: 500px; /* Fixed height for container */
+      position: relative;
+      scroll-behavior: smooth;
+    }
+    
+    /* Force proper horizontal stacking of news cards */
+    #latestNewsContainer > * {
+      display: block !important;
+      flex: 0 0 calc(120% - 1rem); /* Each card takes 120% of container width for bigger cards */
+      width: calc(120% - 1rem); /* Wider cards */
+      position: static !important; /* Force static positioning */
+      min-width: 0; /* Allow shrinking if needed */
+    }
+    
+    /* Make news images bigger */
+    #latestNewsContainer img,
+    #latestNewsContainer video,
+    #latestNewsContainer > div > div:first-child {
+      height: 14rem !important; /* h-56 equivalent - larger images */
+      width: 100% !important;
+      object-fit: cover !important;
     }
     
     #latestNewsContainer .bg-white {
-      width: 100%;
-      flex: 0 0 auto;
-      scroll-snap-align: start;
+      width: calc(120% - 1rem); /* Wider cards */
+      height: 520px; /* Extended height for more bottom space */
+      margin: 0; /* No margins - use gap instead */
+      display: block;
+      position: static; /* Simple static positioning */
+      flex-shrink: 0; /* Prevent shrinking */
     }
     
     /* Desktop specific styling */
     @media (min-width: 768px) {
       #latestNewsContainer {
-        flex-wrap: wrap; /* Allow wrapping on desktop */
-        overflow-x: visible; /* No horizontal scroll on desktop */
+        display: flex; /* Horizontal flex layout on desktop */
+        flex-direction: row; /* Side by side */
+        overflow: hidden; /* Hide all scrollbars on desktop */
+        width: 100%; /* Full width to match video section */
+        height: 540px; /* Extended height to accommodate taller cards */
+        gap: 1rem; /* Space between cards */
       }
       
       #latestNewsContainer .bg-white {
-        min-height: 32rem; /* Extra tall cards for full summary display */
-        min-width: 300px; /* Minimum width for desktop readability */
-        max-width: 450px; /* Maximum width for desktop */
+        height: 520px; /* Extended height for more bottom space */
+        width: calc(120% - 1rem); /* Wider cards */
+        margin: 0; /* No margins - use gap */
+        display: block; /* Block display */
+        position: static; /* Static positioning */
+        flex: 0 0 calc(120% - 1rem); /* Each card takes 120% of container width for bigger cards */
       }
       
       #latestNewsContainer .bg-white img,
       #latestNewsContainer .bg-white video,
       #latestNewsContainer .bg-white > div:first-child {
-        height: 8rem; /* h-32 equivalent for maximum text space */
+        height: 14rem !important; /* h-56 equivalent - much larger images */
       }
       
       /* Ensure full summary is visible without truncation */
@@ -618,7 +646,7 @@
         height: 540px; /* Increased to accommodate taller cards */
         margin: 0 -1rem;
         padding: 0 1rem;
-        overflow-x: auto; /* Allow horizontal scrolling for flexible cards */
+        overflow: hidden; /* Hide scrollbars on mobile */
       }
       
       .news-carousel {
@@ -659,7 +687,7 @@
         height: 520px; /* Increased to accommodate taller cards */
         margin: 0 -0.5rem;
         padding: 0 0.5rem;
-        overflow-x: auto; /* Allow horizontal scrolling for flexible cards */
+        overflow: hidden; /* Hide scrollbars on small mobile */
       }
       
       .news-carousel {
@@ -1059,7 +1087,7 @@
           <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-12 md:gap-8 gap-6">
             
             <!-- Latest News Section -->
-            <div class="news-section">
+            <div class="news-section w-full">
               <div class="flex items-center justify-between mb-8 md:mb-6 mb-4">
                 <div>
                   <h2 class="text-4xl font-bold text-gray-800 mb-2">Latest News</h2>
@@ -1074,13 +1102,13 @@
               </div>
               
               <!-- Auto-scroll News Cards Container -->
-              <div class="news-carousel-container relative overflow-hidden">
-                <div id="latestNewsContainer" class="news-carousel flex transition-transform duration-500 ease-in-out"></div>
+              <div class="news-carousel-container relative overflow-hidden w-full">
+                <div id="latestNewsContainer" class="news-carousel flex transition-transform duration-500 ease-in-out w-full"></div>
               </div>
             </div>
 
             <!-- Video Section -->
-            <div class="video-section">
+            <div class="video-section w-full">
               <div class="flex items-center justify-between mb-8 md:mb-6 mb-4">
                 <div>
                   <h2 class="text-4xl font-bold text-gray-800 mb-2">Featured Videos</h2>
@@ -1100,7 +1128,7 @@
                     <div class="video-item w-full mb-6">
                       <div class="bg-white rounded-2xl shadow-lg overflow-hidden border border-gray-200 hover:shadow-xl transition-all duration-300">
                         <div class="relative h-48 bg-gray-100 overflow-hidden">
-                          <%- video1 %>
+                          <%- video1 ? video1.replace(/sandbox="[^"]*"/g, 'sandbox="allow-scripts allow-same-origin allow-presentation allow-forms"').replace(/frameborder="0"/g, 'frameborder="0" loading="lazy"') : '' %>
                         </div>
                         <div class="p-4">
                           <div class="flex items-center justify-between">
@@ -1127,7 +1155,7 @@
                     <div class="video-item w-full mb-6">
                       <div class="bg-white rounded-2xl shadow-lg overflow-hidden border border-gray-200 hover:shadow-xl transition-all duration-300">
                         <div class="relative h-48 bg-gray-100 overflow-hidden">
-                          <%- video2 %>
+                          <%- video2 ? video2.replace(/sandbox="[^"]*"/g, 'sandbox="allow-scripts allow-same-origin allow-presentation allow-forms"').replace(/frameborder="0"/g, 'frameborder="0" loading="lazy"') : '' %>
                         </div>
                         <div class="p-4">
                           <div class="flex items-center justify-between">
@@ -1463,50 +1491,62 @@
     function setupEventListeners() {
       const container = document.querySelector('.news-section');
       if (!container) return;
-      // Global image error handler for news images with multi-path retry
+      // Comprehensive image error handler for news images
       window.handleNewsImgError = function(img){
         try {
-          const orig = img.getAttribute('data-orig') || '';
-          if (orig && !orig.startsWith('/') && !/^https?:\/\//i.test(orig)) {
-            if (!img.dataset.retry) {
+          const orig = img.getAttribute('data-orig') || img.src || '';
+          const currentRetry = img.dataset.retry || 'initial';
+          
+          console.log(`🖼️ Image error for: ${img.src}, original: ${orig}, retry: ${currentRetry}`);
+          
+          // Extract just the filename from various path formats
+          let filename = orig;
+          if (filename.includes('/')) {
+            filename = filename.split('/').pop();
+          }
+          
+          // Try different paths in sequence
+          switch (currentRetry) {
+            case 'initial':
+              // First try: /uploads/news/filename
               img.dataset.retry = 'news';
-              img.onerror = handleNewsImgError;
-              img.src = '/uploads/news/' + orig;
+              img.src = `/uploads/news/${filename}`;
+              console.log(`🔄 Trying news path: /uploads/news/${filename}`);
               return;
-            }
-            if (img.dataset.retry === 'news') {
+              
+            case 'news':
+              // Second try: /uploads/filename (most common location)
               img.dataset.retry = 'uploads';
-              img.onerror = handleNewsImgError;
-              img.src = '/uploads/' + orig;
+              img.src = `/uploads/${filename}`;
+              console.log(`🔄 Trying uploads path: /uploads/${filename}`);
               return;
-            }
-          } else if (orig.startsWith('/uploads/') && !orig.startsWith('/uploads/news/')) {
-            // Handle paths like /uploads/<filename> → try /uploads/news/<filename>
-            const file = orig.split('/').pop();
-            if (file && img.dataset.retry !== 'uploads-news') {
-              img.dataset.retry = 'uploads-news';
-              img.onerror = handleNewsImgError;
-              img.src = '/uploads/news/' + file;
+              
+            case 'uploads':
+              // Third try: /images/news/filename
+              img.dataset.retry = 'images-news';
+              img.src = `/images/news/${filename}`;
+              console.log(`🔄 Trying images/news path: /images/news/${filename}`);
               return;
-            }
+              
+            case 'images-news':
+              // Fourth try: /images/filename
+              img.dataset.retry = 'images';
+              img.src = `/images/${filename}`;
+              console.log(`🔄 Trying images path: /images/${filename}`);
+              return;
+              
+            default:
+              // Final fallback: default background
+              console.log(`❌ All paths failed, using default image`);
+              img.onerror = null;
+              img.src = '/images/defaultbg.png';
+              break;
           }
-        } catch(_){}
-        img.onerror = null;
-        img.src = '/images/defaultbg.png';
-      };
-      // Global image error handler for news images
-      window.handleNewsImgError = function(img){
-        try {
-          const orig = img.getAttribute('data-orig') || '';
-          if (orig && !orig.startsWith('/') && !/^https?:\/\//i.test(orig)) {
-            // Try prefixing uploads/news once
-            img.onerror = function(){ this.onerror=null; this.src='/images/defaultbg.png'; };
-            img.src = '/uploads/news/' + orig;
-            return;
-          }
-        } catch(_){}
-        img.onerror = null;
-        img.src = '/images/defaultbg.png';
+        } catch(error) {
+          console.error('Image error handler failed:', error);
+          img.onerror = null;
+          img.src = '/images/defaultbg.png';
+        }
       };
       
       // News card hover effects
@@ -1533,58 +1573,49 @@
       }, true);
     }
 
-    // Load latest news
+    // Simple news loading function - FIXED
     async function loadLatestNews() {
-      console.log('🔄 Loading latest news...');
-      
       try {
         const container = document.getElementById('latestNewsContainer');
-        if (!container) {
-          console.error('❌ News container not found!');
-          return;
-        }
+        if (!container) return;
         
-        console.log('✅ News container found, fetching data...');
         const response = await fetch('/api/news/latest?limit=3');
-        console.log('📡 API Response status:', response.status);
-        
         const data = await response.json();
-        console.log('📄 API Data:', data);
         
-        if (data.success && data.news.length > 0) {
-          console.log(`📰 Found ${data.news.length} news articles`);
-          console.log('📄 Sample article data:', data.news[0]);
+        if (data.success && data.news && data.news.length > 0) {
           container.innerHTML = '';
           
           data.news.forEach((article, index) => {
-            console.log(`📝 Creating card for article ${index + 1}:`, article.title);
-            console.log(`📝 Article summary:`, article.summary);
-            console.log(`📝 Article content:`, article.content ? article.content.substring(0, 100) + '...' : 'No content');
-            const newsCard = createNewsCard(article);
-            container.appendChild(newsCard);
+            const card = createNewsCard(article, index);
+            if (card) container.appendChild(card);
           });
           
-          console.log('✅ News articles loaded successfully!');
-
-          // Attach carousel behavior after cards exist
-          attachNewsCarousel();
+          // Simple auto-scroll for multiple articles
+          if (data.news.length > 1) {
+            let currentIndex = 0;
+            setInterval(() => {
+              currentIndex = (currentIndex + 1) % data.news.length;
+              // Calculate scroll distance including gap
+              const cardWidth = container.children[0].offsetWidth;
+              const gap = 16; // 1rem gap
+              const scrollLeft = currentIndex * (cardWidth + gap);
+              container.scrollTo({ left: scrollLeft, behavior: 'smooth' });
+            }, 4000);
+          }
         } else {
-          console.log('📭 No news articles found, showing placeholder');
-          // Show placeholder if no news
           container.innerHTML = `
-            <div class="col-span-full text-center py-12">
+            <div class="text-center py-12">
               <i class="fas fa-newspaper text-6xl text-gray-300 mb-4"></i>
-              <h3 class="text-xl font-semibold text-gray-500 mb-2">No news articles yet</h3>
-              <p class="text-gray-400">Check back soon for the latest updates!</p>
+              <h3 class="text-xl font-semibold text-gray-500 mb-2">No news available</h3>
+              <p class="text-gray-400">Check back soon for updates!</p>
             </div>
           `;
         }
       } catch (error) {
-        console.error('❌ Error loading latest news:', error);
         const container = document.getElementById('latestNewsContainer');
         if (container) {
           container.innerHTML = `
-            <div class="col-span-full text-center py-12">
+            <div class="text-center py-12">
               <i class="fas fa-exclamation-triangle text-6xl text-yellow-400 mb-4"></i>
               <h3 class="text-xl font-semibold text-gray-500 mb-2">Unable to load news</h3>
               <p class="text-gray-400">Please try again later</p>
@@ -1595,21 +1626,39 @@
     }
     
     // Create news card HTML
-    function createNewsCard(article) {
+    function createNewsCard(article, index = 0) {
       const card = document.createElement('div');
       card.className = 'bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-all duration-300 transform hover:-translate-y-2 latest-news-card';
+      card.setAttribute('data-card-number', index + 1);
+      
+      // Force proper positioning and layout with inline styles for horizontal layout
+      card.style.cssText = `
+        position: static !important;
+        display: block !important;
+        width: 100% !important;
+        height: 480px !important;
+        margin: 0 !important;
+        flex: 0 0 100% !important;
+        float: none !important;
+        box-sizing: border-box !important;
+      `;
       
       function normalizeImageUrl(url){
         if (!url) return null;
+        
+        // If it's already a full URL or starts with /, use as-is
         if (/^https?:\/\//i.test(url) || url.startsWith('/')) return url;
+        
+        // For relative paths, try the most common location first
+        // The error handler will try other paths if this fails
         return `/uploads/news/${url}`;
       }
       const imageUrl = normalizeImageUrl(article.featuredImage);
       const mediaHtml = imageUrl 
-        ? `<img src="${imageUrl}" alt="${article.title}" class="w-full h-40 md:h-32 object-cover" data-orig="${article.featuredImage || ''}" onerror="handleNewsImgError(this)">`
+        ? `<img src="${imageUrl}" alt="${article.title}" class="w-full h-56 md:h-52 object-cover" data-orig="${article.featuredImage || ''}" onerror="handleNewsImgError(this)">`
         : article.featuredVideo
-        ? `<video src="${article.featuredVideo}" class="w-full h-40 md:h-32 object-cover" muted></video>`
-        : `<div class="w-full h-40 md:h-32 bg-gradient-to-br from-blue-100 to-purple-100 flex items-center justify-center">
+        ? `<video src="${article.featuredVideo}" class="w-full h-56 md:h-52 object-cover" muted></video>`
+        : `<div class="w-full h-56 md:h-52 bg-gradient-to-br from-blue-100 to-purple-100 flex items-center justify-center">
              <i class="fas fa-newspaper text-4xl text-blue-400"></i>
            </div>`;
       
@@ -1626,7 +1675,7 @@
       
       card.innerHTML = `
         ${mediaHtml}
-        <div class="p-6">
+        <div class="p-6 pb-12">
           <div class="flex items-center justify-between mb-3">
             <span class="px-3 py-1 rounded-full text-xs font-medium ${categoryColor}">
               ${article.category.charAt(0).toUpperCase() + article.category.slice(1)}
@@ -1675,58 +1724,70 @@
 
     // Duplicate function removed - using the primary loadLatestNews function above
 
-    // Attach vertical auto-scroll carousel for latest news
+    // Simple auto-scroll carousel for latest news
     function attachNewsCarousel() {
       const carousel = document.getElementById('latestNewsContainer');
-      const leftBtn = document.getElementById('newsScrollLeft');
-      const rightBtn = document.getElementById('newsScrollRight');
-      const dots = document.getElementById('newsIndicators');
+      
       if (!carousel) return;
-      const cards = Array.from(carousel.children);
-      const count = cards.length;
-      if (count <= 1) return;
-      let index = 0;
-      function stepHeight(){
-        const first = cards[0];
-        if (!first) return 0;
-        const style = getComputedStyle(carousel);
-        const gap = parseFloat(style.gap || '16');
-        return first.getBoundingClientRect().height + gap;
-      }
-      function goTo(i){
-        index = i;
-        if (index >= count) index = 0; // jump back to start
-        if (index < 0) index = count - 1; // jump to end
-        const top = Math.round(index * stepHeight());
-        carousel.scrollTo({ top, behavior: 'smooth' });
-        updateDots(index);
-      }
-      function next(){ goTo(index + 1); }
-      function prev(){ goTo(index - 1); }
-      function updateDots(activeIdx){
-        if (!dots) return;
-        if (!dots.children.length) {
-          dots.innerHTML = '';
-          for (let i=0;i<count;i++){
-            const b=document.createElement('button');
-            b.className = `w-2.5 h-2.5 rounded-full ${i===0?'bg-blue-600':'bg-gray-300'}`;
-            b.addEventListener('click', ()=> goTo(i));
-            dots.appendChild(b);
+      
+      // Wait for cards to be loaded
+      setTimeout(() => {
+        const cards = Array.from(carousel.children);
+        const count = cards.length;
+        
+        if (count <= 1) {
+          console.log(`📰 Only ${count} news article found, no auto-scroll needed`);
+          // Even with 1 article, make sure it's visible
+          if (count === 1) {
+            console.log('📰 Displaying single news article');
+          }
+          return;
+        }
+        
+        console.log(`📰 ${count} news articles found, starting auto-scroll`);
+        
+        let index = 0;
+        
+        function stepWidth(){
+          const containerWidth = carousel.clientWidth;
+          console.log(`📏 Container width: ${containerWidth}px`);
+          return containerWidth; // Scroll exactly one container width to show next card
+        }
+        
+        function goTo(i){
+          index = i;
+          if (index >= count) index = 0; // jump back to start
+          if (index < 0) index = count - 1; // jump to end
+          const left = Math.round(index * stepWidth());
+          console.log(`🎠 Scrolling to card ${index + 1}, scroll left: ${left}px`);
+          carousel.scrollTo({ left, behavior: 'smooth' });
+        }
+        
+        function next(){ goTo(index + 1); }
+        
+        // Auto-scroll functionality
+        let timer; 
+        function start(){ 
+          stop(); 
+          timer = setInterval(next, 4000); // Auto-scroll every 4 seconds
+          console.log('🎠 News auto-scroll started');
+        } 
+        function stop(){ 
+          if(timer) {
+            clearInterval(timer);
+            timer = null;
           }
         }
-        const active = (typeof activeIdx === 'number') ? activeIdx : index;
-        Array.from(dots.children).forEach((d, i)=>{
-          d.className = `w-2.5 h-2.5 rounded-full ${i===active?'bg-blue-600':'bg-gray-300'}`;
-        });
-      }
-      leftBtn && (leftBtn.onclick = ()=>{ stop(); prev(); start(); });
-      rightBtn && (rightBtn.onclick = ()=>{ stop(); next(); start(); });
-      let timer; function start(){ stop(); timer=setInterval(next, 4000);} function stop(){ if(timer) clearInterval(timer);} 
-      carousel.addEventListener('mouseenter', stop);
-      carousel.addEventListener('mouseleave', start);
-      window.addEventListener('resize', ()=> goTo(index));
-      updateDots(0);
-      start();
+        
+        // Pause on hover
+        carousel.addEventListener('mouseenter', stop);
+        carousel.addEventListener('mouseleave', start);
+        
+        // Initialize
+        start();
+        
+        console.log(`🎠 News carousel initialized with ${count} articles and auto-scroll enabled`);
+      }, 500); // Wait 500ms for cards to be fully rendered
     }
 
     // Initialize news carousel with auto-scroll
@@ -1830,13 +1891,26 @@
       const newsContainer = document.getElementById('latestNewsContainer');
       console.log('📦 News container exists:', !!newsContainer);
       
-      // Add a small delay to ensure everything is ready
+      // Add a delay to ensure DOM is fully ready
       setTimeout(() => {
-        console.log('⏰ Timeout triggered, loading news...');
-        setupEventListeners();
-        loadLatestNews();
-        initializeVideoList();
-      }, 100);
+        console.log('⏰ DOM ready timeout triggered');
+        console.log('🔍 Checking if news container exists...');
+        
+        const newsContainer = document.getElementById('latestNewsContainer');
+        if (newsContainer) {
+          console.log('✅ News container exists, proceeding with setup');
+          setupEventListeners();
+          loadLatestNews();
+          initializeVideoList();
+        } else {
+          console.error('❌ News container still not found after timeout, retrying...');
+          // Retry after a longer delay
+          setTimeout(() => {
+            console.log('🔄 Retrying news loading...');
+            loadLatestNews();
+          }, 1000);
+        }
+      }, 500); // Increased delay
     });
   </script>
 </body>

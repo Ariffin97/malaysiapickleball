@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quick Upload Test - Organization Chart</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 40px; }
+        .test-section { background: #f5f5f5; padding: 20px; margin: 20px 0; border-radius: 8px; }
+        .success { background: #d4edda; border: 1px solid #c3e6cb; }
+        .warning { background: #fff3cd; border: 1px solid #ffeaa7; }
+        .error { background: #f8d7da; border: 1px solid #f5c6cb; }
+        input, button { margin: 10px 0; padding: 10px; }
+        button { background: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer; }
+        button:hover { background: #0056b3; }
+    </style>
+</head>
+<body>
+    <h1>🧪 Organization Chart Upload Test</h1>
+    
+    <div class="test-section warning">
+        <h3>📋 Pre-Upload Checklist:</h3>
+        <ol>
+            <li>✅ Server restarted</li>
+            <li>📝 Admin logged in at: <a href="http://localhost:3000/admin/login" target="_blank">Admin Login</a></li>
+            <li>🖼️ Organization chart management: <a href="http://localhost:3000/admin/organization-chart" target="_blank">Admin Org Chart</a></li>
+            <li>🌐 Public organization chart: <a href="http://localhost:3000/organization-chart" target="_blank">Public Org Chart</a></li>
+        </ol>
+    </div>
+
+    <div class="test-section">
+        <h3>🔧 Quick Upload Test</h3>
+        <p>This form tests if uploads work for the problematic positions:</p>
+        
+        <form action="http://localhost:3000/admin/organization-chart/update" method="POST" enctype="multipart/form-data">
+            
+            <!-- Required core fields -->
+            <h4>Core Fields (Required):</h4>
+            <label>President Name:</label><br>
+            <input type="text" name="president_name" value="Datuk Ahmad Zulkarnain" required><br>
+            
+            <label>President Phone:</label><br>
+            <input type="tel" name="president_phone" value="+60 12-345 6780" required><br>
+            
+            <!-- VP1 fields (working) -->
+            <h4>VP1 (Working):</h4>
+            <label>VP1 Name:</label><br>
+            <input type="text" name="vp1_name" value="Dato' Dr. Lim Chong"><br>
+            <input type="tel" name="vp1_phone" value="+60 12-345 6781"><br>
+            
+            <!-- VP2 fields (problematic) -->
+            <h4>VP2 (Previously Problematic):</h4>
+            <label>VP2 Name:</label><br>
+            <input type="text" name="vp2_name" value="Datuk Seri Wong Lee"><br>
+            <input type="tel" name="vp2_phone" value="+60 12-345 6782"><br>
+            <label>VP2 Photo:</label><br>
+            <input type="file" name="vp2_photo" accept="image/*"><br>
+            
+            <!-- Secretary (problematic) -->
+            <h4>Secretary (Previously Problematic):</h4>
+            <label>Secretary Name:</label><br>
+            <input type="text" name="secretary_name" value="Mohd Azlan bin Abdullah"><br>
+            <input type="tel" name="secretary_phone" value="+60 12-345 6783"><br>
+            <label>Secretary Photo:</label><br>
+            <input type="file" name="secretary_photo" accept="image/*"><br>
+            
+            <!-- Default values for other required fields -->
+            <input type="hidden" name="advisor1_name" value="Tan Sri Dr. Lim">
+            <input type="hidden" name="advisor1_phone" value="+60 12-345 6789">
+            <input type="hidden" name="advisor2_name" value="Dato' Sarah Ismail">
+            <input type="hidden" name="advisor2_phone" value="+60 12-345 6790">
+            <input type="hidden" name="advisor3_name" value="Prof. Dr. Raj Kumar">
+            <input type="hidden" name="advisor3_phone" value="+60 12-345 6791">
+            <input type="hidden" name="treasurer_name" value="Wong Mei Ling">
+            <input type="hidden" name="treasurer_phone" value="+60 12-345 6784">
+            <input type="hidden" name="dev_committee_name" value="Chairman: Ahmad Fadzil">
+            <input type="hidden" name="dev_committee_phone" value="+60 12-345 6785">
+            <input type="hidden" name="tournament_committee_name" value="Chairman: Lim Wei Chen">
+            <input type="hidden" name="tournament_committee_phone" value="+60 12-345 6786">
+            <input type="hidden" name="disciplinary_committee_name" value="Chairman: Dr. Kamal Singh">
+            <input type="hidden" name="disciplinary_committee_phone" value="+60 12-345 6787">
+            
+            <br><br>
+            <button type="submit">🚀 Test Upload VP2 & Secretary Photos</button>
+        </form>
+    </div>
+
+    <div class="test-section success">
+        <h3>✅ Expected Results:</h3>
+        <ul>
+            <li>Form should submit without validation errors</li>
+            <li>Page should redirect to organization chart management</li>
+            <li>Success message should appear</li>
+            <li>Uploaded images should appear in the form preview</li>
+            <li>Images should be visible on public organization chart page</li>
+        </ul>
+    </div>
+
+    <div class="test-section error">
+        <h3>❌ If Upload Fails:</h3>
+        <ol>
+            <li>Check browser console (F12) for JavaScript errors</li>
+            <li>Check network tab to see if request is sent</li>
+            <li>Verify you're logged in as admin</li>
+            <li>Try smaller image files (< 1MB)</li>
+            <li>Check server logs for error messages</li>
+        </ol>
+    </div>
+
+    <script>
+        // Add some debug logging
+        document.querySelector('form').addEventListener('submit', function(e) {
+            console.log('🧪 Test form submitting...');
+            console.log('📁 Files selected:');
+            
+            const fileInputs = document.querySelectorAll('input[type="file"]');
+            fileInputs.forEach(input => {
+                if (input.files.length > 0) {
+                    console.log(`  - ${input.name}: ${input.files[0].name} (${input.files[0].size} bytes)`);
+                } else {
+                    console.log(`  - ${input.name}: No file selected`);
+                }
+            });
+        });
+    </script>
+</body>
+</html>

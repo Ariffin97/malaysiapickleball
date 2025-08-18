@@ -93,6 +93,54 @@
         </div>
       <% } %>
 
+      <!-- Quick Actions Section -->
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+        <!-- Add New Member Button -->
+        <div class="admin-card bg-gradient-to-br from-blue-50 to-blue-100 p-6 rounded-xl shadow-lg border border-blue-200">
+          <div class="flex items-center justify-center mb-4">
+            <div class="bg-blue-600 text-white w-16 h-16 rounded-full flex items-center justify-center">
+              <i class="fas fa-user-plus text-2xl"></i>
+            </div>
+          </div>
+          <h3 class="text-xl font-bold text-blue-800 mb-2 text-center">Add New Member</h3>
+          <p class="text-blue-600 text-sm text-center mb-4">Add a new member to the organization chart</p>
+          <button onclick="openAddMemberModal()" class="w-full bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors font-medium flex items-center justify-center">
+            <i class="fas fa-plus mr-2"></i>
+            Add Member
+          </button>
+        </div>
+
+        <!-- Add New Position Button -->
+        <div class="admin-card bg-gradient-to-br from-green-50 to-green-100 p-6 rounded-xl shadow-lg border border-green-200">
+          <div class="flex items-center justify-center mb-4">
+            <div class="bg-green-600 text-white w-16 h-16 rounded-full flex items-center justify-center">
+              <i class="fas fa-briefcase text-2xl"></i>
+            </div>
+          </div>
+          <h3 class="text-xl font-bold text-green-800 mb-2 text-center">Add New Position</h3>
+          <p class="text-green-600 text-sm text-center mb-4">Create a new position in the organization</p>
+          <button onclick="openAddPositionModal()" class="w-full bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors font-medium flex items-center justify-center">
+            <i class="fas fa-plus mr-2"></i>
+            Add Position
+          </button>
+        </div>
+
+        <!-- View Organization Chart Button -->
+        <div class="admin-card bg-gradient-to-br from-purple-50 to-purple-100 p-6 rounded-xl shadow-lg border border-purple-200">
+          <div class="flex items-center justify-center mb-4">
+            <div class="bg-purple-600 text-white w-16 h-16 rounded-full flex items-center justify-center">
+              <i class="fas fa-sitemap text-2xl"></i>
+            </div>
+          </div>
+          <h3 class="text-xl font-bold text-purple-800 mb-2 text-center">View Chart</h3>
+          <p class="text-purple-600 text-sm text-center mb-4">View the current organization chart</p>
+          <a href="/organization-chart" target="_blank" class="w-full bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 transition-colors font-medium flex items-center justify-center inline-block text-center">
+            <i class="fas fa-external-link-alt mr-2"></i>
+            View Chart
+          </a>
+        </div>
+      </div>
+
       <!-- Organization Chart Management Form -->
       <div class="admin-card bg-white p-6 rounded-xl shadow-lg">
         <h2 class="text-2xl font-bold text-gray-800 mb-6 flex items-center">
@@ -118,7 +166,7 @@
                                  <div class="space-y-2">
                    <label for="advisor1_photo" class="block text-sm font-medium text-gray-700">Photo</label>
                    <input type="file" id="advisor1_photo" name="advisor1_photo" accept="image/*" class="form-input w-full p-2 border border-gray-300 rounded-lg focus:outline-none">
-                   <% if (orgChartData?.advisors?.[0]?.photo && orgChartData.advisors[0].photo !== '👨‍💼' && orgChartData.advisors[0].photo !== '👩‍💼') { %>
+                   <% if (orgChartData?.advisors?.[0]?.photo && orgChartData.advisors[0].photo !== '👨‍💼' && orgChartData.advisors[0].photo !== '👩‍💼' && orgChartData.advisors[0].photo !== null && orgChartData.advisors[0].photo !== 'null') { %>
                      <div class="mt-2">
                        <img src="<%= orgChartData.advisors[0].photo %>" alt="Current photo" class="w-16 h-16 object-cover rounded-lg border">
                        <p class="text-xs text-gray-500 mt-1">Current photo</p>
@@ -135,7 +183,7 @@
                                  <div class="space-y-2">
                    <label for="advisor2_photo" class="block text-sm font-medium text-gray-700">Photo</label>
                    <input type="file" id="advisor2_photo" name="advisor2_photo" accept="image/*" class="form-input w-full p-2 border border-gray-300 rounded-lg focus:outline-none">
-                   <% if (orgChartData?.advisors?.[1]?.photo && orgChartData.advisors[1].photo !== '👨‍💼' && orgChartData.advisors[1].photo !== '👩‍💼') { %>
+                   <% if (orgChartData?.advisors?.[1]?.photo && orgChartData.advisors[1].photo !== '👨‍💼' && orgChartData.advisors[1].photo !== '👩‍💼' && orgChartData.advisors[1].photo !== null && orgChartData.advisors[1].photo !== 'null') { %>
                      <div class="mt-2">
                        <img src="<%= orgChartData.advisors[1].photo %>" alt="Current photo" class="w-16 h-16 object-cover rounded-lg border">
                        <p class="text-xs text-gray-500 mt-1">Current photo</p>
@@ -152,7 +200,7 @@
                                  <div class="space-y-2">
                    <label for="advisor3_photo" class="block text-sm font-medium text-gray-700">Photo</label>
                    <input type="file" id="advisor3_photo" name="advisor3_photo" accept="image/*" class="form-input w-full p-2 border border-gray-300 rounded-lg focus:outline-none">
-                   <% if (orgChartData?.advisors?.[2]?.photo && orgChartData.advisors[2].photo !== '👨‍💼' && orgChartData.advisors[2].photo !== '👩‍💼') { %>
+                   <% if (orgChartData?.advisors?.[2]?.photo && orgChartData.advisors[2].photo !== '👨‍💼' && orgChartData.advisors[2].photo !== '👩‍💼' && orgChartData.advisors[2].photo !== null && orgChartData.advisors[2].photo !== 'null') { %>
                      <div class="mt-2">
                        <img src="<%= orgChartData.advisors[2].photo %>" alt="Current photo" class="w-16 h-16 object-cover rounded-lg border">
                        <p class="text-xs text-gray-500 mt-1">Current photo</p>
@@ -179,7 +227,7 @@
                                  <div class="space-y-2">
                    <label for="president_photo" class="block text-sm font-medium text-gray-700">Photo</label>
                    <input type="file" id="president_photo" name="president_photo" accept="image/*" class="form-input w-full p-2 border border-gray-300 rounded-lg focus:outline-none">
-                   <% if (orgChartData?.president?.photo && orgChartData.president.photo !== '👨‍💼' && orgChartData.president.photo !== '👩‍💼') { %>
+                   <% if (orgChartData?.president?.photo && orgChartData.president.photo !== '👨‍💼' && orgChartData.president.photo !== '👩‍💼' && orgChartData.president.photo !== null && orgChartData.president.photo !== 'null') { %>
                      <div class="mt-2">
                        <img src="<%= orgChartData.president.photo %>" alt="Current photo" class="w-16 h-16 object-cover rounded-lg border">
                        <p class="text-xs text-gray-500 mt-1">Current photo</p>
@@ -205,7 +253,7 @@
                                  <div class="space-y-2">
                    <label for="vp1_photo" class="block text-sm font-medium text-gray-700">Photo</label>
                    <input type="file" id="vp1_photo" name="vp1_photo" accept="image/*" class="form-input w-full p-2 border border-gray-300 rounded-lg focus:outline-none">
-                   <% if (orgChartData?.vicePresidents?.[0]?.photo && orgChartData.vicePresidents[0].photo !== '👨‍💼' && orgChartData.vicePresidents[0].photo !== '👩‍💼') { %>
+                   <% if (orgChartData?.vicePresidents?.[0]?.photo && orgChartData.vicePresidents[0].photo !== '👨‍💼' && orgChartData.vicePresidents[0].photo !== '👩‍💼' && orgChartData.vicePresidents[0].photo !== null && orgChartData.vicePresidents[0].photo !== 'null') { %>
                      <div class="mt-2">
                        <img src="<%= orgChartData.vicePresidents[0].photo %>" alt="Current photo" class="w-16 h-16 object-cover rounded-lg border">
                        <p class="text-xs text-gray-500 mt-1">Current photo</p>
@@ -217,12 +265,12 @@
               <!-- Vice President 2 -->
               <div class="space-y-3">
                 <label class="block text-sm font-medium text-gray-700">Vice President 2</label>
-                <input type="text" name="vp2_name" value="<%= orgChartData?.vicePresidents?.[1]?.name || 'Datuk Seri Wong Lee' %>" class="form-input w-full p-3 border border-gray-300 rounded-lg focus:outline-none" placeholder="Full Name" required>
-                <input type="tel" name="vp2_phone" value="<%= orgChartData?.vicePresidents?.[1]?.phone || '+60 12-345 6782' %>" class="form-input w-full p-3 border border-gray-300 rounded-lg focus:outline-none" placeholder="Phone Number" required>
+                <input type="text" name="vp2_name" value="<%= orgChartData?.vicePresidents?.[1]?.name || 'Datuk Seri Wong Lee' %>" class="form-input w-full p-3 border border-gray-300 rounded-lg focus:outline-none" placeholder="Full Name">
+                <input type="tel" name="vp2_phone" value="<%= orgChartData?.vicePresidents?.[1]?.phone || '+60 12-345 6782' %>" class="form-input w-full p-3 border border-gray-300 rounded-lg focus:outline-none" placeholder="Phone Number">
                                  <div class="space-y-2">
                    <label for="vp2_photo" class="block text-sm font-medium text-gray-700">Photo</label>
                    <input type="file" id="vp2_photo" name="vp2_photo" accept="image/*" class="form-input w-full p-2 border border-gray-300 rounded-lg focus:outline-none">
-                   <% if (orgChartData?.vicePresidents?.[1]?.photo && orgChartData.vicePresidents[1].photo !== '👨‍💼' && orgChartData.vicePresidents[1].photo !== '👩‍💼') { %>
+                   <% if (orgChartData?.vicePresidents?.[1]?.photo && orgChartData.vicePresidents[1].photo !== '👨‍💼' && orgChartData.vicePresidents[1].photo !== '👩‍💼' && orgChartData.vicePresidents[1].photo !== null && orgChartData.vicePresidents[1].photo !== 'null') { %>
                      <div class="mt-2">
                        <img src="<%= orgChartData.vicePresidents[1].photo %>" alt="Current photo" class="w-16 h-16 object-cover rounded-lg border">
                        <p class="text-xs text-gray-500 mt-1">Current photo</p>
@@ -243,12 +291,12 @@
               <!-- Secretary -->
               <div class="space-y-3">
                 <label class="block text-sm font-medium text-gray-700">Secretary</label>
-                <input type="text" name="secretary_name" value="<%= orgChartData?.secretary?.name || 'Mohd Azlan bin Abdullah' %>" class="form-input w-full p-3 border border-gray-300 rounded-lg focus:outline-none" placeholder="Full Name" required>
-                <input type="tel" name="secretary_phone" value="<%= orgChartData?.secretary?.phone || '+60 12-345 6783' %>" class="form-input w-full p-3 border border-gray-300 rounded-lg focus:outline-none" placeholder="Phone Number" required>
+                <input type="text" name="secretary_name" value="<%= orgChartData?.secretary?.name || 'Mohd Azlan bin Abdullah' %>" class="form-input w-full p-3 border border-gray-300 rounded-lg focus:outline-none" placeholder="Full Name">
+                <input type="tel" name="secretary_phone" value="<%= orgChartData?.secretary?.phone || '+60 12-345 6783' %>" class="form-input w-full p-3 border border-gray-300 rounded-lg focus:outline-none" placeholder="Phone Number">
                                  <div class="space-y-2">
                    <label for="secretary_photo" class="block text-sm font-medium text-gray-700">Photo</label>
                    <input type="file" id="secretary_photo" name="secretary_photo" accept="image/*" class="form-input w-full p-2 border border-gray-300 rounded-lg focus:outline-none">
-                   <% if (orgChartData?.secretary?.photo && orgChartData.secretary.photo !== '👨‍💼' && orgChartData.secretary.photo !== '👩‍💼') { %>
+                   <% if (orgChartData?.secretary?.photo && orgChartData.secretary.photo !== '👨‍💼' && orgChartData.secretary.photo !== '👩‍💼' && orgChartData.secretary.photo !== null && orgChartData.secretary.photo !== 'null') { %>
                      <div class="mt-2">
                        <img src="<%= orgChartData.secretary.photo %>" alt="Current photo" class="w-16 h-16 object-cover rounded-lg border">
                        <p class="text-xs text-gray-500 mt-1">Current photo</p>
@@ -260,12 +308,12 @@
               <!-- Treasurer -->
               <div class="space-y-3">
                 <label class="block text-sm font-medium text-gray-700">Treasurer</label>
-                <input type="text" name="treasurer_name" value="<%= orgChartData?.treasurer?.name || 'Wong Mei Ling' %>" class="form-input w-full p-3 border border-gray-300 rounded-lg focus:outline-none" placeholder="Full Name" required>
-                <input type="tel" name="treasurer_phone" value="<%= orgChartData?.treasurer?.phone || '+60 12-345 6784' %>" class="form-input w-full p-3 border border-gray-300 rounded-lg focus:outline-none" placeholder="Phone Number" required>
+                <input type="text" name="treasurer_name" value="<%= orgChartData?.treasurer?.name || 'Wong Mei Ling' %>" class="form-input w-full p-3 border border-gray-300 rounded-lg focus:outline-none" placeholder="Full Name">
+                <input type="tel" name="treasurer_phone" value="<%= orgChartData?.treasurer?.phone || '+60 12-345 6784' %>" class="form-input w-full p-3 border border-gray-300 rounded-lg focus:outline-none" placeholder="Phone Number">
                                  <div class="space-y-2">
                    <label for="treasurer_photo" class="block text-sm font-medium text-gray-700">Photo</label>
                    <input type="file" id="treasurer_photo" name="treasurer_photo" accept="image/*" class="form-input w-full p-2 border border-gray-300 rounded-lg focus:outline-none">
-                   <% if (orgChartData?.treasurer?.photo && orgChartData.treasurer.photo !== '👨‍💼' && orgChartData.treasurer.photo !== '👩‍💼') { %>
+                   <% if (orgChartData?.treasurer?.photo && orgChartData.treasurer.photo !== '👨‍💼' && orgChartData.treasurer.photo !== '👩‍💼' && orgChartData.treasurer.photo !== null && orgChartData.treasurer.photo !== 'null') { %>
                      <div class="mt-2">
                        <img src="<%= orgChartData.treasurer.photo %>" alt="Current photo" class="w-16 h-16 object-cover rounded-lg border">
                        <p class="text-xs text-gray-500 mt-1">Current photo</p>
@@ -286,12 +334,12 @@
               <!-- Development Committee -->
               <div class="space-y-3">
                 <label class="block text-sm font-medium text-gray-700">Development Committee</label>
-                <input type="text" name="dev_committee_name" value="<%= orgChartData?.committees?.[0]?.name || 'Chairman: Ahmad Fadzil' %>" class="form-input w-full p-3 border border-gray-300 rounded-lg focus:outline-none" placeholder="Chairman Name" required>
-                <input type="tel" name="dev_committee_phone" value="<%= orgChartData?.committees?.[0]?.phone || '+60 12-345 6785' %>" class="form-input w-full p-3 border border-gray-300 rounded-lg focus:outline-none" placeholder="Phone Number" required>
+                <input type="text" name="dev_committee_name" value="<%= orgChartData?.committees?.[0]?.name || 'Chairman: Ahmad Fadzil' %>" class="form-input w-full p-3 border border-gray-300 rounded-lg focus:outline-none" placeholder="Chairman Name">
+                <input type="tel" name="dev_committee_phone" value="<%= orgChartData?.committees?.[0]?.phone || '+60 12-345 6785' %>" class="form-input w-full p-3 border border-gray-300 rounded-lg focus:outline-none" placeholder="Phone Number">
                                  <div class="space-y-2">
                    <label for="dev_committee_photo" class="block text-sm font-medium text-gray-700">Photo</label>
                    <input type="file" id="dev_committee_photo" name="dev_committee_photo" accept="image/*" class="form-input w-full p-2 border border-gray-300 rounded-lg focus:outline-none">
-                   <% if (orgChartData?.committees?.[0]?.photo && orgChartData.committees[0].photo !== '👨‍💼' && orgChartData.committees[0].photo !== '👩‍💼') { %>
+                   <% if (orgChartData?.committees?.[0]?.photo && orgChartData.committees[0].photo !== '👨‍💼' && orgChartData.committees[0].photo !== '👩‍💼' && orgChartData.committees[0].photo !== null && orgChartData.committees[0].photo !== 'null') { %>
                      <div class="mt-2">
                        <img src="<%= orgChartData.committees[0].photo %>" alt="Current photo" class="w-16 h-16 object-cover rounded-lg border">
                        <p class="text-xs text-gray-500 mt-1">Current photo</p>
@@ -303,12 +351,12 @@
               <!-- Tournament Committee -->
               <div class="space-y-3">
                 <label class="block text-sm font-medium text-gray-700">Tournament Committee</label>
-                <input type="text" name="tournament_committee_name" value="<%= orgChartData?.committees?.[1]?.name || 'Chairman: Lim Wei Chen' %>" class="form-input w-full p-3 border border-gray-300 rounded-lg focus:outline-none" placeholder="Chairman Name" required>
-                <input type="tel" name="tournament_committee_phone" value="<%= orgChartData?.committees?.[1]?.phone || '+60 12-345 6786' %>" class="form-input w-full p-3 border border-gray-300 rounded-lg focus:outline-none" placeholder="Phone Number" required>
+                <input type="text" name="tournament_committee_name" value="<%= orgChartData?.committees?.[1]?.name || 'Chairman: Lim Wei Chen' %>" class="form-input w-full p-3 border border-gray-300 rounded-lg focus:outline-none" placeholder="Chairman Name">
+                <input type="tel" name="tournament_committee_phone" value="<%= orgChartData?.committees?.[1]?.phone || '+60 12-345 6786' %>" class="form-input w-full p-3 border border-gray-300 rounded-lg focus:outline-none" placeholder="Phone Number">
                                  <div class="space-y-2">
                    <label for="tournament_committee_photo" class="block text-sm font-medium text-gray-700">Photo</label>
                    <input type="file" id="tournament_committee_photo" name="tournament_committee_photo" accept="image/*" class="form-input w-full p-2 border border-gray-300 rounded-lg focus:outline-none">
-                   <% if (orgChartData?.committees?.[1]?.photo && orgChartData.committees[1].photo !== '👨‍💼' && orgChartData.committees[1].photo !== '👩‍💼') { %>
+                   <% if (orgChartData?.committees?.[1]?.photo && orgChartData.committees[1].photo !== '👨‍💼' && orgChartData.committees[1].photo !== '👩‍💼' && orgChartData.committees[1].photo !== null && orgChartData.committees[1].photo !== 'null') { %>
                      <div class="mt-2">
                        <img src="<%= orgChartData.committees[1].photo %>" alt="Current photo" class="w-16 h-16 object-cover rounded-lg border">
                        <p class="text-xs text-gray-500 mt-1">Current photo</p>
@@ -320,12 +368,12 @@
               <!-- Disciplinary Committee -->
               <div class="space-y-3">
                 <label class="block text-sm font-medium text-gray-700">Disciplinary Committee</label>
-                <input type="text" name="disciplinary_committee_name" value="<%= orgChartData?.committees?.[2]?.name || 'Chairman: Dr. Kamal Singh' %>" class="form-input w-full p-3 border border-gray-300 rounded-lg focus:outline-none" placeholder="Chairman Name" required>
-                <input type="tel" name="disciplinary_committee_phone" value="<%= orgChartData?.committees?.[2]?.phone || '+60 12-345 6787' %>" class="form-input w-full p-3 border border-gray-300 rounded-lg focus:outline-none" placeholder="Phone Number" required>
+                <input type="text" name="disciplinary_committee_name" value="<%= orgChartData?.committees?.[2]?.name || 'Chairman: Dr. Kamal Singh' %>" class="form-input w-full p-3 border border-gray-300 rounded-lg focus:outline-none" placeholder="Chairman Name">
+                <input type="tel" name="disciplinary_committee_phone" value="<%= orgChartData?.committees?.[2]?.phone || '+60 12-345 6787' %>" class="form-input w-full p-3 border border-gray-300 rounded-lg focus:outline-none" placeholder="Phone Number">
                                  <div class="space-y-2">
                    <label for="disciplinary_committee_photo" class="block text-sm font-medium text-gray-700">Photo</label>
                    <input type="file" id="disciplinary_committee_photo" name="disciplinary_committee_photo" accept="image/*" class="form-input w-full p-2 border border-gray-300 rounded-lg focus:outline-none">
-                   <% if (orgChartData?.committees?.[2]?.photo && orgChartData.committees[2].photo !== '👨‍💼' && orgChartData.committees[2].photo !== '👩‍💼') { %>
+                   <% if (orgChartData?.committees?.[2]?.photo && orgChartData.committees[2].photo !== '👨‍💼' && orgChartData.committees[2].photo !== '👩‍💼' && orgChartData.committees[2].photo !== null && orgChartData.committees[2].photo !== 'null') { %>
                      <div class="mt-2">
                        <img src="<%= orgChartData.committees[2].photo %>" alt="Current photo" class="w-16 h-16 object-cover rounded-lg border">
                        <p class="text-xs text-gray-500 mt-1">Current photo</p>
@@ -414,6 +462,133 @@
       }
     }
 
+    // Add New Member Modal Functions
+    function openAddMemberModal() {
+      const positions = ['Advisor', 'President', 'Vice President', 'Secretary', 'Treasurer', 'Committee Chairman'];
+      const positionList = positions.map(pos => `<option value="${pos}">${pos}</option>`).join('');
+      
+      const modalHTML = `
+        <div id="addMemberModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div class="bg-white rounded-xl p-6 w-full max-w-md mx-4">
+            <h3 class="text-xl font-bold text-gray-800 mb-4 flex items-center">
+              <i class="fas fa-user-plus text-blue-600 mr-2"></i>
+              Add New Member
+            </h3>
+            <form id="addMemberForm" class="space-y-4">
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Full Name</label>
+                <input type="text" id="newMemberName" class="w-full p-3 border border-gray-300 rounded-lg" placeholder="Enter full name" required>
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Phone Number</label>
+                <input type="tel" id="newMemberPhone" class="w-full p-3 border border-gray-300 rounded-lg" placeholder="+60 12-345 6789" required>
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Position</label>
+                <select id="newMemberPosition" class="w-full p-3 border border-gray-300 rounded-lg" required>
+                  <option value="">Select Position</option>
+                  ${positionList}
+                </select>
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Photo (Optional)</label>
+                <input type="file" id="newMemberPhoto" accept="image/*" class="w-full p-2 border border-gray-300 rounded-lg">
+              </div>
+              <div class="flex space-x-3 pt-4">
+                <button type="submit" class="flex-1 bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 transition-colors">
+                  Add Member
+                </button>
+                <button type="button" onclick="closeAddMemberModal()" class="flex-1 bg-gray-400 text-white py-2 rounded-lg hover:bg-gray-500 transition-colors">
+                  Cancel
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      `;
+      
+      document.body.insertAdjacentHTML('beforeend', modalHTML);
+      
+      // Handle form submission
+      document.getElementById('addMemberForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        const name = document.getElementById('newMemberName').value;
+        const phone = document.getElementById('newMemberPhone').value;
+        const position = document.getElementById('newMemberPosition').value;
+        
+        alert(`New member "${name}" will be added to the ${position} position. This feature will be fully implemented soon.`);
+        closeAddMemberModal();
+      });
+    }
+
+    function closeAddMemberModal() {
+      const modal = document.getElementById('addMemberModal');
+      if (modal) {
+        modal.remove();
+      }
+    }
+
+    // Add New Position Modal Functions
+    function openAddPositionModal() {
+      const modalHTML = `
+        <div id="addPositionModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div class="bg-white rounded-xl p-6 w-full max-w-md mx-4">
+            <h3 class="text-xl font-bold text-gray-800 mb-4 flex items-center">
+              <i class="fas fa-briefcase text-green-600 mr-2"></i>
+              Add New Position
+            </h3>
+            <form id="addPositionForm" class="space-y-4">
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Position Title</label>
+                <input type="text" id="newPositionTitle" class="w-full p-3 border border-gray-300 rounded-lg" placeholder="e.g., Marketing Director" required>
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Position Level</label>
+                <select id="newPositionLevel" class="w-full p-3 border border-gray-300 rounded-lg" required>
+                  <option value="">Select Level</option>
+                  <option value="executive">Executive Level</option>
+                  <option value="committee">Committee Level</option>
+                  <option value="advisor">Advisory Level</option>
+                </select>
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Description</label>
+                <textarea id="newPositionDescription" class="w-full p-3 border border-gray-300 rounded-lg" rows="3" placeholder="Brief description of responsibilities"></textarea>
+              </div>
+              <div class="flex space-x-3 pt-4">
+                <button type="submit" class="flex-1 bg-green-600 text-white py-2 rounded-lg hover:bg-green-700 transition-colors">
+                  Create Position
+                </button>
+                <button type="button" onclick="closeAddPositionModal()" class="flex-1 bg-gray-400 text-white py-2 rounded-lg hover:bg-gray-500 transition-colors">
+                  Cancel
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      `;
+      
+      document.body.insertAdjacentHTML('beforeend', modalHTML);
+      
+      // Handle form submission
+      document.getElementById('addPositionForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        const title = document.getElementById('newPositionTitle').value;
+        const level = document.getElementById('newPositionLevel').value;
+        const description = document.getElementById('newPositionDescription').value;
+        
+        alert(`New position "${title}" at ${level} level will be created. This feature will be fully implemented soon.`);
+        closeAddPositionModal();
+      });
+    }
+
+    function closeAddPositionModal() {
+      const modal = document.getElementById('addPositionModal');
+      if (modal) {
+        modal.remove();
+      }
+    }
+
     // Wait for DOM to be fully loaded
     document.addEventListener('DOMContentLoaded', function() {
       console.log('📁 DOM loaded, setting up form handlers');
@@ -434,21 +609,30 @@
             console.log(`📁 File input ${input.name}:`, input.files.length > 0 ? input.files[0].name : 'No file selected');
           });
           
-          const requiredFields = document.querySelectorAll('input[type="text"], input[type="tel"]');
-          let isValid = true;
+          // Only validate that at least some core fields are filled (less strict validation)
+          const coreFields = document.querySelectorAll('input[name="president_name"], input[name="president_phone"]');
+          let hasValidCore = true;
 
-          requiredFields.forEach(field => {
+          coreFields.forEach(field => {
             if (!field.value.trim()) {
               field.style.borderColor = '#ef4444';
-              isValid = false;
+              hasValidCore = false;
             } else {
               field.style.borderColor = '#d1d5db';
             }
           });
 
-          if (!isValid) {
+          // Reset border colors for non-core fields (visual cleanup)
+          const allTextFields = document.querySelectorAll('input[type="text"], input[type="tel"]');
+          allTextFields.forEach(field => {
+            if (field.value.trim()) {
+              field.style.borderColor = '#d1d5db';
+            }
+          });
+
+          if (!hasValidCore) {
             e.preventDefault();
-            alert('Please fill in all required fields.');
+            alert('Please fill in at least the President name and phone number.');
             return;
           }
           

@@ -141,13 +141,11 @@ app.use(express.json({ limit: '10mb' }));
 // File upload middleware with enhanced options
 app.use(fileUpload({
   limits: { 
-    fileSize: parseInt(process.env.MAX_FILE_SIZE) || 5 * 1024 * 1024, // 5MB
-    files: 5 // Maximum 5 files per request
+    fileSize: parseInt(process.env.MAX_FILE_SIZE) || 10 * 1024 * 1024, // 10MB
+    files: 20 // Maximum 20 files per request
   },
-  abortOnLimit: true,
-  responseOnLimit: 'File size limit exceeded',
-  useTempFiles: true,
-  tempFileDir: process.env.UPLOAD_PATH || './public/uploads/temp',
+  abortOnLimit: false,
+  useTempFiles: false, // Use memory instead of temp files for better reliability
   safeFileNames: true,
   preserveExtension: true,
   createParentPath: true
@@ -2904,7 +2902,10 @@ app.post('/admin/login', async (req, res) => {
     // Update last login
     await DatabaseService.updateAdminLastLogin(admin._id);
 
-    // Set session
+    // Set session - both patterns for compatibility
+    req.session.isAuthenticated = true;
+    req.session.adminId = admin._id;
+    req.session.username = admin.username;
     req.session.admin = {
       id: admin._id,
       username: admin.username,
@@ -3102,6 +3103,10 @@ app.post('/admin/organization-chart/update', adminAuth, async (req, res) => {
 
     // Process file uploads
     for (const field of photoFields) {
+      console.log(`🔍 Checking field: ${field}`);
+      console.log(`  - req.files exists: ${!!req.files}`);
+      console.log(`  - req.files[${field}] exists: ${!!(req.files && req.files[field])}`);
+      
       if (req.files && req.files[field]) {
         console.log(`📁 Processing upload for ${field}:`, req.files[field].name);
         const file = req.files[field];
@@ -3129,7 +3134,10 @@ app.post('/admin/organization-chart/update', adminAuth, async (req, res) => {
           })
         );
       } else {
-        console.log(`📁 No file uploaded for ${field}`);
+        console.log(`📁 No file uploaded for ${field} - field not in request or empty`);
+        if (req.files) {
+          console.log(`  Available fields in req.files:`, Object.keys(req.files));
+        }
       }
     }
 
@@ -3167,21 +3175,30 @@ app.post('/admin/organization-chart/update', adminAuth, async (req, res) => {
     }
 
     // Helper function to get photo path - prioritize uploads, keep existing real photos, default to null
-    function getPhotoPath(uploadedPhoto, existingPhoto) {
+    function getPhotoPath(fieldName, uploadedPhoto, existingPhoto) {
+      console.log(`📸 getPhotoPath for ${fieldName}:`);
+      console.log(`  - uploadedPhoto: ${uploadedPhoto || 'none'}`);
+      console.log(`  - existingPhoto: ${existingPhoto || 'none'}`);
+      
       // If new photo uploaded, use it
       if (uploadedPhoto) {
-        console.log(`📸 Using newly uploaded photo: ${uploadedPhoto}`);
+        console.log(`📸 ${fieldName}: Using newly uploaded photo: ${uploadedPhoto}`);
         return uploadedPhoto;
       }
       
-      // If existing photo exists and is not an emoji, keep it
-      if (existingPhoto && !existingPhoto.includes('👨‍💼') && !existingPhoto.includes('👩‍💼') && existingPhoto !== null) {
-        console.log(`📸 Keeping existing photo: ${existingPhoto}`);
+      // If existing photo exists and is not an emoji or null values, keep it
+      if (existingPhoto && 
+          existingPhoto !== '👨‍💼' && 
+          existingPhoto !== '👩‍💼' && 
+          existingPhoto !== null && 
+          existingPhoto !== 'null' && 
+          existingPhoto.trim() !== '') {
+        console.log(`📸 ${fieldName}: Keeping existing photo: ${existingPhoto}`);
         return existingPhoto;
       }
       
       // Otherwise return null (no photo)
-      console.log(`📸 No photo available, using null`);
+      console.log(`📸 ${fieldName}: No photo available, using null`);
       return null;
     }
 
@@ -3191,63 +3208,63 @@ app.post('/admin/organization-chart/update', adminAuth, async (req, res) => {
         { 
           name: advisor1_name, 
           phone: advisor1_phone, 
-          photo: getPhotoPath(uploadedPhotos.advisor1_photo, existingData?.advisors?.[0]?.photo)
+          photo: getPhotoPath('advisor1', uploadedPhotos.advisor1_photo, existingData?.advisors?.[0]?.photo)
         },
         { 
           name: advisor2_name, 
           phone: advisor2_phone, 
-          photo: getPhotoPath(uploadedPhotos.advisor2_photo, existingData?.advisors?.[1]?.photo)
+          photo: getPhotoPath('advisor2', uploadedPhotos.advisor2_photo, existingData?.advisors?.[1]?.photo)
         },
         { 
           name: advisor3_name, 
           phone: advisor3_phone, 
-          photo: getPhotoPath(uploadedPhotos.advisor3_photo, existingData?.advisors?.[2]?.photo)
+          photo: getPhotoPath('advisor3', uploadedPhotos.advisor3_photo, existingData?.advisors?.[2]?.photo)
         }
       ],
       president: { 
         name: president_name, 
         phone: president_phone, 
-        photo: getPhotoPath(uploadedPhotos.president_photo, existingData?.president?.photo)
+        photo: getPhotoPath('president', uploadedPhotos.president_photo, existingData?.president?.photo)
       },
       vicePresidents: [
         { 
           name: vp1_name, 
           phone: vp1_phone, 
-          photo: getPhotoPath(uploadedPhotos.vp1_photo, existingData?.vicePresidents?.[0]?.photo)
+          photo: getPhotoPath('vp1', uploadedPhotos.vp1_photo, existingData?.vicePresidents?.[0]?.photo)
         },
         { 
           name: vp2_name, 
           phone: vp2_phone, 
-          photo: getPhotoPath(uploadedPhotos.vp2_photo, existingData?.vicePresidents?.[1]?.photo)
+          photo: getPhotoPath('vp2', uploadedPhotos.vp2_photo, existingData?.vicePresidents?.[1]?.photo)
         }
       ],
       secretary: { 
         name: secretary_name, 
         phone: secretary_phone, 
-        photo: getPhotoPath(uploadedPhotos.secretary_photo, existingData?.secretary?.photo)
+        photo: getPhotoPath('secretary', uploadedPhotos.secretary_photo, existingData?.secretary?.photo)
       },
       treasurer: { 
         name: treasurer_name, 
         phone: treasurer_phone, 
-        photo: getPhotoPath(uploadedPhotos.treasurer_photo, existingData?.treasurer?.photo)
+        photo: getPhotoPath('treasurer', uploadedPhotos.treasurer_photo, existingData?.treasurer?.photo)
       },
       committees: [
         { 
           name: dev_committee_name, 
           phone: dev_committee_phone, 
-          photo: getPhotoPath(uploadedPhotos.dev_committee_photo, existingData?.committees?.[0]?.photo), 
+          photo: getPhotoPath('dev_committee', uploadedPhotos.dev_committee_photo, existingData?.committees?.[0]?.photo), 
           type: 'Development' 
         },
         { 
           name: tournament_committee_name, 
           phone: tournament_committee_phone, 
-          photo: getPhotoPath(uploadedPhotos.tournament_committee_photo, existingData?.committees?.[1]?.photo), 
+          photo: getPhotoPath('tournament_committee', uploadedPhotos.tournament_committee_photo, existingData?.committees?.[1]?.photo), 
           type: 'Tournament' 
         },
         { 
           name: disciplinary_committee_name, 
           phone: disciplinary_committee_phone, 
-          photo: getPhotoPath(uploadedPhotos.disciplinary_committee_photo, existingData?.committees?.[2]?.photo), 
+          photo: getPhotoPath('disciplinary_committee', uploadedPhotos.disciplinary_committee_photo, existingData?.committees?.[2]?.photo), 
           type: 'Disciplinary' 
         }
       ]
