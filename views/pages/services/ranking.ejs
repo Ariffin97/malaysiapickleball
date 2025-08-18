@@ -185,6 +185,36 @@
   </main>
 
   <%- include('../../partials/footer') %>
+  
+  <!-- Data Notice Modal -->
+  <div id="dataNoticeModal" class="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl max-w-md w-full shadow-2xl">
+      <!-- Header -->
+      <div class="bg-gradient-to-r from-yellow-500 to-orange-500 text-white p-6 rounded-t-2xl">
+        <div class="flex items-center justify-center mb-2">
+          <svg class="w-8 h-8 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z"></path>
+          </svg>
+          <h2 class="text-xl font-bold">Notice</h2>
+        </div>
+      </div>
+      
+      <!-- Content -->
+      <div class="p-6">
+        <p class="text-gray-700 text-center leading-relaxed mb-6">
+          All the data shown here is just dummy information. The real data will be displayed in the future.
+        </p>
+        
+        <!-- Close Button -->
+        <div class="text-center">
+          <button id="closeDataNotice" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-semibold transition-colors duration-200">
+            I Understand
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <script src="/js/script.js"></script>
   
   <script>
@@ -276,6 +306,9 @@
         img.src = src;
       });
       
+      // Show data notice modal
+      showDataNoticeModal();
+      
       // Simulate loading
       setTimeout(() => {
         document.getElementById('loading-section').classList.add('hidden');
@@ -288,6 +321,38 @@
         loadRankings(currentCategory);
       }, 1000);
     });
+
+    // Data Notice Modal functionality
+    function showDataNoticeModal() {
+      const modal = document.getElementById('dataNoticeModal');
+      const closeButton = document.getElementById('closeDataNotice');
+      
+      // Show modal
+      modal.style.display = 'flex';
+      document.body.style.overflow = 'hidden'; // Prevent background scrolling
+      
+      // Close modal when button is clicked
+      closeButton.addEventListener('click', function() {
+        modal.style.display = 'none';
+        document.body.style.overflow = 'auto'; // Restore scrolling
+      });
+      
+      // Close modal when clicking outside
+      modal.addEventListener('click', function(e) {
+        if (e.target === modal) {
+          modal.style.display = 'none';
+          document.body.style.overflow = 'auto'; // Restore scrolling
+        }
+      });
+      
+      // Close modal with Escape key
+      document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape' && modal.style.display === 'flex') {
+          modal.style.display = 'none';
+          document.body.style.overflow = 'auto'; // Restore scrolling
+        }
+      });
+    }
 
          function createCategoryButtons() {
        const mobileContainer = document.getElementById('category-buttons-mobile');
