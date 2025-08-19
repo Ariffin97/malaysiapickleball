@@ -7,97 +7,205 @@
   <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
   <link rel="stylesheet" href="/css/styles.css">
   <link rel="icon" href="/favicon.ico" type="image/x-icon">
-  <style>
-    .content-section {
-      background: white;
-      box-shadow: 0 0 30px rgba(0, 0, 0, 0.06);
-      border-radius: 0;
-      margin-top: 0;
-      position: relative;
-      z-index: 2;
-    }
-  </style>
 </head>
 <body class="bg-gray-50">
   <%- include('../../partials/header') %>
 
-  <!-- Simple page heading moved into content -->
+  <main class="min-h-screen bg-white" style="padding-top: var(--navbar-height);">
+    <div class="max-w-5xl mx-auto py-12 px-6 lg:px-8">
+      
+      <!-- Page Header -->
+      <header class="text-center mb-16">
+        <h1 class="text-4xl font-bold text-gray-900 mb-4">Venue Guidelines</h1>
+        <div class="w-24 h-1 bg-blue-600 mx-auto mb-6"></div>
+        <p class="text-xl text-gray-600 max-w-3xl mx-auto leading-relaxed">
+          The Malaysia Pickleball Association (MPA) emphasizes the importance of standardizing all pickleball courts in Malaysia in accordance with internationally recognized specifications.
+        </p>
+      </header>
 
-  <!-- Content Section -->
-  <section class="content-section py-16" style="padding-top: calc(var(--navbar-height) + 16px);">
-    <div class="container mx-auto px-4">
-      <div class="max-w-4xl mx-auto">
-        <div class="prose max-w-none mb-8 text-gray-700">
-          <p class="text-lg md:text-xl font-semibold text-center">The Malaysia Pickleball Association (MPA) emphasizes the importance of standardizing all pickleball courts in Malaysia in accordance with internationally recognized specifications.</p>
-
-          <p class="mt-4 font-semibold">All court owners are required to:</p>
-          <ul class="list-disc list-inside space-y-2 mt-2">
-            <li><span class="font-semibold">Follow Standardized Dimensions</span> – Court measurements, markings, and net heights must strictly comply with MPA-approved dimensions to ensure fair play and consistent game quality across all venues.</li>
-            <li><span class="font-semibold">Ensure Clear Line Markings</span> – Proper line width, color contrast, and surface finish must be implemented to prevent disputes, including “ball in or out” decisions. A well-marked court eliminates unnecessary arguments and upholds the integrity of the game.</li>
-            <li><span class="font-semibold">Maintain Safety & Playability</span> – Surfaces must be non-slip and well-maintained, with sufficient spacing between courts, adequate lighting, and no obstructions within the playing area.</li>
-            <li><span class="font-semibold">Provide Fair Competition Conditions</span> – All facilities must ensure that playing conditions are equal for all players, avoiding any modifications or unofficial adjustments that could give unfair advantages.</li>
-            <li><span class="font-semibold">Support the Growth of Pickleball</span> – Owners are encouraged to work with MPA to promote community participation, organize events, and contribute to the development of the sport nationwide.</li>
-          </ul>
-
-          <p class="mt-4">The MPA’s objective is to ensure that every player in Malaysia enjoys the game under the same professional standards, whether for recreation or competition. We seek full cooperation from all court owners to uphold these principles.</p>
-        </div>
-        <!-- Images side by side on desktop, stacked on mobile -->
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-8 items-start">
-          <div class="flex justify-center">
-            <img src="/images/courtdimension2.png" alt="Pickleball Court Dimensions" class="w-full max-w-md md:max-w-sm h-auto object-contain" loading="lazy">
+      <!-- Requirements Section -->
+      <section class="mb-16">
+        <h2 class="text-2xl font-semibold text-gray-900 mb-8">Requirements for Court Owners</h2>
+        <div class="space-y-6">
+          <div class="border-l-4 border-blue-600 pl-6">
+            <h3 class="text-lg font-semibold text-gray-900 mb-2">Follow Standardized Dimensions</h3>
+            <p class="text-gray-700 leading-relaxed">Court measurements, markings, and net heights must strictly comply with MPA-approved dimensions to ensure fair play and consistent game quality across all venues.</p>
           </div>
-          <div class="flex flex-col items-center">
-            <img src="/images/Net.png" alt="Pickleball Net Diagram" class="w-full max-w-xl h-auto object-contain" loading="lazy">
-            <div class="mt-4 text-sm text-gray-700 w-full max-w-xl">
-              <div class="font-semibold mb-1">Line Tolerances:</div>
-              <ul class="list-disc list-inside space-y-1">
-                <li>Net line to outside of NVZ line: 7’ +/- 1⁄8”</li>
-                <li>Net line to outside of baseline: 22’ +/- 1⁄4”</li>
-                <li>Outside sideline to outside sideline: 20’ +/- 1⁄4”</li>
-                <li>Outside sideline to centerline: 10’ +/- 1⁄8”</li>
-                <li>Diagonal dimension to out of lines: 48’ 4” +/- 3⁄4”</li>
-              </ul>
+          <div class="border-l-4 border-blue-600 pl-6">
+            <h3 class="text-lg font-semibold text-gray-900 mb-2">Ensure Clear Line Markings</h3>
+            <p class="text-gray-700 leading-relaxed">Proper line width, color contrast, and surface finish must be implemented to prevent disputes, including "ball in or out" decisions. A well-marked court eliminates unnecessary arguments and upholds the integrity of the game.</p>
+          </div>
+          <div class="border-l-4 border-blue-600 pl-6">
+            <h3 class="text-lg font-semibold text-gray-900 mb-2">Maintain Safety & Playability</h3>
+            <p class="text-gray-700 leading-relaxed">Surfaces must be non-slip and well-maintained, with sufficient spacing between courts, adequate lighting, and no obstructions within the playing area.</p>
+          </div>
+          <div class="border-l-4 border-blue-600 pl-6">
+            <h3 class="text-lg font-semibold text-gray-900 mb-2">Provide Fair Competition Conditions</h3>
+            <p class="text-gray-700 leading-relaxed">All facilities must ensure that playing conditions are equal for all players, avoiding any modifications or unofficial adjustments that could give unfair advantages.</p>
+          </div>
+          <div class="border-l-4 border-blue-600 pl-6">
+            <h3 class="text-lg font-semibold text-gray-900 mb-2">Support the Growth of Pickleball</h3>
+            <p class="text-gray-700 leading-relaxed">Owners are encouraged to work with MPA to promote community participation, organize events, and contribute to the development of the sport nationwide.</p>
+          </div>
+        </div>
+        <div class="mt-8 p-6 bg-blue-50 rounded-lg">
+          <p class="text-gray-700 leading-relaxed">The MPA's objective is to ensure that every player in Malaysia enjoys the game under the same professional standards, whether for recreation or competition. We seek full cooperation from all court owners to uphold these principles.</p>
+        </div>
+      </section>
+      <!-- Court Specifications -->
+      <section class="mb-16">
+        <h2 class="text-2xl font-semibold text-gray-900 mb-8">Court Specifications</h2>
+        
+        <!-- Court Diagrams -->
+        <div class="grid grid-cols-1 gap-12 mb-12">
+          <div class="text-center">
+            <h3 class="text-lg font-semibold text-gray-900 mb-4">Court Dimensions</h3>
+            <img src="/images/courtdimension2.png" alt="Pickleball Court Dimensions" class="w-full max-w-2xl h-auto object-contain mx-auto" loading="lazy">
+          </div>
+          <div class="text-center">
+            <h3 class="text-xl font-semibold text-gray-900 mb-6">Net Specifications</h3>
+            <img src="/images/Net.png" alt="Pickleball Net Diagram" class="w-full max-w-4xl h-auto object-contain mx-auto mb-6" loading="lazy">
+            <div class="bg-blue-50 p-6 rounded-lg max-w-4xl mx-auto">
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="space-y-3">
+                  <h4 class="font-semibold text-gray-900">Key Measurements</h4>
+                  <ul class="space-y-2 text-gray-700 text-left">
+                    <li>• Net height at center: <strong>34 inches</strong></li>
+                    <li>• Net height at sidelines: <strong>36 inches</strong></li>
+                    <li>• Net width (bottom to top): <strong>30 inches minimum</strong></li>
+                    <li>• Net length: <strong>21 feet 9 inches minimum</strong></li>
+                  </ul>
+                </div>
+                <div class="space-y-3">
+                  <h4 class="font-semibold text-gray-900">Construction Details</h4>
+                  <ul class="space-y-2 text-gray-700 text-left">
+                    <li>• Posts: <strong>22 feet apart</strong></li>
+                    <li>• Post diameter: <strong>3 inches maximum</strong></li>
+                    <li>• Top edge: Cord/cable with 2-inch tape</li>
+                    <li>• Mesh prevents ball passage</li>
+                  </ul>
+                </div>
+              </div>
             </div>
           </div>
         </div>
 
-        <!-- Court specification narrative -->
-        <div class="mt-12 space-y-8 text-gray-700">
-          <section>
-            <h2 class="text-lg font-semibold text-gray-800 mb-2 tracking-tight">COURT LAYOUT</h2>
-            <ul class="list-disc list-inside space-y-1">
-              <li><span class="font-semibold">Baselines</span>: sit parallel to the net at the end of the court.</li>
-              <li><span class="font-semibold">Sidelines</span>: running the length of the court.</li>
-              <li><span class="font-semibold">Non-volley zone (NVZ)</span>: the area on either side of the net bound in by a line parallel to and 7 feet from the net and two sidelines.</li>
-              <li><span class="font-semibold">Centerline</span>: extends down the center from the baselines to the NVZ, dividing the court.</li>
-              <li><span class="font-semibold">Service area</span>: the area beyond the NVZ on either side of the centerline, including the centerline, sideline, and baseline.</li>
-            </ul>
-          </section>
-
-          <section>
-            <h2 class="text-lg font-semibold text-gray-800 mb-2 tracking-tight">SURFACE</h2>
-            <p>Any hard surface (i.e. concrete or asphalt) will suffice for outdoor gameplay, so long as it’s free of debris. Grass will not allow the ball to bounce, but driveways or cul-du-sacs can work fine with enough space. Ideally, the surface area should be about 30 feet by 60 feet. For more professional and permanent outdoor court surfacing, there are sport surfacing systems and services available.</p>
-          </section>
-
-          <section>
-            <h2 class="text-lg font-semibold text-gray-800 mb-2 tracking-tight">NETTING</h2>
-            <p>The net can be made out of any mesh material that will not allow a ball to pass through. It should be at least 21 feet 9 inches long, stretching from post to post; from the bottom edge to the top, it should be at least 30 inches wide. The posts should be 22 feet apart, and no more than 3 inches in diameter. Once the net is suspended from the posts across the center of the court, it should be 36 inches tall at the sidelines, and 34 inches tall in the center. The top edge of the net should have a cord or cable and it should be covered with a 2-inch tape.</p>
-          </section>
-
-          <section>
-            <h2 class="text-lg font-semibold text-gray-800 mb-2 tracking-tight">LINES</h2>
-            <p>Lines can be made with chalk, tape, paint, or even crayons, but generally tape is the best option for DIY.</p>
-          </section>
-
-          <section>
-            <h2 class="text-lg font-semibold text-gray-800 mb-2 tracking-tight">INDOOR</h2>
-            <p>The lines, netting, and space requirements for indoor pickleball play are the same as outdoor, but different lighting, fencing, and surfacing options are available, and should be considered. Indoor play allows for fluorescent lighting options that cannot function outside like HID and LED lights would. Indoor play also allows for different flooring options that are not feasible outdoors, like hardwood or rubberized surfaces. Fencing considerations can also vary more with indoor courts, as the surrounding environment does not pose as much a risk as it may outdoors.</p>
-          </section>
+        <!-- Line Tolerances -->
+        <div class="bg-gray-50 p-8 rounded-lg">
+          <h3 class="text-lg font-semibold text-gray-900 mb-4">Official Line Tolerances</h3>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div class="space-y-2">
+              <div class="flex justify-between">
+                <span class="text-gray-700">Net line to outside of NVZ line:</span>
+                <span class="font-mono text-gray-900">7' ± 1⁄8"</span>
+              </div>
+              <div class="flex justify-between">
+                <span class="text-gray-700">Net line to outside of baseline:</span>
+                <span class="font-mono text-gray-900">22' ± 1⁄4"</span>
+              </div>
+              <div class="flex justify-between">
+                <span class="text-gray-700">Outside sideline to outside sideline:</span>
+                <span class="font-mono text-gray-900">20' ± 1⁄4"</span>
+              </div>
+            </div>
+            <div class="space-y-2">
+              <div class="flex justify-between">
+                <span class="text-gray-700">Outside sideline to centerline:</span>
+                <span class="font-mono text-gray-900">10' ± 1⁄8"</span>
+              </div>
+              <div class="flex justify-between">
+                <span class="text-gray-700">Diagonal dimension to out of lines:</span>
+                <span class="font-mono text-gray-900">48' 4" ± 3⁄4"</span>
+              </div>
+            </div>
+          </div>
         </div>
+      </section>
 
-      </div>
+      <!-- Detailed Specifications -->
+      <section class="mb-16">
+        <h2 class="text-2xl font-semibold text-gray-900 mb-8">Detailed Construction Guidelines</h2>
+        
+        <div class="space-y-8">
+          <!-- Court Layout -->
+          <div class="border border-gray-200 rounded-lg p-6">
+            <h3 class="text-xl font-semibold text-gray-900 mb-4">Court Layout</h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div>
+                <h4 class="font-semibold text-gray-900 mb-2">Baselines</h4>
+                <p class="text-gray-700 mb-4">Sit parallel to the net at the end of the court.</p>
+                
+                <h4 class="font-semibold text-gray-900 mb-2">Sidelines</h4>
+                <p class="text-gray-700">Running the length of the court.</p>
+              </div>
+              <div>
+                <h4 class="font-semibold text-gray-900 mb-2">Non-Volley Zone (NVZ)</h4>
+                <p class="text-gray-700 mb-4">The area on either side of the net bound in by a line parallel to and 7 feet from the net and two sidelines.</p>
+                
+                <h4 class="font-semibold text-gray-900 mb-2">Centerline & Service Area</h4>
+                <p class="text-gray-700">Centerline extends from the baselines to the NVZ, dividing the court. Service area is beyond the NVZ on either side of the centerline.</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Surface Requirements -->
+          <div class="border border-gray-200 rounded-lg p-6">
+            <h3 class="text-xl font-semibold text-gray-900 mb-4">Surface Requirements</h3>
+            <p class="text-gray-700 leading-relaxed mb-4">
+              Any hard surface (concrete or asphalt) will suffice for outdoor gameplay, provided it's free of debris. The ideal surface area should be approximately 30 feet by 60 feet to allow adequate playing space.
+            </p>
+            <div class="bg-blue-50 p-4 rounded-lg">
+              <p class="text-gray-700 leading-relaxed">
+                <strong>Professional Installation:</strong> For permanent outdoor courts, specialized sport surfacing systems and professional installation services are recommended to ensure optimal playing conditions and longevity.
+              </p>
+            </div>
+          </div>
+
+          <!-- Netting Specifications -->
+          <div class="border border-gray-200 rounded-lg p-6">
+            <h3 class="text-xl font-semibold text-gray-900 mb-4">Netting Specifications</h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div>
+                <h4 class="font-semibold text-gray-900 mb-2">Net Material & Size</h4>
+                <ul class="space-y-1 text-gray-700">
+                  <li>• Mesh material that prevents ball passage</li>
+                  <li>• Minimum 21 feet 9 inches long</li>
+                  <li>• Minimum 30 inches wide (bottom to top)</li>
+                </ul>
+              </div>
+              <div>
+                <h4 class="font-semibold text-gray-900 mb-2">Posts & Height</h4>
+                <ul class="space-y-1 text-gray-700">
+                  <li>• Posts 22 feet apart, max 3 inches diameter</li>
+                  <li>• Net height: 36 inches at sidelines</li>
+                  <li>• Net height: 34 inches at center</li>
+                  <li>• Top edge with cord/cable, 2-inch tape cover</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+
+          <!-- Lines & Indoor Considerations -->
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <div class="border border-gray-200 rounded-lg p-6">
+              <h3 class="text-xl font-semibold text-gray-900 mb-4">Line Markings</h3>
+              <p class="text-gray-700 leading-relaxed">
+                Court lines can be created using various materials including chalk, tape, or paint. For DIY installations, tape is generally the most practical and effective option for achieving clean, consistent markings.
+              </p>
+            </div>
+
+            <div class="border border-gray-200 rounded-lg p-6">
+              <h3 class="text-xl font-semibold text-gray-900 mb-4">Indoor Considerations</h3>
+              <p class="text-gray-700 leading-relaxed">
+                Indoor courts maintain the same line, netting, and space requirements as outdoor courts, but offer additional options for lighting (fluorescent, HID, LED), flooring (hardwood, rubberized surfaces), and simplified fencing requirements due to controlled environment conditions.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
     </div>
-  </section>
+  </main>
 
   <%- include('../../partials/footer') %>
 

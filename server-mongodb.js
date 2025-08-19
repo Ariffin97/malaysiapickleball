@@ -460,6 +460,239 @@ app.post('/login', checkRateLimit, [
   }
 });
 
+// =============================================
+// MILESTONE ADMIN ROUTES
+// =============================================
+
+// Admin Milestone Management Page
+app.get('/admin/milestones', adminAuth, async (req, res) => {
+  try {
+    const milestones = await DatabaseService.getAllMilestones();
+    res.render('pages/admin/manage-milestones', { 
+      milestones, 
+      session: req.session 
+    });
+  } catch (error) {
+    console.error('Error loading milestones admin page:', error);
+    res.render('pages/admin/manage-milestones', { 
+      milestones: [], 
+      session: req.session,
+      error: 'Failed to load milestones' 
+    });
+  }
+});
+
+// API Routes for Milestones
+
+// Get all milestones (for admin)
+app.get('/api/milestones', adminAuth, async (req, res) => {
+  try {
+    const milestones = await DatabaseService.getAllMilestones();
+    res.json({ success: true, milestones });
+  } catch (error) {
+    console.error('Error fetching milestones:', error);
+    res.status(500).json({ success: false, message: 'Failed to fetch milestones' });
+  }
+});
+
+// Get published milestones (public)
+app.get('/api/milestones/published', async (req, res) => {
+  try {
+    const milestones = await DatabaseService.getPublishedMilestones();
+    res.json({ success: true, milestones });
+  } catch (error) {
+    console.error('Error fetching published milestones:', error);
+    res.status(500).json({ success: false, message: 'Failed to fetch milestones' });
+  }
+});
+
+// Get milestone by ID
+app.get('/api/milestones/:id', adminAuth, async (req, res) => {
+  try {
+    const milestone = await DatabaseService.getMilestoneById(req.params.id);
+    if (!milestone) {
+      return res.status(404).json({ success: false, message: 'Milestone not found' });
+    }
+    res.json({ success: true, milestone });
+  } catch (error) {
+    console.error('Error fetching milestone:', error);
+    res.status(500).json({ success: false, message: 'Failed to fetch milestone' });
+  }
+});
+
+// Create milestone
+app.post('/api/milestones', adminAuth, async (req, res) => {
+  try {
+    const { title, description, date, category, tags, status = 'published' } = req.body;
+    
+    // Validation
+    if (!title || !description || !date) {
+      return res.status(400).json({ 
+        success: false, 
+        message: 'Title, description, and date are required' 
+      });
+    }
+
+    // Handle image upload
+    let imagePath = null;
+    if (req.files && req.files.image) {
+      const imageFile = req.files.image;
+      const fileName = `milestone_${Date.now()}_${imageFile.name}`;
+      imagePath = `/uploads/${fileName}`;
+      
+      // Move file to uploads directory
+      await imageFile.mv(path.join(__dirname, 'public/uploads', fileName));
+    }
+
+    const milestoneData = {
+      title: title.trim(),
+      description: description.trim(),
+      date: new Date(date),
+      category: category || 'achievement',
+      tags: tags ? tags.split(',').map(tag => tag.trim()) : [],
+      status,
+      image: imagePath,
+      imageAlt: title,
+      createdBy: req.session.username || 'admin'
+    };
+
+    const milestone = await DatabaseService.createMilestone(milestoneData);
+    
+    res.json({ 
+      success: true, 
+      message: 'Milestone created successfully', 
+      milestone 
+    });
+
+  } catch (error) {
+    console.error('Error creating milestone:', error);
+    res.status(500).json({ 
+      success: false, 
+      message: 'Failed to create milestone: ' + error.message 
+    });
+  }
+});
+
+// Update milestone
+app.put('/api/milestones/:id', adminAuth, async (req, res) => {
+  try {
+    const { title, description, date, category, tags, status } = req.body;
+    
+    const updateData = {};
+    if (title) updateData.title = title.trim();
+    if (description) updateData.description = description.trim();
+    if (date) updateData.date = new Date(date);
+    if (category) updateData.category = category;
+    if (tags) updateData.tags = tags.split(',').map(tag => tag.trim());
+    if (status) updateData.status = status;
+
+    // Handle image upload
+    if (req.files && req.files.image) {
+      const imageFile = req.files.image;
+      const fileName = `milestone_${Date.now()}_${imageFile.name}`;
+      updateData.image = `/uploads/${fileName}`;
+      updateData.imageAlt = title || 'Milestone image';
+      
+      // Move file to uploads directory
+      await imageFile.mv(path.join(__dirname, 'public/uploads', fileName));
+    }
+
+    const milestone = await DatabaseService.updateMilestone(
+      req.params.id, 
+      updateData, 
+      req.session.username
+    );
+    
+    if (!milestone) {
+      return res.status(404).json({ success: false, message: 'Milestone not found' });
+    }
+
+    res.json({ 
+      success: true, 
+      message: 'Milestone updated successfully', 
+      milestone 
+    });
+
+  } catch (error) {
+    console.error('Error updating milestone:', error);
+    res.status(500).json({ 
+      success: false, 
+      message: 'Failed to update milestone: ' + error.message 
+    });
+  }
+});
+
+// Delete milestone
+app.delete('/api/milestones/:id', adminAuth, async (req, res) => {
+  try {
+    const milestone = await DatabaseService.deleteMilestone(req.params.id);
+    
+    if (!milestone) {
+      return res.status(404).json({ success: false, message: 'Milestone not found' });
+    }
+
+    res.json({ 
+      success: true, 
+      message: 'Milestone deleted successfully' 
+    });
+
+  } catch (error) {
+    console.error('Error deleting milestone:', error);
+    res.status(500).json({ 
+      success: false, 
+      message: 'Failed to delete milestone: ' + error.message 
+    });
+  }
+});
+
+// Toggle milestone status
+app.patch('/api/milestones/:id/toggle-status', adminAuth, async (req, res) => {
+  try {
+    const milestone = await DatabaseService.toggleMilestoneStatus(req.params.id);
+    
+    if (!milestone) {
+      return res.status(404).json({ success: false, message: 'Milestone not found' });
+    }
+
+    res.json({ 
+      success: true, 
+      message: `Milestone ${milestone.status === 'published' ? 'published' : 'unpublished'}`, 
+      milestone 
+    });
+
+  } catch (error) {
+    console.error('Error toggling milestone status:', error);
+    res.status(500).json({ 
+      success: false, 
+      message: 'Failed to toggle milestone status: ' + error.message 
+    });
+  }
+});
+
+// Toggle milestone feature
+app.patch('/api/milestones/:id/toggle-feature', adminAuth, async (req, res) => {
+  try {
+    const milestone = await DatabaseService.toggleMilestoneFeature(req.params.id);
+    
+    if (!milestone) {
+      return res.status(404).json({ success: false, message: 'Milestone not found' });
+    }
+
+    res.json({ 
+      success: true, 
+      message: `Milestone ${milestone.featured ? 'featured' : 'unfeatured'}`, 
+      milestone 
+    });
+
+  } catch (error) {
+    console.error('Error toggling milestone feature:', error);
+    res.status(500).json({ 
+      success: false, 
+      message: 'Failed to toggle milestone feature: ' + error.message 
+    });
+  }
+});
+
 // Continue with more routes...
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {

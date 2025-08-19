@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Profile - Malaysia Pickleball Association</title>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="/css/styles.css">
+  <link rel="icon" href="/favicon.ico" type="image/x-icon">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+  <style>
+    .profile-card {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      border-radius: 20px;
+      padding: 2rem;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .profile-card::before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      right: -50%;
+      width: 100%;
+      height: 100%;
+      background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+    }
+    
+    .profile-content {
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(10px);
+      border-radius: 15px;
+      position: relative;
+      z-index: 2;
+      padding: 2rem;
+    }
+    
+    .profile-avatar {
+      width: 120px;
+      height: 120px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #fbbf24, #f59e0b);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 1.5rem;
+      box-shadow: 0 10px 25px rgba(251, 191, 36, 0.3);
+    }
+    
+    .profile-avatar i {
+      font-size: 3rem;
+      color: white;
+    }
+    
+    .stat-card {
+      background: rgba(255, 255, 255, 0.8);
+      border-radius: 15px;
+      padding: 1.5rem;
+      text-align: center;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      backdrop-filter: blur(10px);
+      transition: all 0.3s ease;
+    }
+    
+    .stat-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
+    }
+  </style>
+</head>
+<body style="padding-top: var(--navbar-height);">
+  <%- include('../partials/header') %>
+
+  <main class="min-h-screen py-12" style="background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);">
+    <div class="container mx-auto px-4">
+      <!-- Header -->
+      <div class="text-center mb-12">
+        <h1 class="text-4xl font-bold text-gray-800 mb-4">User Profile</h1>
+        <p class="text-gray-600 max-w-2xl mx-auto">Manage your account information and preferences</p>
+      </div>
+
+      <!-- Profile Card -->
+      <div class="max-w-4xl mx-auto">
+        <div class="profile-card mb-8">
+          <div class="profile-content">
+            <div class="text-center mb-8">
+              <!-- Avatar -->
+              <div class="profile-avatar">
+                <% if (userType === 'admin') { %>
+                  <i class="fas fa-user-shield"></i>
+                <% } else if (userType === 'player') { %>
+                  <i class="fas fa-user"></i>
+                <% } else { %>
+                  <i class="fas fa-user-circle"></i>
+                <% } %>
+              </div>
+              
+              <!-- User Info -->
+              <h2 class="text-2xl font-bold text-gray-800 mb-2"><%= userData.username %></h2>
+              <p class="text-gray-600 mb-4"><%= userData.role %></p>
+              
+              <!-- Status Badge -->
+              <% if (userType === 'admin') { %>
+                <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-red-100 text-red-800">
+                  <i class="fas fa-shield-alt mr-2"></i>Administrator
+                </span>
+              <% } else if (userType === 'player') { %>
+                <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-green-800">
+                  <i class="fas fa-user-check mr-2"></i>Verified Player
+                </span>
+              <% } else { %>
+                <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-gray-100 text-gray-800">
+                  <i class="fas fa-user mr-2"></i>Guest User
+                </span>
+              <% } %>
+            </div>
+          </div>
+        </div>
+
+        <!-- Stats/Info Grid -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+          <!-- Account Type -->
+          <div class="stat-card">
+            <div class="text-3xl text-blue-500 mb-3">
+              <% if (userType === 'admin') { %>
+                <i class="fas fa-cog"></i>
+              <% } else if (userType === 'player') { %>
+                <i class="fas fa-table-tennis"></i>
+              <% } else { %>
+                <i class="fas fa-user-friends"></i>
+              <% } %>
+            </div>
+            <h3 class="text-lg font-semibold text-gray-800 mb-2">Account Type</h3>
+            <p class="text-gray-600"><%= userData.role %></p>
+          </div>
+
+          <!-- Login Time -->
+          <div class="stat-card">
+            <div class="text-3xl text-green-500 mb-3">
+              <i class="fas fa-clock"></i>
+            </div>
+            <h3 class="text-lg font-semibold text-gray-800 mb-2">Last Login</h3>
+            <p class="text-gray-600" id="loginTime">
+              <%= new Date(userData.loginTime).toLocaleString() %>
+            </p>
+          </div>
+
+          <!-- Session Status -->
+          <div class="stat-card">
+            <div class="text-3xl text-yellow-500 mb-3">
+              <i class="fas fa-signal"></i>
+            </div>
+            <h3 class="text-lg font-semibold text-gray-800 mb-2">Status</h3>
+            <p class="text-green-600 font-semibold">
+              <i class="fas fa-circle text-green-400 mr-1"></i>Online
+            </p>
+          </div>
+        </div>
+
+        <!-- Actions -->
+        <div class="bg-white rounded-2xl shadow-lg p-8">
+          <h3 class="text-xl font-bold text-gray-800 mb-6">Quick Actions</h3>
+          
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            <% if (userType === 'admin') { %>
+              <!-- Admin Actions -->
+              <a href="/admin/dashboard" class="flex items-center p-4 bg-blue-50 hover:bg-blue-100 rounded-xl transition-colors duration-200">
+                <i class="fas fa-tachometer-alt text-blue-600 text-xl mr-3"></i>
+                <span class="font-medium text-gray-800">Admin Dashboard</span>
+              </a>
+              
+              <a href="/admin/manage-milestones" class="flex items-center p-4 bg-green-50 hover:bg-green-100 rounded-xl transition-colors duration-200">
+                <i class="fas fa-trophy text-green-600 text-xl mr-3"></i>
+                <span class="font-medium text-gray-800">Manage Milestones</span>
+              </a>
+            <% } else if (userType === 'player') { %>
+              <!-- Player Actions -->
+              <a href="/player/dashboard" class="flex items-center p-4 bg-green-50 hover:bg-green-100 rounded-xl transition-colors duration-200">
+                <i class="fas fa-tachometer-alt text-green-600 text-xl mr-3"></i>
+                <span class="font-medium text-gray-800">Player Dashboard</span>
+              </a>
+            <% } %>
+            
+            <!-- Common Actions -->
+            <a href="/" class="flex items-center p-4 bg-yellow-50 hover:bg-yellow-100 rounded-xl transition-colors duration-200">
+              <i class="fas fa-home text-yellow-600 text-xl mr-3"></i>
+              <span class="font-medium text-gray-800">Back to Home</span>
+            </a>
+            
+            <a href="/logout" class="flex items-center p-4 bg-red-50 hover:bg-red-100 rounded-xl transition-colors duration-200">
+              <i class="fas fa-sign-out-alt text-red-600 text-xl mr-3"></i>
+              <span class="font-medium text-gray-800">Logout</span>
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <%- include('../partials/footer') %>
+</body>
+</html>

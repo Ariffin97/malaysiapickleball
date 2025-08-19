@@ -25,6 +25,41 @@ const dataStore = {
   users: [],
   players: [], // Store approved players
   playerRegistrations: [], // Store pending player registrations
+  milestones: [ // Add sample milestones
+    {
+      id: 1,
+      title: "MPA Foundation",
+      date: "2020-01-15",
+      description: "Malaysia Pickleball Association was officially established to promote and develop the sport of pickleball nationwide.",
+      image: "/images/milestone-foundation.jpg",
+      status: "published",
+      category: "foundation",
+      createdBy: "admin",
+      createdAt: "2020-01-15T00:00:00.000Z"
+    },
+    {
+      id: 2,
+      title: "First National Tournament",
+      date: "2021-03-22",
+      description: "Successfully organized the first-ever National Pickleball Championship with 200+ participants from 10 states.",
+      image: "/images/milestone-tournament.jpg",
+      status: "published",
+      category: "tournament",
+      createdBy: "admin",
+      createdAt: "2021-03-22T00:00:00.000Z"
+    },
+    {
+      id: 3,
+      title: "International Recognition",
+      date: "2022-08-10",
+      description: "MPA gained recognition from the International Federation of Pickleball and joined the Asian Pickleball Union.",
+      image: "/images/milestone-international.jpg",
+      status: "published",
+      category: "recognition",
+      createdBy: "admin",
+      createdAt: "2022-08-10T00:00:00.000Z"
+    }
+  ],
   backgroundImage: null,
   popupMessage: {
     active: false,
@@ -38,6 +73,12 @@ const dataStore = {
 let nextPlayerId = 1000; // Starting player ID
 const generatePlayerId = () => {
   return `MP${String(nextPlayerId++).padStart(4, '0')}`; // MP0001, MP0002, etc.
+};
+
+// Milestone ID generator
+let nextMilestoneId = 4; // Starting after existing milestones
+const generateMilestoneId = () => {
+  return nextMilestoneId++;
 };
 
 // Color mapping for tournament types
@@ -705,6 +746,23 @@ app.get('/admin/coaches', adminAuth, (req, res) => res.render('pages/admin/manag
 app.get('/admin/venues', adminAuth, (req, res) => res.render('pages/admin/manage-venue', { venues: dataStore.venues, session: req.session }));
 app.get('/admin/sponsorships', adminAuth, (req, res) => res.render('pages/admin/manage-sponsership', { sponsorships: dataStore.sponsorships, session: req.session }));
 app.get('/admin/rankings', adminAuth, (req, res) => res.render('pages/admin/manage-ranking', { rankings: dataStore.rankings, session: req.session }));
+
+// Milestone Admin Routes
+app.get('/admin/milestones', adminAuth, (req, res) => {
+  try {
+    res.render('pages/admin/manage-milestones', { 
+      milestones: dataStore.milestones, 
+      session: req.session 
+    });
+  } catch (error) {
+    console.error('Error loading milestones admin page:', error);
+    res.render('pages/admin/manage-milestones', { 
+      milestones: [], 
+      session: req.session,
+      error: 'Failed to load milestones' 
+    });
+  }
+});
 
 // Live Tournament Admin Routes
 app.get('/admin/live-tournament', adminAuth, (req, res) => {
@@ -1579,6 +1637,236 @@ app.post('/admin/players/reject', adminAuth, (req, res) => {
     console.error('Error rejecting player:', error);
     res.json({ success: false, message: 'Server error while rejecting registration.' });
   }
+});
+
+// =============================================
+// MILESTONE API ROUTES
+// =============================================
+
+// Get all milestones (admin)
+app.get('/api/milestones', adminAuth, (req, res) => {
+  try {
+    res.json({ success: true, milestones: dataStore.milestones });
+  } catch (error) {
+    console.error('Error fetching milestones:', error);
+    res.status(500).json({ success: false, message: 'Failed to fetch milestones' });
+  }
+});
+
+// Get published milestones (public)
+app.get('/api/milestones/published', (req, res) => {
+  try {
+    const publishedMilestones = dataStore.milestones.filter(m => m.status === 'published');
+    res.json({ success: true, milestones: publishedMilestones });
+  } catch (error) {
+    console.error('Error fetching published milestones:', error);
+    res.status(500).json({ success: false, message: 'Failed to fetch milestones' });
+  }
+});
+
+// Get milestone by ID
+app.get('/api/milestones/:id', adminAuth, (req, res) => {
+  try {
+    const milestone = dataStore.milestones.find(m => m.id == req.params.id);
+    if (!milestone) {
+      return res.status(404).json({ success: false, message: 'Milestone not found' });
+    }
+    res.json({ success: true, milestone });
+  } catch (error) {
+    console.error('Error fetching milestone:', error);
+    res.status(500).json({ success: false, message: 'Failed to fetch milestone' });
+  }
+});
+
+// Create milestone
+app.post('/api/milestones', adminAuth, (req, res) => {
+  try {
+    const { title, description, date, category, tags, status = 'published' } = req.body;
+    
+    // Validation
+    if (!title || !description || !date) {
+      return res.status(400).json({ 
+        success: false, 
+        message: 'Title, description, and date are required' 
+      });
+    }
+
+    // Handle image upload
+    let imagePath = null;
+    if (req.files && req.files.image) {
+      const imageFile = req.files.image;
+      const fileName = `milestone_${Date.now()}_${imageFile.name}`;
+      imagePath = `/uploads/${fileName}`;
+      
+      // Move file to uploads directory
+      imageFile.mv(path.join(__dirname, 'public/uploads', fileName));
+    }
+
+    const milestone = {
+      id: generateMilestoneId(),
+      title: title.trim(),
+      description: description.trim(),
+      date: date,
+      category: category || 'achievement',
+      tags: tags ? tags.split(',').map(tag => tag.trim()) : [],
+      status,
+      image: imagePath,
+      createdBy: req.session.username || 'admin',
+      createdAt: new Date().toISOString()
+    };
+
+    dataStore.milestones.push(milestone);
+    
+    res.json({ 
+      success: true, 
+      message: 'Milestone created successfully', 
+      milestone 
+    });
+
+  } catch (error) {
+    console.error('Error creating milestone:', error);
+    res.status(500).json({ 
+      success: false, 
+      message: 'Failed to create milestone: ' + error.message 
+    });
+  }
+});
+
+// Update milestone
+app.put('/api/milestones/:id', adminAuth, (req, res) => {
+  try {
+    const milestoneIndex = dataStore.milestones.findIndex(m => m.id == req.params.id);
+    
+    if (milestoneIndex === -1) {
+      return res.status(404).json({ success: false, message: 'Milestone not found' });
+    }
+
+    const { title, description, date, category, tags, status } = req.body;
+    const milestone = dataStore.milestones[milestoneIndex];
+    
+    // Update fields
+    if (title) milestone.title = title.trim();
+    if (description) milestone.description = description.trim();
+    if (date) milestone.date = date;
+    if (category) milestone.category = category;
+    if (tags) milestone.tags = tags.split(',').map(tag => tag.trim());
+    if (status) milestone.status = status;
+    milestone.updatedBy = req.session.username;
+    milestone.updatedAt = new Date().toISOString();
+
+    // Handle image upload
+    if (req.files && req.files.image) {
+      const imageFile = req.files.image;
+      const fileName = `milestone_${Date.now()}_${imageFile.name}`;
+      milestone.image = `/uploads/${fileName}`;
+      
+      // Move file to uploads directory
+      imageFile.mv(path.join(__dirname, 'public/uploads', fileName));
+    }
+
+    res.json({ 
+      success: true, 
+      message: 'Milestone updated successfully', 
+      milestone 
+    });
+
+  } catch (error) {
+    console.error('Error updating milestone:', error);
+    res.status(500).json({ 
+      success: false, 
+      message: 'Failed to update milestone: ' + error.message 
+    });
+  }
+});
+
+// Delete milestone
+app.delete('/api/milestones/:id', adminAuth, (req, res) => {
+  try {
+    const milestoneIndex = dataStore.milestones.findIndex(m => m.id == req.params.id);
+    
+    if (milestoneIndex === -1) {
+      return res.status(404).json({ success: false, message: 'Milestone not found' });
+    }
+
+    dataStore.milestones.splice(milestoneIndex, 1);
+
+    res.json({ 
+      success: true, 
+      message: 'Milestone deleted successfully' 
+    });
+
+  } catch (error) {
+    console.error('Error deleting milestone:', error);
+    res.status(500).json({ 
+      success: false, 
+      message: 'Failed to delete milestone: ' + error.message 
+    });
+  }
+});
+
+// Toggle milestone status
+app.patch('/api/milestones/:id/toggle-status', adminAuth, (req, res) => {
+  try {
+    const milestone = dataStore.milestones.find(m => m.id == req.params.id);
+    
+    if (!milestone) {
+      return res.status(404).json({ success: false, message: 'Milestone not found' });
+    }
+
+    milestone.status = milestone.status === 'published' ? 'draft' : 'published';
+    milestone.updatedBy = req.session.username;
+    milestone.updatedAt = new Date().toISOString();
+
+    res.json({ 
+      success: true, 
+      message: `Milestone ${milestone.status === 'published' ? 'published' : 'unpublished'}`, 
+      milestone 
+    });
+
+  } catch (error) {
+    console.error('Error toggling milestone status:', error);
+    res.status(500).json({ 
+      success: false, 
+      message: 'Failed to toggle milestone status: ' + error.message 
+    });
+  }
+});
+
+// Profile route
+app.get('/profile', (req, res) => {
+  // Check if user is logged in
+  if (!req.session || (!req.session.isAuthenticated && !req.session.isPlayerAuthenticated)) {
+    return res.redirect('/login');
+  }
+  
+  // Determine user type and data
+  let userData = null;
+  let userType = 'guest';
+  
+  if (req.session.isAuthenticated) {
+    // Admin user
+    userType = 'admin';
+    userData = {
+      username: 'admin',
+      role: 'Administrator',
+      loginTime: req.session.loginTime || new Date().toISOString()
+    };
+  } else if (req.session.isPlayerAuthenticated) {
+    // Player user
+    userType = 'player';
+    userData = req.session.playerData || {
+      username: 'Player',
+      role: 'Player',
+      loginTime: req.session.loginTime || new Date().toISOString()
+    };
+  }
+  
+  res.render('pages/profile', { 
+    session: req.session, 
+    userData: userData,
+    userType: userType,
+    backgroundImage: dataStore.backgroundImage 
+  });
 });
 
 // 404 Handler

@@ -81,7 +81,68 @@
 </head>
 <body class="bg-gray-50">
   <div class="min-h-screen bg-gray-50">
-    <div class="container mx-auto px-4 py-8">
+    <div class="flex">
+      <!-- Sidebar -->
+      <div class="w-64 bg-white shadow-lg min-h-screen">
+        <div class="p-6 border-b border-gray-200">
+          <div class="flex items-center space-x-3">
+            <img src="/images/mpa.png" alt="MPA Logo" class="w-8 h-8 object-contain">
+            <h2 class="text-lg font-bold text-gray-800">Quick Actions</h2>
+          </div>
+        </div>
+        
+        <!-- Quick Actions Sidebar Menu -->
+        <div class="p-4 space-y-2">
+          <a href="/admin/tournaments" class="flex items-center space-x-3 p-3 rounded-lg text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition-colors">
+            <i class="fas fa-trophy w-5"></i>
+            <span class="font-medium">Manage Tournaments</span>
+          </a>
+          <a href="/admin/news" class="flex items-center space-x-3 p-3 rounded-lg text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition-colors">
+            <i class="fas fa-newspaper w-5"></i>
+            <span class="font-medium">Manage News</span>
+          </a>
+          <a href="/admin/players" class="flex items-center space-x-3 p-3 rounded-lg text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition-colors">
+            <i class="fas fa-users w-5"></i>
+            <span class="font-medium">View Players</span>
+          </a>
+          <a href="/admin/referees" class="flex items-center space-x-3 p-3 rounded-lg text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition-colors">
+            <i class="fas fa-user-tie w-5"></i>
+            <span class="font-medium">Manage Referees</span>
+          </a>
+          <a href="/admin/venues" class="flex items-center space-x-3 p-3 rounded-lg text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition-colors">
+            <i class="fas fa-map-marker-alt w-5"></i>
+            <span class="font-medium">Manage Venues</span>
+          </a>
+          <a href="/admin/home" class="flex items-center space-x-3 p-3 rounded-lg text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition-colors">
+            <i class="fas fa-home w-5"></i>
+            <span class="font-medium">Manage Homepage</span>
+          </a>
+          <a href="/admin/home-stats" class="flex items-center space-x-3 p-3 rounded-lg text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition-colors">
+            <i class="fas fa-chart-bar w-5"></i>
+            <span class="font-medium">Manage Quick Stats</span>
+          </a>
+          <a href="/admin/milestones" class="flex items-center space-x-3 p-3 rounded-lg text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition-colors">
+            <i class="fas fa-trophy w-5"></i>
+            <span class="font-medium">Manage Milestones</span>
+          </a>
+          <a href="/admin/settings" class="flex items-center space-x-3 p-3 rounded-lg text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition-colors">
+            <i class="fas fa-cog w-5"></i>
+            <span class="font-medium">Settings</span>
+          </a>
+          <a href="/admin/organization-chart" class="flex items-center space-x-3 p-3 rounded-lg text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition-colors">
+            <i class="fas fa-sitemap w-5"></i>
+            <span class="font-medium">Manage Organization Chart</span>
+          </a>
+          <a href="/admin/messages" class="flex items-center space-x-3 p-3 rounded-lg text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition-colors">
+            <i class="fas fa-paper-plane w-5"></i>
+            <span class="font-medium">Send Messages</span>
+          </a>
+        </div>
+      </div>
+      
+      <!-- Main Content -->
+      <div class="flex-1">
+        <div class="container mx-auto px-4 py-8">
       <!-- Admin Header -->
       <div class="mb-8 bg-white rounded-xl shadow-lg p-6">
         <div class="flex flex-col md:flex-row justify-between items-start md:items-center">
@@ -171,58 +232,6 @@
       <div id="tab-content">
         <!-- Overview Tab -->
         <div class="tab-content active" id="overview-tab">
-          <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <!-- Quick Actions -->
-            <div class="dashboard-card bg-white p-6 rounded-xl shadow-lg">
-              <h3 class="text-xl font-bold text-gray-800 mb-4 flex items-center">
-                <i class="fas fa-bolt text-blue-600 mr-2"></i>
-                Quick Actions
-            </h3>
-              <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
-                <a href="/admin/tournaments" class="action-btn bg-gray-600 text-white p-4 rounded-lg text-center hover:bg-gray-700 transition-colors">
-                  <i class="fas fa-trophy text-2xl mb-2"></i>
-                  <div class="font-medium">Manage Tournaments</div>
-              </a>
-                <a href="/admin/news" class="action-btn bg-gray-600 text-white p-4 rounded-lg text-center hover:bg-gray-700 transition-colors">
-                  <i class="fas fa-newspaper text-2xl mb-2"></i>
-                  <div class="font-medium">Manage News</div>
-                </a>
-                <a href="/admin/players" class="action-btn bg-gray-600 text-white p-4 rounded-lg text-center hover:bg-gray-700 transition-colors">
-                  <i class="fas fa-users text-2xl mb-2"></i>
-                  <div class="font-medium">View Players</div>
-              </a>
-                
-                <a href="/admin/referees" class="action-btn bg-gray-600 text-white p-4 rounded-lg text-center hover:bg-gray-700 transition-colors">
-                  <i class="fas fa-whistle text-2xl mb-2"></i>
-                  <div class="font-medium">Manage Referees</div>
-              </a>
-                <a href="/admin/venues" class="action-btn bg-gray-600 text-white p-4 rounded-lg text-center hover:bg-gray-700 transition-colors">
-                  <i class="fas fa-map-marker-alt text-2xl mb-2"></i>
-                  <div class="font-medium">Manage Venues</div>
-                </a>
-                <a href="/admin/home" class="action-btn bg-gray-600 text-white p-4 rounded-lg text-center hover:bg-gray-700 transition-colors">
-                  <i class="fas fa-home text-2xl mb-2"></i>
-                  <div class="font-medium">Manage Homepage</div>
-              </a>
-                <a href="/admin/home-stats" class="action-btn bg-gray-600 text-white p-4 rounded-lg text-center hover:bg-gray-700 transition-colors">
-                  <i class="fas fa-chart-bar text-2xl mb-2"></i>
-                  <div class="font-medium">Manage Quick Stats</div>
-                </a>
-                <a href="/admin/settings" class="action-btn bg-gray-600 text-white p-4 rounded-lg text-center hover:bg-gray-700 transition-colors">
-                  <i class="fas fa-cog text-2xl mb-2"></i>
-                  <div class="font-medium">Settings</div>
-              </a>
-                <a href="/admin/organization-chart" class="action-btn bg-gray-600 text-white p-4 rounded-lg text-center hover:bg-gray-700 transition-colors">
-                  <i class="fas fa-sitemap text-2xl mb-2"></i>
-                  <div class="font-medium">Manage Organization Chart</div>
-              </a>
-                <a href="/admin/messages" class="action-btn bg-gray-600 text-white p-4 rounded-lg text-center hover:bg-gray-700 transition-colors">
-                  <i class="fas fa-paper-plane text-2xl mb-2"></i>
-                  <div class="font-medium">Send Messages</div>
-                </a>
-            </div>
-          </div>
-
             <!-- System Status -->
             <div class="dashboard-card bg-white p-6 rounded-xl shadow-lg">
               <h3 class="text-xl font-bold text-gray-800 mb-4 flex items-center">
@@ -250,7 +259,6 @@
                 </div>
               </div>
             </div>
-          </div>
                 </div>
 
         <!-- Registrations Tab -->
@@ -339,6 +347,7 @@
               </div>
             </div>
           </div>
+        </div>
         </div>
       </div>
     </div>

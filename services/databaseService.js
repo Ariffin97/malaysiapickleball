@@ -10,6 +10,7 @@ const TournamentUpdate = require('../models/TournamentUpdate');
 const Announcement = require('../models/Announcement');
 const TournamentNotice = require('../models/TournamentNotice');
 const Venue = require('../models/Venue');
+const Milestone = require('../models/Milestone');
 const LocalStorageService = require('./localStorageService');
 
 class DatabaseService {
@@ -1143,6 +1144,126 @@ Malaysia Pickleball Association Team`,
       }).sort({ createdAt: -1 });
     } catch (error) {
       console.error('Error getting tournament notices by tournament:', error);
+      throw error;
+    }
+  }
+
+  // Milestone operations
+  static async getAllMilestones() {
+    try {
+      return await Milestone.find().sort({ date: -1 });
+    } catch (error) {
+      console.error('Error getting milestones:', error);
+      throw error;
+    }
+  }
+
+  static async getPublishedMilestones() {
+    try {
+      return await Milestone.getPublished();
+    } catch (error) {
+      console.error('Error getting published milestones:', error);
+      throw error;
+    }
+  }
+
+  static async getMilestoneById(id) {
+    try {
+      return await Milestone.findById(id);
+    } catch (error) {
+      console.error('Error getting milestone by ID:', error);
+      throw error;
+    }
+  }
+
+  static async createMilestone(milestoneData) {
+    try {
+      const milestone = new Milestone(milestoneData);
+      return await milestone.save();
+    } catch (error) {
+      console.error('Error creating milestone:', error);
+      throw error;
+    }
+  }
+
+  static async updateMilestone(id, updateData, modifiedBy = null) {
+    try {
+      if (modifiedBy) {
+        updateData.updatedBy = modifiedBy;
+      }
+      
+      return await Milestone.findByIdAndUpdate(id, updateData, { 
+        new: true,
+        runValidators: true
+      });
+    } catch (error) {
+      console.error('Error updating milestone:', error);
+      throw error;
+    }
+  }
+
+  static async deleteMilestone(id) {
+    try {
+      return await Milestone.findByIdAndDelete(id);
+    } catch (error) {
+      console.error('Error deleting milestone:', error);
+      throw error;
+    }
+  }
+
+  static async getFeaturedMilestones() {
+    try {
+      return await Milestone.getFeatured();
+    } catch (error) {
+      console.error('Error getting featured milestones:', error);
+      throw error;
+    }
+  }
+
+  static async getMilestonesByCategory(category) {
+    try {
+      return await Milestone.getByCategory(category);
+    } catch (error) {
+      console.error('Error getting milestones by category:', error);
+      throw error;
+    }
+  }
+
+  static async getMilestonesByYear(year) {
+    try {
+      return await Milestone.getByYear(year);
+    } catch (error) {
+      console.error('Error getting milestones by year:', error);
+      throw error;
+    }
+  }
+
+  static async toggleMilestoneStatus(id) {
+    try {
+      const milestone = await Milestone.findById(id);
+      if (!milestone) {
+        throw new Error('Milestone not found');
+      }
+      
+      milestone.status = milestone.status === 'published' ? 'draft' : 'published';
+      return await milestone.save();
+    } catch (error) {
+      console.error('Error toggling milestone status:', error);
+      throw error;
+    }
+  }
+
+  static async toggleMilestoneFeature(id) {
+    try {
+      const milestone = await Milestone.findById(id);
+      if (!milestone) {
+        throw new Error('Milestone not found');
+      }
+      
+      milestone.featured = !milestone.featured;
+      return await milestone.save();
+    } catch (error) {
+      console.error('Error toggling milestone feature:', error);
       throw error;
     }
   }
