@@ -521,7 +521,7 @@
       width: auto; /* Flexible width based on content */
       min-width: 300px; /* Minimum width to maintain readability */
       max-width: 600px; /* Maximum width to prevent cards from being too wide */
-      height: 280px; /* Increased height for brief summary */
+      height: 250px; /* Increased height for brief summary */
       flex: 0 0 auto; /* Allow flexible sizing */
       overflow: hidden; /* Prevent content overflow */
     }
@@ -778,7 +778,7 @@
     .timeline-horizontal-container {
       position: relative;
       width: 100%;
-      height: 600px;
+      height: 700px;
       overflow-x: auto;
       overflow-y: hidden;
       /* Custom scrollbar styling */
@@ -885,6 +885,7 @@
       align-items: center;
       transition: all 0.3s ease;
       max-width: 420px;
+      min-height: 400px;
     }
     
     .milestone-content:hover {
@@ -939,6 +940,9 @@
       color: #6b7280;
       line-height: 1.6;
       max-width: 320px;
+      flex: 1;
+      display: flex;
+      align-items: flex-start;
     }
     
     /* Category colors */
@@ -954,7 +958,7 @@
     /* Mobile responsiveness */
     @media (max-width: 768px) {
       .timeline-horizontal-container {
-        height: 500px;
+        height: 600px;
         margin: 0 1rem;
       }
       
@@ -986,12 +990,13 @@
       
       .milestone-content {
         max-width: 360px;
+        min-height: 350px;
       }
       
       .milestone-content img,
       .milestone-content .image-placeholder {
         width: 320px;
-        height: 200px;
+        height: 250px;
       }
       
       .milestone-title {
@@ -1006,7 +1011,7 @@
     
     @media (max-width: 480px) {
       .timeline-horizontal-container {
-        height: 450px;
+        height: 550px;
         margin: 0 0.5rem;
       }
       
@@ -1038,12 +1043,13 @@
       
       .milestone-content {
         max-width: 300px;
+        min-height: 320px;
       }
       
       .milestone-content img,
       .milestone-content .image-placeholder {
         width: 280px;
-        height: 170px;
+        height: 250px;
       }
       
       .milestone-title {
