@@ -6,9 +6,16 @@ const { body, validationResult } = require('express-validator');
 const session = require('express-session');
 const path = require('path');
 const pdf = require('html-pdf');
+const cloudinary = require('cloudinary').v2;
 
 // Load environment variables
 require('dotenv').config();
+
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET
+});
 
 // MongoDB imports
 const { connectDB } = require('./config/database');
@@ -145,7 +152,8 @@ app.use(fileUpload({
     files: 20 // Maximum 20 files per request
   },
   abortOnLimit: false,
-  useTempFiles: false, // Use memory instead of temp files for better reliability
+  useTempFiles: true, // Use temp files for Cloudinary compatibility
+  tempFileDir: '/tmp/',
   safeFileNames: true,
   preserveExtension: true,
   createParentPath: true
@@ -5182,6 +5190,139 @@ app.patch('/api/milestones/:id/toggle-feature', adminAuth, async (req, res) => {
     res.status(500).json({ 
       success: false, 
       message: 'Failed to toggle milestone feature: ' + error.message 
+    });
+  }
+});
+
+// =============================================
+// CLOUDINARY TEST ROUTE
+// =============================================
+
+// Test page for Cloudinary upload
+app.get('/test-cloudinary', (req, res) => {
+  res.send(`
+    <html>
+      <head>
+        <title>Test Cloudinary Upload</title>
+        <style>
+          body { font-family: Arial, sans-serif; margin: 50px; }
+          .container { max-width: 600px; margin: 0 auto; }
+          .form-group { margin-bottom: 20px; }
+          input[type="file"] { margin-bottom: 10px; }
+          button { background: #007bff; color: white; padding: 10px 20px; border: none; border-radius: 4px; cursor: pointer; }
+          button:hover { background: #0056b3; }
+          .result { margin-top: 20px; padding: 20px; background: #f8f9fa; border-radius: 4px; }
+          .error { background: #f8d7da; color: #721c24; }
+          .success { background: #d4edda; color: #155724; }
+        </style>
+      </head>
+      <body>
+        <div class="container">
+          <h1>🌤️ Test Cloudinary Upload</h1>
+          <p>Upload an image to test if Cloudinary integration is working correctly.</p>
+          
+          <form id="uploadForm" enctype="multipart/form-data">
+            <div class="form-group">
+              <label for="testImage">Select Image:</label><br>
+              <input type="file" id="testImage" name="testImage" accept="image/*" required>
+            </div>
+            <button type="submit">Upload to Cloudinary</button>
+          </form>
+          
+          <div id="result" class="result" style="display: none;"></div>
+        </div>
+        
+        <script>
+          document.getElementById('uploadForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const resultDiv = document.getElementById('result');
+            const formData = new FormData();
+            const fileInput = document.getElementById('testImage');
+            
+            if (!fileInput.files[0]) {
+              resultDiv.innerHTML = '<p class="error">Please select a file</p>';
+              resultDiv.style.display = 'block';
+              return;
+            }
+            
+            formData.append('testImage', fileInput.files[0]);
+            
+            try {
+              resultDiv.innerHTML = '<p>Uploading...</p>';
+              resultDiv.className = 'result';
+              resultDiv.style.display = 'block';
+              
+              const response = await fetch('/test-cloudinary', {
+                method: 'POST',
+                body: formData
+              });
+              
+              const data = await response.json();
+              
+              if (data.success) {
+                resultDiv.innerHTML = \`
+                  <div class="success">
+                    <h3>✅ Upload Successful!</h3>
+                    <p><strong>Message:</strong> \${data.message}</p>
+                    <p><strong>Image URL:</strong> <a href="\${data.data.url}" target="_blank">\${data.data.url}</a></p>
+                    <p><strong>Public ID:</strong> \${data.data.public_id}</p>
+                    <p><strong>Size:</strong> \${data.data.width}x\${data.data.height} (\${Math.round(data.data.bytes/1024)}KB)</p>
+                    <img src="\${data.data.url}" style="max-width: 300px; margin-top: 10px;" alt="Uploaded image">
+                  </div>
+                \`;
+              } else {
+                resultDiv.innerHTML = \`<div class="error"><h3>❌ Upload Failed</h3><p>\${data.message}</p></div>\`;
+              }
+            } catch (error) {
+              resultDiv.innerHTML = \`<div class="error"><h3>❌ Error</h3><p>\${error.message}</p></div>\`;
+            }
+          });
+        </script>
+      </body>
+    </html>
+  `);
+});
+
+// Test Cloudinary upload
+app.post('/test-cloudinary', async (req, res) => {
+  try {
+    if (!req.files || !req.files.testImage) {
+      return res.status(400).json({ success: false, message: 'No image file uploaded' });
+    }
+
+    const imageFile = req.files.testImage;
+    console.log('📤 Testing Cloudinary upload for:', imageFile.name);
+
+    // Upload to Cloudinary
+    const result = await cloudinary.uploader.upload(imageFile.tempFilePath, {
+      folder: 'malaysia-pickleball-test',
+      resource_type: 'auto'
+    });
+
+    console.log('✅ Cloudinary upload successful!');
+    console.log('📸 Image URL:', result.secure_url);
+    console.log('🆔 Public ID:', result.public_id);
+
+    res.json({
+      success: true,
+      message: 'Image uploaded to Cloudinary successfully!',
+      data: {
+        url: result.secure_url,
+        public_id: result.public_id,
+        width: result.width,
+        height: result.height,
+        format: result.format,
+        bytes: result.bytes
+      }
+    });
+
+  } catch (error) {
+    console.error('❌ Cloudinary upload failed:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to upload to Cloudinary',
+      error: error.message
     });
   }
 });

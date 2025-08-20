@@ -19,14 +19,8 @@
       background: transparent;
       padding-top: 8rem;
       margin-top: 0;
-      min-height: 100vh;
     }
     
-    .main-container {
-      max-width: 1400px;
-      margin: 0 auto;
-      padding: 0 2rem;
-    }
     
          .main-title {
        text-align: center;
@@ -68,22 +62,11 @@
        border-radius: 2px;
      }
     
-         .org-chart-container {
-       background: white;
-       border-radius: 12px;
-       padding: 2rem;
-       margin-bottom: 2rem;
-       position: relative;
-       box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-       border: 1px solid #e2e8f0;
-       overflow-x: auto;
-     }
     
          .org-chart {
        display: flex;
        flex-direction: column;
        align-items: center;
-       min-width: 1000px;
        padding: 1rem 0;
      }
      
@@ -122,9 +105,8 @@
      
            .advisors-section {
         position: absolute;
-        left: 50px;
-        top: 50%;
-        transform: translateY(-50%);
+        left: 300px;
+        top: 300px;
         display: flex;
         flex-direction: column;
         gap: 0.8rem;
@@ -135,8 +117,8 @@
         display: flex;
         flex-direction: column;
         align-items: center;
-        margin-left: 290px;
-        width: calc(100% - 290px);
+        margin-left: 200px;
+        width: calc(100% - 200px);
       }
     
          .position-card {
@@ -176,9 +158,6 @@
        color: #1a202c;
      }
      
-     .position-card.president .position-phone {
-       color: #4a5568;
-     }
      
      .position-card.president:hover {
        box-shadow: 0 6px 16px rgba(0, 0, 0, 0.25);
@@ -203,9 +182,6 @@
        color: #1a202c;
      }
      
-     .position-card.vice-president .position-phone {
-       color: #4a5568;
-     }
      
      .position-card.vice-president:hover {
        box-shadow: 0 5px 14px rgba(0, 0, 0, 0.2);
@@ -230,9 +206,6 @@
        color: #1a202c;
      }
      
-     .position-card.advisor .position-phone {
-       color: #4a5568;
-     }
      
      .position-card.advisor:hover {
        box-shadow: 0 5px 14px rgba(0, 0, 0, 0.2);
@@ -257,9 +230,6 @@
        color: #1a202c;
      }
      
-     .position-card.executive .position-phone {
-       color: #4a5568;
-     }
      
      .position-card.executive:hover {
        box-shadow: 0 5px 14px rgba(0, 0, 0, 0.2);
@@ -284,9 +254,6 @@
        color: #1a202c;
      }
      
-     .position-card.committee .position-phone {
-       color: #4a5568;
-     }
      
      .position-card.committee:hover {
        box-shadow: 0 5px 14px rgba(0, 0, 0, 0.2);
@@ -322,12 +289,6 @@
        line-height: 1.3;
      }
      
-     .position-phone {
-       font-weight: 400;
-       font-size: 0.75rem;
-       color: #718096;
-       line-height: 1.2;
-     }
     
          .connector-line {
        display: none;
@@ -435,7 +396,6 @@
     
          @media (max-width: 768px) {
        .org-chart {
-         min-width: 800px;
          padding: 1rem 0;
        }
        
@@ -482,9 +442,6 @@
          font-size: 2rem;
        }
        
-       .main-container {
-         padding: 0 1rem;
-       }
      }
   </style>
 </head>
@@ -493,7 +450,6 @@
 
   <!-- Content Section -->
   <section class="content-section">
-    <div class="main-container">
         
         <!-- Page Title -->
         <div style="text-align: center; margin-bottom: 2rem;">
@@ -502,7 +458,6 @@
         </div>
 
                  <!-- Organization Chart -->
-         <div class="org-chart-container">
            <div class="org-chart">
                                                <!-- Advisors Section (Left Side) -->
                    <div class="advisors-section">
@@ -520,7 +475,6 @@
                              <% } %>
                            </div>
                            <div class="position-name"><%= advisor.name %></div>
-                           <div class="position-phone"><%= advisor.phone %></div>
                          </div>
                        <% }) %>
                      <% } else { %>
@@ -532,7 +486,6 @@
                            </div>
                          </div>
                          <div class="position-name">Tan Sri Dr. Lim</div>
-                         <div class="position-phone">+60 12-345 6789</div>
                        </div>
                        <div class="position-card advisor">
                          <div class="position-title">Advisor</div>
@@ -542,7 +495,6 @@
                            </div>
                          </div>
                          <div class="position-name">Dato' Sarah Ismail</div>
-                         <div class="position-phone">+60 12-345 6790</div>
                        </div>
                        <div class="position-card advisor">
                          <div class="position-title">Advisor</div>
@@ -552,7 +504,6 @@
                            </div>
                          </div>
                          <div class="position-name">Prof. Dr. Raj Kumar</div>
-                         <div class="position-phone">+60 12-345 6791</div>
                        </div>
                      <% } %>
                    </div>
@@ -573,7 +524,6 @@
                            <% } %>
                          </div>
                          <div class="position-name"><%= orgChartData?.president?.name || 'Datuk Ahmad Zulkarnain' %></div>
-                         <div class="position-phone"><%= orgChartData?.president?.phone || '+60 12-345 6780' %></div>
                        </div>
                      </div>
                  
@@ -593,7 +543,6 @@
                                <% } %>
                              </div>
                              <div class="position-name"><%= vp.name %></div>
-                             <div class="position-phone"><%= vp.phone %></div>
                            </div>
                          <% }) %>
                        <% } else { %>
@@ -605,7 +554,6 @@
                              </div>
                            </div>
                            <div class="position-name">Dato' Dr. Lim Chong</div>
-                           <div class="position-phone">+60 12-345 6781</div>
                          </div>
                          <div class="position-card vice-president">
                            <div class="position-title">Vice President</div>
@@ -615,7 +563,6 @@
                              </div>
                            </div>
                            <div class="position-name">Datuk Seri Wong Lee</div>
-                           <div class="position-phone">+60 12-345 6782</div>
                          </div>
                        <% } %>
                      </div>
@@ -634,7 +581,6 @@
                            <% } %>
                          </div>
                          <div class="position-name"><%= orgChartData?.secretary?.name || 'Mohd Azlan bin Abdullah' %></div>
-                         <div class="position-phone"><%= orgChartData?.secretary?.phone || '+60 12-345 6783' %></div>
                        </div>
                        <div class="position-card executive">
                          <div class="position-title">Treasurer</div>
@@ -648,7 +594,6 @@
                            <% } %>
                          </div>
                          <div class="position-name"><%= orgChartData?.treasurer?.name || 'Wong Mei Ling' %></div>
-                         <div class="position-phone"><%= orgChartData?.treasurer?.phone || '+60 12-345 6784' %></div>
                        </div>
                      </div>
                  
@@ -668,7 +613,6 @@
                                <% } %>
                              </div>
                              <div class="position-name"><%= committee.name %></div>
-                             <div class="position-phone"><%= committee.phone %></div>
                            </div>
                          <% }) %>
                        <% } else { %>
@@ -680,7 +624,6 @@
                              </div>
                            </div>
                            <div class="position-name">Chairman: Ahmad Fadzil</div>
-                           <div class="position-phone">+60 12-345 6785</div>
                          </div>
                          <div class="position-card committee">
                            <div class="position-title">Tournament Committee</div>
@@ -690,7 +633,6 @@
                              </div>
                            </div>
                            <div class="position-name">Chairman: Lim Wei Chen</div>
-                           <div class="position-phone">+60 12-345 6786</div>
                          </div>
                          <div class="position-card committee">
                            <div class="position-title">Disciplinary Committee</div>
@@ -700,13 +642,11 @@
                              </div>
                            </div>
                            <div class="position-name">Chairman: Dr. Kamal Singh</div>
-                           <div class="position-phone">+60 12-345 6787</div>
                          </div>
                        <% } %>
                      </div>
              </div>
            </div>
-         </div>
 
 
         <!-- Back Button -->
@@ -719,8 +659,6 @@
           </a>
         </div>
 
-      </div>
-    </div>
   </section>
 
   <%- include('../partials/footer') %>
