@@ -5198,6 +5198,11 @@ app.patch('/api/milestones/:id/toggle-feature', adminAuth, async (req, res) => {
 // CLOUDINARY TEST ROUTE
 // =============================================
 
+// Simple test route
+app.get('/test-route', (req, res) => {
+  res.json({ message: 'Test route is working!', cloudinary: 'ready' });
+});
+
 // Test page for Cloudinary upload (accessible without admin auth)
 app.get('/test-cloudinary', (req, res) => {
   res.send(`
