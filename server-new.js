@@ -14,7 +14,8 @@ require('dotenv').config();
 cloudinary.config({
   cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
   api_key: process.env.CLOUDINARY_API_KEY,
-  api_secret: process.env.CLOUDINARY_API_SECRET
+  api_secret: process.env.CLOUDINARY_API_SECRET,
+  secure: true
 });
 
 
@@ -107,7 +108,8 @@ app.use(helmet({
         "'unsafe-inline'",
         "'unsafe-hashes'",
         "https://cdn.jsdelivr.net",
-        "https://cdnjs.cloudflare.com"
+        "https://cdnjs.cloudflare.com",
+        "https://cdn.tailwindcss.com"
       ],
       'script-src-attr': ["'unsafe-inline'"],
       styleSrc: [
@@ -557,6 +559,20 @@ app.get('/events', async (req, res) => {
       session: req.session, 
       backgroundImage: '/images/defaultbg.png'
     });
+  }
+});
+
+// Training page route
+app.get('/training', async (req, res) => {
+  try {
+    const backgroundImage = await DatabaseService.getSetting('background_image', '/images/defaultbg.png');
+    res.render('pages/training', { 
+      session: req.session, 
+      backgroundImage: backgroundImage 
+    });
+  } catch (error) {
+    console.error('Training page error:', error);
+    res.status(500).render('error', { error: 'Failed to load training page' });
   }
 });
 
@@ -1280,20 +1296,35 @@ app.post('/player/register', [
       submittedAt: new Date()
     };
 
-    // Handle profile picture upload
+    // Handle profile picture upload to Cloudinary
     if (req.files && req.files.profilePicture) {
       const profilePicture = req.files.profilePicture;
-      const uploadPath = path.join(__dirname, 'public/uploads/profiles/', profilePicture.name);
       
-      // Create uploads directory if it doesn't exist
-      const fs = require('fs');
-      const uploadDir = path.dirname(uploadPath);
-      if (!fs.existsSync(uploadDir)) {
-        fs.mkdirSync(uploadDir, { recursive: true });
+      try {
+        const cloudinaryResult = await new Promise((resolve, reject) => {
+          cloudinary.uploader.upload_stream(
+            {
+              public_id: `registration_${Date.now()}`,
+              folder: 'player_registrations',
+              transformation: [
+                { width: 400, height: 400, crop: 'fill', gravity: 'face' },
+                { quality: 'auto:good' },
+                { format: 'auto' }
+              ],
+              tags: ['registration', 'profile_picture']
+            },
+            (error, result) => {
+              if (error) reject(error);
+              else resolve(result);
+            }
+          ).end(profilePicture.data);
+        });
+        
+        registrationData.profilePicture = cloudinaryResult.secure_url;
+      } catch (error) {
+        console.error('Failed to upload registration profile picture to Cloudinary:', error);
+        registrationData.profilePicture = null;
       }
-      
-      await profilePicture.mv(uploadPath);
-      registrationData.profilePicture = `/uploads/profiles/${profilePicture.name}`;
     }
 
     // Save registration to database
@@ -1549,18 +1580,32 @@ app.post('/player/update-profile', playerAuth, async (req, res) => {
         return res.json({ success: false, message: 'Image size must be less than 5MB' });
       }
       
-      const fileName = `profile_${Date.now()}_${file.name}`;
-      const uploadPath = path.join(__dirname, 'public/uploads', fileName);
-      
-      // Create uploads directory if it doesn't exist
-      const fs = require('fs');
-      const uploadDir = path.dirname(uploadPath);
-      if (!fs.existsSync(uploadDir)) {
-        fs.mkdirSync(uploadDir, { recursive: true });
+      // Upload to Cloudinary instead of local storage
+      try {
+        const cloudinaryResult = await new Promise((resolve, reject) => {
+          cloudinary.uploader.upload_stream(
+            {
+              public_id: `profile_${req.session.playerId}_${Date.now()}`,
+              folder: 'player_profiles',
+              transformation: [
+                { width: 400, height: 400, crop: 'fill', gravity: 'face' },
+                { quality: 'auto:good' },
+                { format: 'auto' }
+              ],
+              tags: ['profile_picture', `user_${req.session.playerId}`]
+            },
+            (error, result) => {
+              if (error) reject(error);
+              else resolve(result);
+            }
+          ).end(file.data);
+        });
+        
+        updateData.profilePicture = cloudinaryResult.secure_url;
+      } catch (error) {
+        console.error('Failed to upload profile picture to Cloudinary:', error);
+        return res.json({ success: false, message: 'Failed to upload profile picture' });
       }
-      
-      await file.mv(uploadPath);
-      updateData.profilePicture = `/uploads/${fileName}`;
     }
     
     await DatabaseService.updatePlayer(req.session.playerId, updateData);
@@ -1753,21 +1798,38 @@ app.post('/admin/venues', adminAuth, async (req, res) => {
     const { name, address, bookingUrl, totalCourts, owner, phone, mapsUrl, description, tournamentLevels } = req.body;
 
     // Handle multiple image uploads
-    const pathModule = require('path');
-    const fs = require('fs');
-    const uploadsDir = pathModule.join(__dirname, 'public', 'uploads', 'venues');
-    if (!fs.existsSync(uploadsDir)) {
-      fs.mkdirSync(uploadsDir, { recursive: true });
-    }
 
     let imageUrls = [];
     if (req.files && req.files.imageFiles) {
       const files = Array.isArray(req.files.imageFiles) ? req.files.imageFiles : [req.files.imageFiles];
-      for (const file of files) {
-        const safeName = Date.now() + '-' + file.name.replace(/[^a-zA-Z0-9._-]/g, '_');
-        const savePath = pathModule.join(uploadsDir, safeName);
-        await file.mv(savePath);
-        imageUrls.push(`/uploads/venues/${safeName}`);
+      for (let i = 0; i < files.length; i++) {
+        const file = files[i];
+        
+        try {
+          const cloudinaryResult = await new Promise((resolve, reject) => {
+            cloudinary.uploader.upload_stream(
+              {
+                public_id: `venue_${Date.now()}_${i}`,
+                folder: 'venues',
+                transformation: [
+                  { width: 1200, height: 800, crop: 'limit' },
+                  { quality: 'auto:good' },
+                  { format: 'auto' }
+                ],
+                tags: ['venue', `venue_${name.replace(/\s+/g, '_').toLowerCase()}`]
+              },
+              (error, result) => {
+                if (error) reject(error);
+                else resolve(result);
+              }
+            ).end(file.data);
+          });
+          
+          imageUrls.push(cloudinaryResult.secure_url);
+        } catch (error) {
+          console.error('Failed to upload venue image to Cloudinary:', error);
+          // Continue with other images, don't fail the entire request
+        }
       }
     }
 
@@ -1813,11 +1875,34 @@ app.post('/admin/venues/:id', adminAuth, async (req, res) => {
     let newImages = [];
     if (req.files && req.files.imageFiles) {
       const files = Array.isArray(req.files.imageFiles) ? req.files.imageFiles : [req.files.imageFiles];
-      for (const file of files) {
-        const safeName = Date.now() + '-' + file.name.replace(/[^a-zA-Z0-9._-]/g, '_');
-        const savePath = pathModule.join(uploadsDir, safeName);
-        await file.mv(savePath);
-        newImages.push(`/uploads/venues/${safeName}`);
+      for (let i = 0; i < files.length; i++) {
+        const file = files[i];
+        
+        try {
+          const cloudinaryResult = await new Promise((resolve, reject) => {
+            cloudinary.uploader.upload_stream(
+              {
+                public_id: `venue_update_${req.params.id}_${Date.now()}_${i}`,
+                folder: 'venues',
+                transformation: [
+                  { width: 1200, height: 800, crop: 'limit' },
+                  { quality: 'auto:good' },
+                  { format: 'auto' }
+                ],
+                tags: ['venue', 'venue_update']
+              },
+              (error, result) => {
+                if (error) reject(error);
+                else resolve(result);
+              }
+            ).end(file.data);
+          });
+          
+          newImages.push(cloudinaryResult.secure_url);
+        } catch (error) {
+          console.error('Failed to upload venue update image to Cloudinary:', error);
+          // Continue with other images, don't fail the entire request
+        }
       }
     }
 
@@ -1854,20 +1939,33 @@ app.post('/admin/home', adminAuth, async (req, res) => {
   try {
     if (req.files && req.files.backgroundImage) {
       const backgroundImage = req.files.backgroundImage;
-      const uploadPath = path.join(__dirname, 'public/uploads', backgroundImage.name);
       
-      // Create uploads directory if it doesn't exist
-      const fs = require('fs');
-      const uploadDir = path.dirname(uploadPath);
-      if (!fs.existsSync(uploadDir)) {
-        fs.mkdirSync(uploadDir, { recursive: true });
+      try {
+        const cloudinaryResult = await new Promise((resolve, reject) => {
+          cloudinary.uploader.upload_stream(
+            {
+              public_id: `background_${Date.now()}`,
+              folder: 'backgrounds',
+              transformation: [
+                { width: 1920, height: 1080, crop: 'limit' },
+                { quality: 'auto:good' },
+                { format: 'auto' }
+              ],
+              tags: ['background_image']
+            },
+            (error, result) => {
+              if (error) reject(error);
+              else resolve(result);
+            }
+          ).end(backgroundImage.data);
+        });
+        
+        // Save Cloudinary URL to database
+        await DatabaseService.setSetting('background_image', cloudinaryResult.secure_url);
+      } catch (error) {
+        console.error('Failed to upload background image to Cloudinary:', error);
+        throw error;
       }
-      
-      await backgroundImage.mv(uploadPath);
-      const imagePath = `/uploads/${backgroundImage.name}`;
-      
-      // Save to database
-      await DatabaseService.setSetting('background_image', imagePath);
     }
     
     // Check if it's an AJAX request
@@ -1899,20 +1997,33 @@ app.post('/admin/popup-image', adminAuth, async (req, res) => {
   try {
     if (req.files && req.files.popupImage) {
       const popupImage = req.files.popupImage;
-      const uploadPath = path.join(__dirname, 'public/uploads', popupImage.name);
       
-      // Create uploads directory if it doesn't exist
-      const fs = require('fs');
-      const uploadDir = path.dirname(uploadPath);
-      if (!fs.existsSync(uploadDir)) {
-        fs.mkdirSync(uploadDir, { recursive: true });
+      try {
+        const cloudinaryResult = await new Promise((resolve, reject) => {
+          cloudinary.uploader.upload_stream(
+            {
+              public_id: `popup_${Date.now()}`,
+              folder: 'popups',
+              transformation: [
+                { width: 600, height: 400, crop: 'limit' },
+                { quality: 'auto:good' },
+                { format: 'auto' }
+              ],
+              tags: ['popup_image']
+            },
+            (error, result) => {
+              if (error) reject(error);
+              else resolve(result);
+            }
+          ).end(popupImage.data);
+        });
+        
+        // Save Cloudinary URL to database
+        await DatabaseService.setSetting('popup_image', cloudinaryResult.secure_url);
+      } catch (error) {
+        console.error('Failed to upload popup image to Cloudinary:', error);
+        throw error;
       }
-      
-      await popupImage.mv(uploadPath);
-      const imagePath = `/uploads/${popupImage.name}`;
-      
-      // Save to database
-      await DatabaseService.setSetting('popup_image', imagePath);
     }
     
     // Check if it's an AJAX request
@@ -3120,25 +3231,31 @@ app.post('/admin/organization-chart/update', adminAuth, async (req, res) => {
         const file = req.files[field];
         const timestamp = Date.now();
         const randomId = Math.random().toString(36).substr(2, 9);
-        const fileExtension = file.name.split('.').pop();
-        const baseName = file.name.split('.').slice(0, -1).join('.');
-        const fileName = `org_chart_${field}_${timestamp}_${randomId}_${baseName}.${fileExtension}`;
-        const uploadPath = `./public/uploads/org_chart/${fileName}`;
-        
-        // Ensure directory exists
-        const fs = require('fs');
-        const path = require('path');
-        const dir = path.dirname(uploadPath);
-        if (!fs.existsSync(dir)) {
-          fs.mkdirSync(dir, { recursive: true });
-        }
         
         uploadPromises.push(
-          file.mv(uploadPath).then(() => {
-            console.log(`✅ Successfully uploaded ${field} to ${uploadPath}`);
-            uploadedPhotos[field] = `/uploads/org_chart/${fileName}`;
-          }).catch(err => {
-            console.error(`❌ Error uploading ${field}:`, err);
+          new Promise((resolve, reject) => {
+            cloudinary.uploader.upload_stream(
+              {
+                public_id: `org_chart_${field}_${timestamp}_${randomId}`,
+                folder: 'organization_chart',
+                transformation: [
+                  { width: 300, height: 300, crop: 'fill', gravity: 'face' },
+                  { quality: 'auto:good' },
+                  { format: 'auto' }
+                ],
+                tags: ['organization_chart', field]
+              },
+              (error, result) => {
+                if (error) {
+                  console.error(`❌ Error uploading ${field} to Cloudinary:`, error);
+                  reject(error);
+                } else {
+                  console.log(`✅ Successfully uploaded ${field} to Cloudinary: ${result.secure_url}`);
+                  uploadedPhotos[field] = result.secure_url;
+                  resolve(result);
+                }
+              }
+            ).end(file.data);
           })
         );
       } else {
@@ -4418,6 +4535,142 @@ app.post('/admin/settings/reject-admin/:id', adminAuth, async (req, res) => {
   }
 });
 
+// Training Events API Routes
+app.get('/api/training/events', async (req, res) => {
+  try {
+    const { startDate, endDate } = req.query;
+    
+    // Default to current month if no dates provided
+    const start = startDate ? new Date(startDate) : new Date(new Date().getFullYear(), new Date().getMonth(), 1);
+    const end = endDate ? new Date(endDate) : new Date(new Date().getFullYear(), new Date().getMonth() + 1, 0);
+    
+    const Course = require('./models/Course');
+    const Clinic = require('./models/Clinic');
+    
+    // Get courses and clinics in the date range
+    const courses = await Course.findByDateRange(start, end);
+    const clinics = await Clinic.findByDateRange(start, end);
+    
+    // Create a map of dates with their events
+    const events = {};
+    
+    // Process courses
+    courses.forEach(course => {
+      course.schedule.forEach(session => {
+        const dateKey = session.date.toISOString().split('T')[0];
+        if (!events[dateKey]) {
+          events[dateKey] = { courses: [], clinics: [] };
+        }
+        events[dateKey].courses.push({
+          id: course._id,
+          title: course.title,
+          level: course.level,
+          levelRange: course.levelRange,
+          startTime: session.startTime,
+          endTime: session.endTime,
+          duration: session.duration,
+          instructor: course.instructor.name,
+          venue: course.venue.name,
+          availableSpots: course.availableSpots,
+          price: course.price
+        });
+      });
+    });
+    
+    // Process clinics
+    clinics.forEach(clinic => {
+      const dateKey = clinic.date.toISOString().split('T')[0];
+      if (!events[dateKey]) {
+        events[dateKey] = { courses: [], clinics: [] };
+      }
+      events[dateKey].clinics.push({
+        id: clinic._id,
+        title: clinic.title,
+        type: clinic.type,
+        level: clinic.level,
+        levelRange: clinic.levelRange,
+        startTime: clinic.startTime,
+        endTime: clinic.endTime,
+        duration: clinic.duration,
+        instructor: clinic.instructor.name,
+        venue: clinic.venue.name,
+        availableSpots: clinic.availableSpots,
+        price: clinic.price,
+        dropInAllowed: clinic.dropInAllowed
+      });
+    });
+    
+    res.json({ success: true, events });
+  } catch (error) {
+    console.error('❌ Error fetching training events:', error);
+    res.status(500).json({ success: false, message: 'Failed to fetch training events' });
+  }
+});
+
+// Get specific course details
+app.get('/api/training/courses/:id', async (req, res) => {
+  try {
+    const Course = require('./models/Course');
+    const course = await Course.findById(req.params.id);
+    
+    if (!course) {
+      return res.status(404).json({ success: false, message: 'Course not found' });
+    }
+    
+    res.json({ success: true, course });
+  } catch (error) {
+    console.error('❌ Error fetching course:', error);
+    res.status(500).json({ success: false, message: 'Failed to fetch course details' });
+  }
+});
+
+// Get specific clinic details
+app.get('/api/training/clinics/:id', async (req, res) => {
+  try {
+    const Clinic = require('./models/Clinic');
+    const clinic = await Clinic.findById(req.params.id);
+    
+    if (!clinic) {
+      return res.status(404).json({ success: false, message: 'Clinic not found' });
+    }
+    
+    res.json({ success: true, clinic });
+  } catch (error) {
+    console.error('❌ Error fetching clinic:', error);
+    res.status(500).json({ success: false, message: 'Failed to fetch clinic details' });
+  }
+});
+
+// Admin API to create course
+app.post('/api/admin/training/courses', adminAuth, async (req, res) => {
+  try {
+    const Course = require('./models/Course');
+    const courseData = { ...req.body, createdBy: req.session.user.id };
+    const course = new Course(courseData);
+    await course.save();
+    
+    res.json({ success: true, course, message: 'Course created successfully' });
+  } catch (error) {
+    console.error('❌ Error creating course:', error);
+    res.status(500).json({ success: false, message: 'Failed to create course' });
+  }
+});
+
+// Admin API to create clinic
+app.post('/api/admin/training/clinics', adminAuth, async (req, res) => {
+  try {
+    const Clinic = require('./models/Clinic');
+    const clinicData = { ...req.body, createdBy: req.session.user.id };
+    const clinic = new Clinic(clinicData);
+    await clinic.save();
+    
+    res.json({ success: true, clinic, message: 'Clinic created successfully' });
+  } catch (error) {
+    console.error('❌ Error creating clinic:', error);
+    res.status(500).json({ success: false, message: 'Failed to create clinic' });
+  }
+});
+
 // API routes already added at the top of the file
 console.log('✅ API routes enabled at /api endpoint');
 
@@ -4559,17 +4812,40 @@ app.post('/admin/news/create', adminAuth, [
 
     if (req.files && req.files.mediaFile) {
       const mediaFile = req.files.mediaFile;
-      const fileName = `news_${Date.now()}_${mediaFile.name}`;
-      const uploadPath = path.join(__dirname, 'public/uploads', fileName);
 
-      await mediaFile.mv(uploadPath);
+      try {
+        const cloudinaryResult = await new Promise((resolve, reject) => {
+          cloudinary.uploader.upload_stream(
+            {
+              public_id: `news_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+              folder: 'news',
+              resource_type: mediaFile.mimetype.startsWith('video/') ? 'video' : 'image',
+              transformation: mediaFile.mimetype.startsWith('image/') ? [
+                { width: 1200, height: 800, crop: 'limit' },
+                { quality: 'auto:good' },
+                { format: 'auto' }
+              ] : [
+                { quality: 'auto:good' }
+              ],
+              tags: ['news_media']
+            },
+            (error, result) => {
+              if (error) reject(error);
+              else resolve(result);
+            }
+          ).end(mediaFile.data);
+        });
 
-      if (mediaFile.mimetype.startsWith('image/')) {
-        featuredImage = `/uploads/${fileName}`;
-        mediaType = 'image';
-      } else if (mediaFile.mimetype.startsWith('video/')) {
-        featuredVideo = `/uploads/${fileName}`;
-        mediaType = 'video';
+        if (mediaFile.mimetype.startsWith('image/')) {
+          featuredImage = cloudinaryResult.secure_url;
+          mediaType = 'image';
+        } else if (mediaFile.mimetype.startsWith('video/')) {
+          featuredVideo = cloudinaryResult.secure_url;
+          mediaType = 'video';
+        }
+      } catch (error) {
+        console.error('Failed to upload news media to Cloudinary:', error);
+        throw error;
       }
     }
 
@@ -4643,19 +4919,42 @@ app.put('/admin/news/:id', adminAuth, [
     // Handle file upload if present
     if (req.files && req.files.mediaFile) {
       const mediaFile = req.files.mediaFile;
-      const fileName = `news_${Date.now()}_${mediaFile.name}`;
-      const uploadPath = path.join(__dirname, 'public/uploads', fileName);
 
-      await mediaFile.mv(uploadPath);
+      try {
+        const cloudinaryResult = await new Promise((resolve, reject) => {
+          cloudinary.uploader.upload_stream(
+            {
+              public_id: `news_update_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+              folder: 'news',
+              resource_type: mediaFile.mimetype.startsWith('video/') ? 'video' : 'image',
+              transformation: mediaFile.mimetype.startsWith('image/') ? [
+                { width: 1200, height: 800, crop: 'limit' },
+                { quality: 'auto:good' },
+                { format: 'auto' }
+              ] : [
+                { quality: 'auto:good' }
+              ],
+              tags: ['news_media', 'update']
+            },
+            (error, result) => {
+              if (error) reject(error);
+              else resolve(result);
+            }
+          ).end(mediaFile.data);
+        });
 
-      if (mediaFile.mimetype.startsWith('image/')) {
-        updateData.featuredImage = `/uploads/${fileName}`;
-        updateData.featuredVideo = null;
-        updateData.mediaType = 'image';
-      } else if (mediaFile.mimetype.startsWith('video/')) {
-        updateData.featuredVideo = `/uploads/${fileName}`;
-        updateData.featuredImage = null;
-        updateData.mediaType = 'video';
+        if (mediaFile.mimetype.startsWith('image/')) {
+          updateData.featuredImage = cloudinaryResult.secure_url;
+          updateData.featuredVideo = null;
+          updateData.mediaType = 'image';
+        } else if (mediaFile.mimetype.startsWith('video/')) {
+          updateData.featuredVideo = cloudinaryResult.secure_url;
+          updateData.featuredImage = null;
+          updateData.mediaType = 'video';
+        }
+      } catch (error) {
+        console.error('Failed to upload news media update to Cloudinary:', error);
+        throw error;
       }
     }
 
@@ -5038,11 +5337,32 @@ app.post('/api/milestones', adminAuth, async (req, res) => {
     let imagePath = null;
     if (req.files && req.files.image) {
       const imageFile = req.files.image;
-      const fileName = `milestone_${Date.now()}_${imageFile.name}`;
-      imagePath = `/uploads/${fileName}`;
       
-      // Move file to uploads directory
-      await imageFile.mv(path.join(__dirname, 'public/uploads', fileName));
+      try {
+        const cloudinaryResult = await new Promise((resolve, reject) => {
+          cloudinary.uploader.upload_stream(
+            {
+              public_id: `milestone_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+              folder: 'milestones',
+              transformation: [
+                { width: 800, height: 600, crop: 'limit' },
+                { quality: 'auto:good' },
+                { format: 'auto' }
+              ],
+              tags: ['milestone', category || 'achievement']
+            },
+            (error, result) => {
+              if (error) reject(error);
+              else resolve(result);
+            }
+          ).end(imageFile.data);
+        });
+        
+        imagePath = cloudinaryResult.secure_url;
+      } catch (error) {
+        console.error('Failed to upload milestone image to Cloudinary:', error);
+        throw error;
+      }
     }
 
     const milestoneData = {
@@ -5090,12 +5410,33 @@ app.put('/api/milestones/:id', adminAuth, async (req, res) => {
     // Handle image upload
     if (req.files && req.files.image) {
       const imageFile = req.files.image;
-      const fileName = `milestone_${Date.now()}_${imageFile.name}`;
-      updateData.image = `/uploads/${fileName}`;
-      updateData.imageAlt = title || 'Milestone image';
       
-      // Move file to uploads directory
-      await imageFile.mv(path.join(__dirname, 'public/uploads', fileName));
+      try {
+        const cloudinaryResult = await new Promise((resolve, reject) => {
+          cloudinary.uploader.upload_stream(
+            {
+              public_id: `milestone_update_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+              folder: 'milestones',
+              transformation: [
+                { width: 800, height: 600, crop: 'limit' },
+                { quality: 'auto:good' },
+                { format: 'auto' }
+              ],
+              tags: ['milestone', 'update', category || 'achievement']
+            },
+            (error, result) => {
+              if (error) reject(error);
+              else resolve(result);
+            }
+          ).end(imageFile.data);
+        });
+        
+        updateData.image = cloudinaryResult.secure_url;
+        updateData.imageAlt = title || 'Milestone image';
+      } catch (error) {
+        console.error('Failed to upload milestone image update to Cloudinary:', error);
+        throw error;
+      }
     }
 
     const milestone = await DatabaseService.updateMilestone(

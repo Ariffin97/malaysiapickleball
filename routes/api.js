@@ -6,6 +6,7 @@ const DatabaseService = require('../services/databaseService');
 const Player = require('../models/Player');
 const Admin = require('../models/Admin');
 const PlayerRegistration = require('../models/PlayerRegistration');
+const cloudinary = require('cloudinary').v2;
 
 // Import utilities and middleware
 const JWTUtil = require('../utils/jwt');
@@ -944,20 +945,36 @@ router.post('/player/profile/picture', playerAuth, async (req, res) => {
       fs.mkdirSync(profilesDir, { recursive: true });
     }
 
-    const filePath = path.join(profilesDir, fileName);
+    // Upload to Cloudinary instead of local storage
+    const cloudinaryResult = await new Promise((resolve, reject) => {
+      cloudinary.uploader.upload_stream(
+        {
+          public_id: `profile_${userId}_${Date.now()}`,
+          folder: 'player_profiles',
+          transformation: [
+            { width: 400, height: 400, crop: 'fill', gravity: 'face' },
+            { quality: 'auto:good' },
+            { format: 'auto' }
+          ],
+          tags: ['profile_picture', `user_${userId}`]
+        },
+        (error, result) => {
+          if (error) reject(error);
+          else resolve(result);
+        }
+      ).end(profilePicture.data);
+    });
 
-    // Move file to upload directory
-    await profilePicture.mv(filePath);
-
-    // Update player profile picture in database
-    const profilePictureUrl = `/uploads/profiles/${fileName}`;
+    // Update player profile picture in database with CLOUDINARY URL
+    const profilePictureUrl = cloudinaryResult.secure_url;
     await Player.findByIdAndUpdate(userId, {
-      profilePicture: profilePictureUrl
+      profilePicture: profilePictureUrl,
+      profilePictureCloudinaryId: cloudinaryResult.public_id
     });
 
     return APIResponse.success(res, {
       profilePicture: profilePictureUrl,
-      fileName: fileName,
+      cloudinaryId: cloudinaryResult.public_id,
       size: profilePicture.size,
       type: profilePicture.mimetype
     }, 'Profile picture updated successfully');
