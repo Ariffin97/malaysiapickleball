@@ -11,6 +11,7 @@ const Announcement = require('../models/Announcement');
 const TournamentNotice = require('../models/TournamentNotice');
 const Venue = require('../models/Venue');
 const Milestone = require('../models/Milestone');
+const PastPresident = require('../models/PastPresident');
 const LocalStorageService = require('./localStorageService');
 
 class DatabaseService {
@@ -1264,6 +1265,90 @@ Malaysia Pickleball Association Team`,
       return await milestone.save();
     } catch (error) {
       console.error('Error toggling milestone feature:', error);
+      throw error;
+    }
+  }
+
+  // Past Presidents operations
+  static async getAllPastPresidents() {
+    try {
+      return await PastPresident.find().sort({ startYear: -1 });
+    } catch (error) {
+      console.error('Error getting past presidents:', error);
+      throw error;
+    }
+  }
+
+  static async getActivePastPresidents() {
+    try {
+      return await PastPresident.getActive();
+    } catch (error) {
+      console.error('Error getting active past presidents:', error);
+      throw error;
+    }
+  }
+
+  static async getPastPresidentById(id) {
+    try {
+      return await PastPresident.findById(id);
+    } catch (error) {
+      console.error('Error getting past president by ID:', error);
+      throw error;
+    }
+  }
+
+  static async createPastPresident(pastPresidentData) {
+    try {
+      const pastPresident = new PastPresident(pastPresidentData);
+      return await pastPresident.save();
+    } catch (error) {
+      console.error('Error creating past president:', error);
+      throw error;
+    }
+  }
+
+  static async updatePastPresident(id, updateData) {
+    try {
+      return await PastPresident.findByIdAndUpdate(
+        id, 
+        { ...updateData, updatedBy: updateData.updatedBy || 'admin' }, 
+        { new: true, runValidators: true }
+      );
+    } catch (error) {
+      console.error('Error updating past president:', error);
+      throw error;
+    }
+  }
+
+  static async deletePastPresident(id) {
+    try {
+      return await PastPresident.findByIdAndDelete(id);
+    } catch (error) {
+      console.error('Error deleting past president:', error);
+      throw error;
+    }
+  }
+
+  static async togglePastPresidentStatus(id) {
+    try {
+      const pastPresident = await PastPresident.findById(id);
+      if (!pastPresident) {
+        throw new Error('Past president not found');
+      }
+      
+      pastPresident.status = pastPresident.status === 'active' ? 'archived' : 'active';
+      return await pastPresident.save();
+    } catch (error) {
+      console.error('Error toggling past president status:', error);
+      throw error;
+    }
+  }
+
+  static async getPastPresidentsByYearRange(startYear, endYear) {
+    try {
+      return await PastPresident.getByYearRange(startYear, endYear);
+    } catch (error) {
+      console.error('Error getting past presidents by year range:', error);
       throw error;
     }
   }

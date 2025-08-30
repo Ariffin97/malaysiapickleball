@@ -4,6 +4,10 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Home - Malaysia Pickleball Association</title>
+  <link rel="icon" href="/images/mpa.png" type="image/png">
+  <link rel="icon" href="/images/mpa.png" sizes="32x32" type="image/png">
+  <link rel="icon" href="/images/mpa.png" sizes="16x16" type="image/png">
+  <link rel="apple-touch-icon" href="/images/mpa.png" sizes="180x180">
   <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
   <link rel="stylesheet" href="/css/styles.css">
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
@@ -1211,37 +1215,37 @@
             </div>
             <% var QS = (typeof quickStats !== 'undefined' && quickStats) ? quickStats : { players: 0, tournaments: 0, venues: 0, coaches: 0 }; %>
             <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
-              <div class="bg-white rounded-xl p-6 shadow-lg border border-gray-200/50 text-center">
+              <div class="bg-white rounded-xl p-6 shadow-lg border border-gray-200/50 text-center hover:shadow-xl transition-all duration-300 hover:scale-105">
                 <div class="flex items-center justify-center mb-2">
-                  <span class="text-2xl font-bold text-gray-900"><%= QS.players %></span>
-                  <span class="text-lg font-bold bg-gradient-to-r from-green-400 to-blue-400 bg-clip-text text-transparent">+</span>
+                  <span class="text-3xl font-bold text-gray-900"><%= QS.players %></span>
+                  <span class="text-xl font-bold bg-gradient-to-r from-green-400 to-blue-400 bg-clip-text text-transparent">+</span>
                 </div>
-                <h3 class="text-sm font-semibold text-gray-900 mb-1">Active Players</h3>
-                <p class="text-gray-700 text-xs">Registered members</p>
+                <h3 class="text-base font-semibold text-gray-900 mb-1">Active Players</h3>
+                <p class="text-gray-600 text-sm">Registered members</p>
               </div>
-              <div class="bg-white rounded-xl p-6 shadow-lg border border-gray-200/50 text-center">
+              <div class="bg-white rounded-xl p-6 shadow-lg border border-gray-200/50 text-center hover:shadow-xl transition-all duration-300 hover:scale-105">
                 <div class="flex items-center justify-center mb-2">
-                  <span class="text-2xl font-bold text-gray-900"><%= QS.tournaments %></span>
-                  <span class="text-lg font-bold bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">+</span>
+                  <span class="text-3xl font-bold text-gray-900"><%= QS.tournaments %></span>
+                  <span class="text-xl font-bold bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">+</span>
                 </div>
-                <h3 class="text-sm font-semibold text-gray-900 mb-1">Tournaments</h3>
-                <p class="text-gray-700 text-xs">Annual events</p>
+                <h3 class="text-base font-semibold text-gray-900 mb-1">Tournaments</h3>
+                <p class="text-gray-600 text-sm">Annual events</p>
               </div>
-              <div class="bg-white rounded-xl p-6 shadow-lg border border-gray-200/50 text-center">
+              <div class="bg-white rounded-xl p-6 shadow-lg border border-gray-200/50 text-center hover:shadow-xl transition-all duration-300 hover:scale-105">
                 <div class="flex items-center justify-center mb-2">
-                  <span class="text-2xl font-bold text-gray-900"><%= QS.venues %></span>
-                  <span class="text-lg font-bold bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">+</span>
+                  <span class="text-3xl font-bold text-gray-900"><%= QS.venues %></span>
+                  <span class="text-xl font-bold bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">+</span>
                 </div>
-                <h3 class="text-sm font-semibold text-gray-900 mb-1">Venues</h3>
-                <p class="text-gray-700 text-xs">Across Malaysia</p>
+                <h3 class="text-base font-semibold text-gray-900 mb-1">Venues</h3>
+                <p class="text-gray-600 text-sm">Across Malaysia</p>
               </div>
-              <div class="bg-white rounded-xl p-6 shadow-lg border border-gray-200/50 text-center">
+              <div class="bg-white rounded-xl p-6 shadow-lg border border-gray-200/50 text-center hover:shadow-xl transition-all duration-300 hover:scale-105">
                 <div class="flex items-center justify-center mb-2">
-                  <span class="text-2xl font-bold text-gray-900"><%= QS.coaches %></span>
-                  <span class="text-lg font-bold bg-gradient-to-r from-pink-400 to-red-400 bg-clip-text text-transparent">+</span>
+                  <span class="text-3xl font-bold text-gray-900"><%= QS.coaches %></span>
+                  <span class="text-xl font-bold bg-gradient-to-r from-pink-400 to-red-400 bg-clip-text text-transparent">+</span>
                 </div>
-                <h3 class="text-sm font-semibold text-gray-900 mb-1">Coaches</h3>
-                <p class="text-gray-700 text-xs">Certified trainers</p>
+                <h3 class="text-base font-semibold text-gray-900 mb-1">Coaches</h3>
+                <p class="text-gray-600 text-sm">Certified trainers</p>
               </div>
             </div>
             
@@ -1254,7 +1258,7 @@
 
 
           <!-- Guidelines Section -->
-          <div class="mb-12">
+          <div class="mb-12 mt-16">
             <div class="text-center mb-8">
               <h2 class="text-4xl font-bold text-gray-800 mb-2">Guidelines</h2>
               <div class="w-20 h-1 bg-gradient-to-r from-purple-400 to-pink-400 rounded-full mx-auto"></div>
@@ -1548,16 +1552,10 @@
 
             <!-- Video Section -->
             <div class="video-section w-full">
-              <div class="flex items-center justify-between mb-8 md:mb-6 mb-4">
+              <div class="mb-8 md:mb-6 mb-4">
                 <div>
                   <h2 class="text-4xl font-bold text-gray-800 mb-2">Featured Videos</h2>
                   <div class="w-20 h-1 bg-gradient-to-r from-purple-400 to-pink-400 rounded-full"></div>
-                </div>
-                <div class="flex items-center">
-                  <a href="/videos" class="text-green-400 hover:text-green-300 font-medium flex items-center transition-all duration-300 hover:scale-105 group">
-                    <span class="mr-2">View All</span>
-                    <i class="fas fa-arrow-right transition-transform duration-300 group-hover:translate-x-1"></i>
-                  </a>
                 </div>
               </div>
               <!-- Video List Container -->

@@ -2942,17 +2942,22 @@ app.get('/organization-chart', async (req, res) => {
       ]
     };
     
+    // Get past presidents data
+    const pastPresidents = await DatabaseService.getActivePastPresidents();
+    
     res.render('pages/organization-chart', { 
       session: req.session, 
       backgroundImage: backgroundImage,
-      orgChartData: orgChartData || defaultOrgChartData
+      orgChartData: orgChartData || defaultOrgChartData,
+      pastPresidents: pastPresidents || []
     });
   } catch (error) {
     console.error('Error loading organization chart page:', error);
     res.render('pages/organization-chart', { 
       session: req.session, 
       backgroundImage: '/images/defaultbg.png',
-      orgChartData: null
+      orgChartData: null,
+      pastPresidents: []
     });
   }
 });
@@ -3591,6 +3596,239 @@ app.post('/admin/organization-chart/force-fix', adminAuth, async (req, res) => {
     
   } catch (error) {
     console.error('Force-fix error:', error);
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// ===== PAST PRESIDENTS ROUTES =====
+
+// Display Past Presidents (public route for organization chart)
+app.get('/api/past-presidents', async (req, res) => {
+  try {
+    const pastPresidents = await DatabaseService.getActivePastPresidents();
+    res.json({ success: true, pastPresidents });
+  } catch (error) {
+    console.error('Error fetching past presidents:', error);
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// Admin: Manage Past Presidents page
+app.get('/admin/past-presidents', adminAuth, async (req, res) => {
+  try {
+    console.log('🔍 Loading admin past presidents management page...');
+    
+    const pastPresidents = await DatabaseService.getAllPastPresidents();
+    const message = req.query.success ? 'Operation completed successfully!' : 
+                   req.query.error ? 'An error occurred. Please try again.' : null;
+    
+    res.render('pages/admin/manage-past-presidents', { 
+      title: 'Manage Past Presidents',
+      pastPresidents: pastPresidents || [],
+      message,
+      adminUsername: req.session.adminUsername
+    });
+  } catch (error) {
+    console.error('Error loading admin past presidents page:', error);
+    res.render('pages/admin/manage-past-presidents', { 
+      title: 'Manage Past Presidents',
+      pastPresidents: [],
+      message: 'Error loading past presidents data',
+      adminUsername: req.session.adminUsername
+    });
+  }
+});
+
+// Admin: Create new past president
+app.post('/admin/past-presidents/create', adminAuth, fileUpload({
+  limits: { fileSize: 10 * 1024 * 1024 }, // 10MB limit
+  abortOnLimit: true,
+  createParentPath: true
+}), async (req, res) => {
+  try {
+    const { name, startYear, endYear, contribution, achievements } = req.body;
+    
+    // Validation
+    if (!name || !startYear || !endYear || !contribution) {
+      return res.redirect('/admin/past-presidents?error=missing_fields');
+    }
+    
+    let imageUrl = null;
+    let imageAlt = null;
+    
+    // Handle image upload
+    if (req.files && req.files.image) {
+      try {
+        const imageFile = req.files.image;
+        
+        // Upload to Cloudinary
+        const uploadResult = await cloudinary.uploader.upload(imageFile.tempFilePath || Buffer.from(imageFile.data).toString('base64'), {
+          folder: 'past_presidents',
+          transformation: [
+            { width: 300, height: 400, crop: 'fill', gravity: 'face' },
+            { quality: 'auto' }
+          ],
+          tags: ['past_president', name.toLowerCase().replace(/\s+/g, '_')]
+        });
+        
+        imageUrl = uploadResult.secure_url;
+        imageAlt = `Photo of ${name}`;
+        
+        console.log(`📸 Past President image uploaded: ${imageUrl}`);
+      } catch (uploadError) {
+        console.error('Error uploading past president image:', uploadError);
+        return res.redirect('/admin/past-presidents?error=image_upload');
+      }
+    }
+    
+    // Parse achievements if provided
+    let achievementsArray = [];
+    if (achievements) {
+      achievementsArray = achievements.split('\n').filter(a => a.trim().length > 0).map(a => a.trim());
+    }
+    
+    const pastPresidentData = {
+      name: name.trim(),
+      startYear: parseInt(startYear),
+      endYear: parseInt(endYear),
+      contribution: contribution.trim(),
+      achievements: achievementsArray,
+      image: imageUrl,
+      imageAlt: imageAlt,
+      status: 'active',
+      createdBy: req.session.adminUsername || 'admin'
+    };
+    
+    const newPastPresident = await DatabaseService.createPastPresident(pastPresidentData);
+    console.log(`✅ Past President created: ${newPastPresident.name}`);
+    
+    res.redirect('/admin/past-presidents?success=created');
+  } catch (error) {
+    console.error('Error creating past president:', error);
+    res.redirect('/admin/past-presidents?error=create_failed');
+  }
+});
+
+// Admin: Update past president
+app.post('/admin/past-presidents/update/:id', adminAuth, fileUpload({
+  limits: { fileSize: 10 * 1024 * 1024 }, // 10MB limit
+  abortOnLimit: true,
+  createParentPath: true
+}), async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { name, startYear, endYear, contribution, achievements } = req.body;
+    
+    // Get existing past president
+    const existingPastPresident = await DatabaseService.getPastPresidentById(id);
+    if (!existingPastPresident) {
+      return res.redirect('/admin/past-presidents?error=not_found');
+    }
+    
+    let imageUrl = existingPastPresident.image;
+    let imageAlt = existingPastPresident.imageAlt;
+    
+    // Handle image upload
+    if (req.files && req.files.image) {
+      try {
+        const imageFile = req.files.image;
+        
+        // Upload to Cloudinary
+        const uploadResult = await cloudinary.uploader.upload(imageFile.tempFilePath || Buffer.from(imageFile.data).toString('base64'), {
+          folder: 'past_presidents',
+          transformation: [
+            { width: 300, height: 400, crop: 'fill', gravity: 'face' },
+            { quality: 'auto' }
+          ],
+          tags: ['past_president', name.toLowerCase().replace(/\s+/g, '_')]
+        });
+        
+        imageUrl = uploadResult.secure_url;
+        imageAlt = `Photo of ${name}`;
+        
+        console.log(`📸 Past President image updated: ${imageUrl}`);
+      } catch (uploadError) {
+        console.error('Error uploading past president image:', uploadError);
+        return res.redirect('/admin/past-presidents?error=image_upload');
+      }
+    }
+    
+    // Parse achievements if provided
+    let achievementsArray = [];
+    if (achievements) {
+      achievementsArray = achievements.split('\n').filter(a => a.trim().length > 0).map(a => a.trim());
+    }
+    
+    const updateData = {
+      name: name.trim(),
+      startYear: parseInt(startYear),
+      endYear: parseInt(endYear),
+      contribution: contribution.trim(),
+      achievements: achievementsArray,
+      image: imageUrl,
+      imageAlt: imageAlt,
+      updatedBy: req.session.adminUsername || 'admin'
+    };
+    
+    const updatedPastPresident = await DatabaseService.updatePastPresident(id, updateData);
+    console.log(`✅ Past President updated: ${updatedPastPresident.name}`);
+    
+    res.redirect('/admin/past-presidents?success=updated');
+  } catch (error) {
+    console.error('Error updating past president:', error);
+    res.redirect('/admin/past-presidents?error=update_failed');
+  }
+});
+
+// Admin: Delete past president
+app.post('/admin/past-presidents/delete/:id', adminAuth, async (req, res) => {
+  try {
+    const { id } = req.params;
+    
+    const deletedPastPresident = await DatabaseService.deletePastPresident(id);
+    if (!deletedPastPresident) {
+      return res.redirect('/admin/past-presidents?error=not_found');
+    }
+    
+    console.log(`🗑️ Past President deleted: ${deletedPastPresident.name}`);
+    res.redirect('/admin/past-presidents?success=deleted');
+  } catch (error) {
+    console.error('Error deleting past president:', error);
+    res.redirect('/admin/past-presidents?error=delete_failed');
+  }
+});
+
+// Admin: Toggle past president status (active/archived)
+app.post('/admin/past-presidents/toggle-status/:id', adminAuth, async (req, res) => {
+  try {
+    const { id } = req.params;
+    
+    const updatedPastPresident = await DatabaseService.togglePastPresidentStatus(id);
+    if (!updatedPastPresident) {
+      return res.redirect('/admin/past-presidents?error=not_found');
+    }
+    
+    console.log(`🔄 Past President status toggled: ${updatedPastPresident.name} - ${updatedPastPresident.status}`);
+    res.redirect('/admin/past-presidents?success=status_updated');
+  } catch (error) {
+    console.error('Error toggling past president status:', error);
+    res.redirect('/admin/past-presidents?error=toggle_failed');
+  }
+});
+
+// Admin: Get past president details (API endpoint for editing)
+app.get('/api/admin/past-presidents/:id', adminAuth, async (req, res) => {
+  try {
+    const { id } = req.params;
+    
+    const pastPresident = await DatabaseService.getPastPresidentById(id);
+    if (!pastPresident) {
+      return res.status(404).json({ success: false, error: 'Past president not found' });
+    }
+    
+    res.json({ success: true, pastPresident });
+  } catch (error) {
+    console.error('Error getting past president details:', error);
     res.status(500).json({ success: false, error: error.message });
   }
 });

@@ -3,14 +3,15 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Organization Chart - Malaysia Pickleball Association</title>
+  <title>Executive Committee - Malaysia Pickleball Association</title>
   <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
   <link rel="stylesheet" href="/css/styles.css">
   <link rel="icon" href="/favicon.ico" type="image/x-icon">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
   <style>
     body {
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+      font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: #f8fafc;
       color: #1a202c;
       line-height: 1.6;
     }
@@ -19,354 +20,265 @@
       background: transparent;
       padding-top: 8rem;
       margin-top: 0;
+      min-height: 100vh;
     }
     
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 1.5rem;
+    }
     
-         .main-title {
-       text-align: center;
-       margin-bottom: 2rem;
-       padding: 1.5rem 0;
-       background: #1a202c;
-       border-radius: 12px;
-       box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-       color: white;
-       position: relative;
-       overflow: hidden;
-     }
+    .page-header {
+      text-align: center;
+      margin-bottom: 3rem;
+      padding-bottom: 2rem;
+      border-bottom: 1px solid #e2e8f0;
+    }
     
-         .main-title::before {
-       content: '';
-       position: absolute;
-       top: 0;
-       left: 0;
-       right: 0;
-       bottom: 0;
-       background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grain" width="100" height="100" patternUnits="userSpaceOnUse"><circle cx="50" cy="50" r="1" fill="white" opacity="0.05"/></pattern></defs><rect width="100" height="100" fill="url(%23grain)"/></svg>');
-     }
-    
-    .main-title h1 {
-      font-size: 2.5rem;
+    .page-title {
+      font-size: 2.75rem;
       font-weight: 800;
-      letter-spacing: -0.02em;
-      margin: 0;
-      position: relative;
-      z-index: 2;
-      text-shadow: 0 4px 8px rgba(0,0,0,0.3);
-    }
-    
-         .title-underline {
-       width: 80px;
-       height: 3px;
-       background: #e2e8f0;
-       margin: 0.8rem auto 0;
-       border-radius: 2px;
-     }
-    
-    
-         .org-chart {
-       display: flex;
-       flex-direction: column;
-       align-items: center;
-       padding: 1rem 0;
-     }
-     
-     .level {
-       display: flex;
-       justify-content: center;
-       align-items: center;
-       margin-bottom: 1.5rem;
-       width: 100%;
-       position: relative;
-     }
-     
-     .level-1 {
-       margin-bottom: 2rem;
-     }
-     
-     .level-2 {
-       margin-bottom: 2rem;
-     }
-     
-     .level-3 {
-       margin-bottom: 2rem;
-     }
-     
-     .level-4 {
-       margin-bottom: 2rem;
-     }
-     
-     .level-5 {
-       margin-bottom: 2rem;
-     }
-     
-     .level-6 {
-       margin-bottom: 2rem;
-     }
-     
-           .advisors-section {
-        position: absolute;
-        left: 300px;
-        top: 300px;
-        display: flex;
-        flex-direction: column;
-        gap: 0.8rem;
-        width: 200px;
-      }
-     
-           .main-structure {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        margin-left: 200px;
-        width: calc(100% - 200px);
-      }
-    
-         .position-card {
-       background: white;
-       color: #1a202c;
-       padding: 1.2rem 1rem;
-       border-radius: 12px;
-       text-align: center;
-       box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-       border: 2px solid #1a202c;
-       transition: all 0.3s ease;
-       min-width: 180px;
-       position: relative;
-     }
-    
-         .position-card:hover {
-       transform: translateY(-2px);
-       box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-       border-color: #cbd5e0;
-     }
-    
-         .position-card.president {
-       background: white;
-       color: #1a202c;
-       box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-       min-width: 220px;
-       border: 2px solid #1a202c;
-     }
-     
-     .position-card.president .position-title {
-       color: #1a202c;
-     }
-     
-     .position-card.president .position-photo {
-       background: #e2e8f0;
-       border-color: #1a202c;
-       color: #1a202c;
-     }
-     
-     
-     .position-card.president:hover {
-       box-shadow: 0 6px 16px rgba(0, 0, 0, 0.25);
-       transform: translateY(-3px) scale(1.01);
-     }
-     
-     .position-card.vice-president {
-       background: white;
-       color: #1a202c;
-       box-shadow: 0 3px 10px rgba(0, 0, 0, 0.15);
-       min-width: 200px;
-       border: 2px solid #1a202c;
-     }
-     
-     .position-card.vice-president .position-title {
-       color: #1a202c;
-     }
-     
-     .position-card.vice-president .position-photo {
-       background: #e2e8f0;
-       border-color: #1a202c;
-       color: #1a202c;
-     }
-     
-     
-     .position-card.vice-president:hover {
-       box-shadow: 0 5px 14px rgba(0, 0, 0, 0.2);
-       transform: translateY(-2px) scale(1.01);
-     }
-     
-     .position-card.advisor {
-       background: white;
-       color: #1a202c;
-       box-shadow: 0 3px 10px rgba(0, 0, 0, 0.15);
-       min-width: 200px;
-       border: 2px solid #1a202c;
-     }
-     
-     .position-card.advisor .position-title {
-       color: #1a202c;
-     }
-     
-     .position-card.advisor .position-photo {
-       background: #e2e8f0;
-       border-color: #1a202c;
-       color: #1a202c;
-     }
-     
-     
-     .position-card.advisor:hover {
-       box-shadow: 0 5px 14px rgba(0, 0, 0, 0.2);
-       transform: translateY(-2px) scale(1.01);
-     }
-     
-     .position-card.executive {
-       background: white;
-       color: #1a202c;
-       box-shadow: 0 3px 10px rgba(0, 0, 0, 0.15);
-       min-width: 180px;
-       border: 2px solid #1a202c;
-     }
-     
-     .position-card.executive .position-title {
-       color: #1a202c;
-     }
-     
-     .position-card.executive .position-photo {
-       background: #e2e8f0;
-       border-color: #1a202c;
-       color: #1a202c;
-     }
-     
-     
-     .position-card.executive:hover {
-       box-shadow: 0 5px 14px rgba(0, 0, 0, 0.2);
-       transform: translateY(-2px) scale(1.01);
-     }
-     
-     .position-card.committee {
-       background: white;
-       color: #1a202c;
-       box-shadow: 0 3px 10px rgba(0, 0, 0, 0.15);
-       min-width: 200px;
-       border: 2px solid #1a202c;
-     }
-     
-     .position-card.committee .position-title {
-       color: #1a202c;
-     }
-     
-     .position-card.committee .position-photo {
-       background: #e2e8f0;
-       border-color: #1a202c;
-       color: #1a202c;
-     }
-     
-     
-     .position-card.committee:hover {
-       box-shadow: 0 5px 14px rgba(0, 0, 0, 0.2);
-       transform: translateY(-2px) scale(1.01);
-     }
-    
-         .position-title {
-       font-weight: 700;
-       font-size: 0.9rem;
-       margin-bottom: 0.8rem;
-       text-transform: uppercase;
-       letter-spacing: 0.05em;
-       color: #4a5568;
-     }
-     
-     .position-photo {
-       width: 80px;
-       height: 80px;
-       border-radius: 8px;
-       margin: 0 auto 0.8rem;
-       background: #e2e8f0;
-       display: flex;
-       align-items: center;
-       justify-content: center;
-       font-size: 1.5rem;
-       color: #718096;
-     }
-     
-     .position-name {
-       font-weight: 600;
-       font-size: 0.85rem;
-       margin-bottom: 0.3rem;
-       line-height: 1.3;
-     }
-     
-    
-         .connector-line {
-       display: none;
-     }
-     
-     .advisor-connector {
-       display: none;
-     }
-    
-    .horizontal-connector {
-      width: 100%;
-      height: 2px;
-      background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
-      position: relative;
-      margin: 1rem 0;
-    }
-    
-    .horizontal-connector::before {
-      content: '';
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      width: 0;
-      height: 0;
-      border-left: 6px solid transparent;
-      border-right: 6px solid transparent;
-      border-top: 8px solid #667eea;
-    }
-    
-         .level-2 .position-card {
-       margin: 0 0.8rem;
-     }
-     
-     .level-3 .position-card {
-       margin: 0 1.2rem;
-     }
-     
-     .level-4 .position-card {
-       margin: 0 0.8rem;
-     }
-     
-     .level-5 .position-card {
-       margin: 0 1.5rem;
-     }
-    
-    .info-section {
-      background: white;
-      border-radius: 20px;
-      padding: 2rem;
-      margin-bottom: 2rem;
-      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.06);
-      border: 1px solid #e2e8f0;
-    }
-    
-    .info-title {
-      color: #2d3748;
-      font-weight: 800;
-      font-size: 1.5rem;
+      color: #1a202c;
       margin-bottom: 1rem;
+      letter-spacing: -0.02em;
+    }
+    
+    .page-subtitle {
+      font-size: 1.1rem;
+      color: #64748b;
+      max-width: 600px;
+      margin: 0 auto;
+      line-height: 1.7;
+    }
+    
+    /* Navigation Buttons */
+    .nav-buttons {
+      display: flex;
+      justify-content: center;
+      gap: 1rem;
+      margin-top: 2rem;
+    }
+    
+    .nav-btn {
+      padding: 0.75rem 1.5rem;
+      border: 2px solid #e2e8f0;
+      border-radius: 8px;
+      background: white;
+      color: #64748b;
+      font-weight: 600;
+      font-size: 0.9rem;
+      cursor: pointer;
+      transition: all 0.3s ease;
       display: flex;
       align-items: center;
+    }
+    
+    .nav-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.1);
+      border-color: #3b82f6;
+      color: #3b82f6;
+    }
+    
+    .nav-btn.active {
+      background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+      color: white;
+      border-color: #3b82f6;
+      box-shadow: 0 4px 14px rgba(59, 130, 246, 0.3);
+    }
+    
+    /* Section Styles */
+    .section-title {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: #1a202c;
+      margin-bottom: 1.5rem;
+      text-align: center;
+      position: relative;
+    }
+    
+    .section-title::after {
+      content: '';
+      width: 60px;
+      height: 3px;
+      background: linear-gradient(90deg, #3b82f6, #1d4ed8);
+      position: absolute;
+      bottom: -8px;
+      left: 50%;
+      transform: translateX(-50%);
+      border-radius: 2px;
+    }
+    
+    .committee-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 2rem;
+      margin-bottom: 3rem;
+    }
+    
+    .member-card {
+      text-align: center;
+      padding: 1rem;
+    }
+    
+    .member-photo {
+      width: 180px;
+      height: 240px;
+      border-radius: 12px;
+      margin: 0 auto 1.5rem;
+      overflow: hidden;
+      position: relative;
+    }
+    
+    .member-photo img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    
+    .member-photo-placeholder {
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(135deg, #e2e8f0 0%, #cbd5e0 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2.5rem;
+      color: #94a3b8;
+    }
+    
+    .member-title {
+      font-size: 0.875rem;
+      font-weight: 600;
+      color: #3b82f6;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      margin-bottom: 0.5rem;
+    }
+    
+    .member-name {
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: #1a202c;
+      margin-bottom: 1rem;
+      line-height: 1.3;
+    }
+    
+    /* Past Presidents Table */
+    .past-presidents-table {
+      width: 100%;
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+      overflow: hidden;
+      border-collapse: collapse;
+      margin-top: 2rem;
+    }
+    
+    .past-presidents-table th {
+      background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+      color: white;
+      padding: 1rem;
+      text-align: center;
+      font-weight: 600;
+      font-size: 0.9rem;
       text-transform: uppercase;
       letter-spacing: 0.05em;
     }
     
-    .info-icon {
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      color: white;
-      width: 48px;
-      height: 48px;
-      border-radius: 12px;
+    .past-presidents-table th:nth-child(1) {
+      width: 160px;
+    }
+    
+    .past-presidents-table th:nth-child(2) {
+      width: 200px;
+    }
+    
+    .past-presidents-table th:nth-child(3) {
+      width: 150px;
+    }
+    
+    .past-presidents-table th:nth-child(4) {
+      width: auto;
+    }
+    
+    .past-presidents-table td {
+      padding: 1.5rem 1rem;
+      border-bottom: 1px solid #e2e8f0;
+      vertical-align: top;
+      text-align: center;
+    }
+    
+    .past-presidents-table td:nth-child(1) {
+      width: 160px;
+    }
+    
+    .past-presidents-table td:nth-child(2) {
+      width: 200px;
+    }
+    
+    .past-presidents-table td:nth-child(3) {
+      width: 150px;
+    }
+    
+    .past-presidents-table td:nth-child(4) {
+      width: auto;
+      text-align: left;
+    }
+    
+    .past-presidents-table tbody tr:last-child td {
+      border-bottom: none;
+    }
+    
+    .past-presidents-table tbody tr:hover {
+      background-color: #f8fafc;
+    }
+    
+    .president-photo {
+      width: 120px;
+      height: 150px;
+      border-radius: 8px;
+      overflow: hidden;
+      border: 2px solid #e2e8f0;
+      margin: 0 auto;
+    }
+    
+    .president-photo img,
+    .president-photo-img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    
+    .president-photo-placeholder {
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(135deg, #e2e8f0 0%, #cbd5e0 100%);
       display: flex;
       align-items: center;
       justify-content: center;
-      margin-right: 1rem;
-      font-size: 1.25rem;
-      box-shadow: 0 6px 12px rgba(102, 126, 234, 0.3);
+      font-size: 2rem;
+      color: #94a3b8;
+    }
+    
+    .president-name {
+      font-weight: 700;
+      color: #1a202c;
+      font-size: 1rem;
+    }
+    
+    .president-term {
+      font-weight: 600;
+      color: #3b82f6;
+      font-size: 0.9rem;
+      text-align: center;
+    }
+    
+    .president-contribution {
+      color: #64748b;
+      line-height: 1.5;
+      font-size: 0.85rem;
     }
     
     .back-button {
@@ -377,292 +289,291 @@
       text-decoration: none;
       display: inline-flex;
       align-items: center;
-      font-weight: 700;
+      font-weight: 600;
       font-size: 1rem;
       transition: all 0.3s ease;
-      box-shadow: 0 6px 16px rgba(75, 85, 99, 0.3);
+      box-shadow: 0 4px 14px rgba(75, 85, 99, 0.3);
       border: 2px solid transparent;
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
     }
     
     .back-button:hover {
       transform: translateY(-2px);
-      box-shadow: 0 12px 24px rgba(75, 85, 99, 0.4);
+      box-shadow: 0 8px 20px rgba(75, 85, 99, 0.4);
       text-decoration: none;
       color: white;
-      border-color: rgba(255, 255, 255, 0.3);
+      border-color: rgba(255, 255, 255, 0.2);
     }
     
-         @media (max-width: 768px) {
-       .org-chart {
-         padding: 1rem 0;
-       }
-       
-       .advisors-section {
-         position: relative;
-         left: auto;
-         top: auto;
-         transform: none;
-         width: 100%;
-         margin-bottom: 2rem;
-         flex-direction: row;
-         justify-content: center;
-         gap: 1rem;
-       }
-       
-       .main-structure {
-         margin-left: 0;
-         width: 100%;
-       }
-       
-       .position-card {
-         padding: 1rem 1.5rem;
-         min-width: 150px;
-         font-size: 0.9rem;
-       }
-       
-       .position-card.president {
-         min-width: 200px;
-         font-size: 1rem;
-       }
-       
-       .position-card.advisor {
-         min-width: 180px;
-       }
-       
-       .level-2 .position-card,
-       .level-3 .position-card,
-       .level-4 .position-card,
-       .level-5 .position-card {
-         margin: 0 0.5rem;
-       }
-       
-       .main-title h1 {
-         font-size: 2rem;
-       }
-       
-     }
+    /* Hide sections by default */
+    .content-section-hidden {
+      display: none;
+    }
+    
+    @media (max-width: 768px) {
+      .page-title {
+        font-size: 2.25rem;
+      }
+      
+      .committee-grid {
+        grid-template-columns: 1fr;
+        gap: 1.5rem;
+      }
+      
+      .nav-buttons {
+        flex-direction: column;
+        align-items: center;
+      }
+      
+      .nav-btn {
+        width: 100%;
+        max-width: 300px;
+        justify-content: center;
+      }
+      
+      .past-presidents-table {
+        font-size: 0.8rem;
+      }
+      
+      .past-presidents-table th,
+      .past-presidents-table td {
+        padding: 0.75rem 0.5rem;
+      }
+      
+      .president-photo {
+        width: 90px;
+        height: 110px;
+      }
+    }
   </style>
 </head>
 <body>
   <%- include('../partials/header') %>
 
-  <!-- Content Section -->
   <section class="content-section">
+    <div class="container">
+      <!-- Page Header -->
+      <div class="page-header">
+        <h1 class="page-title">Executive Committee</h1>
+        <p class="page-subtitle">Meet the dedicated leaders driving Malaysia Pickleball Association forward with passion, expertise, and commitment to excellence in sports development.</p>
         
-        <!-- Page Title -->
-        <div style="text-align: center; margin-bottom: 2rem;">
-          <h1 style="font-size: 2.5rem; font-weight: 800; color: #1a202c; margin-bottom: 0.8rem;">MPA Committee</h1>
-          <div style="width: 200px; height: 3px; background: #1a202c; margin: 0 auto; border-radius: 2px;"></div>
+        <!-- Navigation Buttons -->
+        <div class="nav-buttons">
+          <button onclick="showExecutive()" class="nav-btn active" id="executive-btn">
+            <i class="fas fa-users" style="margin-right: 0.5rem;"></i>
+            Executive Committee
+          </button>
+          <button onclick="showPastPresidents()" class="nav-btn" id="past-btn">
+            <i class="fas fa-crown" style="margin-right: 0.5rem;"></i>
+            Past Presidents
+          </button>
+        </div>
+      </div>
+
+      <!-- Executive Committee Section -->
+      <div id="executive-section">
+        <!-- President Section -->
+        <div style="margin-bottom: 4rem;">
+          <h2 class="section-title">Leadership</h2>
+          <div class="committee-grid">
+            <div class="member-card" style="grid-column: 1 / -1; max-width: 400px; margin: 0 auto;">
+              <div class="member-photo">
+                <% if (orgChartData?.president?.photo && orgChartData.president.photo !== '👨‍💼' && orgChartData.president.photo !== '👩‍💼' && orgChartData.president.photo !== null) { %>
+                  <img src="<%= orgChartData.president.photo %>" alt="<%= orgChartData.president.name %>">
+                <% } else { %>
+                  <div class="member-photo-placeholder">
+                    <i class="fas fa-user"></i>
+                  </div>
+                <% } %>
+              </div>
+              <div class="member-title">President</div>
+              <div class="member-name"><%= orgChartData?.president?.name || 'Datuk Ahmad Zulkarnain' %></div>
+            </div>
+          </div>
         </div>
 
-                 <!-- Organization Chart -->
-           <div class="org-chart">
-                                               <!-- Advisors Section (Left Side) -->
-                   <div class="advisors-section">
-                     <% if (orgChartData && orgChartData.advisors) { %>
-                       <% orgChartData.advisors.forEach(advisor => { %>
-                         <div class="position-card advisor">
-                           <div class="position-title">Advisor</div>
-                           <div class="position-photo">
-                             <% if (advisor.photo && advisor.photo !== '👨‍💼' && advisor.photo !== '👩‍💼' && advisor.photo !== null) { %>
-                               <img src="<%= advisor.photo %>" alt="<%= advisor.name %>" class="w-full h-full object-cover rounded-lg">
-                             <% } else { %>
-                               <div class="w-full h-full bg-gray-200 rounded-lg flex items-center justify-center text-gray-400 text-xs font-medium">
-                                 <i class="fas fa-user"></i>
-                               </div>
-                             <% } %>
-                           </div>
-                           <div class="position-name"><%= advisor.name %></div>
-                         </div>
-                       <% }) %>
-                     <% } else { %>
-                       <div class="position-card advisor">
-                         <div class="position-title">Advisor</div>
-                         <div class="position-photo">
-                           <div class="w-full h-full bg-gray-200 rounded-lg flex items-center justify-center text-gray-400 text-xs font-medium">
-                             <i class="fas fa-user"></i>
-                           </div>
-                         </div>
-                         <div class="position-name">Tan Sri Dr. Lim</div>
-                       </div>
-                       <div class="position-card advisor">
-                         <div class="position-title">Advisor</div>
-                         <div class="position-photo">
-                           <div class="w-full h-full bg-gray-200 rounded-lg flex items-center justify-center text-gray-400 text-xs font-medium">
-                             <i class="fas fa-user"></i>
-                           </div>
-                         </div>
-                         <div class="position-name">Dato' Sarah Ismail</div>
-                       </div>
-                       <div class="position-card advisor">
-                         <div class="position-title">Advisor</div>
-                         <div class="position-photo">
-                           <div class="w-full h-full bg-gray-200 rounded-lg flex items-center justify-center text-gray-400 text-xs font-medium">
-                             <i class="fas fa-user"></i>
-                           </div>
-                         </div>
-                         <div class="position-name">Prof. Dr. Raj Kumar</div>
-                       </div>
-                     <% } %>
-                   </div>
-             
-             <!-- Main Structure (Right Side) -->
-             <div class="main-structure">
-                                                     <!-- Level 1: President -->
-                     <div class="level level-1">
-                       <div class="position-card president">
-                         <div class="position-title">President</div>
-                         <div class="position-photo">
-                           <% if (orgChartData?.president?.photo && orgChartData.president.photo !== '👨‍💼' && orgChartData.president.photo !== '👩‍💼' && orgChartData.president.photo !== null) { %>
-                             <img src="<%= orgChartData.president.photo %>" alt="<%= orgChartData.president.name %>" class="w-full h-full object-cover rounded-lg">
-                           <% } else { %>
-                             <div class="w-full h-full bg-gray-200 rounded-lg flex items-center justify-center text-gray-400 text-lg">
-                               <i class="fas fa-user"></i>
-                             </div>
-                           <% } %>
-                         </div>
-                         <div class="position-name"><%= orgChartData?.president?.name || 'Datuk Ahmad Zulkarnain' %></div>
-                       </div>
-                     </div>
-                 
-                                      <!-- Level 2: Vice Presidents -->
-                     <div class="level level-2">
-                       <% if (orgChartData && orgChartData.vicePresidents) { %>
-                         <% orgChartData.vicePresidents.forEach(vp => { %>
-                           <div class="position-card vice-president">
-                             <div class="position-title">Vice President</div>
-                             <div class="position-photo">
-                               <% if (vp.photo && vp.photo !== '👨‍💼' && vp.photo !== '👩‍💼' && vp.photo !== null) { %>
-                                 <img src="<%= vp.photo %>" alt="<%= vp.name %>" class="w-full h-full object-cover rounded-lg">
-                               <% } else { %>
-                                 <div class="w-full h-full bg-gray-200 rounded-lg flex items-center justify-center text-gray-400 text-lg">
-                                   <i class="fas fa-user"></i>
-                                 </div>
-                               <% } %>
-                             </div>
-                             <div class="position-name"><%= vp.name %></div>
-                           </div>
-                         <% }) %>
-                       <% } else { %>
-                         <div class="position-card vice-president">
-                           <div class="position-title">Vice President</div>
-                           <div class="position-photo">
-                             <div class="w-full h-full bg-gray-200 rounded-lg flex items-center justify-center text-gray-400 text-lg">
-                               <i class="fas fa-user"></i>
-                             </div>
-                           </div>
-                           <div class="position-name">Dato' Dr. Lim Chong</div>
-                         </div>
-                         <div class="position-card vice-president">
-                           <div class="position-title">Vice President</div>
-                           <div class="position-photo">
-                             <div class="w-full h-full bg-gray-200 rounded-lg flex items-center justify-center text-gray-400 text-lg">
-                               <i class="fas fa-user"></i>
-                             </div>
-                           </div>
-                           <div class="position-name">Datuk Seri Wong Lee</div>
-                         </div>
-                       <% } %>
-                     </div>
-                 
-                                      <!-- Level 3: Secretary & Treasurer -->
-                     <div class="level level-3">
-                       <div class="position-card executive">
-                         <div class="position-title">Secretary</div>
-                         <div class="position-photo">
-                           <% if (orgChartData?.secretary?.photo && orgChartData.secretary.photo !== '👨‍💼' && orgChartData.secretary.photo !== '👩‍💼' && orgChartData.secretary.photo !== null) { %>
-                             <img src="<%= orgChartData.secretary.photo %>" alt="<%= orgChartData.secretary.name %>" class="w-full h-full object-cover rounded-lg">
-                           <% } else { %>
-                             <div class="w-full h-full bg-gray-200 rounded-lg flex items-center justify-center text-gray-400 text-lg">
-                               <i class="fas fa-user"></i>
-                             </div>
-                           <% } %>
-                         </div>
-                         <div class="position-name"><%= orgChartData?.secretary?.name || 'Mohd Azlan bin Abdullah' %></div>
-                       </div>
-                       <div class="position-card executive">
-                         <div class="position-title">Treasurer</div>
-                         <div class="position-photo">
-                           <% if (orgChartData?.treasurer?.photo && orgChartData.treasurer.photo !== '👨‍💼' && orgChartData.treasurer.photo !== '👩‍💼' && orgChartData.treasurer.photo !== null) { %>
-                             <img src="<%= orgChartData.treasurer.photo %>" alt="<%= orgChartData.treasurer.name %>" class="w-full h-full object-cover rounded-lg">
-                           <% } else { %>
-                             <div class="w-full h-full bg-gray-200 rounded-lg flex items-center justify-center text-gray-400 text-lg">
-                               <i class="fas fa-user"></i>
-                             </div>
-                           <% } %>
-                         </div>
-                         <div class="position-name"><%= orgChartData?.treasurer?.name || 'Wong Mei Ling' %></div>
-                       </div>
-                     </div>
-                 
-                                      <!-- Level 4: Sub-Committees -->
-                     <div class="level level-4">
-                       <% if (orgChartData && orgChartData.committees) { %>
-                         <% orgChartData.committees.forEach(committee => { %>
-                           <div class="position-card committee">
-                             <div class="position-title"><%= committee.type %> Committee</div>
-                             <div class="position-photo">
-                               <% if (committee.photo && committee.photo !== '👨‍💼' && committee.photo !== '👩‍💼' && committee.photo !== null) { %>
-                                 <img src="<%= committee.photo %>" alt="<%= committee.name %>" class="w-full h-full object-cover rounded-lg">
-                               <% } else { %>
-                                 <div class="w-full h-full bg-gray-200 rounded-lg flex items-center justify-center text-gray-400 text-lg">
-                                   <i class="fas fa-user"></i>
-                                 </div>
-                               <% } %>
-                             </div>
-                             <div class="position-name"><%= committee.name %></div>
-                           </div>
-                         <% }) %>
-                       <% } else { %>
-                         <div class="position-card committee">
-                           <div class="position-title">Development Committee</div>
-                           <div class="position-photo">
-                             <div class="w-full h-full bg-gray-200 rounded-lg flex items-center justify-center text-gray-400 text-lg">
-                               <i class="fas fa-user"></i>
-                             </div>
-                           </div>
-                           <div class="position-name">Chairman: Ahmad Fadzil</div>
-                         </div>
-                         <div class="position-card committee">
-                           <div class="position-title">Tournament Committee</div>
-                           <div class="position-photo">
-                             <div class="w-full h-full bg-gray-200 rounded-lg flex items-center justify-center text-gray-400 text-lg">
-                               <i class="fas fa-user"></i>
-                             </div>
-                           </div>
-                           <div class="position-name">Chairman: Lim Wei Chen</div>
-                         </div>
-                         <div class="position-card committee">
-                           <div class="position-title">Disciplinary Committee</div>
-                           <div class="position-photo">
-                             <div class="w-full h-full bg-gray-200 rounded-lg flex items-center justify-center text-gray-400 text-lg">
-                               <i class="fas fa-user"></i>
-                             </div>
-                           </div>
-                           <div class="position-name">Chairman: Dr. Kamal Singh</div>
-                         </div>
-                       <% } %>
-                     </div>
-             </div>
-           </div>
-
-
-        <!-- Back Button -->
-        <div style="text-align: center; margin-top: 3rem;">
-          <a href="/" class="back-button">
-            <svg style="width: 1.25rem; height: 1.25rem; margin-right: 0.5rem;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
-            </svg>
-            Kembali ke Laman Utama
-          </a>
+        <!-- Vice Presidents Section -->
+        <div style="margin-bottom: 4rem;">
+          <h2 class="section-title">Vice Presidents</h2>
+          <div class="committee-grid">
+            <% if (orgChartData && orgChartData.vicePresidents) { %>
+              <% orgChartData.vicePresidents.forEach(vp => { %>
+                <div class="member-card">
+                  <div class="member-photo">
+                    <% if (vp.photo && vp.photo !== '👨‍💼' && vp.photo !== '👩‍💼' && vp.photo !== null) { %>
+                      <img src="<%= vp.photo %>" alt="<%= vp.name %>">
+                    <% } else { %>
+                      <div class="member-photo-placeholder">
+                        <i class="fas fa-user"></i>
+                      </div>
+                    <% } %>
+                  </div>
+                  <div class="member-title">Vice President</div>
+                  <div class="member-name"><%= vp.name %></div>
+                </div>
+              <% }) %>
+            <% } else { %>
+              <div class="member-card">
+                <div class="member-photo">
+                  <div class="member-photo-placeholder">
+                    <i class="fas fa-user"></i>
+                  </div>
+                </div>
+                <div class="member-title">Vice President</div>
+                <div class="member-name">Dato' Dr. Lim Chong</div>
+              </div>
+              <div class="member-card">
+                <div class="member-photo">
+                  <div class="member-photo-placeholder">
+                    <i class="fas fa-user"></i>
+                  </div>
+                </div>
+                <div class="member-title">Vice President</div>
+                <div class="member-name">Datuk Seri Wong Lee</div>
+              </div>
+            <% } %>
+          </div>
         </div>
 
+        <!-- Executive Committee Section -->
+        <div style="margin-bottom: 4rem;">
+          <h2 class="section-title">Executive Committee</h2>
+          <div class="committee-grid">
+            <div class="member-card">
+              <div class="member-photo">
+                <% if (orgChartData?.secretary?.photo && orgChartData.secretary.photo !== '👨‍💼' && orgChartData.secretary.photo !== '👩‍💼' && orgChartData.secretary.photo !== null) { %>
+                  <img src="<%= orgChartData.secretary.photo %>" alt="<%= orgChartData.secretary.name %>">
+                <% } else { %>
+                  <div class="member-photo-placeholder">
+                    <i class="fas fa-user"></i>
+                  </div>
+                <% } %>
+              </div>
+              <div class="member-title">Secretary</div>
+              <div class="member-name"><%= orgChartData?.secretary?.name || 'Mohd Azlan bin Abdullah' %></div>
+            </div>
+            
+            <div class="member-card">
+              <div class="member-photo">
+                <% if (orgChartData?.treasurer?.photo && orgChartData.treasurer.photo !== '👨‍💼' && orgChartData.treasurer.photo !== '👩‍💼' && orgChartData.treasurer.photo !== null) { %>
+                  <img src="<%= orgChartData.treasurer.photo %>" alt="<%= orgChartData.treasurer.name %>">
+                <% } else { %>
+                  <div class="member-photo-placeholder">
+                    <i class="fas fa-user"></i>
+                  </div>
+                <% } %>
+              </div>
+              <div class="member-title">Treasurer</div>
+              <div class="member-name"><%= orgChartData?.treasurer?.name || 'Wong Mei Ling' %></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Past Presidents Section -->
+      <div id="past-section" class="content-section-hidden">
+        <h2 class="section-title">Past Presidents</h2>
+        
+        <table class="past-presidents-table">
+          <thead>
+            <tr>
+              <th>Image</th>
+              <th>Name</th>
+              <th>Years of Service</th>
+              <th>Contribution</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% if (pastPresidents && pastPresidents.length > 0) { %>
+              <% pastPresidents.forEach(president => { %>
+                <tr>
+                  <td>
+                    <div class="president-photo">
+                      <% if (president.image) { %>
+                        <img src="<%= president.image %>" alt="<%= president.imageAlt || president.name %>" class="president-photo-img">
+                      <% } else { %>
+                        <div class="president-photo-placeholder">
+                          <i class="fas fa-user"></i>
+                        </div>
+                      <% } %>
+                    </div>
+                  </td>
+                  <td>
+                    <div class="president-name"><%= president.name %></div>
+                  </td>
+                  <td>
+                    <div class="president-term"><%= president.startYear %> - <%= president.endYear %></div>
+                  </td>
+                  <td>
+                    <div class="president-contribution">
+                      <%= president.contribution %>
+                      <% if (president.achievements && president.achievements.length > 0) { %>
+                        <div class="president-achievements">
+                          <strong>Key Achievements:</strong>
+                          <ul>
+                            <% president.achievements.forEach(achievement => { %>
+                              <li>• <%= achievement %></li>
+                            <% }); %>
+                          </ul>
+                        </div>
+                      <% } %>
+                    </div>
+                  </td>
+                </tr>
+              <% }); %>
+            <% } else { %>
+              <tr>
+                <td colspan="4" style="text-align: center; padding: 2rem;">
+                  <div style="color: #6b7280;">
+                    <i class="fas fa-users" style="font-size: 2rem; margin-bottom: 1rem; display: block;"></i>
+                    <p>No past presidents data available.</p>
+                  </div>
+                </td>
+              </tr>
+            <% } %>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Back Button -->
+      <div style="text-align: center; margin-top: 3rem;">
+        <a href="/" class="back-button">
+          <i class="fas fa-arrow-left" style="margin-right: 0.5rem;"></i>
+          Kembali ke Laman Utama
+        </a>
+      </div>
+    </div>
   </section>
 
   <%- include('../partials/footer') %>
 
   <script src="/js/script.js"></script>
+  <script>
+    function showExecutive() {
+      // Hide past presidents
+      document.getElementById('past-section').classList.add('content-section-hidden');
+      // Show executive
+      document.getElementById('executive-section').classList.remove('content-section-hidden');
+      
+      // Update button states
+      document.getElementById('executive-btn').classList.add('active');
+      document.getElementById('past-btn').classList.remove('active');
+    }
+    
+    function showPastPresidents() {
+      // Hide executive
+      document.getElementById('executive-section').classList.add('content-section-hidden');
+      // Show past presidents
+      document.getElementById('past-section').classList.remove('content-section-hidden');
+      
+      // Update button states
+      document.getElementById('past-btn').classList.add('active');
+      document.getElementById('executive-btn').classList.remove('active');
+    }
+    
+    // Initialize - show executive by default
+    document.addEventListener('DOMContentLoaded', function() {
+      showExecutive();
+    });
+  </script>
 </body>
 </html>

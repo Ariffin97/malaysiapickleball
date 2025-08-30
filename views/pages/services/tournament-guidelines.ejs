@@ -7,65 +7,38 @@
   <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
   <link rel="stylesheet" href="/css/styles.css">
   <link rel="icon" href="/favicon.ico" type="image/x-icon">
-  <style>
-    /* Hide scrollbar for milestone carousel */
-    .scrollbar-hide {
-      -ms-overflow-style: none;
-      scrollbar-width: none;
-    }
-    .scrollbar-hide::-webkit-scrollbar {
-      display: none;
-    }
-
-    /* Line clamp utility for milestone descriptions */
-    .line-clamp-2 {
-      display: -webkit-box;
-      -webkit-line-clamp: 2;
-      -webkit-box-orient: vertical;
-      overflow: hidden;
-    }
-
-    /* Smooth hover transitions for milestone cards */
-    .milestone-card {
-      transition: transform 0.2s ease-in-out, box-shadow 0.3s ease-in-out;
-    }
-
-    .milestone-card:hover {
-      transform: translateY(-2px);
-    }
-
-    /* Milestone navigation buttons */
-    .milestone-nav-btn {
-      transition: all 0.2s ease-in-out;
-    }
-
-    .milestone-nav-btn:hover {
-      transform: scale(1.05);
-      box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
-    }
-
-    .milestone-nav-btn:active {
-      transform: scale(0.95);
-    }
-
-    /* Responsive adjustments */
-    @media (max-width: 768px) {
-      .milestone-card {
-        width: 300px;
-      }
-    }
-
-    @media (max-width: 640px) {
-      .milestone-card {
-        width: 280px;
-      }
-    }
-  </style>
 </head>
 <body class="bg-gray-50">
   <%- include('../../partials/header') %>
 
   <main class="min-h-screen bg-white" style="padding-top: var(--navbar-height);">
+    <!-- Language Toggle - Fixed Position Top Right -->
+    <div class="fixed top-0 right-0 z-40 mt-16 mr-4 md:mt-20 md:mr-6">
+      <!-- Language Toggle for KBS (only shown when KBS content is active) -->
+      <div id="kbsLanguageToggle" class="mb-4" style="display: none;">
+        <div class="inline-flex bg-blue-100 rounded-lg p-1 shadow-lg border border-blue-200">
+          <button id="kbsMalayBtn" class="px-3 py-2 rounded-md font-medium text-blue-700 transition-colors duration-200 text-sm hover:bg-blue-200">
+            BM
+          </button>
+          <button id="kbsEnglishBtn" class="px-3 py-2 rounded-md font-medium text-blue-700 transition-colors duration-200 text-sm hover:bg-blue-200">
+            EN
+          </button>
+        </div>
+      </div>
+
+      <!-- Language Toggle for MPA (only shown when MPA content is active) -->
+      <div id="mpaLanguageToggle" class="mb-4" style="display: none;">
+        <div class="inline-flex bg-green-100 rounded-lg p-1 shadow-lg border border-green-200">
+          <button id="mpaEnglishBtn" class="px-3 py-2 rounded-md font-medium text-green-700 transition-colors duration-200 text-sm hover:bg-green-200">
+            EN
+          </button>
+          <button id="mpaMalayBtn" class="px-3 py-2 rounded-md font-medium text-green-700 transition-colors duration-200 text-sm hover:bg-green-200">
+            BM
+          </button>
+        </div>
+      </div>
+    </div>
+
     <div class="max-w-6xl mx-auto py-12 px-6 lg:px-8">
       
       <!-- Page Header -->
@@ -77,52 +50,6 @@
         </p>
       </header>
 
-      <!-- MPA Milestones Section -->
-      <section class="mb-12">
-        <div class="bg-gradient-to-r from-blue-50 to-green-50 rounded-lg p-8">
-          <h2 class="text-2xl font-semibold text-gray-900 text-center mb-8">MPA Milestones</h2>
-          
-          <!-- Milestone Carousel -->
-          <div class="relative">
-            <!-- Carousel Container -->
-            <div id="milestoneContainer" class="flex overflow-x-auto scrollbar-hide space-x-6 pb-4" style="scroll-snap-type: x mandatory; -webkit-overflow-scrolling: touch;">
-              <!-- Milestone items will be populated by JavaScript -->
-              <!-- Sample milestone for styling -->
-              <div class="milestone-card flex-none w-80 bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300" style="scroll-snap-align: start;">
-                <div class="p-6">
-                  <div class="flex items-center space-x-4">
-                    <div class="flex-shrink-0">
-                      <img src="/images/milestone-placeholder.jpg" alt="Milestone" class="w-16 h-16 rounded-full object-cover border-2 border-blue-200">
-                    </div>
-                    <div class="flex-1 min-w-0">
-                      <h3 class="text-lg font-semibold text-gray-900 truncate">Major Tournament Success</h3>
-                      <p class="text-sm text-gray-600 mt-1">March 15, 2024</p>
-                      <p class="text-sm text-gray-700 mt-2 line-clamp-2">Successfully organized the National Pickleball Championship with over 500 participants from across Malaysia.</p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <!-- Navigation Arrows -->
-            <button id="milestoneScrollLeft" class="milestone-nav-btn absolute left-0 top-1/2 transform -translate-y-1/2 -translate-x-2 bg-white rounded-full p-2 shadow-md z-10">
-              <svg class="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
-              </svg>
-            </button>
-            <button id="milestoneScrollRight" class="milestone-nav-btn absolute right-0 top-1/2 transform -translate-y-1/2 translate-x-2 bg-white rounded-full p-2 shadow-md z-10">
-              <svg class="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
-              </svg>
-            </button>
-
-            <!-- Indicator Dots -->
-            <div id="milestoneIndicators" class="flex justify-center space-x-2 mt-6">
-              <!-- Indicator dots will be populated by JavaScript -->
-            </div>
-          </div>
-        </div>
-      </section>
 
       <!-- Navigation Buttons -->
       <div class="flex justify-center mb-12">
@@ -135,6 +62,7 @@
           </button>
         </div>
       </div>
+
 
       <!-- KBS Content -->
       <div id="kbsContent">
@@ -709,6 +637,579 @@
         </section>
       </div>
 
+      <!-- KBS Content (English) -->
+      <div id="kbsContentEnglish" style="display: none;">
+        <!-- Main Title -->
+        <section class="mb-12">
+          <h2 class="text-3xl font-bold text-gray-900 text-center mb-8">
+            Guidelines for Bidding and Licensing of Sports Events
+          </h2>
+        </section>
+
+        <!-- Sports Event Application Guidelines -->
+        <section class="mb-16">
+          <h2 class="text-2xl font-semibold text-gray-900 mb-8">
+            Application Methods for Sports Event Organization/Bidding Permission
+          </h2>
+          
+          <div class="overflow-x-auto">
+            <table class="w-full border-collapse border border-gray-300 rounded-lg overflow-hidden">
+              <thead>
+                <tr class="bg-blue-600 text-white">
+                  <th class="border border-gray-300 px-4 py-3 text-left font-semibold">Category</th>
+                  <th class="border border-gray-300 px-4 py-3 text-left font-semibold">Description</th>
+                  <th class="border border-gray-300 px-4 py-3 text-left font-semibold">Applicant</th>
+                </tr>
+              </thead>
+              <tbody class="bg-white">
+                <tr class="hover:bg-gray-50">
+                  <td class="border border-gray-300 px-4 py-3 bg-blue-50">
+                    <strong>🏘️ Local Level</strong>
+                  </td>
+                  <td class="border border-gray-300 px-4 py-3">
+                    Any organization of sports event competitions at national, state, district, division or any administrative area of local authorities involving participation of local citizens or permanent residents.
+                  </td>
+                  <td class="border border-gray-300 px-4 py-3 text-center">
+                    <strong>According to organization type</strong>
+                  </td>
+                </tr>
+                <tr class="hover:bg-gray-50">
+                  <td class="border border-gray-300 px-4 py-3 bg-green-50">
+                    <strong>🌍 International Level</strong>
+                  </td>
+                  <td class="border border-gray-300 px-4 py-3">
+                    Organization of sports event competitions in Malaysia involving participation by any non-citizens representing a country or individually, excluding those residing and working or studying in any part of the federation (Malaysia).
+                  </td>
+                  <td class="border border-gray-300 px-4 py-3 text-center">
+                    <strong>According to organization type</strong>
+                  </td>
+                </tr>
+                <tr class="hover:bg-gray-50">
+                  <td class="border border-gray-300 px-4 py-3 bg-yellow-50">
+                    <strong>📜 Licensing</strong><br>
+                    <span class="text-sm">Act 777 Companies Act 2016</span>
+                  </td>
+                  <td class="border border-gray-300 px-4 py-3">
+                    Any company registered under <strong>Act 777 Companies Act 2016</strong>
+                  </td>
+                  <td class="border border-gray-300 px-4 py-3 text-center">
+                    <strong>Company Representative</strong><br>
+                    <span class="text-sm">(Application by Company Representative)</span>
+                  </td>
+                </tr>
+                <tr class="hover:bg-gray-50">
+                  <td class="border border-gray-300 px-4 py-3 bg-red-50">
+                    <strong>🏃 Sports Body</strong><br>
+                    <span class="text-sm">Sports Development Act 1997 [Act 576]</span>
+                  </td>
+                  <td class="border border-gray-300 px-4 py-3">
+                    Sports bodies registered at the Sports Commissioner's Office under the <strong>Sports Development Act 1997 [Act 576]</strong>
+                  </td>
+                  <td class="border border-gray-300 px-4 py-3 text-center">
+                    <strong>Secretary</strong><br>
+                    <span class="text-sm">(Application by Secretary)</span>
+                  </td>
+                </tr>
+                <tr class="hover:bg-gray-50">
+                  <td class="border border-gray-300 px-4 py-3 bg-purple-50">
+                    <strong>🏢 Non-Sports Body</strong><br>
+                    <span class="text-sm">Other than Act 777 Act 576</span>
+                  </td>
+                  <td class="border border-gray-300 px-4 py-3">
+                    Any organization or association registered other than under Act 777 Act 576<br><br>
+                    <strong>Including:</strong>
+                    <ul class="list-disc ml-6 mt-2 space-y-1">
+                      <li>Federal Government Agencies</li>
+                      <li>State Government Agencies</li>
+                      <li>Local Authorities</li>
+                      <li>Non-Sports Bodies / NGOs</li>
+                    </ul>
+                  </td>
+                  <td class="border border-gray-300 px-4 py-3 text-center">
+                    <strong>Organization Representative</strong><br>
+                    <span class="text-sm">(Application by Organization Representative)</span>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          
+          <!-- Application Link -->
+          <div class="mt-8 bg-blue-50 p-6 rounded-lg border-l-4 border-blue-600">
+            <div class="flex items-center">
+              <div class="mr-4">
+                <span class="text-3xl">🌐</span>
+              </div>
+              <div>
+                <h4 class="text-lg font-semibold text-gray-900 mb-2">Apply through the link:</h4>
+                <a href="http://erosa.kbs.gov.my" target="_blank" class="inline-flex items-center bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-lg font-semibold transition-colors duration-200">
+                  Access eROSA Portal
+                </a>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Requirements Section -->
+        <section class="mb-16">
+          <h2 class="text-2xl font-semibold text-gray-900 mb-8">
+            Application Requirements for Sports Event Competition Permission/Licensing
+          </h2>
+          
+          <div class="overflow-x-auto">
+            <table class="w-full border-collapse border border-gray-300 rounded-lg overflow-hidden">
+              <tbody class="bg-white">
+                <tr class="hover:bg-gray-50">
+                  <td class="border border-gray-300 px-4 py-3 bg-blue-50 text-center font-semibold w-16">1.</td>
+                  <td class="border border-gray-300 px-4 py-3">
+                    <strong>Registration Certificate</strong> - SSM (Company) PJS Certificate (Sports Body) / Other registration certificates for non-sports bodies (ROS/ROY/Cooperative and related)
+                  </td>
+                </tr>
+                <tr class="hover:bg-gray-50">
+                  <td class="border border-gray-300 px-4 py-3 bg-green-50 text-center font-semibold">2.</td>
+                  <td class="border border-gray-300 px-4 py-3">
+                    <strong>Permission (Sanction)</strong> for sports event organization subject to procedures and guidelines set by the governing body representing the sport including safety and health measures.
+                  </td>
+                </tr>
+                <tr class="hover:bg-gray-50">
+                  <td class="border border-gray-300 px-4 py-3 bg-yellow-50 text-center font-semibold">3.</td>
+                  <td class="border border-gray-300 px-4 py-3">
+                    <strong>Insurance</strong> - One of the MANDATORY requirements imposed in applications for sports activity organization and licensing.
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <!-- Requirements for Bidding Events -->
+        <section class="mb-16">
+          <h2 class="text-2xl font-semibold text-gray-900 mb-8">
+            Application Requirements for Sports Event Bidding Permission/Licensing
+          </h2>
+          
+          <div class="overflow-x-auto">
+            <table class="w-full border-collapse border border-gray-300 rounded-lg overflow-hidden">
+              <tbody class="bg-white">
+                <tr class="hover:bg-gray-50">
+                  <td class="border border-gray-300 px-4 py-3 bg-red-50 text-center font-semibold w-16">1.</td>
+                  <td class="border border-gray-300 px-4 py-3">
+                    <strong>Registration Certificate</strong> - SSM (Company) PJS Certificate (Sports Body) / Other registration certificates for non-sports bodies (ROS/ROY/Cooperative and related)
+                  </td>
+                </tr>
+                <tr class="hover:bg-gray-50">
+                  <td class="border border-gray-300 px-4 py-3 bg-purple-50 text-center font-semibold">2.</td>
+                  <td class="border border-gray-300 px-4 py-3">
+                    <strong>Application forms and bidding documents</strong> offered by the governing body/event owner to be bid.
+                  </td>
+                </tr>
+                <tr class="hover:bg-gray-50">
+                  <td class="border border-gray-300 px-4 py-3 bg-yellow-50 text-center font-semibold">3.</td>
+                  <td class="border border-gray-300 px-4 py-3">
+                    <strong>Information regarding finances, facilities</strong> and others related to the capability to organize the event to be bid.
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <!-- Additional Compliance Requirements -->
+        <section class="mb-16">
+          <h2 class="text-2xl font-semibold text-gray-900 mb-8">
+            Additional Organization Compliance Requirements
+          </h2>
+          
+          <div class="bg-yellow-50 border-l-4 border-yellow-500 p-6 rounded-r-lg">
+            <ul class="space-y-3 text-gray-700">
+              <li class="flex items-start">
+                <span class="text-yellow-600 mr-2">•</span>
+                <span><strong>Commit to implementing the Safe Sports Code</strong></span>
+              </li>
+              <li class="flex items-start">
+                <span class="text-yellow-600 mr-2">•</span>
+                <span><strong>Commit to implementing Anti-Doping Regulations</strong></span>
+              </li>
+              <li class="flex items-start">
+                <span class="text-yellow-600 mr-2">•</span>
+                <span><strong>Obtain permission (sanction) from the sports governing body for the organized sport (if applicable) and provide insurance.</strong></span>
+              </li>
+            </ul>
+          </div>
+        </section>
+
+        <!-- Application Procedures Table -->
+        <section class="mb-16">
+          <h2 class="text-2xl font-semibold text-gray-900 mb-8">
+            Sports Event Organization/Licensing Applications
+          </h2>
+          
+          <div class="overflow-x-auto">
+            <table class="w-full border-collapse border border-gray-300 rounded-lg overflow-hidden">
+              <thead>
+                <tr class="bg-blue-600 text-white">
+                  <th class="border border-gray-300 px-4 py-3 text-left font-semibold">Category</th>
+                  <th class="border border-gray-300 px-4 py-3 text-left font-semibold">Level</th>
+                  <th class="border border-gray-300 px-4 py-3 text-left font-semibold">Duration</th>
+                  <th class="border border-gray-300 px-4 py-3 text-left font-semibold">Documents</th>
+                </tr>
+              </thead>
+              <tbody class="bg-white">
+                <!-- Sports Body - Local -->
+                <tr class="hover:bg-gray-50">
+                  <td class="border border-gray-300 px-4 py-3 bg-red-50" rowspan="2">
+                    <strong>SPORTS BODY</strong><br>
+                    <span class="text-sm">registered under Sports Development Act 1997 [Act 576]</span>
+                  </td>
+                  <td class="border border-gray-300 px-4 py-3 text-center">
+                    <strong>LOCAL</strong><br>
+                    <span class="text-sm">no need to obtain PJS approval</span>
+                  </td>
+                  <td class="border border-gray-300 px-4 py-3 text-center">
+                    <strong>None</strong>
+                  </td>
+                  <td class="border border-gray-300 px-4 py-3">
+                    <ul class="list-disc ml-4 space-y-1">
+                      <li>Permission (Sanction) from Related Sports Governing Body</li>
+                      <li>Insurance Protection Note for Event/Participants</li>
+                    </ul>
+                  </td>
+                </tr>
+                <!-- Sports Body - International -->
+                <tr class="hover:bg-gray-50">
+                  <td class="border border-gray-300 px-4 py-3 text-center">
+                    <strong>INTERNATIONAL</strong><br>
+                    <span class="text-sm">need to obtain written approval from Minister of Youth and Sports through PJS</span>
+                  </td>
+                  <td class="border border-gray-300 px-4 py-3 text-center">
+                    <strong>30 days before event</strong>
+                  </td>
+                  <td class="border border-gray-300 px-4 py-3">
+                    <ul class="list-disc ml-4 space-y-1">
+                      <li>Sports Body Registration Certificate</li>
+                      <li>Permission (Sanction) from Related Sports Governing Body</li>
+                      <li>Insurance Protection Note for Event/Participants</li>
+                    </ul>
+                    <div class="mt-3 p-3 bg-blue-50 rounded border-l-4 border-blue-600">
+                      <p class="text-sm"><strong>Applications must be made through eROSA System:</strong><br>
+                      <a href="https://erosa.kbs.gov.my" target="_blank" class="text-blue-600 underline font-semibold">https://erosa.kbs.gov.my</a></p>
+                    </div>
+                  </td>
+                </tr>
+                <!-- Non-Sports Body - Local -->
+                <tr class="hover:bg-gray-50">
+                  <td class="border border-gray-300 px-4 py-3 bg-purple-50" rowspan="2">
+                    <strong>NON-SPORTS BODY</strong><br>
+                    <span class="text-sm">including associations and NGOs</span>
+                  </td>
+                  <td class="border border-gray-300 px-4 py-3 text-center">
+                    <strong>LOCAL</strong><br>
+                    <span class="text-sm">no need to obtain PJS approval</span>
+                  </td>
+                  <td class="border border-gray-300 px-4 py-3 text-center">
+                    <strong>None</strong>
+                  </td>
+                  <td class="border border-gray-300 px-4 py-3">
+                    <ul class="list-disc ml-4 space-y-1">
+                      <li>Permission (Sanction) from Related Sports Governing Body</li>
+                      <li>Insurance Protection Note for Event/Participants</li>
+                    </ul>
+                  </td>
+                </tr>
+                <!-- Non-Sports Body - International -->
+                <tr class="hover:bg-gray-50">
+                  <td class="border border-gray-300 px-4 py-3 text-center">
+                    <strong>INTERNATIONAL</strong><br>
+                    <span class="text-sm">need to obtain written approval from Minister of Youth and Sports through PJS</span>
+                  </td>
+                  <td class="border border-gray-300 px-4 py-3 text-center">
+                    <strong>30 days before event</strong>
+                  </td>
+                  <td class="border border-gray-300 px-4 py-3">
+                    <ul class="list-disc ml-4 space-y-1">
+                      <li>Registration Certificate of Association/Organization and Government Agencies</li>
+                      <li>Permission (Sanction) from Related Sports Governing Body</li>
+                      <li>Insurance Protection Note for Event/Participants</li>
+                    </ul>
+                    <div class="mt-3 p-3 bg-blue-50 rounded border-l-4 border-blue-600">
+                      <p class="text-sm"><strong>Applications must be made through eROSA System:</strong><br>
+                      <a href="https://erosa.kbs.gov.my" target="_blank" class="text-blue-600 underline font-semibold">https://erosa.kbs.gov.my</a></p>
+                    </div>
+                  </td>
+                </tr>
+                <!-- Footer Note -->
+                <tr>
+                  <td colspan="4" class="border border-gray-300 px-4 py-3 bg-yellow-50 text-center font-semibold">
+                    <strong>No Fees Charged</strong>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <!-- Company Licensing Section -->
+        <section class="mb-16">
+          <h2 class="text-2xl font-semibold text-gray-900 mb-8">
+            Company (Licensing) - Act 777 Companies Act 2016
+          </h2>
+          
+          <div class="overflow-x-auto">
+            <table class="w-full border-collapse border border-gray-300 rounded-lg overflow-hidden">
+              <thead>
+                <tr class="bg-blue-600 text-white">
+                  <th class="border border-gray-300 px-4 py-3 text-left font-semibold">Category</th>
+                  <th class="border border-gray-300 px-4 py-3 text-left font-semibold">Level</th>
+                  <th class="border border-gray-300 px-4 py-3 text-left font-semibold">Duration</th>
+                  <th class="border border-gray-300 px-4 py-3 text-left font-semibold">Documents</th>
+                </tr>
+              </thead>
+              <tbody class="bg-white">
+                <!-- Company Licensing - Local -->
+                <tr class="hover:bg-gray-50">
+                  <td class="border border-gray-300 px-4 py-3 bg-yellow-50" rowspan="2">
+                    <strong>COMPANY (LICENSING)</strong><br>
+                    <span class="text-sm">registered under Act 777 Companies Act 2016</span>
+                  </td>
+                  <td class="border border-gray-300 px-4 py-3 text-center">
+                    <strong>LOCAL</strong><br>
+                    <span class="text-sm">need to obtain written approval from Minister of Youth and Sports through PJS</span>
+                  </td>
+                  <td class="border border-gray-300 px-4 py-3 text-center">
+                    <strong>14 days before event</strong>
+                  </td>
+                  <td class="border border-gray-300 px-4 py-3">
+                    <ul class="list-disc ml-4 space-y-1">
+                      <li>Copy of Company Registration Certificate</li>
+                      <li>Permission (Sanction) from Related Sports Governing Body (National Sports Body or higher)</li>
+                      <li>Insurance Protection Note (Cover Note) / Insurance Protection Policy for Event/Participants</li>
+                    </ul>
+                    <div class="mt-3 p-3 bg-blue-50 rounded border-l-4 border-blue-600">
+                      <p class="text-sm"><strong>Applications must be made through eROSA System:</strong><br>
+                      <a href="https://erosa.kbs.gov.my" target="_blank" class="text-blue-600 underline font-semibold">https://erosa.kbs.gov.my</a></p>
+                    </div>
+                  </td>
+                </tr>
+                <!-- Company Licensing - International -->
+                <tr class="hover:bg-gray-50">
+                  <td class="border border-gray-300 px-4 py-3 text-center">
+                    <strong>INTERNATIONAL</strong><br>
+                    <span class="text-sm">need to obtain written approval from Minister of Youth and Sports through PJS</span>
+                  </td>
+                  <td class="border border-gray-300 px-4 py-3 text-center">
+                    <strong>30 days before event</strong>
+                  </td>
+                  <td class="border border-gray-300 px-4 py-3">
+                    <ul class="list-disc ml-4 space-y-1">
+                      <li>Copy of Company Registration Certificate</li>
+                      <li>Permission (Sanction) from Related Sports Governing Body (National Sports Body or higher)</li>
+                      <li>Insurance Protection Note (Cover Note) / Insurance Protection Policy for Event/Participants</li>
+                    </ul>
+                    <div class="mt-3 p-3 bg-blue-50 rounded border-l-4 border-blue-600">
+                      <p class="text-sm"><strong>Applications must be made through eROSA System:</strong><br>
+                      <a href="https://erosa.kbs.gov.my" target="_blank" class="text-blue-600 underline font-semibold">https://erosa.kbs.gov.my</a></p>
+                    </div>
+                  </td>
+                </tr>
+                <!-- License Fee Exemption Notice -->
+                <tr>
+                  <td colspan="4" class="border border-gray-300 px-4 py-3 bg-green-50 text-center font-semibold">
+                    <strong>License Fees Exempted Until December 31, 2025</strong>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <!-- Bidding Procedures Section -->
+        <section class="mb-16">
+          <h2 class="text-2xl font-semibold text-gray-900 mb-8">
+            Sports Event Organization/Licensing Bidding Applications
+          </h2>
+          
+          <div class="overflow-x-auto">
+            <table class="w-full border-collapse border border-gray-300 rounded-lg overflow-hidden">
+              <thead>
+                <tr class="bg-blue-600 text-white">
+                  <th class="border border-gray-300 px-4 py-3 text-left font-semibold">Category</th>
+                  <th class="border border-gray-300 px-4 py-3 text-left font-semibold">Level</th>
+                  <th class="border border-gray-300 px-4 py-3 text-left font-semibold">Duration</th>
+                  <th class="border border-gray-300 px-4 py-3 text-left font-semibold">Documents</th>
+                </tr>
+              </thead>
+              <tbody class="bg-white">
+                <!-- Sports Body Bidding -->
+                <tr class="hover:bg-gray-50">
+                  <td class="border border-gray-300 px-4 py-3 bg-red-50">
+                    <strong>SPORTS BODY</strong><br>
+                    <span class="text-sm">registered under Sports Development Act 1997 [Act 576]</span>
+                  </td>
+                  <td class="border border-gray-300 px-4 py-3 text-center">
+                    <strong>INTERNATIONAL</strong>
+                  </td>
+                  <td class="border border-gray-300 px-4 py-3 text-center">
+                    <strong>90 days before bid closing date</strong>
+                  </td>
+                  <td class="border border-gray-300 px-4 py-3">
+                    <ul class="list-disc ml-4 space-y-1">
+                      <li>PJS registration certificate.</li>
+                      <li>Application forms and bidding documents offered by the governing body/event owner to be bid.</li>
+                      <li>Information regarding finances, facilities and others related to the capability to organize the event to be bid.</li>
+                    </ul>
+                  </td>
+                </tr>
+                <!-- Non-Sports Body Bidding -->
+                <tr class="hover:bg-gray-50">
+                  <td class="border border-gray-300 px-4 py-3 bg-purple-50">
+                    <strong>NON-SPORTS BODY</strong><br>
+                    <span class="text-sm">including associations/NGOs and Government Agencies</span>
+                  </td>
+                  <td class="border border-gray-300 px-4 py-3 text-center">
+                    <strong>INTERNATIONAL</strong>
+                  </td>
+                  <td class="border border-gray-300 px-4 py-3 text-center">
+                    <strong>90 days before bid closing date</strong>
+                  </td>
+                  <td class="border border-gray-300 px-4 py-3">
+                    <ul class="list-disc ml-4 space-y-1">
+                      <li>Registration certificate for non-sports bodies (ROS/ROY/Cooperative and others related).</li>
+                      <li>Application forms and bidding documents offered by the governing body/event owner to be bid.</li>
+                      <li>Information regarding finances, facilities and others related to the capability to organize the event to be bid.</li>
+                    </ul>
+                  </td>
+                </tr>
+                <!-- Footer Note -->
+                <tr>
+                  <td colspan="4" class="border border-gray-300 px-4 py-3 bg-yellow-50 text-center font-semibold">
+                    <strong>No Fees Charged</strong>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <!-- Company Bidding Procedures Section -->
+        <section class="mb-16">
+          <h2 class="text-2xl font-semibold text-gray-900 mb-8">
+            Company (Licensing) Bidding Applications
+          </h2>
+          
+          <div class="overflow-x-auto">
+            <table class="w-full border-collapse border border-gray-300 rounded-lg overflow-hidden">
+              <thead>
+                <tr class="bg-blue-600 text-white">
+                  <th class="border border-gray-300 px-4 py-3 text-left font-semibold">Category</th>
+                  <th class="border border-gray-300 px-4 py-3 text-left font-semibold">Level</th>
+                  <th class="border border-gray-300 px-4 py-3 text-left font-semibold">Duration</th>
+                  <th class="border border-gray-300 px-4 py-3 text-left font-semibold">Documents</th>
+                </tr>
+              </thead>
+              <tbody class="bg-white">
+                <!-- Company Bidding -->
+                <tr class="hover:bg-gray-50">
+                  <td class="border border-gray-300 px-4 py-3 bg-yellow-50">
+                    <strong>COMPANY (LICENSING)</strong><br>
+                    <span class="text-sm">registered under Companies Act 2016 and State Ordinances</span>
+                  </td>
+                  <td class="border border-gray-300 px-4 py-3 text-center">
+                    <strong>INTERNATIONAL</strong>
+                  </td>
+                  <td class="border border-gray-300 px-4 py-3 text-center">
+                    <strong>90 days before bid closing date</strong>
+                  </td>
+                  <td class="border border-gray-300 px-4 py-3">
+                    <ul class="list-disc ml-4 space-y-1">
+                      <li>Company registration certificate.</li>
+                      <li>Application forms and bidding documents offered by the governing body/event owner to be bid.</li>
+                      <li>Information regarding finances, facilities and others related to the capability to organize the event to be bid.</li>
+                    </ul>
+                  </td>
+                </tr>
+                <!-- License Fee Exemption Notice -->
+                <tr>
+                  <td colspan="4" class="border border-gray-300 px-4 py-3 bg-green-50 text-center font-semibold">
+                    <strong>License Fees Exempted Until December 31, 2025</strong>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <!-- Legal Sections from Sports Development Act -->
+        <section class="mb-16">
+          <h2 class="text-2xl font-semibold text-gray-900 mb-8">
+            Legal Sections from Sports Development Act 1997 [Act 576]
+          </h2>
+          
+          <!-- Section 33 -->
+          <div class="mb-8">
+            <h3 class="text-xl font-semibold text-blue-800 mb-4">Section 33 - Approval to host international sports competitions or events</h3>
+            
+            <div class="bg-blue-50 p-6 rounded-lg mb-4 border-l-4 border-blue-600">
+              <h4 class="font-semibold mb-2">Section 33 (1)</h4>
+              <p class="text-gray-700">Provides that no person may make an offer or offer to host any international sports competition or event in Malaysia without prior written approval from the Minister and the Minister's decision is final.</p>
+            </div>
+            
+            <div class="bg-red-50 p-6 rounded-lg border-l-4 border-red-500">
+              <h4 class="font-semibold mb-2 text-red-800">Section 33 (2) - PENALTY</h4>
+              <p class="text-red-700">Provides that any person who violates subsection (1) commits an offense and when convicted may be fined <strong>not less than fifty thousand ringgit but not more than five hundred thousand ringgit</strong> or imprisoned for a period <strong>not exceeding five years</strong> or both.</p>
+            </div>
+          </div>
+
+          <!-- Section 34 -->
+          <div class="mb-8">
+            <h3 class="text-xl font-semibold text-blue-800 mb-4">Section 34 - Use of recognized international methods and guidelines for competitions</h3>
+            
+            <div class="bg-green-50 p-6 rounded-lg border-l-4 border-green-600">
+              <p class="text-gray-700 mb-3">A sports body must ensure that all competitions and sports events that are authorized, conducted or participated by it and competitions and sports events held under its auspices, follow methods and guidelines recognized by all governing and regulatory bodies for its sports in all matters, including:</p>
+              <ul class="list-disc ml-6 space-y-1 text-gray-700">
+                <li>Standards and qualifications of all participants and officials</li>
+                <li>Health and safety measures for participants, officials and spectators at the competition or event</li>
+              </ul>
+            </div>
+          </div>
+
+          <!-- Section 36 -->
+          <div class="mb-8">
+            <h3 class="text-xl font-semibold text-blue-800 mb-4">Section 36 - Companies must apply for licenses to operate</h3>
+            
+            <div class="bg-yellow-50 p-6 rounded-lg mb-4 border-l-4 border-yellow-500">
+              <h4 class="font-semibold mb-2">Section 36 (1)</h4>
+              <p class="text-gray-700 mb-3">Provides that a company may not engage in any sports activities or in any other activities related to sports, as prescribed by the Minister in regulations, unless it is licensed to do so by the Commissioner.</p>
+              
+              <div class="bg-orange-100 p-4 rounded border-l-4 border-orange-500 mt-4">
+                <p class="font-semibold text-orange-800">* IMPORTANT:</p>
+                <p class="text-orange-700">Any company (registered under the Companies Act) wishing to organize sports events must be licensed.</p>
+              </div>
+            </div>
+            
+            <div class="bg-red-50 p-6 rounded-lg border-l-4 border-red-500">
+              <h4 class="font-semibold mb-2 text-red-800">Section 36 (4) - PENALTY</h4>
+              <p class="text-red-700">Provides that any company that violates subsection (1) commits an offense and when convicted may be fined <strong>not less than fifty thousand ringgit but not more than five hundred thousand ringgit</strong> or imprisoned for a period <strong>not exceeding five years</strong> or both.</p>
+            </div>
+          </div>
+        </section>
+
+        <!-- Application Process -->
+        <section class="mb-16">
+          <div class="bg-blue-50 p-8 rounded-lg text-center">
+            <h3 class="text-2xl font-bold text-blue-800 mb-4">📝 How to Apply</h3>
+            <p class="text-lg text-gray-700 mb-6">
+              All applications can be made through the official portal:
+            </p>
+            <a href="http://erosa.kbs.gov.my" target="_blank" class="inline-flex items-center bg-green-600 hover:bg-green-700 text-white px-8 py-4 rounded-lg font-bold text-lg transition-colors duration-200">
+              <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path>
+              </svg>
+              Apply Through eROSA Portal
+            </a>
+          </div>
+        </section>
+      </div>
+
       <!-- MPA Content -->
       <div id="mpaContent" style="display: none;">
         <section class="mb-16">
@@ -903,7 +1404,7 @@
         <section class="mb-16">
           <h2 class="text-2xl font-semibold text-gray-900 mb-8">Registration Fee Advisory</h2>
           <div class="bg-yellow-50 p-6 rounded-lg border-l-4 border-yellow-600">
-            <p class="text-gray-700">In the interest of promoting inclusivity and accessibility in the sport of pickleball, the Malaysia Pickleball Association (MPA) strongly advises all tournament organisers to cap participant registration fees at a maximum of <strong>RM200 per person</strong>. This recommendation aims to ensure wider participation from various community segments while maintaining affordability across all levels of competition. Any exception to this advisory must be submitted in writing and approved by MPA before the commencement of registration.</p>
+            <p class="text-gray-700">In the interest of promoting inclusivity and accessibility in the sport of pickleball, the Malaysia Pickleball Association (MPA) strongly advises all tournament organisers required to cap participant registration fees for malaysian at a maximum of <strong>RM200 per person</strong>. This recommendation aims to ensure wider participation from various community segments while maintaining affordability across all levels of competition.</p>
           </div>
         </section>
 
@@ -1035,6 +1536,332 @@
         </section>
       </div>
 
+      <!-- MPA Content (Malay) -->
+      <div id="mpaContentMalay" style="display: none;">
+        <section class="mb-16">
+          <h2 class="text-3xl font-bold text-gray-900 text-center mb-8">
+            Garis Panduan Turnamen Persatuan Pickleball Malaysia untuk Penganjur
+          </h2>
+        </section>
+
+        <!-- Tournament Banners/Social Media Notices -->
+        <section class="mb-16">
+          <h2 class="text-2xl font-semibold text-gray-900 mb-8">
+            Banner Turnamen/Notis Media Sosial (sila rujuk rajah 1)
+          </h2>
+          <div class="bg-gray-50 p-6 rounded-lg border-l-4 border-blue-600">
+            <ul class="space-y-3 text-gray-700">
+              <li class="flex items-start">
+                <span class="text-blue-600 mr-2">•</span>
+                <span>Semua bahan promosi (banner, pos media sosial, risalah, dsb.) mesti memaparkan dengan jelas nama penganjur dan logo MPA/Negeri Pickleball.</span>
+              </li>
+              <li class="flex items-start">
+                <span class="text-blue-600 mr-2">•</span>
+                <span>Sertakan frasa "Disokong oleh" di atas logo MPA/Negeri untuk mengakui sokongan tersebut.</span>
+              </li>
+              <li class="flex items-start">
+                <span class="text-blue-600 mr-2">•</span>
+                <span>Pastikan logo beresolusi tinggi dan bersaiz sesuai untuk keterlihatan.</span>
+              </li>
+              <li class="flex items-start">
+                <span class="text-blue-600 mr-2">•</span>
+                <span>Sertakan butiran turnamen penting seperti tarikh, lokasi, tarikh akhir pendaftaran, dan maklumat hubungan.</span>
+              </li>
+            </ul>
+          </div>
+        </section>
+
+        <!-- Tournament Director -->
+        <section class="mb-16">
+          <h2 class="text-2xl font-semibold text-gray-900 mb-8">Pengarah Turnamen</h2>
+          <div class="bg-gray-50 p-6 rounded-lg">
+            <p class="text-gray-700">Seorang Pengarah Turnamen (TD) mesti dilantik untuk menyelia semua aspek acara tersebut. TD bertanggungjawab memastikan pematuhan dengan peraturan USA Pickleball, menguruskan kakitangan, menyelesaikan pertikaian, dan memastikan operasi turnamen yang lancar.</p>
+          </div>
+        </section>
+
+        <!-- USA Pickleball Rulebook 2025 -->
+        <section class="mb-16">
+          <h2 class="text-2xl font-semibold text-gray-900 mb-8">Buku Peraturan USA Pickleball 2025</h2>
+          <div class="bg-gray-50 p-6 rounded-lg border-l-4 border-green-600">
+            <ul class="space-y-3 text-gray-700">
+              <li class="flex items-start">
+                <span class="text-green-600 mr-2">•</span>
+                <span>Turnamen mesti mematuhi Buku Peraturan USA Pickleball 2025. Semua pengadil, pemain, dan kakitangan mesti mengetahui peraturan dan kemaskini terkini.</span>
+              </li>
+              <li class="flex items-start">
+                <span class="text-green-600 mr-2">•</span>
+                <span>Sediakan Buku Peraturan USA Pickleball bercetak di meja pengadil.</span>
+              </li>
+            </ul>
+          </div>
+        </section>
+
+        <!-- Tournament Code of Conduct -->
+        <section class="mb-16">
+          <h2 class="text-2xl font-semibold text-gray-900 mb-8">Kod Kelakuan Turnamen</h2>
+          <div class="bg-yellow-50 p-6 rounded-lg border-l-4 border-yellow-600">
+            <ul class="space-y-3 text-gray-700">
+              <li class="flex items-start">
+                <span class="text-yellow-600 mr-2">•</span>
+                <span>Berikan semua pemain salinan Kod Kelakuan Turnamen sebelum acara.</span>
+              </li>
+              <li class="flex items-start">
+                <span class="text-yellow-600 mr-2">•</span>
+                <span>Pastikan Kod Kelakuan dipaparkan dengan jelas di venue dalam beberapa lokasi (contoh: meja pendaftaran, ruang pemain, dan kawasan penonton).</span>
+              </li>
+              <li class="flex items-start">
+                <span class="text-yellow-600 mr-2">•</span>
+                <span>Kod Kelakuan seharusnya menggariskan jangkaan untuk semangat sukan, kelakuan, dan akibat bagi pelanggaran.</span>
+              </li>
+            </ul>
+          </div>
+        </section>
+
+        <!-- Consent to Indemnify Form -->
+        <section class="mb-16">
+          <h2 class="text-2xl font-semibold text-gray-900 mb-8">Borang Persetujuan untuk Melepaskan Tanggungjawab</h2>
+          <div class="bg-red-50 p-6 rounded-lg border-l-4 border-red-600">
+            <ul class="space-y-3 text-gray-700">
+              <li class="flex items-start">
+                <span class="text-red-600 mr-2">•</span>
+                <span>Semua pemain mesti melengkapkan dan menandatangani Borang Persetujuan untuk Melepaskan Tanggungjawab sebelum mengambil bahagian.</span>
+              </li>
+              <li class="flex items-start">
+                <span class="text-red-600 mr-2">•</span>
+                <span>Borang ini seharusnya merangkumi klausa mengenai liabiliti, penepian kecederaan, dan pengakuan peraturan turnamen.</span>
+              </li>
+            </ul>
+          </div>
+        </section>
+
+        <!-- Venue Requirements -->
+        <section class="mb-16">
+          <h2 class="text-2xl font-semibold text-gray-900 mb-8">Keperluan Venue</h2>
+          <div class="bg-purple-50 p-6 rounded-lg border-l-4 border-purple-600">
+            <ul class="space-y-3 text-gray-700">
+              <li class="flex items-start">
+                <span class="text-purple-600 mr-2">•</span>
+                <span>Pastikan venue selamat, diselenggara dengan baik, dan mematuhi peraturan tempatan.</span>
+              </li>
+              <li class="flex items-start">
+                <span class="text-purple-600 mr-2">•</span>
+                <span>Sediakan tempat duduk yang mencukupi, stesen hidrasi, dan kemudahan pertolongan cemas untuk pemain dan penonton.</span>
+              </li>
+            </ul>
+          </div>
+        </section>
+
+        <!-- Warnings and Penalties -->
+        <section class="mb-16">
+          <h2 class="text-2xl font-semibold text-gray-900 mb-8">
+            Amaran Lisan, Amaran Teknikal, Faul Teknikal, Pengusiran dan Pembuangan
+          </h2>
+          
+          <div class="mb-6">
+            <h3 class="text-xl font-semibold text-gray-800 mb-4">Tanggungjawab Pengadil dan Pengarah Turnamen</h3>
+            <div class="bg-orange-50 p-6 rounded-lg border-l-4 border-orange-600">
+              <ul class="space-y-3 text-gray-700">
+                <li class="flex items-start">
+                  <span class="text-orange-600 mr-2">•</span>
+                  <span>Pengadil dan Pengarah Turnamen mesti dilatih sepenuhnya dalam mengeluarkan amaran lisan, amaran teknikal, dan faul teknikal, pengusiran, dan pembuangan seperti yang digariskan dalam Seksyen 13G dan 13M Buku Peraturan USA Pickleball 2025.</span>
+                </li>
+                <li class="flex items-start">
+                  <span class="text-orange-600 mr-2">•</span>
+                  <span>Pastikan pengarah turnamen dan pengadil mengekalkan profesionalisme dan konsistensi ketika menangani pelanggaran peraturan.</span>
+                </li>
+              </ul>
+            </div>
+          </div>
+        </section>
+
+        <!-- Dispute Resolution -->
+        <section class="mb-16">
+          <h2 class="text-2xl font-semibold text-gray-900 mb-8">Penyelesaian Pertikaian</h2>
+          <div class="bg-gray-50 p-6 rounded-lg border-l-4 border-gray-600">
+            <ul class="space-y-3 text-gray-700">
+              <li class="flex items-start">
+                <span class="text-gray-600 mr-2">•</span>
+                <span>Wujudkan proses yang jelas untuk menyelesaikan pertikaian, termasuk rayuan kepada Pengarah Turnamen.</span>
+              </li>
+              <li class="flex items-start">
+                <span class="text-gray-600 mr-2">•</span>
+                <span>Pastikan semua keputusan didokumenkan dan dikomunikasikan kepada pihak yang terlibat.</span>
+              </li>
+            </ul>
+          </div>
+        </section>
+
+        <!-- Safe Sport Code -->
+        <section class="mb-16">
+          <h2 class="text-2xl font-semibold text-gray-900 mb-8">Kod Sukan Selamat</h2>
+          <div class="bg-green-50 p-6 rounded-lg border-l-4 border-green-600">
+            <p class="text-gray-700">Kod Sukan Selamat ialah satu set garis panduan yang dibangunkan oleh Kementerian Belia dan Sukan (KBS) untuk membimbing penciptaan persekitaran sukan yang selamat dengan garis panduan yang jelas yang mentakrifkan bidang kuasa semua pihak dalam menangani gangguan dan penyalahgunaan dalam sukan. Penganjur dikehendaki membaca dan mematuhi kod tersebut. Salinan Kod Sukan Selamat hendaklah diberikan kepada peserta.</p>
+          </div>
+        </section>
+
+        <!-- Additional Recommendations -->
+        <section class="mb-16">
+          <h2 class="text-2xl font-semibold text-gray-900 mb-8">Cadangan Tambahan</h2>
+          
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <div class="border border-gray-200 rounded-lg p-6">
+              <h3 class="text-lg font-semibold text-gray-900 mb-4">Komunikasi Pemain</h3>
+              <p class="text-gray-700">Hantar notifikasi/emel/mesyuarat pra-turnamen kepada semua pemain/pengurus pasukan yang berdaftar, termasuk Kod Kelakuan, Borang Persetujuan untuk Melepaskan Tanggungjawab, dan ringkasan peraturan utama (Lembaran Maklumat/Fakta).</p>
+            </div>
+
+            <div class="border border-gray-200 rounded-lg p-6">
+              <h3 class="text-lg font-semibold text-gray-900 mb-4">Latihan Pengadil</h3>
+              <p class="text-gray-700">Adakan taklimat pra-turnamen untuk pengadil bagi mengkaji peraturan, protokol, dan jangkaan.</p>
+            </div>
+
+            <div class="border border-gray-200 rounded-lg p-6">
+              <h3 class="text-lg font-semibold text-gray-900 mb-4">Penglibatan Penonton</h3>
+              <p class="text-gray-700">Galakkan penonton untuk mengikuti Kod Kelakuan dan menghormati pemain serta pegawai.</p>
+            </div>
+
+            <div class="border border-gray-200 rounded-lg p-6">
+              <h3 class="text-lg font-semibold text-gray-900 mb-4">Maklum Balas Pasca-Turnamen</h3>
+              <p class="text-gray-700">Kumpul maklum balas daripada pemain, pengadil, dan kakitangan untuk menambah baik acara masa depan.</p>
+            </div>
+          </div>
+        </section>
+
+        <!-- Registration Fee Advisory -->
+        <section class="mb-16">
+          <h2 class="text-2xl font-semibold text-gray-900 mb-8">Nasihat Yuran Pendaftaran</h2>
+          <div class="bg-yellow-50 p-6 rounded-lg border-l-4 border-yellow-600">
+            <p class="text-gray-700">Demi mempromosikan inklusiviti dan kebolehcapaian dalam sukan pickleball, Persatuan Pickleball Malaysia (MPA) sangat menasihatkan semua penganjur turnamen dikehendaki untuk mengehadkan yuran pendaftaran peserta Malaysia pada maksimum <strong>RM200 seorang</strong>. Cadangan ini bertujuan untuk memastikan penyertaan yang lebih luas daripada pelbagai segmen masyarakat sambil mengekalkan kemampuan di semua peringkat pertandingan.</p>
+          </div>
+        </section>
+
+        <!-- Rally Scoring Format -->
+        <section class="mb-16">
+          <h2 class="text-2xl font-semibold text-gray-900 mb-8">Format Pemarkahan Rally</h2>
+          <div class="bg-blue-50 p-6 rounded-lg border-l-4 border-blue-600">
+            <p class="text-gray-700">Untuk perlawanan yang menggunakan format pemarkahan rally, semua perlawanan hendaklah dimainkan hingga <strong>21 mata</strong>.</p>
+          </div>
+        </section>
+
+        <!-- Figure 1 -->
+        <section class="mb-16">
+          <h2 class="text-2xl font-semibold text-gray-900 mb-8">Rajah 1. Garis Panduan Banner/Poster</h2>
+          <div class="text-center bg-gray-50 p-8 rounded-lg border-2 border-dashed border-gray-300">
+            <img src="/images/bannertemp.png" alt="Templat Banner" class="max-w-full h-auto mx-auto">
+          </div>
+        </section>
+
+        <!-- Tournament Code of Conduct Template -->
+        <section class="mb-16">
+          <h2 class="text-2xl font-semibold text-gray-900 mb-8">
+            KOD KELAKUAN TURNAMEN PICKLEBALL (contoh templat)
+          </h2>
+          <div class="bg-white border border-gray-300 rounded-lg p-8 shadow-sm">
+            <h3 class="text-xl font-bold mb-6 text-center">[Nama Turnamen]</h3>
+            
+            <div class="space-y-8">
+              <div>
+                <h4 class="text-lg font-semibold text-gray-900 mb-4">1. KENYATAAN DASAR</h4>
+                <p class="text-gray-700 leading-relaxed">Penganjur Turnamen dan ahli-ahlinya komited untuk memupuk persekitaran yang saling menghormati, selamat, dan inklusif untuk semua peserta, tetamu, dan kakitangan semasa [Nama Turnamen] dan acara berkaitan. Kod Kelakuan ini menggariskan jangkaan tingkah laku dan akibat pelanggaran.</p>
+              </div>
+              
+              <div>
+                <h4 class="text-lg font-semibold text-gray-900 mb-4">2. KONTEKS DAN LATAR BELAKANG</h4>
+                <p class="text-gray-700 leading-relaxed">[Penganjur] komited untuk mengekalkan suasana positif dan menyambut baik di semua turnamen dan kejohanan. Ini termasuk mempromosikan tingkah laku yang sesuai, menangani salah laku, dan memastikan keselamatan dan keseronokan semua peserta.</p>
+              </div>
+              
+              <div>
+                <h4 class="text-lg font-semibold text-gray-900 mb-4">3. APLIKASI</h4>
+                <p class="text-gray-700 mb-3">Kod Kelakuan ini terpakai kepada:</p>
+                <ul class="list-disc ml-6 text-gray-700 space-y-2">
+                  <li>Semua individu yang menyertai program, aktiviti, dan acara [Nama Turnamen].</li>
+                  <li>Tetamu dan pelawat yang memasuki kemudahan [Penganjur], tidak kira sama ada mereka pemain atau tidak.</li>
+                </ul>
+              </div>
+              
+              <div>
+                <h4 class="text-lg font-semibold text-gray-900 mb-4">4. JANGKAAN UNTUK SEMUA PESERTA</h4>
+                <div class="space-y-6">
+                  <div>
+                    <h5 class="font-semibold text-gray-800 mb-3">4.1 Hormat-menghormati</h5>
+                    <p class="text-gray-700 mb-3">Semua peserta dijangka melayan orang lain dengan hormat dan maruah. Ini termasuk, tetapi tidak terhad kepada:</p>
+                    <ul class="list-disc ml-6 text-gray-700 space-y-2">
+                      <li><strong>Hormat terhadap Individu:</strong> Layani rakan pemain, tetamu, pelawat, dan kakitangan dengan sopan santun dan hormat, tidak kira ciri fizikal, kebolehan atletik, umur, keturunan, warna kulit, bangsa, kewarganegaraan, asal etnik, kepercayaan, ketidakupayaan, status keluarga, status ekonomi atau perkahwinan, identiti atau ekspresi jantina, atau orientasi seksual.</li>
+                      <li><strong>Pakaian Sesuai:</strong> Pakai pakaian yang selamat dan sesuai. Elakkan pakaian dengan logo, reka bentuk, atau bahasa yang menyinggung perasaan.</li>
+                      <li><strong>Larangan Gangguan:</strong> Gangguan dalam apa jua bentuk—lisan, fizikal, atau emosi—adalah dilarang sama sekali.</li>
+                      <li><strong>Bahasa dan Kelakuan:</strong> Elakkan penggunaan kata-kata kesat, bahasa tidak sesuai, membuli, atau mengugut.</li>
+                      <li><strong>Semangat Sukan:</strong> Tunjukkan kelakuan beretika, semangat sukan, dan kepimpinan pada setiap masa. Akui permainan hebat dan promosikan sukan secara positif.</li>
+                    </ul>
+                  </div>
+                  
+                  <div>
+                    <h5 class="font-semibold text-gray-800 mb-3">4.2 Keselamatan</h5>
+                    <ul class="list-disc ml-6 text-gray-700 space-y-2">
+                      <li><strong>Pemanasan dan Persiapan:</strong> Lakukan pemanasan yang sesuai sebelum bermain untuk mengurangkan risiko kecederaan. Regangkan badan sebelum dan selepas perlawanan.</li>
+                      <li><strong>Had Fizikal:</strong> Sedar akan keadaan fizikal anda dan elakkan keletihan berlebihan semasa bermain.</li>
+                      <li><strong>Keselamatan Gelanggang:</strong> Jika bola dari gelanggang lain masuk ke gelanggang anda, segera hentikan permainan dengan mengumumkan "bola di gelanggang." Sambung permainan hanya selepas bola dikembalikan.</li>
+                    </ul>
+                  </div>
+                  
+                  <div>
+                    <h5 class="font-semibold text-gray-800 mb-3">4.3 Kesetiaan</h5>
+                    <ul class="list-disc ml-6 text-gray-700 space-y-2">
+                      <li><strong>Kelakuan Awam:</strong> Elakkan membuat komen negatif tentang sukan Pickleball, Penganjur, atau rakan kongsinya di forum awam (contoh: Facebook, Instagram, X). Sampaikan kebimbangan secara langsung dengan wakil Penganjur.</li>
+                      <li><strong>Maklum Balas:</strong> Maklum balas membina adalah digalakkan. Ahli dialu-alukan untuk berkongsi pemikiran dan cadangan untuk membantu meningkatkan pengalaman turnamen.</li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+              
+              <div>
+                <h4 class="text-lg font-semibold text-gray-900 mb-4">5. AKIBAT UNTUK PELANGGARAN (Amaran Lisan, Amaran Teknikal, Faul Teknikal)</h4>
+                <p class="text-gray-700 mb-3">Kegagalan mematuhi Kod Kelakuan ini boleh mengakibatkan tindakan disiplinar, termasuk tetapi tidak terhad kepada:</p>
+                <ul class="list-disc ml-6 text-gray-700 space-y-2">
+                  <li><strong>Kesalahan Pertama:</strong> Amaran lisan atau amaran teknikal akan dikeluarkan oleh Pengarah Turnamen atau Pengadil.</li>
+                  <li><strong>Kesalahan Kedua:</strong> Amaran teknikal atau faul teknikal akan dikeluarkan oleh Pengarah Turnamen atau Pengadil. Satu mata akan ditolak daripada pesalah atau pasukan.</li>
+                  <li><strong>Kehilangan Permainan atau Perlawanan:</strong> Pengadil boleh mengenakan kehilangan permainan atau perlawanan berdasarkan gabungan Amaran Teknikal atau Faul Teknikal.</li>
+                  <li><strong>Pengusiran dan Pembuangan:</strong> Pengarah Turnamen boleh mengusir pemain dari turnamen untuk tingkah laku terang-terangan dan amat memudaratkan yang, pada pendapat pengarah, memberi kesan kepada kejayaan dan integriti turnamen.</li>
+                  <li><strong>Larangan Serta-merta:</strong> Pelanggaran berulang boleh mengakibatkan pesalah atau pasukan yang bersalah dilarang dari turnamen dan turnamen masa depan yang dianjurkan oleh penganjur.</li>
+                  <li><strong>Yuran Siasatan:</strong> Jika pesalah meminta siasatan lanjut, jawatankuasa penganjur mesti dibayar yuran sebanyak [RMXXX] sebelum meneruskan.</li>
+                </ul>
+              </div>
+              
+              <div>
+                <h4 class="text-lg font-semibold text-gray-900 mb-4">6. Kod Sukan Selamat</h4>
+                <p class="text-gray-700">Kod Sukan Selamat ialah satu set garis panduan yang dibangunkan oleh Kementerian Belia dan Sukan (KBS) untuk membimbing penciptaan persekitaran sukan yang selamat dengan garis panduan yang jelas yang mentakrifkan bidang kuasa semua pihak dalam menangani gangguan dan penyalahgunaan dalam sukan. Peserta dikehendaki membaca dan mematuhi kod tersebut. (sila dapatkan Kod Sukan Selamat daripada Penganjur).</p>
+              </div>
+              
+              <div>
+                <h4 class="text-lg font-semibold text-gray-900 mb-4">7. KESIMPULAN</h4>
+                <p class="text-gray-700">Kami menghargai kerjasama anda dalam menegakkan standard hormat-menghormati, keselamatan, dan semangat sukan ini. Bersama-sama, kita boleh memastikan [Nama Turnamen] kekal sebagai persekitaran yang menyeronokkan, selamat, dan positif untuk semua peserta.</p>
+              </div>
+              
+              <div class="mt-12 pt-6 border-t border-gray-300">
+                <p class="text-gray-700 mb-6">Bagi pihak Jawatankuasa Penganjur</p>
+                <div class="mb-8">
+                  <div class="border-b-2 border-gray-400 w-64 mb-3"></div>
+                  <p class="text-gray-700 font-semibold">Pengarah Turnamen</p>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <div class="mt-6 bg-blue-50 border-l-4 border-blue-600 p-6 rounded-lg">
+            <p class="text-gray-700"><strong>Nota:</strong> Kod Kelakuan Turnamen yang disediakan oleh MPA adalah templat yang direka untuk berkhidmat sebagai garis panduan untuk penganjur. Penganjur digalakkan untuk menyemak dan menyesuaikan dokumen mengikut keperluan untuk memastikan ia selari dengan keperluan khusus, nilai, dan konteks turnamen mereka. Sebarang pengubahsuaian hendaklah dilakukan dengan perundingan dengan pihak berkepentingan yang berkaitan (contoh:- Jawatankuasa Penganjur) untuk mengekalkan keadilan, inklusiviti, dan pematuhan dengan peraturan yang berkenaan.</p>
+          </div>
+        </section>
+
+        <!-- PDF Download Section -->
+        <section class="mb-16">
+          <div class="bg-green-50 border border-green-200 rounded-lg p-8 text-center">
+            <h3 class="text-2xl font-bold text-green-800 mb-4">Muat Turun Garis Panduan Lengkap</h3>
+            <p class="text-gray-700 mb-6">Muat turun Garis Panduan Turnamen MPA yang lengkap sebagai dokumen PDF untuk rujukan luar talian.</p>
+            <a href="/documents/mpa-tournament-guidelines.pdf" download="MPA_Tournament_Guidelines.pdf" class="inline-flex items-center bg-green-600 hover:bg-green-700 text-white px-8 py-4 rounded-lg font-semibold text-lg transition-colors duration-200">
+              Muat Turun Garis Panduan PDF
+            </a>
+          </div>
+        </section>
+      </div>
+
       <!-- Back Button -->
       <div class="text-center mt-12">
         <a href="/" class="inline-flex items-center bg-gray-600 hover:bg-gray-700 text-white px-6 py-3 rounded-lg font-semibold transition-colors duration-200">
@@ -1057,12 +1884,39 @@
       const kbsBtn = document.getElementById('kbsBtn');
       const mpaBtn = document.getElementById('mpaBtn');
       const kbsContent = document.getElementById('kbsContent');
+      const kbsContentEnglish = document.getElementById('kbsContentEnglish');
       const mpaContent = document.getElementById('mpaContent');
+      const mpaContentMalay = document.getElementById('mpaContentMalay');
+      const kbsLanguageToggle = document.getElementById('kbsLanguageToggle');
+      const mpaLanguageToggle = document.getElementById('mpaLanguageToggle');
+      const kbsMalayBtn = document.getElementById('kbsMalayBtn');
+      const kbsEnglishBtn = document.getElementById('kbsEnglishBtn');
+      const mpaEnglishBtn = document.getElementById('mpaEnglishBtn');
+      const mpaMalayBtn = document.getElementById('mpaMalayBtn');
+      
+      let currentKbsLanguage = 'malay'; // Default to Malay
+      let currentMpaLanguage = 'english'; // Default to English for MPA
 
       // Show KBS content by default
       function showKBS() {
-        kbsContent.style.display = 'block';
+        // Hide MPA content
         mpaContent.style.display = 'none';
+        mpaContentMalay.style.display = 'none';
+        
+        // Show KBS content based on current language
+        if (currentKbsLanguage === 'malay') {
+          kbsContent.style.display = 'block';
+          kbsContentEnglish.style.display = 'none';
+        } else {
+          kbsContent.style.display = 'none';
+          kbsContentEnglish.style.display = 'block';
+        }
+        
+        // Show KBS language toggle, hide MPA language toggle
+        kbsLanguageToggle.style.display = 'block';
+        mpaLanguageToggle.style.display = 'none';
+        
+        // Update button styles
         kbsBtn.classList.add('bg-blue-600', 'text-white');
         kbsBtn.classList.remove('text-gray-700');
         mpaBtn.classList.remove('bg-green-600', 'text-white');
@@ -1070,16 +1924,82 @@
       }
 
       function showMPA() {
-        mpaContent.style.display = 'block';
+        // Hide KBS content
         kbsContent.style.display = 'none';
+        kbsContentEnglish.style.display = 'none';
+        
+        // Show MPA content based on current language
+        if (currentMpaLanguage === 'english') {
+          mpaContent.style.display = 'block';
+          mpaContentMalay.style.display = 'none';
+        } else {
+          mpaContent.style.display = 'none';
+          mpaContentMalay.style.display = 'block';
+        }
+        
+        // Show MPA language toggle, hide KBS language toggle
+        mpaLanguageToggle.style.display = 'block';
+        kbsLanguageToggle.style.display = 'none';
+        
+        // Update button styles
         mpaBtn.classList.add('bg-green-600', 'text-white');
         mpaBtn.classList.remove('text-gray-700');
         kbsBtn.classList.remove('bg-blue-600', 'text-white');
         kbsBtn.classList.add('text-gray-700');
       }
+      
+      function switchKbsLanguage(language) {
+        currentKbsLanguage = language;
+        
+        if (language === 'malay') {
+          kbsContent.style.display = 'block';
+          kbsContentEnglish.style.display = 'none';
+          
+          // Update language button styles
+          kbsMalayBtn.classList.add('bg-blue-600', 'text-white');
+          kbsMalayBtn.classList.remove('text-blue-700');
+          kbsEnglishBtn.classList.remove('bg-blue-600', 'text-white');
+          kbsEnglishBtn.classList.add('text-blue-700');
+        } else {
+          kbsContent.style.display = 'none';
+          kbsContentEnglish.style.display = 'block';
+          
+          // Update language button styles
+          kbsEnglishBtn.classList.add('bg-blue-600', 'text-white');
+          kbsEnglishBtn.classList.remove('text-blue-700');
+          kbsMalayBtn.classList.remove('bg-blue-600', 'text-white');
+          kbsMalayBtn.classList.add('text-blue-700');
+        }
+      }
 
-      // Initialize with KBS content
+      function switchMpaLanguage(language) {
+        currentMpaLanguage = language;
+        
+        if (language === 'english') {
+          mpaContent.style.display = 'block';
+          mpaContentMalay.style.display = 'none';
+          
+          // Update language button styles
+          mpaEnglishBtn.classList.add('bg-green-600', 'text-white');
+          mpaEnglishBtn.classList.remove('text-green-700');
+          mpaMalayBtn.classList.remove('bg-green-600', 'text-white');
+          mpaMalayBtn.classList.add('text-green-700');
+        } else {
+          mpaContent.style.display = 'none';
+          mpaContentMalay.style.display = 'block';
+          
+          // Update language button styles
+          mpaMalayBtn.classList.add('bg-green-600', 'text-white');
+          mpaMalayBtn.classList.remove('text-green-700');
+          mpaEnglishBtn.classList.remove('bg-green-600', 'text-white');
+          mpaEnglishBtn.classList.add('text-green-700');
+        }
+      }
+
+      // Initialize with KBS content in Malay
       showKBS();
+      switchKbsLanguage('malay');
+      switchMpaLanguage('english');
 
       // Button event listeners
       kbsBtn.addEventListener('click', function() {
@@ -1091,213 +2011,31 @@
         showMPA();
         window.scrollTo({ top: 0, behavior: 'smooth' });
       });
-
-      // MPA Milestones functionality
-      initializeMilestones();
-    });
-
-    // Milestone data loaded from MongoDB API
-    let milestones = [];
-
-    function initializeMilestones() {
-      fetchMilestones();
-    }
-
-    async function fetchMilestones() {
-      try {
-        const response = await fetch('/api/milestones/published');
-        const result = await response.json();
-        
-        if (result.success) {
-          milestones = result.milestones;
-          console.log(`🏆 Loaded ${milestones.length} milestones from database`);
-          loadMilestones();
-          attachMilestoneCarousel();
-        } else {
-          console.error('Failed to fetch milestones:', result.message);
-          loadFallbackMilestones();
-        }
-      } catch (error) {
-        console.error('Error fetching milestones:', error);
-        loadFallbackMilestones();
-      }
-    }
-
-    function loadMilestones() {
-      const container = document.getElementById('milestoneContainer');
-      if (!container) return;
-
-      // Clear existing content
-      container.innerHTML = '';
-
-      if (milestones.length === 0) {
-        container.innerHTML = '<div class="text-center text-gray-500 py-8">No milestones available</div>';
-        return;
-      }
-
-      // Create milestone cards
-      milestones.forEach(milestone => {
-        const milestoneCard = document.createElement('div');
-        milestoneCard.className = 'milestone-card flex-none w-80 bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300';
-        milestoneCard.style.scrollSnapAlign = 'start';
-
-        // Format date for display
-        const formattedDate = new Date(milestone.date).toLocaleDateString('en-US', {
-          year: 'numeric',
-          month: 'long',
-          day: 'numeric'
-        });
-
-        milestoneCard.innerHTML = `
-          <div class="p-6">
-            <div class="flex items-center space-x-4">
-              <div class="flex-shrink-0">
-                <img src="${milestone.image || '/images/milestone-placeholder.jpg'}" alt="${milestone.title}" 
-                     class="w-16 h-16 rounded-full object-cover border-2 border-blue-200"
-                     onerror="this.src='/images/milestone-placeholder.jpg'">
-              </div>
-              <div class="flex-1 min-w-0">
-                <h3 class="text-lg font-semibold text-gray-900 truncate">${milestone.title}</h3>
-                <p class="text-sm text-gray-600 mt-1">${formattedDate}</p>
-                <p class="text-sm text-gray-700 mt-2 line-clamp-2">${milestone.description}</p>
-              </div>
-            </div>
-          </div>
-        `;
-
-        container.appendChild(milestoneCard);
+      
+      // KBS Language toggle event listeners
+      kbsMalayBtn.addEventListener('click', function() {
+        switchKbsLanguage('malay');
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      });
+      
+      kbsEnglishBtn.addEventListener('click', function() {
+        switchKbsLanguage('english');
+        window.scrollTo({ top: 0, behavior: 'smooth' });
       });
 
-      console.log(`🏆 Displayed ${milestones.length} milestones`);
-    }
-
-    function loadFallbackMilestones() {
-      // Fallback in case API fails - load some basic milestones
-      milestones = [
-        {
-          _id: 'fallback1',
-          title: "MPA Foundation",
-          date: "2020-01-15",
-          description: "Malaysia Pickleball Association was officially established to promote and develop the sport of pickleball nationwide.",
-          image: "/images/milestone-foundation.jpg"
-        },
-        {
-          _id: 'fallback2',
-          title: "First National Tournament",
-          date: "2021-03-22",
-          description: "Successfully organized the first-ever National Pickleball Championship with 200+ participants from 10 states.",
-          image: "/images/milestone-tournament.jpg"
-        }
-      ];
+      // MPA Language toggle event listeners
+      mpaEnglishBtn.addEventListener('click', function() {
+        switchMpaLanguage('english');
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      });
       
-      console.log('🏆 Loaded fallback milestones');
-      loadMilestones();
-      attachMilestoneCarousel();
-    }
+      mpaMalayBtn.addEventListener('click', function() {
+        switchMpaLanguage('malay');
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      });
 
-    // Auto-scroll carousel for milestones (adapted from news carousel)
-    function attachMilestoneCarousel() {
-      const carousel = document.getElementById('milestoneContainer');
-      const leftBtn = document.getElementById('milestoneScrollLeft');
-      const rightBtn = document.getElementById('milestoneScrollRight');
-      const indicators = document.getElementById('milestoneIndicators');
-      
-      if (!carousel || !leftBtn || !rightBtn || !indicators) return;
-      
-      // Wait for cards to be loaded
-      setTimeout(() => {
-        const cards = Array.from(carousel.children);
-        const count = cards.length;
-        
-        if (count <= 1) {
-          console.log(`🏆 Only ${count} milestone found, no auto-scroll needed`);
-          leftBtn.style.display = 'none';
-          rightBtn.style.display = 'none';
-          return;
-        }
-        
-        console.log(`🏆 ${count} milestones found, starting auto-scroll`);
-        
-        let currentIndex = 0;
-        let autoScrollTimer;
+    });
 
-        // Create indicator dots
-        indicators.innerHTML = '';
-        for (let i = 0; i < count; i++) {
-          const dot = document.createElement('button');
-          dot.className = `w-3 h-3 rounded-full transition-all duration-300 ${i === 0 ? 'bg-blue-600' : 'bg-gray-300'}`;
-          dot.addEventListener('click', () => scrollToIndex(i));
-          indicators.appendChild(dot);
-        }
-
-        function stepWidth() {
-          return carousel.clientWidth; // Scroll exactly one container width
-        }
-        
-        function updateIndicators() {
-          const dots = indicators.children;
-          for (let i = 0; i < dots.length; i++) {
-            dots[i].className = `w-3 h-3 rounded-full transition-all duration-300 ${i === currentIndex ? 'bg-blue-600' : 'bg-gray-300'}`;
-          }
-        }
-        
-        function scrollToIndex(index) {
-          currentIndex = index;
-          if (currentIndex >= count) currentIndex = 0;
-          if (currentIndex < 0) currentIndex = count - 1;
-          
-          const scrollLeft = Math.round(currentIndex * stepWidth());
-          carousel.scrollTo({ left: scrollLeft, behavior: 'smooth' });
-          updateIndicators();
-          
-          console.log(`🏆 Scrolled to milestone ${currentIndex + 1}`);
-        }
-        
-        function next() {
-          scrollToIndex(currentIndex + 1);
-        }
-        
-        function prev() {
-          scrollToIndex(currentIndex - 1);
-        }
-        
-        // Auto-scroll functionality
-        function startAutoScroll() { 
-          stopAutoScroll(); 
-          autoScrollTimer = setInterval(next, 5000); // Auto-scroll every 5 seconds
-          console.log('🏆 Milestone auto-scroll started');
-        } 
-        
-        function stopAutoScroll() { 
-          if (autoScrollTimer) {
-            clearInterval(autoScrollTimer);
-            autoScrollTimer = null;
-          }
-        }
-        
-        // Button event listeners
-        leftBtn.addEventListener('click', () => {
-          prev();
-          stopAutoScroll();
-          setTimeout(startAutoScroll, 3000); // Restart auto-scroll after 3 seconds
-        });
-        
-        rightBtn.addEventListener('click', () => {
-          next();
-          stopAutoScroll();
-          setTimeout(startAutoScroll, 3000); // Restart auto-scroll after 3 seconds
-        });
-        
-        // Pause auto-scroll on hover
-        carousel.addEventListener('mouseenter', stopAutoScroll);
-        carousel.addEventListener('mouseleave', startAutoScroll);
-        
-        // Initialize auto-scroll
-        startAutoScroll();
-        
-        console.log(`🏆 Milestone carousel initialized with ${count} milestones and auto-scroll enabled`);
-      }, 500); // Wait 500ms for cards to be fully rendered
-    }
   </script>
 </body>
 </html>
