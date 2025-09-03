@@ -786,9 +786,14 @@ app.get('/admin/dashboard', adminAuth, async (req, res) => {
     const stats = await DatabaseService.getStatistics();
     const pendingRegistrations = await DatabaseService.getPendingPlayerRegistrations();
     
+    // Get unregistered players count
+    const UnregisteredPlayer = require('./models/UnregisteredPlayer');
+    const unregisteredPlayers = await UnregisteredPlayer.find({});
+    
     res.render('pages/admin/dashboard', { 
       pendingRegistrations, 
       users: [], // Legacy compatibility
+      unregisteredPlayers,
       session: req.session,
       stats
     });
@@ -797,6 +802,7 @@ app.get('/admin/dashboard', adminAuth, async (req, res) => {
     res.render('pages/admin/dashboard', { 
       pendingRegistrations: [], 
       users: [], 
+      unregisteredPlayers: [],
       session: req.session,
       stats: { totalPlayers: 0, activePlayers: 0, totalTournaments: 0, pendingRegistrations: 0 }
     });
@@ -1779,6 +1785,23 @@ app.post('/admin/home-stats', adminAuth, async (req, res) => {
   } catch (error) {
     console.error('Saving home-stats failed:', error);
     res.redirect('/admin/home-stats?error=1');
+  }
+});
+
+// Admin: Manage Referees
+app.get('/admin/referees', adminAuth, async (req, res) => {
+  try {
+    // For now, render with empty data - can be expanded later
+    res.render('pages/admin/manage-referees', { 
+      referees: [],
+      session: req.session 
+    });
+  } catch (error) {
+    console.error('Admin referees page error:', error);
+    res.render('pages/admin/manage-referees', { 
+      referees: [], 
+      session: req.session 
+    });
   }
 });
 
