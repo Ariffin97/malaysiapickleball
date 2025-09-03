@@ -2137,7 +2137,7 @@ router.post('/admin/generate-api-key', adminAuth, [
     const { description, permissions = [] } = req.body;
     
     // Validate permissions
-    const validPermissions = ['unregistered-player', 'player-details'];
+    const validPermissions = ['unregistered-player', 'player-details', 'players-list'];
     const invalidPermissions = permissions.filter(p => !validPermissions.includes(p));
     if (invalidPermissions.length > 0) {
       return APIResponse.validationError(res, [{ 
@@ -2713,6 +2713,62 @@ router.get('/health', (req, res) => {
     message: 'API is running',
     timestamp: new Date().toISOString()
   });
+});
+
+// =============================================================================
+// PLAYERS LIST API ENDPOINT
+// =============================================================================
+
+// Get All Approved Players List
+router.get('/players-list', validateApiKey, async (req, res) => {
+  try {
+    // Check if API key has players-list permission
+    if (!req.apiKeyData.permissions.includes('players-list')) {
+      return APIResponse.forbidden(res, 'API key does not have players-list permission');
+    }
+
+    const { limit = 100, offset = 0, state, division } = req.query;
+    
+    // Build query for approved players only
+    let query = { 
+      status: 'approved' // Only get approved players
+    };
+    
+    // Add optional filters
+    if (state) {
+      query.state = state;
+    }
+    if (division) {
+      query.division = division;
+    }
+    
+    // Get players with pagination
+    const players = await Player.find(query)
+      .select('playerId fullName email phoneNumber state division dateOfBirth age address joinDate status')
+      .sort({ joinDate: -1 })
+      .limit(parseInt(limit))
+      .skip(parseInt(offset));
+    
+    const totalCount = await Player.countDocuments(query);
+    
+    return APIResponse.success(res, {
+      players: players,
+      pagination: {
+        total: totalCount,
+        limit: parseInt(limit),
+        offset: parseInt(offset),
+        hasMore: (parseInt(offset) + players.length) < totalCount
+      },
+      filters: {
+        state: state || null,
+        division: division || null
+      }
+    }, 'Approved players retrieved successfully');
+    
+  } catch (error) {
+    console.error('Error retrieving approved players list:', error);
+    return APIResponse.error(res, 'Failed to retrieve approved players list', 500);
+  }
 });
 
 module.exports = router; 
