@@ -25,6 +25,29 @@ const playerSchema = new mongoose.Schema({
     min: 12,
     max: 100
   },
+  dateOfBirth: {
+    type: Date,
+    required: false
+  },
+  state: {
+    type: String,
+    required: false,
+    trim: true,
+    enum: [
+      'Johor', 'Kedah', 'Kelantan', 'Kuala Lumpur', 'Labuan', 'Malacca', 
+      'Negeri Sembilan', 'Pahang', 'Penang', 'Perak', 'Perlis', 'Putrajaya', 
+      'Sabah', 'Sarawak', 'Selangor', 'Terengganu'
+    ]
+  },
+  division: {
+    type: String,
+    required: false,
+    trim: true,
+    enum: [
+      'Youth (Under 16)', 'Junior (16-18)', 'Open (19-39)', 'Senior (40-49)', 
+      'Masters (50-59)', 'Grand Masters (60+)', 'Professional'
+    ]
+  },
   address: {
     type: String,
     required: true,

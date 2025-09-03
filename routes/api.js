@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const bcrypt = require('bcryptjs');
+const crypto = require('crypto');
 const { body, validationResult } = require('express-validator');
 const DatabaseService = require('../services/databaseService');
 const Player = require('../models/Player');
@@ -2002,6 +2003,507 @@ router.get('/announcements', checkApiRateLimit, async (req, res) => {
   } catch (error) {
     console.error('Get announcements API error:', error);
     return APIResponse.error(res, 'Failed to retrieve announcements', 500);
+  }
+});
+
+// =============================================================================
+// NEW UNREGISTERED PLAYER API ENDPOINTS
+// =============================================================================
+
+// Generate MPA ID from name
+function generateMPAId(name) {
+  // Clean name: remove spaces, convert to uppercase, take first 6 characters
+  const cleanName = name.replace(/[^a-zA-Z]/g, '').toUpperCase().substring(0, 6);
+  
+  // Generate random 4-digit number
+  const randomNum = Math.floor(1000 + Math.random() * 9000);
+  
+  // Combine: MPA + clean name + random number
+  return `MPA${cleanName}${randomNum}`;
+}
+
+// API Key model schema (simple in-memory storage for demo - in production use database)
+const apiKeys = new Map();
+
+// Generate API Key
+function generateApiKey() {
+  return `mpba_${crypto.randomBytes(32).toString('hex')}`;
+}
+
+// Middleware to validate API key
+const validateApiKey = (req, res, next) => {
+  const apiKey = req.headers['x-api-key'] || req.query.apikey;
+  
+  if (!apiKey) {
+    return APIResponse.unauthorized(res, 'API key required');
+  }
+  
+  if (!apiKeys.has(apiKey)) {
+    return APIResponse.unauthorized(res, 'Invalid API key');
+  }
+  
+  // Update last used timestamp
+  const keyData = apiKeys.get(apiKey);
+  keyData.lastUsed = new Date();
+  apiKeys.set(apiKey, keyData);
+  
+  req.apiKeyData = keyData;
+  next();
+};
+
+// Create new unregistered player API endpoint
+router.post('/unregistered-player', validateApiKey, [
+  body('name').isLength({ min: 2 }).trim().escape().withMessage('Name must be at least 2 characters')
+], async (req, res) => {
+  try {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return APIResponse.validationError(res, errors.array());
+    }
+
+    const { name } = req.body;
+
+    // Generate unique MPA ID
+    let mpaId;
+    let attempts = 0;
+    const maxAttempts = 5;
+    
+    do {
+      mpaId = generateMPAId(name);
+      attempts++;
+      
+      // Check if MPA ID already exists in players
+      const existingPlayer = await Player.findOne({ playerId: mpaId });
+      if (!existingPlayer) break;
+      
+    } while (attempts < maxAttempts);
+    
+    if (attempts >= maxAttempts) {
+      return APIResponse.error(res, 'Unable to generate unique MPA ID', 500);
+    }
+
+    // In a real implementation, you might want to save this somewhere
+    // For now, we'll just return the generated MPA ID
+    
+    // Log the registration for tracking
+    console.log(`📋 New unregistered player: ${name} -> MPA ID: ${mpaId}`);
+
+    return APIResponse.success(res, {
+      name: name,
+      mpaId: mpaId,
+      registrationDate: new Date().toISOString(),
+      status: 'unregistered',
+      message: 'MPA ID generated successfully. Player can now register using this ID.'
+    }, 'New unregistered player processed successfully');
+
+  } catch (error) {
+    console.error('Unregistered player API error:', error);
+    return APIResponse.error(res, 'Failed to process unregistered player', 500);
+  }
+});
+
+// Generate new API key endpoint (admin only)
+router.post('/admin/generate-api-key', adminAuth, [
+  body('description').isLength({ min: 1 }).trim().withMessage('API key description required'),
+  body('permissions').optional().isArray().withMessage('Permissions must be an array')
+], async (req, res) => {
+  try {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return APIResponse.validationError(res, errors.array());
+    }
+
+    const { description, permissions = [] } = req.body;
+    
+    // Validate permissions
+    const validPermissions = ['unregistered-player', 'player-details'];
+    const invalidPermissions = permissions.filter(p => !validPermissions.includes(p));
+    if (invalidPermissions.length > 0) {
+      return APIResponse.validationError(res, [{ 
+        msg: `Invalid permissions: ${invalidPermissions.join(', ')}. Valid permissions are: ${validPermissions.join(', ')}` 
+      }]);
+    }
+    
+    if (permissions.length === 0) {
+      return APIResponse.validationError(res, [{ msg: 'At least one permission is required' }]);
+    }
+    
+    // Generate new API key
+    const apiKey = generateApiKey();
+    
+    // Store API key data
+    const keyData = {
+      key: apiKey,
+      description: description,
+      permissions: permissions,
+      createdBy: req.admin.username,
+      createdAt: new Date(),
+      lastUsed: null,
+      isActive: true
+    };
+    
+    apiKeys.set(apiKey, keyData);
+    
+    console.log(`🔑 New API key generated by ${req.admin.username}: ${description}`);
+    
+    return APIResponse.success(res, {
+      apiKey: apiKey,
+      description: description,
+      permissions: permissions,
+      createdAt: keyData.createdAt,
+      usage: 'Include this key in the X-API-Key header or as apikey query parameter'
+    }, 'API key generated successfully');
+
+  } catch (error) {
+    console.error('Generate API key error:', error);
+    return APIResponse.error(res, 'Failed to generate API key', 500);
+  }
+});
+
+// List API keys endpoint (admin only)
+router.get('/admin/api-keys', adminAuth, async (req, res) => {
+  try {
+    const keys = Array.from(apiKeys.entries()).map(([key, data]) => ({
+      keyId: key.substring(0, 12) + '...',
+      description: data.description,
+      permissions: data.permissions,
+      createdBy: data.createdBy,
+      createdAt: data.createdAt,
+      lastUsed: data.lastUsed,
+      isActive: data.isActive
+    }));
+
+    return APIResponse.success(res, {
+      apiKeys: keys,
+      total: keys.length
+    }, 'API keys retrieved successfully');
+
+  } catch (error) {
+    console.error('List API keys error:', error);
+    return APIResponse.error(res, 'Failed to retrieve API keys', 500);
+  }
+});
+
+// Revoke API key endpoint (admin only)
+router.delete('/admin/api-keys/:keyId', adminAuth, async (req, res) => {
+  try {
+    const { keyId } = req.params;
+    
+    // Find the full key by partial match
+    const fullKey = Array.from(apiKeys.keys()).find(key => key.startsWith(keyId));
+    
+    if (!fullKey) {
+      return APIResponse.notFound(res, 'API key not found');
+    }
+    
+    // Remove the API key
+    apiKeys.delete(fullKey);
+    
+    console.log(`🗑️ API key revoked by ${req.admin.username}: ${keyId}...`);
+    
+    return APIResponse.success(res, null, 'API key revoked successfully');
+
+  } catch (error) {
+    console.error('Revoke API key error:', error);
+    return APIResponse.error(res, 'Failed to revoke API key', 500);
+  }
+});
+
+// =============================================================================
+// PLAYER DETAILS API ENDPOINTS
+// =============================================================================
+
+// Get Player Details by Player ID
+router.get('/player-details/:playerId', validateApiKey, async (req, res) => {
+  try {
+    const { playerId } = req.params;
+
+    // Check if API key has player-details permission
+    const keyData = req.apiKeyData;
+    if (!keyData.permissions.includes('player-details')) {
+      return APIResponse.forbidden(res, 'API key does not have player-details permission');
+    }
+
+    // Find player by playerId
+    const player = await Player.findOne({ playerId });
+    
+    if (!player) {
+      return APIResponse.notFound(res, 'Player not found');
+    }
+
+    // Return player details (excluding sensitive data)
+    const playerDetails = {
+      playerId: player.playerId,
+      fullName: player.fullName,
+      dateOfBirth: player.dateOfBirth,
+      age: player.age,
+      state: player.state,
+      division: player.division,
+      email: player.email,
+      phoneNumber: player.phoneNumber,
+      address: player.address,
+      status: player.status,
+      joinDate: player.joinDate,
+      profilePicture: player.profilePicture,
+      ranking: player.ranking,
+      tournaments: player.tournaments?.length || 0
+    };
+
+    return APIResponse.success(res, {
+      player: playerDetails
+    }, 'Player details retrieved successfully');
+
+  } catch (error) {
+    console.error('Get player details API error:', error);
+    return APIResponse.error(res, 'Failed to retrieve player details', 500);
+  }
+});
+
+// Create/Update Player Details
+router.post('/player-details', validateApiKey, [
+  body('playerId').optional().isLength({ min: 3 }).withMessage('Player ID must be at least 3 characters'),
+  body('fullName').isLength({ min: 2 }).trim().withMessage('Full name must be at least 2 characters'),
+  body('dateOfBirth').optional().isISO8601().withMessage('Date of birth must be a valid date (YYYY-MM-DD)'),
+  body('age').optional().isInt({ min: 12, max: 100 }).withMessage('Age must be between 12 and 100'),
+  body('state').optional().isIn([
+    'Johor', 'Kedah', 'Kelantan', 'Kuala Lumpur', 'Labuan', 'Malacca', 
+    'Negeri Sembilan', 'Pahang', 'Penang', 'Perak', 'Perlis', 'Putrajaya', 
+    'Sabah', 'Sarawak', 'Selangor', 'Terengganu'
+  ]).withMessage('Invalid state'),
+  body('division').optional().isIn([
+    'Youth (Under 16)', 'Junior (16-18)', 'Open (19-39)', 'Senior (40-49)', 
+    'Masters (50-59)', 'Grand Masters (60+)', 'Professional'
+  ]).withMessage('Invalid division'),
+  body('email').optional().isEmail().withMessage('Invalid email format'),
+  body('phoneNumber').optional().isMobilePhone('ms-MY').withMessage('Invalid Malaysian phone number'),
+  body('address').optional().isLength({ min: 10 }).withMessage('Address must be at least 10 characters')
+], async (req, res) => {
+  try {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return APIResponse.validationError(res, errors.array());
+    }
+
+    // Check if API key has player-details permission
+    const keyData = req.apiKeyData;
+    if (!keyData.permissions.includes('player-details')) {
+      return APIResponse.forbidden(res, 'API key does not have player-details permission');
+    }
+
+    const { 
+      playerId, fullName, dateOfBirth, age, state, division, 
+      email, phoneNumber, address 
+    } = req.body;
+
+    let player;
+    let isNewPlayer = false;
+
+    if (playerId) {
+      // Update existing player
+      player = await Player.findOne({ playerId });
+      if (!player) {
+        return APIResponse.notFound(res, 'Player not found');
+      }
+    } else {
+      // Create new player - generate playerId from name
+      if (!fullName) {
+        return APIResponse.validationError(res, [{ msg: 'Full name is required for new player' }]);
+      }
+      
+      // Generate unique MPA ID for new player
+      let newPlayerId;
+      let attempts = 0;
+      const maxAttempts = 5;
+      
+      do {
+        newPlayerId = generateMPAId(fullName);
+        attempts++;
+        
+        const existingPlayer = await Player.findOne({ playerId: newPlayerId });
+        if (!existingPlayer) break;
+        
+      } while (attempts < maxAttempts);
+      
+      if (attempts >= maxAttempts) {
+        return APIResponse.error(res, 'Unable to generate unique MPA ID', 500);
+      }
+
+      player = new Player({
+        playerId: newPlayerId,
+        fullName: fullName,
+        icNumber: `TEMP_${Date.now()}`, // Temporary IC for API-created players
+        age: age || 18,
+        email: email || `${newPlayerId.toLowerCase()}@temp.com`,
+        phoneNumber: phoneNumber || '012-3456789',
+        address: address || 'Address not provided',
+        username: newPlayerId.toLowerCase(),
+        password: 'temp_password_123' // Will be hashed by pre-save middleware
+      });
+      isNewPlayer = true;
+    }
+
+    // Update player fields
+    if (fullName) player.fullName = fullName;
+    if (dateOfBirth) player.dateOfBirth = new Date(dateOfBirth);
+    if (age) player.age = age;
+    if (state) player.state = state;
+    if (division) player.division = division;
+    if (email) player.email = email;
+    if (phoneNumber) player.phoneNumber = phoneNumber;
+    if (address) player.address = address;
+
+    // Save player
+    await player.save();
+
+    // Log the action
+    console.log(`📝 Player details ${isNewPlayer ? 'created' : 'updated'}: ${player.playerId} (${player.fullName})`);
+
+    return APIResponse.success(res, {
+      player: {
+        playerId: player.playerId,
+        fullName: player.fullName,
+        dateOfBirth: player.dateOfBirth,
+        age: player.age,
+        state: player.state,
+        division: player.division,
+        email: player.email,
+        phoneNumber: player.phoneNumber,
+        address: player.address,
+        status: player.status,
+        joinDate: player.joinDate
+      },
+      action: isNewPlayer ? 'created' : 'updated'
+    }, `Player details ${isNewPlayer ? 'created' : 'updated'} successfully`);
+
+  } catch (error) {
+    console.error('Player details API error:', error);
+    
+    if (error.code === 11000) {
+      return APIResponse.error(res, 'Player with this email or IC number already exists', 409);
+    }
+    
+    return APIResponse.error(res, 'Failed to save player details', 500);
+  }
+});
+
+// Update Player Details by Player ID
+router.put('/player-details/:playerId', validateApiKey, [
+  body('fullName').optional().isLength({ min: 2 }).trim().withMessage('Full name must be at least 2 characters'),
+  body('dateOfBirth').optional().isISO8601().withMessage('Date of birth must be a valid date (YYYY-MM-DD)'),
+  body('age').optional().isInt({ min: 12, max: 100 }).withMessage('Age must be between 12 and 100'),
+  body('state').optional().isIn([
+    'Johor', 'Kedah', 'Kelantan', 'Kuala Lumpur', 'Labuan', 'Malacca', 
+    'Negeri Sembilan', 'Pahang', 'Penang', 'Perak', 'Perlis', 'Putrajaya', 
+    'Sabah', 'Sarawak', 'Selangor', 'Terengganu'
+  ]).withMessage('Invalid state'),
+  body('division').optional().isIn([
+    'Youth (Under 16)', 'Junior (16-18)', 'Open (19-39)', 'Senior (40-49)', 
+    'Masters (50-59)', 'Grand Masters (60+)', 'Professional'
+  ]).withMessage('Invalid division'),
+  body('email').optional().isEmail().withMessage('Invalid email format'),
+  body('phoneNumber').optional().isMobilePhone('ms-MY').withMessage('Invalid Malaysian phone number'),
+  body('address').optional().isLength({ min: 10 }).withMessage('Address must be at least 10 characters')
+], async (req, res) => {
+  try {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return APIResponse.validationError(res, errors.array());
+    }
+
+    // Check if API key has player-details permission
+    const keyData = req.apiKeyData;
+    if (!keyData.permissions.includes('player-details')) {
+      return APIResponse.forbidden(res, 'API key does not have player-details permission');
+    }
+
+    const { playerId } = req.params;
+    const updateData = req.body;
+
+    // Find and update player
+    const player = await Player.findOne({ playerId });
+    if (!player) {
+      return APIResponse.notFound(res, 'Player not found');
+    }
+
+    // Update only provided fields
+    Object.keys(updateData).forEach(key => {
+      if (updateData[key] !== undefined) {
+        if (key === 'dateOfBirth') {
+          player[key] = new Date(updateData[key]);
+        } else {
+          player[key] = updateData[key];
+        }
+      }
+    });
+
+    await player.save();
+
+    console.log(`📝 Player details updated: ${player.playerId} (${player.fullName})`);
+
+    return APIResponse.success(res, {
+      player: {
+        playerId: player.playerId,
+        fullName: player.fullName,
+        dateOfBirth: player.dateOfBirth,
+        age: player.age,
+        state: player.state,
+        division: player.division,
+        email: player.email,
+        phoneNumber: player.phoneNumber,
+        address: player.address,
+        status: player.status
+      }
+    }, 'Player details updated successfully');
+
+  } catch (error) {
+    console.error('Update player details API error:', error);
+    
+    if (error.code === 11000) {
+      return APIResponse.error(res, 'Email already exists for another player', 409);
+    }
+    
+    return APIResponse.error(res, 'Failed to update player details', 500);
+  }
+});
+
+// Search Players by State or Division
+router.get('/players/search', validateApiKey, [
+  // Optional query parameters
+], async (req, res) => {
+  try {
+    // Check if API key has player-details permission
+    const keyData = req.apiKeyData;
+    if (!keyData.permissions.includes('player-details')) {
+      return APIResponse.forbidden(res, 'API key does not have player-details permission');
+    }
+
+    const { state, division, limit = 50, offset = 0 } = req.query;
+    
+    // Build search query
+    let query = { status: 'active' };
+    if (state) query.state = state;
+    if (division) query.division = division;
+
+    // Execute search
+    const players = await Player.find(query)
+      .select('playerId fullName dateOfBirth age state division email phoneNumber status joinDate')
+      .limit(parseInt(limit))
+      .skip(parseInt(offset))
+      .sort({ fullName: 1 });
+
+    const total = await Player.countDocuments(query);
+
+    return APIResponse.success(res, {
+      players: players,
+      total: total,
+      limit: parseInt(limit),
+      offset: parseInt(offset),
+      hasMore: (parseInt(offset) + parseInt(limit)) < total
+    }, 'Players retrieved successfully');
+
+  } catch (error) {
+    console.error('Search players API error:', error);
+    return APIResponse.error(res, 'Failed to search players', 500);
   }
 });
 

@@ -693,6 +693,21 @@ app.patch('/api/milestones/:id/toggle-feature', adminAuth, async (req, res) => {
   }
 });
 
+// API Keys Management Routes
+app.get('/admin/api-keys', adminAuth, async (req, res) => {
+  try {
+    res.render('pages/admin/manage-api-keys', { 
+      session: req.session 
+    });
+  } catch (error) {
+    console.error('Error loading API keys admin page:', error);
+    res.render('pages/admin/manage-api-keys', { 
+      session: req.session,
+      error: 'Failed to load API keys management page' 
+    });
+  }
+});
+
 // Continue with more routes...
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {

@@ -4912,6 +4912,21 @@ app.post('/api/admin/training/clinics', adminAuth, async (req, res) => {
 // API routes already added at the top of the file
 console.log('✅ API routes enabled at /api endpoint');
 
+// API Keys Management Routes
+app.get('/admin/api-keys', adminAuth, async (req, res) => {
+  try {
+    res.render('pages/admin/manage-api-keys', { 
+      session: req.session 
+    });
+  } catch (error) {
+    console.error('Error loading API keys admin page:', error);
+    res.render('pages/admin/manage-api-keys', { 
+      session: req.session,
+      error: 'Failed to load API keys management page' 
+    });
+  }
+});
+
 // Server startup moved to bottom of file with proper database initialization
 
 module.exports = app; 
