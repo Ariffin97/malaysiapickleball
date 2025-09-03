@@ -22,7 +22,9 @@
         <!-- Committee Dropdown - Hidden on Mobile -->
         <div class="committee-dropdown relative hidden md:block">
             <button class="nav-button flex items-center justify-center w-10 h-10 rounded-xl font-medium text-black transition-all duration-300 hover:bg-black hover:bg-opacity-10 hover:text-black" id="committee-menu-button" type="button" aria-expanded="false" data-tooltip="Committee">
-              Committee
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
+              </svg>
             </button>
           
           <!-- Committee Dropdown Content -->
@@ -30,10 +32,10 @@
             <div class="flex flex-col gap-1 p-4">
               <div class="px-3 py-2 text-xs font-bold text-gray-500 uppercase tracking-wide border-b border-gray-100 mb-2">Committee</div>
               <a href="/organization-chart" class="nav-dropdown-item flex items-center gap-3 px-3 py-2 rounded-lg font-medium text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition-all duration-200 text-sm">
-                National
+                <i class="fas fa-flag text-blue-500 w-4"></i> National
               </a>
               <a href="#" class="nav-dropdown-item flex items-center gap-3 px-3 py-2 rounded-lg font-medium text-gray-700 hover:bg-green-50 hover:text-green-600 transition-all duration-200 text-sm">
-                State
+                <i class="fas fa-map-marker-alt text-green-500 w-4"></i> State
               </a>
             </div>
           </div>
@@ -41,22 +43,24 @@
 
                 <!-- Ranking Button - Hidden on Mobile -->
         <a href="/services/ranking" class="nav-button hidden md:flex items-center justify-center w-10 h-10 rounded-xl font-medium text-black transition-all duration-300 hover:bg-black hover:bg-opacity-10 hover:text-black" data-tooltip="Ranking">
-          Ranking
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+          </svg>
         </a>
 
         <!-- Official Partnership Button - Hidden on Mobile -->
         <a href="/official-partnership" class="nav-button hidden md:flex items-center justify-center w-10 h-10 rounded-xl font-medium text-black transition-all duration-300 hover:bg-black hover:bg-opacity-10 hover:text-black" data-tooltip="Official Partnership">
-          Partnership
+          <i class="fas fa-handshake text-lg"></i>
         </a>
 
         <!-- Tournament Button - Hidden on Mobile -->
         <a href="/tournament" class="nav-button hidden md:flex items-center justify-center w-10 h-10 rounded-xl font-medium text-black transition-all duration-300 hover:bg-black hover:bg-opacity-10 hover:text-black" data-tooltip="Tournament">
-          Tournament
+          <i class="fas fa-trophy text-lg"></i>
         </a>
 
         <!-- Training Program Button - Hidden on Mobile -->
         <a href="/training" class="nav-button hidden md:flex items-center justify-center w-10 h-10 rounded-xl font-medium text-black transition-all duration-300 hover:bg-black hover:bg-opacity-10 hover:text-black" data-tooltip="Training Program">
-          Training
+          <i class="fas fa-graduation-cap text-lg"></i>
         </a>
       </div>
     </div>
@@ -65,27 +69,47 @@
     <div class="flex items-center space-x-3">
       <!-- Home Link - Hidden on Mobile -->
       <a href="/" class="nav-button hidden md:flex items-center justify-center w-10 h-10 rounded-xl font-medium text-black transition-all duration-300 hover:bg-black hover:bg-opacity-10 hover:text-black" data-tooltip="Home">
-        Home
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path>
+        </svg>
       </a>
       
       <% if (session.isAuthenticated) { %>
         <!-- User Menu Dropdown - Hidden on Mobile -->
         <div class="nav-tooltip-container user-menu-dropdown hidden md:block">
                       <button class="nav-button flex items-center space-x-2 px-4 py-2 rounded-xl font-medium text-black transition-all duration-300 hover:bg-black hover:bg-opacity-10 hover:text-black" id="user-menu-button" data-tooltip="Account">
+            <div class="w-4 h-4 bg-black bg-opacity-20 rounded-full flex items-center justify-center">
+              <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+              </svg>
+            </div>
             <span>Account</span>
+            <svg class="w-3 h-3 transition-transform duration-300" id="user-menu-arrow" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+            </svg>
           </button>
           
           <!-- Dropdown Menu -->
           <div class="dropdown-menu absolute right-0 mt-2 w-48 bg-white rounded-xl shadow-2xl border border-gray-200 opacity-0 invisible transform translate-y-2 transition-all duration-300" id="user-dropdown" style="z-index: 9998; top: 100%;">
             <div class="py-2">
               <a href="/admin/dashboard" class="dropdown-item flex items-center space-x-3 px-4 py-3 text-gray-700 hover:bg-green-50 hover:text-green-600 transition-colors duration-200">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+                </svg>
                 <span>Dashboard</span>
               </a>
               <a href="/profile" class="dropdown-item flex items-center space-x-3 px-4 py-3 text-gray-700 hover:bg-green-50 hover:text-green-600 transition-colors duration-200">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path>
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                </svg>
                 <span>Settings</span>
               </a>
               <div class="border-t border-gray-100 my-1"></div>
               <a href="/logout" class="dropdown-item flex items-center space-x-3 px-4 py-3 text-red-600 hover:bg-red-50 transition-colors duration-200">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path>
+                </svg>
                 <span>Logout</span>
               </a>
             </div>
@@ -94,13 +118,17 @@
       <% } else { %>
         <!-- Admin Login Button - Hidden on Mobile -->
                   <a href="/login" class="nav-button hidden md:flex items-center justify-center w-10 h-10 rounded-xl font-medium text-black transition-all duration-300 hover:bg-black hover:bg-opacity-10 hover:text-black" data-tooltip="Admin Login">
-            Login
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1"></path>
+          </svg>
         </a>
       <% } %>
       <!-- Quick Actions Dropdown -->
       <div class="relative">
         <button class="nav-button flex items-center justify-center w-10 h-10 rounded-xl font-medium text-black transition-all duration-300 hover:bg-black hover:bg-opacity-10 hover:text-black" id="quick-actions-menu-button" type="button" aria-expanded="false" data-tooltip="Menu">
-          Menu
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+          </svg>
         </button>
         <div class="nav-tooltip">Menu</div>
         <!-- Navigation Dropdown Content -->
@@ -111,34 +139,34 @@
             <div class="nav-section md:hidden">
               <div class="px-3 py-2 text-xs font-bold text-gray-500 uppercase tracking-wide border-b border-gray-100 mb-2">Navigation</div>
               <a href="/" class="nav-dropdown-item flex items-center gap-3 px-3 py-2 rounded-lg font-medium text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition-all duration-200 text-sm">
-                Home
+                <i class="fas fa-home text-blue-500 w-4"></i> Home
               </a>
               <a href="/services/ranking" class="nav-dropdown-item flex items-center gap-3 px-3 py-2 rounded-lg font-medium text-gray-700 hover:bg-orange-50 hover:text-orange-600 transition-all duration-200 text-sm">
-                                <span>Ranking</span>
+                <i class="fas fa-chart-bar text-orange-500 w-4"></i> <span>Ranking</span>
                 <span class="ml-auto text-[10px] font-semibold px-2 py-0.5 rounded-full bg-yellow-100 text-yellow-700 border border-yellow-200">Coming Soon</span>
               </a>
               <a href="/official-partnership" class="nav-dropdown-item flex items-center gap-3 px-3 py-2 rounded-lg font-medium text-gray-700 hover:bg-purple-50 hover:text-purple-600 transition-all duration-200 text-sm">
-                 Official Partnership
+                <i class="fas fa-handshake text-purple-500 w-4"></i> Official Partnership
               </a>
               <a href="/tournament" class="nav-dropdown-item flex items-center gap-3 px-3 py-2 rounded-lg font-medium text-gray-700 hover:bg-green-50 hover:text-green-600 transition-all duration-200 text-sm">
-                 Tournament
+                <i class="fas fa-trophy text-green-500 w-4"></i> Tournament
               </a>
               <a href="/training" class="nav-dropdown-item flex items-center gap-3 px-3 py-2 rounded-lg font-medium text-gray-700 hover:bg-purple-50 hover:text-purple-600 transition-all duration-200 text-sm">
-                 Training Program
+                 <i class="fas fa-graduation-cap text-purple-500 w-4"></i> Training Program
               </a>
               <button id="faqMenuButton" class="nav-dropdown-item flex items-center gap-3 px-3 py-2 rounded-lg font-medium text-gray-700 hover:bg-yellow-50 hover:text-yellow-600 transition-all duration-200 text-sm w-full text-left">
-                 FAQ
+                 <i class="fas fa-question-circle text-yellow-500 w-4"></i> FAQ
               </button>
               <% if (session.isAuthenticated) { %>
                 <a href="/admin/dashboard" class="nav-dropdown-item flex items-center gap-3 px-3 py-2 rounded-lg font-medium text-gray-700 hover:bg-green-50 hover:text-green-600 transition-all duration-200 text-sm">
-                   Dashboard
+                   <i class="fas fa-tachometer-alt text-green-500 w-4"></i> Dashboard
                 </a>
                 <a href="/logout" class="nav-dropdown-item flex items-center gap-3 px-3 py-2 rounded-lg font-medium text-red-700 hover:bg-red-50 hover:text-red-600 transition-all duration-200 text-sm">
-                   Logout
+                   <i class="fas fa-sign-out-alt text-red-500 w-4"></i> Logout
                 </a>
               <% } else { %>
                 <a href="/login" class="nav-dropdown-item flex items-center gap-3 px-3 py-2 rounded-lg font-medium text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition-all duration-200 text-sm">
-                   Admin Login
+                   <i class="fas fa-sign-in-alt text-blue-500 w-4"></i> Admin Login
                 </a>
               <% } %>
             </div>
@@ -148,10 +176,10 @@
             <div class="nav-section md:hidden">
               <div class="px-3 py-2 text-xs font-bold text-gray-500 uppercase tracking-wide border-b border-gray-100 mb-2">Committee</div>
               <a href="#" class="nav-dropdown-item flex items-center gap-3 px-3 py-2 rounded-lg font-medium text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition-all duration-200 text-sm">
-                 National
+                <i class="fas fa-flag text-blue-500 w-4"></i> National
             </a>
               <a href="#" class="nav-dropdown-item flex items-center gap-3 px-3 py-2 rounded-lg font-medium text-gray-700 hover:bg-green-50 hover:text-green-600 transition-all duration-200 text-sm">
-                 State
+                <i class="fas fa-map-marker-alt text-green-500 w-4"></i> State
               </a>
             </div>
 
@@ -159,10 +187,10 @@
             <div class="nav-section mt-3">
               <div class="px-3 py-2 text-xs font-bold text-gray-500 uppercase tracking-wide border-b border-gray-100 mb-2">Tournament & Events</div>
               <a href="/events" class="nav-dropdown-item flex items-center gap-3 px-3 py-2 rounded-lg font-medium text-gray-700 hover:bg-yellow-50 hover:text-yellow-600 transition-all duration-200 text-sm">
-                 Events
+                <i class="fas fa-calendar-alt text-yellow-500 w-4"></i> Events
               </a>
               <a href="/live-tournament" class="nav-dropdown-item flex items-center gap-3 px-3 py-2 rounded-lg font-medium text-gray-700 hover:bg-red-50 hover:text-red-600 transition-all duration-200 text-sm">
-                 Live Tournament
+                <i class="fas fa-broadcast-tower text-red-500 w-4"></i> Live Tournament
               </a>
             </div>
 
@@ -170,15 +198,15 @@
             <div class="nav-section mt-3">
               <div class="px-3 py-2 text-xs font-bold text-gray-500 uppercase tracking-wide border-b border-gray-100 mb-2">People & Places</div>
               <a href="/referee" class="nav-dropdown-item flex items-center gap-3 px-3 py-2 rounded-lg font-medium text-gray-700 hover:bg-red-50 hover:text-red-600 transition-all duration-200 text-sm">
-                                <span class="">Referee</span>
+                <i class="fas fa-user-tie text-red-500 w-4"></i> <span class="">Referee</span>
                 <span class="ml-auto text-[10px] font-semibold px-2 py-0.5 rounded-full bg-yellow-100 text-yellow-700 border border-yellow-200">Coming Soon</span>
               </a>
               <a href="/coaches" class="nav-dropdown-item flex items-center gap-3 px-3 py-2 rounded-lg font-medium text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition-all duration-200 text-sm">
-                                <span class="">Coaches</span>
+                <i class="fas fa-chalkboard-teacher text-blue-500 w-4"></i> <span class="">Coaches</span>
                 <span class="ml-auto text-[10px] font-semibold px-2 py-0.5 rounded-full bg-yellow-100 text-yellow-700 border border-yellow-200">Coming Soon</span>
               </a>
               <a href="/venue" class="nav-dropdown-item flex items-center gap-3 px-3 py-2 rounded-lg font-medium text-gray-700 hover:bg-purple-50 hover:text-purple-600 transition-all duration-200 text-sm">
-                                <span class="">Venue</span>
+                <i class="fas fa-map-marker-alt text-purple-500 w-4"></i> <span class="">Venue</span>
                 <span class="ml-auto text-[10px] font-semibold px-2 py-0.5 rounded-full bg-yellow-100 text-yellow-700 border border-yellow-200">Coming Soon</span>
               </a>
             </div>
@@ -187,11 +215,11 @@
             <div class="nav-section mt-3">
               <div class="px-3 py-2 text-xs font-bold text-gray-500 uppercase tracking-wide border-b border-gray-100 mb-2">Rankings & Shop</div>
               <a href="/services/ranking" class="nav-dropdown-item flex items-center gap-3 px-3 py-2 rounded-lg font-medium text-gray-700 hover:bg-yellow-50 hover:text-yellow-600 transition-all duration-200 text-sm">
-                                <span>Ranking</span>
+                <i class="fas fa-chart-line text-yellow-500 w-4"></i> <span>Ranking</span>
                 <span class="ml-auto text-[10px] font-semibold px-2 py-0.5 rounded-full bg-yellow-100 text-yellow-700 border border-yellow-200">Coming Soon</span>
               </a>
               <a href="/shop" class="nav-dropdown-item flex items-center gap-3 px-3 py-2 rounded-lg font-medium text-gray-700 hover:bg-orange-50 hover:text-orange-600 transition-all duration-200 text-sm">
-                                <span>Shop</span>
+                <i class="fas fa-shopping-cart text-orange-500 w-4"></i> <span>Shop</span>
                 <span class="ml-auto text-[10px] font-semibold px-2 py-0.5 rounded-full bg-yellow-100 text-yellow-700 border border-yellow-200">Coming Soon</span>
               </a>
             </div>
@@ -200,7 +228,7 @@
             <div class="nav-section mt-3">
               <div class="px-3 py-2 text-xs font-bold text-gray-500 uppercase tracking-wide border-b border-gray-100 mb-2">Services</div>
               <a href="/services/sponsorship" class="nav-dropdown-item flex items-center gap-3 px-3 py-2 rounded-lg font-medium text-gray-700 hover:bg-orange-50 hover:text-orange-600 transition-all duration-200 text-sm">
-                                <span>Sponsorship</span>
+                <i class="fas fa-handshake text-orange-500 w-4"></i> <span>Sponsorship</span>
                 <span class="ml-auto text-[10px] font-semibold px-2 py-0.5 rounded-full bg-yellow-100 text-yellow-700 border border-yellow-200">Coming Soon</span>
               </a>
             </div>
@@ -211,10 +239,10 @@
             <div class="nav-section mt-3">
               <div class="px-3 py-2 text-xs font-bold text-gray-500 uppercase tracking-wide border-b border-gray-100 mb-2">Player Access</div>
               <a href="/player/login" class="nav-dropdown-item flex items-center gap-3 px-3 py-2 rounded-lg font-medium text-gray-700 hover:bg-green-50 hover:text-green-600 transition-all duration-200 text-sm">
-                 Player Login
+                <i class="fas fa-sign-in-alt text-green-500 w-4"></i> Player Login
             </a>
               <a href="/player/register" class="nav-dropdown-item flex items-center gap-3 px-3 py-2 rounded-lg font-medium text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition-all duration-200 text-sm">
-                 Player Registration
+                <i class="fas fa-user-plus text-blue-500 w-4"></i> Player Registration
               </a>
             </div>
 
@@ -604,7 +632,9 @@
     <div class="bg-gradient-to-r from-blue-600 to-blue-700 text-white p-6 relative">
       <h2 class="text-2xl font-bold">Frequently Asked Questions</h2>
       <button id="closeFaqModal" class="absolute top-4 right-4 text-white hover:text-gray-200 transition-colors">
-        ×
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+        </svg>
       </button>
     </div>
     
@@ -616,7 +646,9 @@
         <div class="faq-item border-b border-gray-200 pb-4">
           <button class="faq-question w-full text-left flex justify-between items-center py-2 font-semibold text-gray-800 hover:text-blue-600 transition-colors">
             <span>How do I register for tournaments?</span>
-▼
+            <svg class="w-5 h-5 transform transition-transform faq-arrow" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+            </svg>
           </button>
           <div class="faq-answer hidden mt-2 text-gray-600">
             <p>To register for tournaments, navigate to the "Tournament" section and click on the tournament you're interested in. You'll need to create a player account first if you haven't already.</p>
@@ -627,7 +659,9 @@
         <div class="faq-item border-b border-gray-200 pb-4">
           <button class="faq-question w-full text-left flex justify-between items-center py-2 font-semibold text-gray-800 hover:text-blue-600 transition-colors">
             <span>What are the membership requirements?</span>
-▼
+            <svg class="w-5 h-5 transform transition-transform faq-arrow" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+            </svg>
           </button>
           <div class="faq-answer hidden mt-2 text-gray-600">
             <p>Membership is open to all pickleball enthusiasts. You need to be at least 12 years old and complete the registration form with valid identification.</p>
@@ -638,7 +672,9 @@
         <div class="faq-item border-b border-gray-200 pb-4">
           <button class="faq-question w-full text-left flex justify-between items-center py-2 font-semibold text-gray-800 hover:text-blue-600 transition-colors">
             <span>How can I find coaching programs?</span>
-▼
+            <svg class="w-5 h-5 transform transition-transform faq-arrow" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+            </svg>
           </button>
           <div class="faq-answer hidden mt-2 text-gray-600">
             <p>Visit our "Coaches" section to find certified coaches in your area. You can also check the "Events" page for upcoming training sessions and workshops.</p>
@@ -649,7 +685,9 @@
         <div class="faq-item border-b border-gray-200 pb-4">
           <button class="faq-question w-full text-left flex justify-between items-center py-2 font-semibold text-gray-800 hover:text-blue-600 transition-colors">
             <span>What equipment do I need to start playing?</span>
-▼
+            <svg class="w-5 h-5 transform transition-transform faq-arrow" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+            </svg>
           </button>
           <div class="faq-answer hidden mt-2 text-gray-600">
             <p>You'll need a pickleball paddle, pickleballs, and appropriate court shoes. Many venues provide equipment for beginners. Check our "Shop" section for recommended equipment.</p>
@@ -660,7 +698,9 @@
         <div class="faq-item border-b border-gray-200 pb-4">
           <button class="faq-question w-full text-left flex justify-between items-center py-2 font-semibold text-gray-800 hover:text-blue-600 transition-colors">
             <span>How do I contact customer support?</span>
-▼
+            <svg class="w-5 h-5 transform transition-transform faq-arrow" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+            </svg>
           </button>
           <div class="faq-answer hidden mt-2 text-gray-600">
             <p>You can reach us through the contact form on our website, email us directly, or call during business hours. Check the footer for complete contact information.</p>
@@ -671,7 +711,9 @@
         <div class="faq-item">
           <button class="faq-question w-full text-left flex justify-between items-center py-2 font-semibold text-gray-800 hover:text-blue-600 transition-colors">
             <span>Are there different skill level categories?</span>
-▼
+            <svg class="w-5 h-5 transform transition-transform faq-arrow" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+            </svg>
           </button>
           <div class="faq-answer hidden mt-2 text-gray-600">
             <p>Yes, we organize players into skill levels from beginner (2.0-2.5) to advanced (4.5+). This ensures fair and enjoyable games for everyone. Check our ranking system for more details.</p>
