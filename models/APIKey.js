@@ -22,7 +22,7 @@ const apiKeySchema = new mongoose.Schema({
   },
   permissions: [{
     type: String,
-    enum: ['unregistered-player', 'player-details'],
+    enum: ['unregistered-player', 'player-details', 'players-list'],
     required: true
   }],
   createdBy: {
