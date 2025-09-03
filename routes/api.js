@@ -7,6 +7,7 @@ const DatabaseService = require('../services/databaseService');
 const Player = require('../models/Player');
 const Admin = require('../models/Admin');
 const PlayerRegistration = require('../models/PlayerRegistration');
+const UnregisteredPlayer = require('../models/UnregisteredPlayer');
 const cloudinary = require('cloudinary').v2;
 
 // Import utilities and middleware
@@ -2082,19 +2083,27 @@ router.post('/unregistered-player', validateApiKey, [
       return APIResponse.error(res, 'Unable to generate unique MPA ID', 500);
     }
 
-    // In a real implementation, you might want to save this somewhere
-    // For now, we'll just return the generated MPA ID
+    // Save to database
+    const unregisteredPlayer = new UnregisteredPlayer({
+      mpaId: mpaId,
+      fullName: name,
+      apiKeyUsed: req.apiKeyData.key.substring(0, 12) + '...' // Store partial key for tracking
+    });
+
+    await unregisteredPlayer.save();
     
     // Log the registration for tracking
-    console.log(`📋 New unregistered player: ${name} -> MPA ID: ${mpaId}`);
+    console.log(`📋 New unregistered player saved: ${name} -> MPA ID: ${mpaId} -> DB ID: ${unregisteredPlayer._id}`);
 
     return APIResponse.success(res, {
       name: name,
       mpaId: mpaId,
-      registrationDate: new Date().toISOString(),
+      registrationDate: unregisteredPlayer.registrationDate.toISOString(),
       status: 'unregistered',
-      message: 'MPA ID generated successfully. Player can now register using this ID.'
-    }, 'New unregistered player processed successfully');
+      dbId: unregisteredPlayer._id,
+      expiresAt: unregisteredPlayer.expiresAt.toISOString(),
+      message: 'MPA ID generated and saved successfully. Player can now register using this ID.'
+    }, 'New unregistered player processed and saved successfully');
 
   } catch (error) {
     console.error('Unregistered player API error:', error);
@@ -2206,6 +2215,104 @@ router.delete('/admin/api-keys/:keyId', adminAuth, async (req, res) => {
   } catch (error) {
     console.error('Revoke API key error:', error);
     return APIResponse.error(res, 'Failed to revoke API key', 500);
+  }
+});
+
+// Get Unregistered Players List (Admin only)
+router.get('/admin/unregistered-players', adminAuth, async (req, res) => {
+  try {
+    const { status = 'pending', limit = 50, offset = 0 } = req.query;
+    
+    const query = {};
+    if (status && status !== 'all') {
+      query.status = status;
+    }
+    
+    const unregisteredPlayers = await UnregisteredPlayer.find(query)
+      .sort({ createdAt: -1 })
+      .limit(parseInt(limit))
+      .skip(parseInt(offset));
+    
+    const total = await UnregisteredPlayer.countDocuments(query);
+    const stats = await UnregisteredPlayer.getStats();
+    
+    return APIResponse.success(res, {
+      unregisteredPlayers: unregisteredPlayers,
+      total: total,
+      stats: stats,
+      limit: parseInt(limit),
+      offset: parseInt(offset),
+      hasMore: (parseInt(offset) + parseInt(limit)) < total
+    }, 'Unregistered players retrieved successfully');
+    
+  } catch (error) {
+    console.error('Get unregistered players error:', error);
+    return APIResponse.error(res, 'Failed to retrieve unregistered players', 500);
+  }
+});
+
+// Convert Unregistered Player to Full Player (Admin only)
+router.post('/admin/unregistered-players/:id/convert', adminAuth, [
+  body('playerData').optional().isObject().withMessage('Player data must be an object')
+], async (req, res) => {
+  try {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return APIResponse.validationError(res, errors.array());
+    }
+
+    const { id } = req.params;
+    const { playerData = {} } = req.body;
+    
+    const unregisteredPlayer = await UnregisteredPlayer.findById(id);
+    if (!unregisteredPlayer) {
+      return APIResponse.notFound(res, 'Unregistered player not found');
+    }
+    
+    if (unregisteredPlayer.status !== 'pending') {
+      return APIResponse.error(res, 'Player has already been processed', 400);
+    }
+    
+    // Create full player record using the MPA ID
+    const fullPlayerData = {
+      playerId: unregisteredPlayer.mpaId,
+      fullName: unregisteredPlayer.fullName,
+      icNumber: playerData.icNumber || `TEMP_${Date.now()}`,
+      age: playerData.age || 18,
+      email: playerData.email || `${unregisteredPlayer.mpaId.toLowerCase()}@temp.com`,
+      phoneNumber: playerData.phoneNumber || '012-3456789',
+      address: playerData.address || 'Address not provided',
+      username: unregisteredPlayer.mpaId.toLowerCase(),
+      password: 'temp_password_123',
+      ...playerData
+    };
+    
+    const player = new Player(fullPlayerData);
+    await player.save();
+    
+    // Mark unregistered player as converted
+    await unregisteredPlayer.markAsConverted(player.playerId);
+    
+    console.log(`✅ Converted unregistered player ${unregisteredPlayer.mpaId} to full player ${player.playerId}`);
+    
+    return APIResponse.success(res, {
+      convertedPlayer: {
+        playerId: player.playerId,
+        fullName: player.fullName,
+        email: player.email,
+        status: player.status
+      },
+      originalRecord: unregisteredPlayer
+    }, 'Unregistered player converted successfully');
+    
+  } catch (error) {
+    console.error('Convert unregistered player error:', error);
+    
+    if (error.code === 11000) {
+      return APIResponse.error(res, 'Player with this MPA ID or details already exists', 409);
+    }
+    
+    return APIResponse.error(res, 'Failed to convert unregistered player', 500);
   }
 });
 

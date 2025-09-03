@@ -1,0 +1,486 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Unregistered Players - Malaysia Pickleball Association</title>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="/css/styles.css">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+  <style>
+    .player-card {
+      transition: all 0.3s ease;
+      border-left: 4px solid #10b981;
+    }
+    .player-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+    }
+    .status-pending { border-left-color: #f59e0b; }
+    .status-converted { border-left-color: #10b981; }
+    .status-expired { border-left-color: #ef4444; }
+    
+    .fade-in {
+      animation: fadeIn 0.5s ease-in;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    
+    .stats-card {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+    }
+  </style>
+</head>
+<body class="bg-gray-100">
+  <main class="p-4 pb-20">
+    <div class="container mx-auto">
+      <div class="flex justify-between items-center mb-4">
+        <h1 class="text-3xl font-bold">Unregistered Players</h1>
+        <a href="/admin/dashboard" class="bg-gray-600 text-white p-2 rounded hover:bg-gray-700">Back to Dashboard</a>
+      </div>
+
+    <!-- Header -->
+    <div class="bg-white rounded-lg shadow-md p-6 mb-8">
+      <div class="flex justify-between items-center mb-4">
+        <div>
+          <h1 class="text-3xl font-bold text-gray-800">
+            <i class="fas fa-user-clock text-blue-600 mr-3"></i>Unregistered Players
+          </h1>
+          <p class="text-gray-600 mt-2">Manage players who have generated MPA IDs through the API</p>
+        </div>
+        <button id="refreshBtn" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-lg transition duration-300 flex items-center">
+          <i class="fas fa-sync-alt mr-2"></i>Refresh
+        </button>
+      </div>
+
+      <!-- Statistics Cards -->
+      <div id="statsContainer" class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
+        <!-- Stats will be loaded here -->
+      </div>
+
+      <!-- API Information -->
+      <div class="bg-amber-50 border-l-4 border-amber-400 p-4">
+        <div class="flex">
+          <div class="flex-shrink-0">
+            <i class="fas fa-info-circle text-amber-400"></i>
+          </div>
+          <div class="ml-3">
+            <h3 class="text-sm font-medium text-amber-800">About Unregistered Players</h3>
+            <div class="mt-2 text-sm text-amber-700">
+              <p>These are players created through the <strong>POST /api/unregistered-player</strong> endpoint.</p>
+              <p>• <strong>Pending:</strong> Waiting to be converted to full players</p>
+              <p>• <strong>Converted:</strong> Successfully converted to full player accounts</p>
+              <p>• <strong>Expired:</strong> Records older than 6 months (automatically marked)</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Filters -->
+    <div class="bg-white rounded-lg shadow-md p-6 mb-8">
+      <div class="flex flex-wrap gap-4 items-center">
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">Status Filter:</label>
+          <select id="statusFilter" class="border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+            <option value="all">All Status</option>
+            <option value="pending" selected>Pending</option>
+            <option value="converted">Converted</option>
+            <option value="expired">Expired</option>
+          </select>
+        </div>
+        
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">Results per page:</label>
+          <select id="limitFilter" class="border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+            <option value="25">25</option>
+            <option value="50" selected>50</option>
+            <option value="100">100</option>
+          </select>
+        </div>
+        
+        <div class="flex-1"></div>
+        
+        <button id="applyFilters" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md transition duration-300">
+          <i class="fas fa-filter mr-2"></i>Apply Filters
+        </button>
+      </div>
+    </div>
+
+    <!-- Players List -->
+    <div class="bg-white rounded-lg shadow-md">
+      <div class="p-6 border-b border-gray-200">
+        <h2 class="text-xl font-semibold text-gray-800">Players List</h2>
+        <p class="text-gray-600 mt-1" id="listDescription">Loading unregistered players...</p>
+      </div>
+      
+      <div id="playersList" class="p-6">
+        <!-- Players will be loaded here -->
+        <div class="text-center py-8">
+          <i class="fas fa-spinner fa-spin text-3xl text-gray-400 mb-4"></i>
+          <p class="text-gray-600">Loading players...</p>
+        </div>
+      </div>
+      
+      <!-- Pagination -->
+      <div id="paginationContainer" class="px-6 pb-6">
+        <!-- Pagination will be loaded here -->
+      </div>
+    </div>
+    </div>
+  </main>
+
+  <!-- Convert Player Modal -->
+  <div id="convertModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full hidden">
+    <div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
+      <div class="mt-3">
+        <div class="flex items-center justify-between mb-4">
+          <h3 class="text-lg font-medium text-gray-900">Convert to Full Player</h3>
+          <button id="closeConvertModal" class="text-gray-400 hover:text-gray-600">
+            <i class="fas fa-times"></i>
+          </button>
+        </div>
+        
+        <form id="convertForm">
+          <input type="hidden" id="convertPlayerId" value="">
+          
+          <div class="mb-4">
+            <label class="block text-gray-700 text-sm font-bold mb-2">
+              Current MPA ID: <span id="currentMpaId" class="font-mono text-blue-600"></span>
+            </label>
+            <label class="block text-gray-700 text-sm font-bold mb-2">
+              Name: <span id="currentName" class="font-normal text-gray-600"></span>
+            </label>
+          </div>
+          
+          <div class="mb-4">
+            <label class="block text-gray-700 text-sm font-bold mb-2">
+              IC Number *
+            </label>
+            <input type="text" id="icNumber" name="icNumber" required
+                   placeholder="e.g., 901234-05-6789"
+                   class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+          </div>
+          
+          <div class="mb-4">
+            <label class="block text-gray-700 text-sm font-bold mb-2">
+              Email *
+            </label>
+            <input type="email" id="email" name="email" required
+                   placeholder="player@email.com"
+                   class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+          </div>
+          
+          <div class="mb-4">
+            <label class="block text-gray-700 text-sm font-bold mb-2">
+              Phone Number *
+            </label>
+            <input type="text" id="phoneNumber" name="phoneNumber" required
+                   placeholder="012-3456789"
+                   class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+          </div>
+          
+          <div class="flex justify-end space-x-3">
+            <button type="button" id="cancelConvert" class="px-4 py-2 text-gray-600 bg-gray-200 rounded-md hover:bg-gray-300">
+              Cancel
+            </button>
+            <button type="submit" class="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700">
+              Convert Player
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Global variables
+    let currentOffset = 0;
+    let currentLimit = 50;
+    let currentStatus = 'pending';
+    let totalRecords = 0;
+
+    // DOM elements
+    const statusFilter = document.getElementById('statusFilter');
+    const limitFilter = document.getElementById('limitFilter');
+    const applyFilters = document.getElementById('applyFilters');
+    const refreshBtn = document.getElementById('refreshBtn');
+    const playersList = document.getElementById('playersList');
+    const statsContainer = document.getElementById('statsContainer');
+    const listDescription = document.getElementById('listDescription');
+    const convertModal = document.getElementById('convertModal');
+    const convertForm = document.getElementById('convertForm');
+
+    // Event listeners
+    applyFilters.addEventListener('click', () => {
+      currentOffset = 0;
+      loadPlayers();
+    });
+
+    refreshBtn.addEventListener('click', loadPlayers);
+
+    document.getElementById('closeConvertModal').addEventListener('click', closeConvertModal);
+    document.getElementById('cancelConvert').addEventListener('click', closeConvertModal);
+
+    // Convert form submission
+    convertForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      await convertPlayer();
+    });
+
+    // Load players function
+    async function loadPlayers() {
+      try {
+        currentStatus = statusFilter.value;
+        currentLimit = parseInt(limitFilter.value);
+        
+        const params = new URLSearchParams({
+          status: currentStatus,
+          limit: currentLimit,
+          offset: currentOffset
+        });
+
+        const response = await fetch(`/api/admin/unregistered-players?${params}`);
+        const data = await response.json();
+
+        if (data.success) {
+          displayPlayers(data.data);
+          displayStats(data.data.stats);
+          updatePagination(data.data);
+        } else {
+          throw new Error(data.message);
+        }
+      } catch (error) {
+        console.error('Error loading players:', error);
+        showError('Failed to load players: ' + error.message);
+      }
+    }
+
+    // Display players function
+    function displayPlayers(data) {
+      const players = data.unregisteredPlayers;
+      totalRecords = data.total;
+
+      if (players.length === 0) {
+        playersList.innerHTML = `
+          <div class="text-center py-8">
+            <i class="fas fa-user-slash text-6xl text-gray-300 mb-4"></i>
+            <h3 class="text-xl text-gray-600 mb-2">No Players Found</h3>
+            <p class="text-gray-500">No unregistered players match the current filter criteria.</p>
+          </div>
+        `;
+        listDescription.textContent = `No players found with status: ${currentStatus}`;
+        return;
+      }
+
+      listDescription.textContent = `Showing ${players.length} of ${data.total} players (Status: ${currentStatus})`;
+
+      const playersHtml = players.map(player => `
+        <div class="player-card bg-white border rounded-lg p-6 mb-4 fade-in status-${player.status}">
+          <div class="flex justify-between items-start">
+            <div class="flex-1">
+              <h3 class="text-lg font-semibold text-gray-800 mb-2">
+                <i class="fas fa-user text-blue-600 mr-2"></i>
+                ${escapeHtml(player.fullName)}
+              </h3>
+              
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm text-gray-600">
+                <div>
+                  <div><strong>MPA ID:</strong> <code class="bg-blue-100 px-2 py-1 rounded font-mono">${player.mpaId}</code></div>
+                  <div><strong>Status:</strong> 
+                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium 
+                      ${player.status === 'pending' ? 'bg-yellow-100 text-yellow-800' : 
+                        player.status === 'converted' ? 'bg-green-100 text-green-800' : 
+                        'bg-red-100 text-red-800'}">
+                      ${player.status.charAt(0).toUpperCase() + player.status.slice(1)}
+                    </span>
+                  </div>
+                  <div><strong>Created:</strong> ${new Date(player.createdAt).toLocaleString()}</div>
+                </div>
+                <div>
+                  <div><strong>Source:</strong> ${player.source}</div>
+                  <div><strong>API Key:</strong> ${player.apiKeyUsed || 'Not recorded'}</div>
+                  <div><strong>Expires:</strong> ${new Date(player.expiresAt).toLocaleDateString()}</div>
+                  ${player.convertedAt ? `<div><strong>Converted:</strong> ${new Date(player.convertedAt).toLocaleString()}</div>` : ''}
+                  ${player.convertedToPlayerId ? `<div><strong>Player ID:</strong> <code class="bg-green-100 px-2 py-1 rounded font-mono">${player.convertedToPlayerId}</code></div>` : ''}
+                </div>
+              </div>
+            </div>
+            
+            <div class="ml-4 flex flex-col space-y-2">
+              ${player.status === 'pending' ? `
+                <button onclick="openConvertModal('${player._id}', '${player.mpaId}', '${escapeHtml(player.fullName)}')" 
+                        class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded text-sm transition duration-300">
+                  <i class="fas fa-user-plus mr-1"></i>Convert
+                </button>
+              ` : ''}
+              <button onclick="viewDetails('${player._id}')" 
+                      class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded text-sm transition duration-300">
+                <i class="fas fa-eye mr-1"></i>Details
+              </button>
+            </div>
+          </div>
+        </div>
+      `).join('');
+
+      playersList.innerHTML = playersHtml;
+    }
+
+    // Display stats function
+    function displayStats(stats) {
+      const statsHtml = `
+        <div class="stats-card rounded-lg p-6 text-center">
+          <div class="text-3xl font-bold mb-2">${stats.total || 0}</div>
+          <div class="text-sm">Total Players</div>
+        </div>
+        <div class="bg-yellow-500 rounded-lg p-6 text-center text-white">
+          <div class="text-3xl font-bold mb-2">${stats.pending || 0}</div>
+          <div class="text-sm">Pending</div>
+        </div>
+        <div class="bg-green-500 rounded-lg p-6 text-center text-white">
+          <div class="text-3xl font-bold mb-2">${stats.converted || 0}</div>
+          <div class="text-sm">Converted</div>
+        </div>
+        <div class="bg-red-500 rounded-lg p-6 text-center text-white">
+          <div class="text-3xl font-bold mb-2">${stats.expired || 0}</div>
+          <div class="text-sm">Expired</div>
+        </div>
+      `;
+      statsContainer.innerHTML = statsHtml;
+    }
+
+    // Update pagination function
+    function updatePagination(data) {
+      const paginationContainer = document.getElementById('paginationContainer');
+      const hasMore = data.hasMore;
+      const currentPage = Math.floor(currentOffset / currentLimit) + 1;
+      const totalPages = Math.ceil(data.total / currentLimit);
+
+      if (totalPages <= 1) {
+        paginationContainer.innerHTML = '';
+        return;
+      }
+
+      let paginationHtml = `
+        <div class="flex justify-between items-center">
+          <div class="text-sm text-gray-700">
+            Showing ${currentOffset + 1} to ${Math.min(currentOffset + currentLimit, data.total)} of ${data.total} results
+          </div>
+          <div class="flex space-x-2">
+      `;
+
+      // Previous button
+      if (currentOffset > 0) {
+        paginationHtml += `
+          <button onclick="changePage(${currentOffset - currentLimit})" 
+                  class="px-3 py-2 bg-white border border-gray-300 rounded-md hover:bg-gray-50">
+            Previous
+          </button>
+        `;
+      }
+
+      // Page numbers (simplified)
+      paginationHtml += `<span class="px-3 py-2 bg-blue-600 text-white rounded-md">Page ${currentPage} of ${totalPages}</span>`;
+
+      // Next button
+      if (hasMore) {
+        paginationHtml += `
+          <button onclick="changePage(${currentOffset + currentLimit})" 
+                  class="px-3 py-2 bg-white border border-gray-300 rounded-md hover:bg-gray-50">
+            Next
+          </button>
+        `;
+      }
+
+      paginationHtml += `
+          </div>
+        </div>
+      `;
+
+      paginationContainer.innerHTML = paginationHtml;
+    }
+
+    // Change page function
+    function changePage(newOffset) {
+      currentOffset = newOffset;
+      loadPlayers();
+    }
+
+    // Convert player functions
+    function openConvertModal(playerId, mpaId, fullName) {
+      document.getElementById('convertPlayerId').value = playerId;
+      document.getElementById('currentMpaId').textContent = mpaId;
+      document.getElementById('currentName').textContent = fullName;
+      convertModal.classList.remove('hidden');
+    }
+
+    function closeConvertModal() {
+      convertModal.classList.add('hidden');
+      convertForm.reset();
+    }
+
+    async function convertPlayer() {
+      try {
+        const playerId = document.getElementById('convertPlayerId').value;
+        const formData = new FormData(convertForm);
+        
+        const playerData = {
+          icNumber: formData.get('icNumber'),
+          email: formData.get('email'),
+          phoneNumber: formData.get('phoneNumber')
+        };
+
+        const response = await fetch(`/api/admin/unregistered-players/${playerId}/convert`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ playerData })
+        });
+
+        const result = await response.json();
+
+        if (result.success) {
+          closeConvertModal();
+          loadPlayers(); // Reload the list
+          showSuccess('Player converted successfully!');
+        } else {
+          throw new Error(result.message);
+        }
+      } catch (error) {
+        console.error('Error converting player:', error);
+        showError('Failed to convert player: ' + error.message);
+      }
+    }
+
+    // View details function
+    function viewDetails(playerId) {
+      // For now, just show an alert with the ID
+      alert(`Player details for ID: ${playerId}\n\nThis would open a detailed view in a production system.`);
+    }
+
+    // Utility functions
+    function escapeHtml(text) {
+      const div = document.createElement('div');
+      div.textContent = text;
+      return div.innerHTML;
+    }
+
+    function showError(message) {
+      // Simple error display - in production use a better notification system
+      alert('Error: ' + message);
+    }
+
+    function showSuccess(message) {
+      // Simple success display - in production use a better notification system
+      alert('Success: ' + message);
+    }
+
+    // Load players on page load
+    document.addEventListener('DOMContentLoaded', loadPlayers);
+  </script>
+</body>
+</html>

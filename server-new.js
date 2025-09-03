@@ -4927,6 +4927,21 @@ app.get('/admin/api-keys', adminAuth, async (req, res) => {
   }
 });
 
+// Unregistered Players Management Routes
+app.get('/admin/unregistered-players', adminAuth, async (req, res) => {
+  try {
+    res.render('pages/admin/manage-unregistered-players', { 
+      session: req.session 
+    });
+  } catch (error) {
+    console.error('Error loading unregistered players admin page:', error);
+    res.render('pages/admin/manage-unregistered-players', { 
+      session: req.session,
+      error: 'Failed to load unregistered players management page' 
+    });
+  }
+});
+
 // Server startup moved to bottom of file with proper database initialization
 
 module.exports = app; 
