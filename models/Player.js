@@ -107,19 +107,23 @@ const playerSchema = new mongoose.Schema({
       default: 'registered'
     }
   }],
-  ranking: {
-    points: {
-      type: Number,
-      default: 0
-    },
-    position: {
-      type: Number,
-      required: false
-    },
-    lastUpdated: {
-      type: Date,
-      default: Date.now
-    }
+  // MPRS Ranking Points (updated by MPRS system)
+  mprsPoints: {
+    type: Number,
+    default: 0,
+    index: true  // Index for efficient sorting
+  },
+  
+  // Track when points were last updated by MPRS
+  mprsLastUpdated: {
+    type: Date,
+    default: null
+  },
+  
+  // Track number of tournaments counted (for display)
+  mprsTournamentCount: {
+    type: Number,
+    default: 0
   }
 }, {
   timestamps: true
