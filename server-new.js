@@ -991,10 +991,13 @@ app.post('/admin/tournaments', adminAuth, [
 
 app.post('/admin/tournaments/delete/:id', adminAuth, async (req, res) => {
   try {
-    await DatabaseService.deleteTournament(req.params.id);
+    const reason = req.body.reason || 'Tournament cancelled by admin';
+    const modifiedBy = req.session.username || 'admin';
+    
+    await DatabaseService.deleteTournament(req.params.id, reason, modifiedBy);
     res.json({
       success: true,
-      message: 'Tournament deleted successfully'
+      message: 'Tournament deleted successfully and cancellation notice created'
     });
   } catch (error) {
     console.error('Delete tournament error:', error);

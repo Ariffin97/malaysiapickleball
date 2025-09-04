@@ -372,14 +372,22 @@
              <!-- Tournament Notices Section -->
        <div class="bg-white rounded-2xl shadow-xl p-6 mb-8">
          <div class="flex items-center justify-between mb-6">
-           <h2 class="text-2xl font-bold text-gray-800 flex items-center">
-             <i class="fas fa-bell text-orange-500 mr-3"></i>
-             Tournament Notices
-           </h2>
-            <button id="addNoticeBtn" class="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition-all duration-300 flex items-center text-sm font-semibold">
-             <i class="fas fa-plus mr-2"></i>
-             Add Notice
-           </button>
+           <div>
+             <h2 class="text-2xl font-bold text-gray-800 flex items-center">
+               <i class="fas fa-bell text-orange-500 mr-3"></i>
+               Tournament Notices
+             </h2>
+             <div id="noticeStats" class="flex gap-4 mt-2 text-sm hidden">
+               <span class="text-gray-600">
+                 <i class="fas fa-robot text-blue-500 mr-1"></i>
+                 <span id="autoNoticeCount">0</span> auto-generated
+               </span>
+               <span class="text-gray-600">
+                 <i class="fas fa-history text-gray-500 mr-1"></i>
+                 <span id="manualNoticeCount">0</span> legacy
+               </span>
+             </div>
+           </div>
          </div>
          
          <!-- Notice Cards -->
@@ -391,10 +399,7 @@
          <div class="text-center py-8 hidden" id="noNoticesState">
            <div class="text-4xl mb-4">📢</div>
            <h3 class="text-lg font-semibold text-gray-600 mb-2">No notices yet</h3>
-           <p class="text-gray-500 mb-4">All tournaments are running as scheduled</p>
-            <button id="addFirstNoticeBtn" class="bg-red-600 text-white px-6 py-3 rounded-lg hover:bg-red-700 transition-all duration-300">
-             <i class="fas fa-plus mr-2"></i>Add First Notice
-           </button>
+           <p class="text-gray-500">All tournaments are running as scheduled. Notices will automatically appear when tournament information changes.</p>
          </div>
        </div>
 
@@ -640,121 +645,6 @@
     </div>
   </div>
 
-  <!-- Add/Edit Notice Modal -->
-  <div id="noticeModal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden flex items-center justify-center p-4" style="display: none;">
-    <div class="bg-white rounded-2xl w-full flex flex-col transform scale-95 opacity-0 transition-all duration-300" id="noticeModalContent">
-      <div class="p-6 border-b border-gray-200 flex-shrink-0">
-        <div class="flex justify-between items-center">
-          <h2 class="text-2xl font-bold text-gray-800">
-            <i class="fas fa-bell mr-3 text-orange-500"></i><span id="noticeModalTitle">Add Notice</span>
-          </h2>
-          <button class="close-notice-modal-btn text-gray-500 hover:text-gray-700 text-2xl">
-            <i class="fas fa-times"></i>
-          </button>
-        </div>
-      </div>
-      
-      <div class="p-6 flex-1 overflow-y-auto" style="overflow-y: auto;">
-        <form id="noticeForm">
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <!-- Notice Title -->
-            <div class="input-group md:col-span-2">
-              <input type="text" name="title" id="noticeTitle" class="input-field" placeholder=" " required>
-              <label class="input-label">Notice Title</label>
-            </div>
-            
-            <!-- Tournament Name -->
-            <div class="input-group md:col-span-2">
-              <input type="text" name="tournamentName" id="noticeTournamentName" class="input-field" placeholder=" " required>
-              <label class="input-label">Tournament Name</label>
-            </div>
-            
-            <!-- Notice Type -->
-            <div class="input-group">
-              <select name="type" id="noticeType" class="input-field" required>
-                <option value="">Select Type</option>
-                <option value="date_change">Date Change</option>
-                <option value="cancellation">Cancellation</option>
-                <option value="venue_change">Venue Change</option>
-                <option value="registration_deadline">Registration Deadline</option>
-                <option value="general">General Notice</option>
-              </select>
-              <label class="input-label">Notice Type</label>
-            </div>
-            
-            <!-- Priority -->
-            <div class="input-group">
-              <select name="priority" id="noticePriority" class="input-field" required>
-                <option value="">Select Priority</option>
-                <option value="low">Low</option>
-                <option value="medium">Medium</option>
-                <option value="high">High</option>
-                <option value="urgent">Urgent</option>
-              </select>
-              <label class="input-label">Priority</label>
-            </div>
-            
-            <!-- Message -->
-            <div class="input-group md:col-span-2">
-              <textarea name="message" id="noticeMessage" class="input-field" rows="4" placeholder=" " required></textarea>
-              <label class="input-label">Message</label>
-            </div>
-            
-            <!-- Details Section -->
-            <div class="md:col-span-2">
-              <h3 class="text-lg font-semibold text-gray-800 mb-4">Additional Details</h3>
-              <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <!-- Original Date -->
-                <div class="input-group">
-                  <input type="text" name="originalDate" id="noticeOriginalDate" class="input-field" placeholder=" ">
-                  <label class="input-label">Original Date</label>
-                </div>
-                
-                <!-- New Date -->
-                <div class="input-group">
-                  <input type="text" name="newDate" id="noticeNewDate" class="input-field" placeholder=" ">
-                  <label class="input-label">New Date</label>
-                </div>
-                
-                <!-- Original Venue -->
-                <div class="input-group">
-                  <input type="text" name="originalVenue" id="noticeOriginalVenue" class="input-field" placeholder=" ">
-                  <label class="input-label">Original Venue</label>
-                </div>
-                
-                <!-- New Venue -->
-                <div class="input-group">
-                  <input type="text" name="newVenue" id="noticeNewVenue" class="input-field" placeholder=" ">
-                  <label class="input-label">New Venue</label>
-                </div>
-                
-                <!-- Reason -->
-                <div class="input-group">
-                  <input type="text" name="reason" id="noticeReason" class="input-field" placeholder=" ">
-                  <label class="input-label">Reason</label>
-                </div>
-                
-                <!-- Deadline -->
-                <div class="input-group">
-                  <input type="text" name="deadline" id="noticeDeadline" class="input-field" placeholder=" ">
-                  <label class="input-label">Deadline</label>
-                </div>
-              </div>
-            </div>
-          </div>
-          
-          <div class="flex justify-end space-x-4 mt-8">
-            <button type="button" class="cancel-notice-btn px-6 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors">
-              Cancel
-            </button>
-            <button type="submit" class="px-6 py-3 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-colors">
-              <i class="fas fa-save mr-2"></i><span id="noticeSubmitText">Add Notice</span>
-            </button>
-          </div>
-        </form>
-      </div>
-    </div>
-  </div>
 
   <%- include('../../partials/footer') %>
   
@@ -817,18 +707,36 @@
       // Load tournament notices
       loadTournamentNotices();
       
-      // Setup notice functionality
-      setupNoticeFunctionality();
+      
+      // Auto-refresh notices every 30 seconds to catch new automatic notices
+      setInterval(() => {
+        loadTournamentNotices(true); // Show alert for new notices
+      }, 30000);
+      
+      // Setup delete notice functionality
+      document.addEventListener('click', function(e) {
+        if (e.target.closest('.delete-notice-btn')) {
+          const noticeId = e.target.closest('.delete-notice-btn').dataset.noticeId;
+          deleteNotice(noticeId);
+        }
+      });
     });
     
     // Tournament Notices Functions
-    let currentNoticeId = null;
+    let lastNoticeCount = 0;
     
-    function loadTournamentNotices() {
+    function loadTournamentNotices(showNewNoticeAlert = false) {
       fetch('/admin/tournament-notices')
         .then(response => response.json())
         .then(data => {
           if (data.success) {
+            // Check for new notices
+            if (showNewNoticeAlert && data.notices.length > lastNoticeCount) {
+              const newNoticesCount = data.notices.length - lastNoticeCount;
+              showSuccessMessage(`🔔 ${newNoticesCount} new tournament notice${newNoticesCount > 1 ? 's' : ''} added automatically!`);
+            }
+            
+            lastNoticeCount = data.notices.length;
             displayNotices(data.notices);
           } else {
             console.error('Failed to load notices:', data.message);
@@ -842,38 +750,52 @@
     function displayNotices(notices) {
       const container = document.getElementById('noticesContainer');
       const noNoticesState = document.getElementById('noNoticesState');
+      const noticeStats = document.getElementById('noticeStats');
       
       if (!notices || notices.length === 0) {
         container.innerHTML = '';
         noNoticesState.classList.remove('hidden');
+        noticeStats.classList.add('hidden');
         return;
       }
       
       noNoticesState.classList.add('hidden');
+      
+      // Update statistics
+      const autoCount = notices.filter(notice => notice.createdBy === 'system').length;
+      const manualCount = notices.length - autoCount;
+      document.getElementById('autoNoticeCount').textContent = autoCount;
+      document.getElementById('manualNoticeCount').textContent = manualCount;
+      noticeStats.classList.remove('hidden');
       
       const noticesHTML = notices.map(notice => {
         const colorClass = getNoticeColorClass(notice.type);
         const iconClass = getNoticeIconClass(notice.type);
         const timeAgo = getTimeAgo(notice.updatedAt);
         
+        const isAutomatic = notice.createdBy === 'system';
+        const automaticBadge = isAutomatic ? 
+          `<span class="ml-2 text-xs text-blue-600 bg-blue-100 px-2 py-1 rounded-full flex items-center">
+            <i class="fas fa-robot mr-1"></i>Auto-generated
+          </span>` : '';
+
         return `
-          <div class="border-l-4 border-${colorClass}-500 bg-${colorClass}-50 p-4 rounded-lg" data-notice-id="${notice._id}">
+          <div class="border-l-4 border-${colorClass}-500 bg-${colorClass}-50 p-4 rounded-lg ${isAutomatic ? 'ring-2 ring-blue-200' : ''}" data-notice-id="${notice._id}">
             <div class="flex items-start justify-between">
               <div class="flex-1">
-                <div class="flex items-center mb-2">
+                <div class="flex items-center mb-2 flex-wrap">
                   <i class="fas ${iconClass} text-${colorClass}-500 mr-2"></i>
                   <span class="text-sm font-semibold text-${colorClass}-700">${getNoticeTypeDisplay(notice.type)}</span>
+                  ${automaticBadge}
                   <span class="ml-2 text-xs text-${colorClass}-600 bg-${colorClass}-200 px-2 py-1 rounded-full">Updated ${timeAgo}</span>
                 </div>
                 <h3 class="font-semibold text-gray-800 mb-1">${notice.tournamentName}</h3>
                 <p class="text-sm text-gray-600 mb-2">${notice.message}</p>
                 ${getNoticeDetailsHTML(notice)}
+                ${isAutomatic ? '<p class="text-xs text-blue-600 mt-2 italic"><i class="fas fa-info-circle mr-1"></i>This notice was automatically generated when tournament information was updated</p>' : ''}
               </div>
               <div class="flex space-x-2 ml-4">
-                <button class="edit-notice-btn text-${colorClass}-600 hover:text-${colorClass}-800 p-1" data-notice-id="${notice._id}">
-                  <i class="fas fa-edit"></i>
-                </button>
-                <button class="delete-notice-btn text-red-600 hover:text-red-800 p-1" data-notice-id="${notice._id}">
+                <button class="delete-notice-btn text-red-600 hover:text-red-800 p-1" data-notice-id="${notice._id}" title="${isAutomatic ? 'Delete auto-generated notice' : 'Delete notice'}">
                   <i class="fas fa-trash"></i>
                 </button>
               </div>
@@ -975,153 +897,7 @@
       return date.toLocaleDateString();
     }
     
-    function setupNoticeFunctionality() {
-      // Add notice button
-      document.getElementById('addNoticeBtn').addEventListener('click', openAddNoticeModal);
-      document.getElementById('addFirstNoticeBtn').addEventListener('click', openAddNoticeModal);
-      
-      // Close notice modal buttons
-      document.querySelectorAll('.close-notice-modal-btn, .cancel-notice-btn').forEach(btn => {
-        btn.addEventListener('click', closeNoticeModal);
-      });
-      
-      // Notice form submission
-      document.getElementById('noticeForm').addEventListener('submit', handleNoticeSubmit);
-      
-      // Edit and delete notice buttons (delegated)
-      document.addEventListener('click', function(e) {
-        if (e.target.closest('.edit-notice-btn')) {
-          const noticeId = e.target.closest('.edit-notice-btn').dataset.noticeId;
-          openEditNoticeModal(noticeId);
-        }
-        
-        if (e.target.closest('.delete-notice-btn')) {
-          const noticeId = e.target.closest('.delete-notice-btn').dataset.noticeId;
-          deleteNotice(noticeId);
-        }
-      });
-    }
-    
-    function openAddNoticeModal() {
-      currentNoticeId = null;
-      document.getElementById('noticeModalTitle').textContent = 'Add Notice';
-      document.getElementById('noticeSubmitText').textContent = 'Add Notice';
-      document.getElementById('noticeForm').reset();
-      
-      // Reset floating labels
-      document.querySelectorAll('#noticeModal .input-field').forEach(field => {
-        field.classList.remove('has-value');
-      });
-      
-      showNoticeModal();
-    }
-    
-    function openEditNoticeModal(noticeId) {
-      currentNoticeId = noticeId;
-      document.getElementById('noticeModalTitle').textContent = 'Edit Notice';
-      document.getElementById('noticeSubmitText').textContent = 'Update Notice';
-      
-      // Fetch notice data
-      fetch(`/admin/tournament-notices/${noticeId}`)
-        .then(response => response.json())
-        .then(data => {
-          if (data.success) {
-            populateNoticeForm(data.notice);
-            showNoticeModal();
-          } else {
-            console.error('Failed to load notice:', data.message);
-          }
-        })
-        .catch(error => {
-          console.error('Error loading notice:', error);
-        });
-    }
-    
-    function populateNoticeForm(notice) {
-      document.getElementById('noticeTitle').value = notice.title || '';
-      document.getElementById('noticeTournamentName').value = notice.tournamentName || '';
-      document.getElementById('noticeType').value = notice.type || '';
-      document.getElementById('noticePriority').value = notice.priority || '';
-      document.getElementById('noticeMessage').value = notice.message || '';
-      document.getElementById('noticeOriginalDate').value = notice.details?.originalDate || '';
-      document.getElementById('noticeNewDate').value = notice.details?.newDate || '';
-      document.getElementById('noticeOriginalVenue').value = notice.details?.originalVenue || '';
-      document.getElementById('noticeNewVenue').value = notice.details?.newVenue || '';
-      document.getElementById('noticeReason').value = notice.details?.reason || '';
-      document.getElementById('noticeDeadline').value = notice.details?.deadline || '';
-      
-      // Update floating labels
-      document.querySelectorAll('#noticeModal .input-field').forEach(field => {
-        if (field.value) {
-          field.classList.add('has-value');
-        } else {
-          field.classList.remove('has-value');
-        }
-      });
-    }
-    
-    function showNoticeModal() {
-      const modal = document.getElementById('noticeModal');
-      const modalContent = document.getElementById('noticeModalContent');
-      
-      modal.style.display = 'flex';
-      modal.classList.remove('hidden');
-      
-      setTimeout(() => {
-        modalContent.classList.remove('scale-95', 'opacity-0');
-        modalContent.classList.add('scale-100', 'opacity-100');
-      }, 10);
-    }
-    
-    function closeNoticeModal() {
-      const modal = document.getElementById('noticeModal');
-      const modalContent = document.getElementById('noticeModalContent');
-      
-      modalContent.classList.remove('scale-100', 'opacity-100');
-      modalContent.classList.add('scale-95', 'opacity-0');
-      
-      setTimeout(() => {
-        modal.style.display = 'none';
-        modal.classList.add('hidden');
-      }, 200);
-    }
-    
-    function handleNoticeSubmit(e) {
-      e.preventDefault();
-      
-      const formData = new FormData(e.target);
-      const noticeData = Object.fromEntries(formData.entries());
-      
-      const url = currentNoticeId ? 
-        `/admin/tournament-notices/${currentNoticeId}` : 
-        '/admin/tournament-notices';
-      
-      const method = currentNoticeId ? 'PUT' : 'POST';
-      
-      fetch(url, {
-        method: method,
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(noticeData)
-      })
-      .then(response => response.json())
-      .then(data => {
-        if (data.success) {
-          closeNoticeModal();
-          loadTournamentNotices();
-          showSuccessMessage(currentNoticeId ? 'Notice updated successfully!' : 'Notice created successfully!');
-        } else {
-          console.error('Failed to save notice:', data.message);
-          alert('Failed to save notice: ' + data.message);
-        }
-      })
-      .catch(error => {
-        console.error('Error saving notice:', error);
-        alert('Error saving notice. Please try again.');
-      });
-    }
-    
+    // Notice deletion function (keep this since auto-generated notices can still be deleted)
     function deleteNotice(noticeId) {
       if (!confirm('Are you sure you want to delete this notice?')) {
         return;
@@ -1329,10 +1105,15 @@
             showSuccessMessage('Tournament updated successfully! ✅');
             closeEditModal();
             
+            // Immediately refresh notices to show any auto-generated ones
+            setTimeout(() => {
+              loadTournamentNotices(true);
+            }, 1000);
+            
             // Reload page to show updated data
             setTimeout(() => {
               window.location.reload();
-            }, 1000);
+            }, 2000);
           } else {
             throw new Error(result.message || 'Failed to update tournament');
           }

@@ -380,10 +380,6 @@
          text-decoration: none !important;
        }
        
-       a[href="/admin/tournaments/view-all"] span:first-child {
-         padding: 0.375rem !important;
-         margin-right: 0.5rem !important;
-       }
        
        a[href="/admin/tournaments/view-all"] span:last-child {
          margin-left: auto !important;
@@ -503,9 +499,7 @@
           </div>
           <div class="flex flex-col md:flex-row gap-3 mt-4 md:mt-0">
             <a href="/admin/tournaments/view-all" class="bg-white bg-opacity-20 text-white px-6 py-3 rounded-xl hover:bg-opacity-30 font-semibold backdrop-filter backdrop-blur-sm transition-all duration-300 flex items-center">
-              <span class="bg-gradient-to-r from-green-500 to-blue-500 text-white p-1 rounded-lg mr-2">📋</span>
               <span>View All Tournaments</span>
-              <span class="ml-2 text-lg">👀</span>
               <span class="ml-2 bg-green-600 text-white px-3 py-1 rounded-full text-sm font-bold shadow-lg"><%= tournaments.length %></span>
             </a>
             <a href="/admin/dashboard" class="bg-white bg-opacity-20 text-white px-6 py-3 rounded-xl hover:bg-opacity-30 transition-all duration-300 font-semibold backdrop-filter backdrop-blur-sm">
@@ -579,10 +573,36 @@
                 <label class="input-label">Venue</label>
               </div>
               
+              <!-- State -->
+              <div class="input-group">
+                <select name="state" id="stateSelect" class="input-field" required>
+                  <option value="">Select State</option>
+                  <option value="Johor" <%= formData?.state === 'Johor' ? 'selected' : '' %>>Johor</option>
+                  <option value="Kedah" <%= formData?.state === 'Kedah' ? 'selected' : '' %>>Kedah</option>
+                  <option value="Kelantan" <%= formData?.state === 'Kelantan' ? 'selected' : '' %>>Kelantan</option>
+                  <option value="Kuala Lumpur" <%= formData?.state === 'Kuala Lumpur' ? 'selected' : '' %>>Kuala Lumpur</option>
+                  <option value="Labuan" <%= formData?.state === 'Labuan' ? 'selected' : '' %>>Labuan</option>
+                  <option value="Melaka" <%= formData?.state === 'Melaka' ? 'selected' : '' %>>Melaka</option>
+                  <option value="Negeri Sembilan" <%= formData?.state === 'Negeri Sembilan' ? 'selected' : '' %>>Negeri Sembilan</option>
+                  <option value="Pahang" <%= formData?.state === 'Pahang' ? 'selected' : '' %>>Pahang</option>
+                  <option value="Penang" <%= formData?.state === 'Penang' ? 'selected' : '' %>>Penang</option>
+                  <option value="Perak" <%= formData?.state === 'Perak' ? 'selected' : '' %>>Perak</option>
+                  <option value="Perlis" <%= formData?.state === 'Perlis' ? 'selected' : '' %>>Perlis</option>
+                  <option value="Putrajaya" <%= formData?.state === 'Putrajaya' ? 'selected' : '' %>>Putrajaya</option>
+                  <option value="Sabah" <%= formData?.state === 'Sabah' ? 'selected' : '' %>>Sabah</option>
+                  <option value="Sarawak" <%= formData?.state === 'Sarawak' ? 'selected' : '' %>>Sarawak</option>
+                  <option value="Selangor" <%= formData?.state === 'Selangor' ? 'selected' : '' %>>Selangor</option>
+                  <option value="Terengganu" <%= formData?.state === 'Terengganu' ? 'selected' : '' %>>Terengganu</option>
+                </select>
+                <label class="input-label">State</label>
+              </div>
+              
               <!-- City -->
               <div class="input-group">
-                            <input type="text" name="city" value="<%= formData?.city || '' %>" class="input-field" placeholder=" ">
-            <label class="input-label">City and State</label>
+                <select name="city" id="citySelect" class="input-field" required disabled>
+                  <option value="">Select State First</option>
+                </select>
+                <label class="input-label">City</label>
               </div>
               
               <!-- Organizer -->
@@ -633,14 +653,6 @@
               </div>
             </div>
             
-            <!-- Image Upload -->
-            <div class="input-group mt-6">
-              <input type="file" name="image" accept="image/*" class="input-field" id="imageUpload">
-              <label class="input-label">Tournament Image (Optional)</label>
-              <div id="imagePreview" class="mt-3 hidden">
-                <img id="previewImg" class="w-32 h-32 object-cover rounded-lg border-2 border-gray-200" alt="Preview">
-              </div>
-            </div>
             
             <div class="flex justify-end mt-8">
               <button type="submit" class="btn-primary">
@@ -705,7 +717,7 @@
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
                       </svg>
-                      <span><%= tournament.venue %><% if (tournament.city) { %>, <%= tournament.city %><% } %></span>
+                      <span><%= tournament.venue %><% if (tournament.city) { %>, <%= tournament.city %><% } %><% if (tournament.state) { %>, <%= tournament.state %><% } %></span>
                     </div>
                   <% } %>
                   
@@ -752,6 +764,7 @@
                           data-tournament-type="<%= tournament.type || '' %>"
                           data-tournament-venue="<%= tournament.venue || '' %>"
                           data-tournament-city="<%= tournament.city || '' %>"
+                          data-tournament-state="<%= tournament.state || '' %>"
                           data-tournament-organizer="<%= tournament.organizer || '' %>"
                           data-tournament-person="<%= tournament.personInCharge || '' %>"
                           data-tournament-phone="<%= tournament.phoneNumber || '' %>"
@@ -846,10 +859,36 @@
               <label class="input-label">Venue</label>
             </div>
             
+            <!-- State -->
+            <div class="input-group">
+              <select name="state" id="editStateSelect" class="input-field" required>
+                <option value="">Select State</option>
+                <option value="Johor">Johor</option>
+                <option value="Kedah">Kedah</option>
+                <option value="Kelantan">Kelantan</option>
+                <option value="Kuala Lumpur">Kuala Lumpur</option>
+                <option value="Labuan">Labuan</option>
+                <option value="Melaka">Melaka</option>
+                <option value="Negeri Sembilan">Negeri Sembilan</option>
+                <option value="Pahang">Pahang</option>
+                <option value="Penang">Penang</option>
+                <option value="Perak">Perak</option>
+                <option value="Perlis">Perlis</option>
+                <option value="Putrajaya">Putrajaya</option>
+                <option value="Sabah">Sabah</option>
+                <option value="Sarawak">Sarawak</option>
+                <option value="Selangor">Selangor</option>
+                <option value="Terengganu">Terengganu</option>
+              </select>
+              <label class="input-label">State</label>
+            </div>
+            
             <!-- City -->
             <div class="input-group">
-              <input type="text" name="city" id="editCity" class="input-field" placeholder=" ">
-              <label class="input-label">City and State</label>
+              <select name="city" id="editCitySelect" class="input-field" required disabled>
+                <option value="">Select State First</option>
+              </select>
+              <label class="input-label">City</label>
             </div>
             
             <!-- Organizer -->
@@ -938,27 +977,6 @@
       }
     }
     
-    // Image preview
-    function setupImagePreview() {
-      const imageUpload = document.getElementById('imageUpload');
-      const imagePreview = document.getElementById('imagePreview');
-      const previewImg = document.getElementById('previewImg');
-      
-      imageUpload.addEventListener('change', function(e) {
-        const file = e.target.files[0];
-        if (file) {
-          const reader = new FileReader();
-          reader.onload = function(e) {
-            previewImg.src = e.target.result;
-            imagePreview.classList.remove('hidden');
-            imagePreview.style.animation = 'slideIn 0.3s ease';
-          };
-          reader.readAsDataURL(file);
-        } else {
-          imagePreview.classList.add('hidden');
-        }
-      });
-    }
     
          // Form submission with loading
      function setupFormSubmission() {
@@ -1114,8 +1132,6 @@
        document.getElementById('startDate').addEventListener('change', updateMonthsFromDates);
        document.getElementById('endDate').addEventListener('change', updateMonthsFromDates);
        
-       // Set up image preview
-       setupImagePreview();
        
        // Set up form submission
        setupFormSubmission();
@@ -1141,6 +1157,66 @@
        });
      });
     
+    // Malaysia states and cities data
+    const malaysiaCities = {
+      'Johor': ['Johor Bahru', 'Batu Pahat', 'Muar', 'Kluang', 'Pontian', 'Segamat', 'Kulai', 'Kota Tinggi', 'Mersing', 'Tangkak'],
+      'Kedah': ['Alor Setar', 'Sungai Petani', 'Kulim', 'Jitra', 'Baling', 'Langkawi', 'Kuala Kedah', 'Yan', 'Pendang', 'Kubang Pasu'],
+      'Kelantan': ['Kota Bharu', 'Kuala Krai', 'Tanah Merah', 'Machang', 'Pasir Mas', 'Tumpat', 'Bachok', 'Jeli', 'Gua Musang', 'Pasir Puteh'],
+      'Kuala Lumpur': ['Kuala Lumpur'],
+      'Labuan': ['Victoria'],
+      'Melaka': ['Melaka Tengah', 'Jasin', 'Alor Gajah'],
+      'Negeri Sembilan': ['Seremban', 'Port Dickson', 'Nilai', 'Bahau', 'Tampin', 'Kuala Pilah', 'Rembau', 'Jelebu', 'Jempol'],
+      'Pahang': ['Kuantan', 'Temerloh', 'Bentong', 'Raub', 'Jerantut', 'Pekan', 'Kuala Lipis', 'Bera', 'Rompin', 'Maran', 'Cameron Highlands'],
+      'Penang': ['George Town', 'Seberang Perai Utara', 'Seberang Perai Tengah', 'Seberang Perai Selatan', 'Timur Laut'],
+      'Perak': ['Ipoh', 'Taiping', 'Sitiawan', 'Kampar', 'Teluk Intan', 'Parit Buntar', 'Ayer Tawar', 'Bagan Serai', 'Tanjung Malim', 'Lumut', 'Proton City'],
+      'Perlis': ['Kangar', 'Arau', 'Padang Besar'],
+      'Putrajaya': ['Putrajaya'],
+      'Sabah': ['Kota Kinabalu', 'Sandakan', 'Tawau', 'Lahad Datu', 'Keningau', 'Putatan', 'Donggongon', 'Semporna', 'Kudat', 'Kunak', 'Papar'],
+      'Sarawak': ['Kuching', 'Miri', 'Sibu', 'Bintulu', 'Limbang', 'Sarikei', 'Sri Aman', 'Kapit', 'Samarahan', 'Bau', 'Mukah'],
+      'Selangor': ['Shah Alam', 'Petaling Jaya', 'Subang Jaya', 'Klang', 'Ampang', 'Selayang', 'Kajang', 'Seri Kembangan', 'Rawang', 'Sepang', 'Puchong'],
+      'Terengganu': ['Kuala Terengganu', 'Kemaman', 'Dungun', 'Marang', 'Hulu Terengganu', 'Setiu', 'Besut', 'Kuala Nerus']
+    };
+
+    // Function to populate cities based on selected state
+    function populateCities(stateSelect, citySelect, selectedCity = '') {
+      const selectedState = stateSelect.value;
+      const cities = malaysiaCities[selectedState] || [];
+      
+      // Clear existing options
+      citySelect.innerHTML = '';
+      
+      if (!selectedState) {
+        citySelect.innerHTML = '<option value="">Select State First</option>';
+        citySelect.disabled = true;
+        citySelect.classList.remove('has-value');
+        return;
+      }
+      
+      // Enable city dropdown
+      citySelect.disabled = false;
+      
+      // Add default option
+      citySelect.innerHTML = '<option value="">Select City</option>';
+      
+      // Add cities for selected state
+      cities.forEach(city => {
+        const option = document.createElement('option');
+        option.value = city;
+        option.textContent = city;
+        if (city === selectedCity) {
+          option.selected = true;
+        }
+        citySelect.appendChild(option);
+      });
+      
+      // Update floating label behavior
+      if (citySelect.value) {
+        citySelect.classList.add('has-value');
+      } else {
+        citySelect.classList.remove('has-value');
+      }
+    }
+
     // Add floating label behavior for select elements
     document.querySelectorAll('select.input-field').forEach(select => {
       select.addEventListener('change', function() {
@@ -1157,10 +1233,37 @@
       }
     });
 
+    // Setup state-city dependency for main form
+    document.addEventListener('DOMContentLoaded', function() {
+      const stateSelect = document.getElementById('stateSelect');
+      const citySelect = document.getElementById('citySelect');
+      
+      if (stateSelect && citySelect) {
+        stateSelect.addEventListener('change', function() {
+          populateCities(stateSelect, citySelect);
+        });
+        
+        // Initialize cities if state is already selected (for form validation errors)
+        if (stateSelect.value) {
+          populateCities(stateSelect, citySelect, '<%= formData?.city || '' %>');
+        }
+      }
+      
+      // Setup state-city dependency for edit modal
+      const editStateSelect = document.getElementById('editStateSelect');
+      const editCitySelect = document.getElementById('editCitySelect');
+      
+      if (editStateSelect && editCitySelect) {
+        editStateSelect.addEventListener('change', function() {
+          populateCities(editStateSelect, editCitySelect);
+        });
+      }
+    });
+
 
 
     // Edit Modal Functions
-    function openEditModal(id, name, startDate, endDate, type, venue, city, organizer, personInCharge, phoneNumber, version) {
+    function openEditModal(id, name, startDate, endDate, type, venue, city, organizer, personInCharge, phoneNumber, version, state) {
       console.log('Opening edit modal for:', name);
       
       const modal = document.getElementById('editModal');
@@ -1199,16 +1302,42 @@
         }
       }
       
+      // Parse state and city from existing city field (if it contains both)
+      let parsedState = state || '';
+      let parsedCity = city || '';
+      
+      // If city contains both state and city (old format), try to parse them
+      if (city && city.includes(',') && !state) {
+        const parts = city.split(',');
+        if (parts.length >= 2) {
+          parsedCity = parts[0].trim();
+          parsedState = parts[1].trim();
+        }
+      }
+      
       // Populate form fields
       document.getElementById('editName').value = name || '';
       document.getElementById('editStartDate').value = formatDateForInput(startDate);
       document.getElementById('editEndDate').value = formatDateForInput(endDate);
       document.getElementById('editType').value = type || '';
       document.getElementById('editVenue').value = venue || '';
-      document.getElementById('editCity').value = city || '';
       document.getElementById('editOrganizer').value = organizer || '';
       document.getElementById('editPersonInCharge').value = personInCharge || '';
       document.getElementById('editPhoneNumber').value = phoneNumber || '';
+      
+      // Handle state and city dropdowns
+      const editStateSelect = document.getElementById('editStateSelect');
+      const editCitySelect = document.getElementById('editCitySelect');
+      
+      if (editStateSelect && editCitySelect) {
+        // Set state
+        editStateSelect.value = parsedState;
+        
+        // Populate cities based on selected state
+        if (parsedState) {
+          populateCities(editStateSelect, editCitySelect, parsedCity);
+        }
+      }
       
       // Update floating labels
       document.querySelectorAll('#editModal .input-field').forEach(field => {
@@ -1263,13 +1392,14 @@
            const type = button.dataset.tournamentType;
            const venue = button.dataset.tournamentVenue;
            const city = button.dataset.tournamentCity;
+           const state = button.dataset.tournamentState;
            const organizer = button.dataset.tournamentOrganizer;
            const personInCharge = button.dataset.tournamentPerson;
            const phoneNumber = button.dataset.tournamentPhone;
            const version = button.dataset.tournamentVersion;
            
            console.log('Edit button clicked for tournament:', name);
-           openEditModal(id, name, startDate, endDate, type, venue, city, organizer, personInCharge, phoneNumber, version);
+           openEditModal(id, name, startDate, endDate, type, venue, city, organizer, personInCharge, phoneNumber, version, state);
          }
          
          // Handle delete button clicks
