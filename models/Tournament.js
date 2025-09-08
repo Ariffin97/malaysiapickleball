@@ -76,6 +76,96 @@ const tournamentSchema = new mongoose.Schema({
   version: {
     type: Number,
     default: 0
+  },
+  
+  // Portal sync fields
+  syncedFromPortal: {
+    type: Boolean,
+    default: false
+  },
+  portalApplicationId: {
+    type: String,
+    required: false,
+    unique: true,
+    sparse: true // Only enforce uniqueness when value exists
+  },
+  portalSyncDate: {
+    type: Date,
+    required: false
+  },
+  lastPortalUpdate: {
+    type: Date,
+    required: false
+  },
+  
+  // Simple status-based visibility system
+  visibility: {
+    type: String,
+    enum: ['draft', 'ready', 'live', 'archived'],
+    default: 'draft'
+  },
+  
+  // MPA Portal fields (comprehensive mapping)
+  state: {
+    type: String,
+    required: false
+  },
+  maxParticipants: {
+    type: Number,
+    required: false
+  },
+  contactEmail: {
+    type: String,
+    required: false
+  },
+  contactPhone: {
+    type: String,
+    required: false
+  },
+  status: {
+    type: String,
+    enum: ['upcoming', 'ongoing', 'completed', 'cancelled'],
+    default: 'upcoming'
+  },
+  
+  // Complete MPA Portal fields
+  registrationNo: {
+    type: String,
+    required: false
+  },
+  organisingPartner: {
+    type: String,
+    required: false
+  },
+  classification: {
+    type: String,
+    required: false
+  },
+  eventSummary: {
+    type: String,
+    required: false
+  },
+  scoringFormat: {
+    type: String,
+    required: false
+  },
+  portalStatus: {
+    type: String,
+    required: false
+  },
+  submissionDate: {
+    type: Date,
+    required: false
+  },
+  portalRemarks: {
+    type: String,
+    required: false
+  },
+  
+  // Mark as portal-managed
+  managedByPortal: {
+    type: Boolean,
+    default: false
   }
 }, {
   timestamps: true,

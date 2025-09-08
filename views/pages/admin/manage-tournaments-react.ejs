@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tournament Management - Malaysia Pickleball Association</title>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="/css/styles.css">
+  <link rel="icon" href="/favicon.ico" type="image/x-icon">
+  <style>
+    .animate-spin {
+      animation: spin 1s linear infinite;
+    }
+    @keyframes spin {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+  </style>
+</head>
+<body class="bg-gray-50">
+
+<!-- Navigation Bar -->
+<nav class="bg-white shadow-lg border-b border-gray-200">
+  <div class="max-w-7xl mx-auto px-4">
+    <div class="flex justify-between items-center h-16">
+      <div class="flex items-center">
+        <a href="/admin/dashboard" class="flex items-center">
+          <img src="/images/mpa.png" alt="MPA Logo" class="h-8 w-8 mr-3">
+          <span class="text-xl font-semibold text-gray-800">MPA Admin</span>
+        </a>
+      </div>
+      
+      <div class="flex items-center space-x-4">
+        <span class="text-gray-600">Welcome, <%= session.username %></span>
+        <a href="/admin/logout" class="bg-red-600 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-red-700">
+          Logout
+        </a>
+      </div>
+    </div>
+  </div>
+</nav>
+
+<!-- Breadcrumbs -->
+<div class="bg-gray-50 px-6 py-3">
+  <div class="max-w-7xl mx-auto">
+    <nav class="flex" aria-label="Breadcrumb">
+      <ol class="flex items-center space-x-4">
+        <li>
+          <a href="/admin/dashboard" class="text-gray-500 hover:text-gray-700">Dashboard</a>
+        </li>
+        <li class="flex items-center">
+          <svg class="flex-shrink-0 h-5 w-5 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
+            <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd" />
+          </svg>
+          <span class="ml-4 text-gray-700 font-medium">Tournament Management</span>
+        </li>
+      </ol>
+    </nav>
+  </div>
+</div>
+
+<div class="min-h-screen bg-gray-100">
+  <div class="py-6">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      
+      <!-- React App Container -->
+      <div id="tournaments-app">
+        <!-- Loading placeholder -->
+        <div class="flex items-center justify-center min-h-64">
+          <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+          <span class="ml-3 text-gray-600">Loading tournaments...</span>
+        </div>
+      </div>
+      
+    </div>
+  </div>
+</div>
+
+<!-- Include React and React DOM from CDN -->
+<script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
+<script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+
+<!-- Nuclear fix: Force cache clear and simple loading -->
+<script src="/js/react-components/TournamentsApp.js?v=<%= Date.now() %>&t=<%= Math.random().toString(36).substr(2, 9) %>"></script>
+
+<!-- Initialize the React app with nuclear approach -->
+<script>
+(function() {
+  'use strict';
+  
+  console.log('Nuclear tournament app initialization starting...');
+  
+  function initApp() {
+    // Check React availability
+    if (typeof React === 'undefined' || typeof ReactDOM === 'undefined') {
+      console.error('React not available, retrying in 1 second...');
+      setTimeout(initApp, 1000);
+      return;
+    }
+    
+    // Check TournamentsApp availability
+    if (typeof window.TournamentsApp === 'undefined') {
+      console.error('TournamentsApp not available, retrying in 500ms...');
+      setTimeout(initApp, 500);
+      return;
+    }
+    
+    console.log('All dependencies available, rendering app...');
+    
+    try {
+      const container = document.getElementById('tournaments-app');
+      if (!container) {
+        throw new Error('Container not found');
+      }
+      
+      const root = ReactDOM.createRoot(container);
+      root.render(React.createElement(window.TournamentsApp));
+      console.log('TournamentsApp rendered successfully (nuclear version)');
+    } catch (error) {
+      console.error('Rendering error:', error);
+      const container = document.getElementById('tournaments-app');
+      if (container) {
+        container.innerHTML = '<div style="padding: 20px; background: #fef2f2; border: 1px solid #fecaca; border-radius: 8px; color: #dc2626;">' +
+          '<strong>Error:</strong> ' + error.message + '<br>' +
+          '<button onclick="location.reload()" style="margin-top: 10px; padding: 8px 16px; background: #dc2626; color: white; border: none; border-radius: 4px; cursor: pointer;">Refresh Page</button>' +
+          '</div>';
+      }
+    }
+  }
+  
+  // Start initialization when DOM is ready
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initApp);
+  } else {
+    initApp();
+  }
+})();
+</script>
+
+</body>
+</html>

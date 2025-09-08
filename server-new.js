@@ -23,6 +23,7 @@ cloudinary.config({
 const { connectDB } = require('./config/database');
 const DatabaseService = require('./services/databaseService');
 const EmailService = require('./services/emailService');
+const Tournament = require('./models/Tournament');
 
 const app = express();
 
@@ -109,7 +110,8 @@ app.use(helmet({
         "'unsafe-hashes'",
         "https://cdn.jsdelivr.net",
         "https://cdnjs.cloudflare.com",
-        "https://cdn.tailwindcss.com"
+        "https://cdn.tailwindcss.com",
+        "https://unpkg.com"
       ],
       'script-src-attr': ["'unsafe-inline'"],
       styleSrc: [
@@ -161,8 +163,17 @@ app.use(fileUpload({
   createParentPath: true
 }));
 
-// Static files middleware
-app.use(express.static(path.join(__dirname, 'public')));
+// Static files middleware with explicit MIME types and cache busting
+app.use(express.static(path.join(__dirname, 'public'), {
+  setHeaders: (res, path) => {
+    if (path.endsWith('.js')) {
+      res.setHeader('Content-Type', 'application/javascript');
+      res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
+      res.setHeader('Pragma', 'no-cache');
+      res.setHeader('Expires', '0');
+    }
+  }
+}));
 
 // View engine configuration
 app.set('view engine', 'ejs');
@@ -883,20 +894,72 @@ app.post('/admin/registrations/reject/:id', adminAuth, async (req, res) => {
 
 app.get('/admin/tournaments', adminAuth, async (req, res) => {
   try {
-    const tournaments = await DatabaseService.getAllTournaments();
-    res.render('pages/admin/manage-tournaments', {
-      tournaments: tournaments || [],
+    // Get tournaments by visibility status
+    const allTournaments = await DatabaseService.getAllTournaments();
+    
+    // Group tournaments by visibility status
+    const tournamentsByStatus = {
+      draft: allTournaments.filter(t => t.visibility === 'draft'),
+      ready: allTournaments.filter(t => t.visibility === 'ready'), 
+      live: allTournaments.filter(t => t.visibility === 'live'),
+      archived: allTournaments.filter(t => t.visibility === 'archived')
+    };
+    
+    const visibilityStats = {
+      draft: tournamentsByStatus.draft.length,
+      ready: tournamentsByStatus.ready.length,
+      live: tournamentsByStatus.live.length,
+      archived: tournamentsByStatus.archived.length,
+      total: allTournaments.length
+    };
+    
+    res.render('pages/admin/manage-tournaments-react', {
       session: req.session,
       errors: [],
       formData: {}
     });
   } catch (error) {
     console.error('Error loading tournaments:', error);
-    res.render('pages/admin/manage-tournaments', {
-      tournaments: [],
+    res.render('pages/admin/manage-tournaments-react', {
       session: req.session,
       errors: [{ msg: 'Failed to load tournaments.' }],
       formData: {}
+    });
+  }
+});
+
+// API endpoint for React component to fetch tournament data
+app.get('/api/admin/tournaments-data', adminAuth, async (req, res) => {
+  try {
+    // Get tournaments by visibility status
+    const allTournaments = await DatabaseService.getAllTournaments();
+    
+    // Group tournaments by visibility status
+    const tournamentsByStatus = {
+      draft: allTournaments.filter(t => t.visibility === 'draft'),
+      ready: allTournaments.filter(t => t.visibility === 'ready'), 
+      live: allTournaments.filter(t => t.visibility === 'live'),
+      archived: allTournaments.filter(t => t.visibility === 'archived')
+    };
+    
+    const visibilityStats = {
+      draft: tournamentsByStatus.draft.length,
+      ready: tournamentsByStatus.ready.length,
+      live: tournamentsByStatus.live.length,
+      archived: tournamentsByStatus.archived.length,
+      total: allTournaments.length
+    };
+    
+    res.json({
+      tournaments: tournamentsByStatus,
+      stats: visibilityStats,
+      timestamp: new Date().toISOString()
+    });
+  } catch (error) {
+    console.error('Error loading tournaments:', error);
+    res.status(500).json({
+      error: 'Failed to load tournaments',
+      message: error.message
     });
   }
 });
@@ -991,6 +1054,15 @@ app.post('/admin/tournaments', adminAuth, [
 
 app.post('/admin/tournaments/delete/:id', adminAuth, async (req, res) => {
   try {
+    // Check if tournament is managed by portal
+    const tournament = await Tournament.findById(req.params.id);
+    if (tournament && tournament.managedByPortal) {
+      return res.status(403).json({
+        success: false,
+        message: 'This tournament is managed by MPA Portal and cannot be deleted here. Changes must be made in the MPA Portal system.'
+      });
+    }
+    
     const reason = req.body.reason || 'Tournament cancelled by admin';
     const modifiedBy = req.session.username || 'admin';
     
@@ -1013,7 +1085,7 @@ app.post('/admin/tournaments/delete/:id', adminAuth, async (req, res) => {
 // Tournament update route
 app.post('/admin/tournaments/update/:id', adminAuth, [
   body('name').notEmpty().trim().withMessage('Tournament name is required'),
-  body('type').isIn(['local', 'state', 'national', 'sarawak', 'wmalaysia']).withMessage('Valid tournament type is required'),
+  body('type').isIn(['local', 'state', 'national', 'international', 'sarawak', 'wmalaysia']).withMessage('Valid tournament type is required'),
   body('startDate').optional({ checkFalsy: true }).isISO8601().withMessage('Valid start date is required'),
   body('endDate').optional({ checkFalsy: true }).isISO8601().withMessage('Valid end date is required'),
   body('venue').optional().trim(),
@@ -1024,6 +1096,8 @@ app.post('/admin/tournaments/update/:id', adminAuth, [
 ], async (req, res) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
+    console.error('🚫 Tournament update validation failed:', errors.array());
+    console.error('📋 Request body:', req.body);
     return res.status(400).json({
       success: false,
       message: 'Validation failed',
@@ -1033,6 +1107,16 @@ app.post('/admin/tournaments/update/:id', adminAuth, [
 
   try {
     const tournamentId = req.params.id;
+    
+    // Check if tournament is managed by portal
+    const existingTournament = await Tournament.findById(tournamentId);
+    if (existingTournament && existingTournament.managedByPortal) {
+      return res.status(403).json({
+        success: false,
+        message: 'This tournament is managed by MPA Portal and cannot be edited here. Changes must be made in the MPA Portal system.'
+      });
+    }
+    
     const updateData = {
       name: req.body.name,
       type: req.body.type,
@@ -5829,6 +5913,134 @@ app.patch('/api/milestones/:id/toggle-feature', adminAuth, async (req, res) => {
   }
 });
 
+// =============================================================================
+// TOURNAMENT SYNC ENDPOINTS
+// =============================================================================
+
+const TournamentSyncService = require('./services/tournamentSyncService');
+const AutoPromotionService = require('./services/autoPromotionService');
+
+// Manual sync endpoint (admin only)
+app.post('/admin/sync/tournaments', adminAuth, async (req, res) => {
+  try {
+    console.log('🔄 Manual tournament sync initiated by:', req.session.username);
+    
+    const syncService = new TournamentSyncService();
+    const result = await syncService.syncTournaments();
+    await syncService.cleanup();
+    
+    res.json({
+      success: true,
+      message: 'Tournament sync completed successfully',
+      data: result
+    });
+    
+  } catch (error) {
+    console.error('❌ Tournament sync error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Tournament sync failed: ' + error.message
+    });
+  }
+});
+
+// Get sync status endpoint (admin only)
+app.get('/admin/sync/tournaments/status', adminAuth, async (req, res) => {
+  try {
+    const syncedTournaments = await Tournament.find({ 
+      syncedFromPortal: true 
+    }).select('name portalSyncDate lastPortalUpdate portalApplicationId').sort({ portalSyncDate: -1 });
+    
+    const totalTournaments = await Tournament.countDocuments();
+    const syncedCount = syncedTournaments.length;
+    
+    const scheduledSync = require('./services/scheduledSync');
+    const scheduleStatus = scheduledSync.getStatus();
+    
+    res.json({
+      success: true,
+      data: {
+        totalTournaments,
+        syncedTournaments: syncedCount,
+        unsyncedTournaments: totalTournaments - syncedCount,
+        recentSyncs: syncedTournaments.slice(0, 10),
+        scheduledSync: scheduleStatus
+      }
+    });
+    
+  } catch (error) {
+    console.error('❌ Error getting sync status:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to get sync status: ' + error.message
+    });
+  }
+});
+
+// Control scheduled sync (admin only)
+app.post('/admin/sync/tournaments/schedule/:action', adminAuth, async (req, res) => {
+  try {
+    const { action } = req.params;
+    const { intervalMinutes } = req.body;
+    
+    const scheduledSync = require('./services/scheduledSync');
+    
+    switch (action) {
+      case 'start':
+        scheduledSync.start();
+        res.json({
+          success: true,
+          message: 'Scheduled sync started successfully'
+        });
+        break;
+        
+      case 'stop':
+        scheduledSync.stop();
+        res.json({
+          success: true,
+          message: 'Scheduled sync stopped successfully'
+        });
+        break;
+        
+      case 'restart':
+        scheduledSync.stop();
+        scheduledSync.start();
+        res.json({
+          success: true,
+          message: 'Scheduled sync restarted successfully'
+        });
+        break;
+        
+      case 'setInterval':
+        if (!intervalMinutes || intervalMinutes < 5) {
+          return res.status(400).json({
+            success: false,
+            message: 'Interval must be at least 5 minutes'
+          });
+        }
+        scheduledSync.setSyncInterval(intervalMinutes);
+        res.json({
+          success: true,
+          message: `Sync interval set to ${intervalMinutes} minutes`
+        });
+        break;
+        
+      default:
+        res.status(400).json({
+          success: false,
+          message: 'Invalid action. Use: start, stop, restart, or setInterval'
+        });
+    }
+    
+  } catch (error) {
+    console.error('❌ Error controlling scheduled sync:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to control scheduled sync: ' + error.message
+    });
+  }
+});
+
 // Start the server
 const PORT = process.env.PORT || 3000;
 
@@ -5841,12 +6053,37 @@ async function startServer() {
     await connectDB();
     console.log('📊 Database connected successfully');
     
+    // Start scheduled tournament sync
+    const scheduledSync = require('./services/scheduledSync');
+    try {
+      // Stop any existing sync first
+      scheduledSync.stop();
+      // Start fresh sync
+      scheduledSync.start();
+      console.log('✅ Scheduled tournament sync started successfully');
+    } catch (syncError) {
+      console.error('⚠️  Failed to start scheduled sync:', syncError.message);
+      console.log('🔧 Attempting to start sync in 10 seconds...');
+      setTimeout(() => {
+        try {
+          scheduledSync.start();
+          console.log('✅ Delayed sync start successful');
+        } catch (delayedError) {
+          console.error('❌ Delayed sync start failed:', delayedError.message);
+        }
+      }, 10000);
+    }
+    
+    // Start auto-promotion service
+    await AutoPromotionService.initialize();
+    
     // Start HTTP server
     app.listen(PORT, () => {
       console.log(`✅ Server running on port ${PORT}`);
       console.log(`🌐 Admin panel: http://localhost:${PORT}/admin/login`);
       console.log(`🏓 Public site: http://localhost:${PORT}`);
       console.log(`📋 Organization Chart: http://localhost:${PORT}/organization-chart`);
+      console.log('🔄 Tournament sync service started');
     });
     
   } catch (error) {
@@ -5864,6 +6101,126 @@ process.on('uncaughtException', (error) => {
 process.on('unhandledRejection', (reason, promise) => {
   console.error('💥 Unhandled Rejection at:', promise, 'reason:', reason);
   process.exit(1);
+});
+
+// Webhook endpoint for instant tournament deletion from portal
+app.post('/api/webhook/tournament-deleted', async (req, res) => {
+  try {
+    console.log('🚨 INSTANT DELETION WEBHOOK received from portal');
+    const { applicationId, eventTitle, action } = req.body;
+    
+    if (!applicationId && !eventTitle) {
+      return res.status(400).json({ error: 'Missing applicationId or eventTitle' });
+    }
+    
+    console.log(`🗑️ Instant deletion request: ${eventTitle || 'Unknown'} (${applicationId || 'No ID'})`);
+    
+    // Find and delete tournament immediately
+    const Tournament = require('./models/Tournament');
+    let deletedTournament = null;
+    
+    // Try to find by portal application ID first
+    if (applicationId) {
+      deletedTournament = await Tournament.findOneAndDelete({
+        portalApplicationId: applicationId
+      });
+      console.log(`🔍 Searched by portal ID ${applicationId}: ${deletedTournament ? 'FOUND & DELETED' : 'NOT FOUND'}`);
+    }
+    
+    // If not found by ID, try by name
+    if (!deletedTournament && eventTitle) {
+      deletedTournament = await Tournament.findOneAndDelete({
+        name: { $regex: new RegExp(`^${eventTitle.trim()}$`, 'i') },
+        $or: [
+          { managedByPortal: true },
+          { syncedFromPortal: true },
+          { portalApplicationId: { $exists: true } }
+        ]
+      });
+      console.log(`🔍 Searched by name "${eventTitle}": ${deletedTournament ? 'FOUND & DELETED' : 'NOT FOUND'}`);
+    }
+    
+    if (deletedTournament) {
+      console.log(`✅ INSTANTLY DELETED: "${deletedTournament.name}"`);
+      console.log(`   Tournament ID: ${deletedTournament._id}`);
+      console.log(`   Portal ID: ${deletedTournament.portalApplicationId || 'None'}`);
+      console.log(`   ⚡ INSTANT DELETION SUCCESSFUL - No 2-minute wait!`);
+      
+      res.json({
+        success: true,
+        message: 'Tournament deleted instantly',
+        deletedTournament: {
+          id: deletedTournament._id,
+          name: deletedTournament.name,
+          portalApplicationId: deletedTournament.portalApplicationId
+        }
+      });
+    } else {
+      console.log(`⚠️  No matching tournament found for instant deletion`);
+      res.status(404).json({
+        success: false,
+        message: 'Tournament not found for deletion'
+      });
+    }
+    
+  } catch (error) {
+    console.error('❌ Webhook deletion error:', error.message);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to process deletion webhook',
+      message: error.message
+    });
+  }
+});
+
+// Webhook endpoint for instant tournament status change
+app.post('/api/webhook/tournament-status-changed', async (req, res) => {
+  try {
+    console.log('🚨 INSTANT STATUS CHANGE WEBHOOK received from portal');
+    const { applicationId, eventTitle, newStatus, oldStatus } = req.body;
+    
+    console.log(`📝 Status change: ${eventTitle} (${applicationId})`);
+    console.log(`   ${oldStatus} → ${newStatus}`);
+    
+    // If status changed to rejected/cancelled, delete from main site
+    if (['Rejected', 'Cancelled', 'More Info Required'].includes(newStatus)) {
+      const Tournament = require('./models/Tournament');
+      let deletedTournament = null;
+      
+      // Find and delete tournament
+      if (applicationId) {
+        deletedTournament = await Tournament.findOneAndDelete({
+          portalApplicationId: applicationId
+        });
+      }
+      
+      if (!deletedTournament && eventTitle) {
+        deletedTournament = await Tournament.findOneAndDelete({
+          name: { $regex: new RegExp(`^${eventTitle.trim()}$`, 'i') },
+          $or: [
+            { managedByPortal: true },
+            { syncedFromPortal: true },
+            { portalApplicationId: { $exists: true } }
+          ]
+        });
+      }
+      
+      if (deletedTournament) {
+        console.log(`✅ INSTANTLY REMOVED due to status change: "${deletedTournament.name}"`);
+        console.log(`   Reason: Status changed to "${newStatus}"`);
+        console.log(`   ⚡ INSTANT REMOVAL SUCCESSFUL!`);
+      }
+    }
+    
+    res.json({ success: true, message: 'Status change processed instantly' });
+    
+  } catch (error) {
+    console.error('❌ Webhook status change error:', error.message);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to process status change webhook'
+    });
+  }
 });
 
 // Start the server
