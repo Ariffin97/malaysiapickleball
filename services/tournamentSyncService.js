@@ -11,15 +11,26 @@ class TournamentSyncService {
 
   setupConnections() {
     try {
-      // Create separate connection to portal database
-      this.portalConnection = mongoose.createConnection(
-        'mongodb://localhost:27017/malaysia-pickleball-portal-dev'
-      );
-
-      // Create separate connection to main database
-      this.mainConnection = mongoose.createConnection(
-        'mongodb://localhost:27017/malaysia-pickleball-dev'
-      );
+      // Use environment variables for database connections
+      const baseMongoURI = process.env.MONGODB_URI || 'mongodb://localhost:27017/malaysia-pickleball-dev';
+      
+      // For production, use the same database but different collections/schemas
+      // For development, use separate databases
+      const isProduction = process.env.NODE_ENV === 'production';
+      
+      if (isProduction) {
+        // In production, use the same database for both portal and main
+        this.portalConnection = mongoose.createConnection(baseMongoURI);
+        this.mainConnection = mongoose.createConnection(baseMongoURI);
+        console.log('✅ Using production database for both portal and main connections');
+      } else {
+        // In development, use separate databases
+        this.portalConnection = mongoose.createConnection(
+          baseMongoURI.replace('malaysia-pickleball-dev', 'malaysia-pickleball-portal-dev')
+        );
+        this.mainConnection = mongoose.createConnection(baseMongoURI);
+        console.log('✅ Using separate development databases for portal and main');
+      }
 
       // Define tournament application schema for portal database
       const tournamentApplicationSchema = new mongoose.Schema({
@@ -86,7 +97,9 @@ class TournamentSyncService {
         optimisticConcurrency: true
       });
 
-      this.TournamentApplication = this.portalConnection.model('tournamentapplications', tournamentApplicationSchema);
+      // Use different collection names based on environment
+      const tournamentAppCollectionName = (process.env.NODE_ENV === 'production') ? 'portalTournamentApplications' : 'tournamentapplications';
+      this.TournamentApplication = this.portalConnection.model('TournamentApplication', tournamentApplicationSchema, tournamentAppCollectionName);
       this.Tournament = this.mainConnection.model('Tournament', tournamentSchema);
 
       console.log('✅ Portal and main database connections established for tournament sync');
