@@ -432,26 +432,54 @@ app.get('/', async (req, res) => {
 
 app.get('/tournament', async (req, res) => {
   try {
+    console.log('🏆 Loading tournament calendar page...');
+    
     const tournaments = await DatabaseService.getAllTournaments();
+    console.log(`📊 Found ${tournaments ? tournaments.length : 0} tournaments in database`);
+    
     const notices = await DatabaseService.getActiveTournamentNotices();
+    console.log(`📢 Found ${notices ? notices.length : 0} tournament notices`);
+    
     const backgroundImage = await DatabaseService.getSetting('background_image', '/images/defaultbg.png');
     
-    const formattedTournaments = tournaments.map(t => ({
-      ...t.toObject(),
-      color: tournamentTypes[t.type]?.color || 'green'
-    }));
+    const formattedTournaments = tournaments.map(t => {
+      const tournamentObj = t.toObject ? t.toObject() : t;
+      return {
+        ...tournamentObj,
+        color: tournamentTypes[tournamentObj.type]?.color || 'green'
+      };
+    });
+    
+    console.log(`✅ Rendering tournament page with ${formattedTournaments.length} formatted tournaments`);
     
     res.render('pages/tournament', { 
       tournaments: formattedTournaments, 
-      notices: notices,
+      notices: notices || [],
       session: req.session, 
       backgroundImage 
     });
   } catch (error) {
-    console.error('Tournament page error:', error);
+    console.error('❌ Tournament page error:', error);
+    console.error('Stack trace:', error.stack);
+    
+    // Still try to get basic data even if there's an error
+    let fallbackTournaments = [];
+    let fallbackNotices = [];
+    
+    try {
+      fallbackTournaments = await DatabaseService.getAllTournaments() || [];
+      fallbackNotices = await DatabaseService.getActiveTournamentNotices() || [];
+      console.log(`🔄 Fallback: ${fallbackTournaments.length} tournaments, ${fallbackNotices.length} notices`);
+    } catch (fallbackError) {
+      console.error('❌ Fallback also failed:', fallbackError);
+    }
+    
     res.render('pages/tournament', { 
-      tournaments: [], 
-      notices: [],
+      tournaments: fallbackTournaments.map(t => ({
+        ...(t.toObject ? t.toObject() : t),
+        color: tournamentTypes[t.type]?.color || 'green'
+      })), 
+      notices: fallbackNotices,
       session: req.session, 
       backgroundImage: '/images/defaultbg.png'
     });
@@ -791,6 +819,206 @@ app.post('/login', [
   }
 });
 
+
+// REMOVED: Old polling-based sync functions replaced by webhook system
+// Functions savePortalTournamentsToDatabase() and mapPortalTypeToDbType() 
+// have been removed as part of implementing webhook-based bi-directional sync
+
+// ===========================
+// WEBHOOK SYSTEM FOR BI-DIRECTIONAL SYNC
+// ===========================
+
+// Webhook endpoint to receive tournament updates from portal
+app.post('/api/webhooks/tournament-updated', express.json(), async (req, res) => {
+  console.log('🔔 Webhook received: Tournament updated from portal');
+  
+  try {
+    const { tournament, action } = req.body;
+    
+    if (!tournament || !action) {
+      console.error('❌ Invalid webhook payload:', req.body);
+      return res.status(400).json({ error: 'Invalid webhook payload' });
+    }
+
+    const Tournament = require('./models/Tournament');
+
+    if (action === 'created' || action === 'updated') {
+      // Map portal tournament data to database format
+      const tournamentData = {
+        name: tournament.eventTitle || tournament.name,
+        startDate: tournament.startDate || tournament.eventStartDate,
+        endDate: tournament.endDate || tournament.eventEndDate,
+        type: mapPortalTypeToDbType(tournament.tournamentType || tournament.type),
+        venue: tournament.venue,
+        city: tournament.city,
+        state: tournament.state,
+        organizer: tournament.organizer,
+        personInCharge: tournament.personInCharge,
+        phoneNumber: tournament.telContact || tournament.phoneNumber,
+        contactEmail: tournament.contactEmail,
+        description: tournament.description || tournament.eventSummary,
+        registrationOpen: tournament.registrationOpen !== false,
+        maxParticipants: tournament.maxParticipants,
+        managedByPortal: true,
+        portalApplicationId: tournament.applicationId,
+        portalTournamentId: tournament.id,
+        source: 'portal',
+        lastModifiedBy: 'portal-webhook',
+        status: 'upcoming'
+      };
+
+      // Find existing tournament
+      const existingTournament = await Tournament.findOne({
+        $or: [
+          { portalApplicationId: tournament.applicationId },
+          { portalTournamentId: tournament.id }
+        ]
+      });
+
+      if (existingTournament) {
+        // Store original data for change detection
+        const originalData = {
+          name: existingTournament.name,
+          startDate: existingTournament.startDate,
+          endDate: existingTournament.endDate,
+          venue: existingTournament.venue,
+          city: existingTournament.city,
+          organizer: existingTournament.organizer,
+          personInCharge: existingTournament.personInCharge,
+          phoneNumber: existingTournament.phoneNumber
+        };
+
+        // Update the tournament
+        await Tournament.findByIdAndUpdate(existingTournament._id, tournamentData);
+        console.log(`🔄 Updated tournament via webhook: ${tournamentData.name}`);
+
+        // Generate automatic notices for changes from portal
+        try {
+          const TournamentNoticeService = require('./services/tournamentNoticeService');
+          await TournamentNoticeService.generateAutomaticNotices(
+            existingTournament._id,
+            originalData,
+            tournamentData,
+            'portal-webhook'
+          );
+        } catch (noticeError) {
+          console.error('Error generating automatic notices for portal update:', noticeError);
+        }
+      } else {
+        await Tournament.create(tournamentData);
+        console.log(`✅ Created new tournament via webhook: ${tournamentData.name}`);
+      }
+
+    } else if (action === 'deleted') {
+      // Find tournament before deletion to generate cancellation notice
+      const tournamentToDelete = await Tournament.findOne({
+        $or: [
+          { portalApplicationId: tournament.applicationId },
+          { portalTournamentId: tournament.id }
+        ]
+      });
+
+      if (tournamentToDelete) {
+        // Generate cancellation notice before deletion
+        try {
+          const TournamentNoticeService = require('./services/tournamentNoticeService');
+          await TournamentNoticeService.createCancellationNotice(
+            tournamentToDelete,
+            'Tournament cancelled by MPA Portal',
+            'portal-webhook'
+          );
+        } catch (noticeError) {
+          console.error('Error generating cancellation notice for portal deletion:', noticeError);
+        }
+
+        // Remove tournament from database
+        const result = await Tournament.deleteOne({
+          $or: [
+            { portalApplicationId: tournament.applicationId },
+            { portalTournamentId: tournament.id }
+          ]
+        });
+
+        if (result.deletedCount > 0) {
+          console.log(`🗑️  Deleted tournament via webhook: ${tournament.name || tournamentToDelete.name}`);
+        }
+      } else {
+        console.log(`⚠️  Tournament not found for deletion: ${tournament.name}`);
+      }
+    }
+
+    res.json({ success: true, message: `Tournament ${action} processed successfully` });
+
+  } catch (error) {
+    console.error('❌ Webhook processing error:', error);
+    res.status(500).json({ error: 'Webhook processing failed', details: error.message });
+  }
+});
+
+// Webhook endpoint to send tournament updates to portal
+app.post('/api/webhooks/send-to-portal', adminAuth, async (req, res) => {
+  console.log('🔔 Sending tournament update to portal');
+  
+  try {
+    const { tournament, action } = req.body;
+    
+    if (!tournament || !action) {
+      return res.status(400).json({ error: 'Invalid request payload' });
+    }
+
+    // Send webhook to portal if it's not a portal-managed tournament
+    if (!tournament.managedByPortal) {
+      const portalApiService = new (require('./services/portalApiService'))();
+      
+      // Transform tournament data for portal
+      const portalTournament = {
+        eventTitle: tournament.name,
+        eventStartDate: tournament.startDate,
+        eventEndDate: tournament.endDate,
+        tournamentType: tournament.type,
+        venue: tournament.venue,
+        city: tournament.city,
+        state: tournament.state,
+        organizer: tournament.organizer,
+        personInCharge: tournament.personInCharge,
+        telContact: tournament.phoneNumber,
+        contactEmail: tournament.contactEmail,
+        description: tournament.description,
+        maxParticipants: tournament.maxParticipants,
+        source: 'main-site'
+      };
+
+      if (action === 'created' || action === 'updated') {
+        await portalApiService.createApplication(portalTournament);
+        console.log(`✅ Sent ${action} tournament to portal: ${tournament.name}`);
+      }
+    }
+
+    res.json({ success: true, message: `Tournament ${action} sent to portal successfully` });
+
+  } catch (error) {
+    console.error('❌ Portal webhook error:', error);
+    res.status(500).json({ error: 'Portal webhook failed', details: error.message });
+  }
+});
+
+// Helper function for mapping tournament types (recreated for webhooks)
+function mapPortalTypeToDbType(portalType) {
+  const typeMap = {
+    'local': 'local',
+    'state': 'state', 
+    'national': 'national',
+    'international': 'international',
+    'sarawak': 'sarawak',
+    'west malaysia': 'wmalaysia',
+    'regional': 'state', // fallback
+    'district': 'local'  // fallback
+  };
+  
+  if (!portalType) return 'local'; // default
+  return typeMap[portalType.toLowerCase()] || 'local';
+}
+
 // Admin Routes
 app.get('/admin/dashboard', adminAuth, async (req, res) => {
   try {
@@ -894,25 +1122,6 @@ app.post('/admin/registrations/reject/:id', adminAuth, async (req, res) => {
 
 app.get('/admin/tournaments', adminAuth, async (req, res) => {
   try {
-    // Get tournaments by visibility status
-    const allTournaments = await DatabaseService.getAllTournaments();
-    
-    // Group tournaments by visibility status
-    const tournamentsByStatus = {
-      draft: allTournaments.filter(t => t.visibility === 'draft'),
-      ready: allTournaments.filter(t => t.visibility === 'ready'), 
-      live: allTournaments.filter(t => t.visibility === 'live'),
-      archived: allTournaments.filter(t => t.visibility === 'archived')
-    };
-    
-    const visibilityStats = {
-      draft: tournamentsByStatus.draft.length,
-      ready: tournamentsByStatus.ready.length,
-      live: tournamentsByStatus.live.length,
-      archived: tournamentsByStatus.archived.length,
-      total: allTournaments.length
-    };
-    
     res.render('pages/admin/manage-tournaments-react', {
       session: req.session,
       errors: [],
@@ -929,37 +1138,191 @@ app.get('/admin/tournaments', adminAuth, async (req, res) => {
 });
 
 // API endpoint for React component to fetch tournament data
+// API endpoint for React component to fetch tournament data (Webhook-based)
 app.get('/api/admin/tournaments-data', adminAuth, async (req, res) => {
+  console.log('🔗 ADMIN TOURNAMENTS DATA - Webhook-based system');
+  console.log('🎯 User session:', req.session?.username || 'No session');
+  
   try {
-    // Get tournaments by visibility status
-    const allTournaments = await DatabaseService.getAllTournaments();
+    // Only fetch from local database (synced via webhooks from portal)
+    const tournaments = await DatabaseService.getAllTournaments();
+    console.log(`📊 Found ${tournaments ? tournaments.length : 0} tournaments in local database`);
     
-    // Group tournaments by visibility status
-    const tournamentsByStatus = {
-      draft: allTournaments.filter(t => t.visibility === 'draft'),
-      ready: allTournaments.filter(t => t.visibility === 'ready'), 
-      live: allTournaments.filter(t => t.visibility === 'live'),
-      archived: allTournaments.filter(t => t.visibility === 'archived')
-    };
+    // Mark tournaments with their sources and format for admin display
+    const formattedTournaments = tournaments.map(tournament => {
+      const tournamentObj = tournament.toObject ? tournament.toObject() : tournament;
+      return {
+        ...tournamentObj,
+        // Determine source based on managedByPortal flag
+        source: tournamentObj.managedByPortal ? 'portal' : 'local-db',
+        sourceLabel: tournamentObj.managedByPortal ? 'Portal (Webhook Sync)' : 'Local Database',
+        inMainDatabase: true, // All are in main database now
+        dbCheckStatus: 'confirmed', // All confirmed in local DB
+        // Preserve portal IDs if available
+        id: tournamentObj.portalTournamentId || tournamentObj._id || tournamentObj.id,
+        applicationId: tournamentObj.portalApplicationId,
+        name: tournamentObj.name || tournamentObj.eventTitle
+      };
+    });
     
-    const visibilityStats = {
-      draft: tournamentsByStatus.draft.length,
-      ready: tournamentsByStatus.ready.length,
-      live: tournamentsByStatus.live.length,
-      archived: tournamentsByStatus.archived.length,
-      total: allTournaments.length
-    };
+    const portalTournaments = formattedTournaments.filter(t => t.managedByPortal);
+    const localTournaments = formattedTournaments.filter(t => !t.managedByPortal);
+    
+    console.log(`✅ Returning ${portalTournaments.length} portal + ${localTournaments.length} local tournaments`);
     
     res.json({
-      tournaments: tournamentsByStatus,
-      stats: visibilityStats,
+      tournaments: formattedTournaments,
+      stats: {
+        total: formattedTournaments.length,
+        local: localTournaments.length,
+        portal: portalTournaments.length,
+        localDb: formattedTournaments.length, // All are in local DB
+        inMainDb: formattedTournaments.length,
+        likelyInMainDb: formattedTournaments.length
+      },
+      portalStatus: 'webhook', // Webhook-based system
+      portalError: null,
+      syncMethod: 'webhook',
       timestamp: new Date().toISOString()
     });
   } catch (error) {
-    console.error('Error loading tournaments:', error);
+    console.error('❌ Error fetching tournament data:', error);
     res.status(500).json({
       error: 'Failed to load tournaments',
       message: error.message
+    });
+  }
+});
+
+// Test portal API connection (no auth required)
+app.get('/api/portal/test', async (req, res) => {
+  try {
+    const PortalApiService = require('./services/portalApiService');
+    const portalApi = new PortalApiService();
+    const result = await portalApi.testConnection();
+    
+    res.json({
+      success: true,
+      portal: result,
+      timestamp: new Date().toISOString()
+    });
+  } catch (error) {
+    res.json({
+      success: false,
+      error: error.message,
+      timestamp: new Date().toISOString()
+    });
+  }
+});
+
+// Manual sync endpoint to pull tournaments from portal
+app.post('/api/portal/sync-tournaments', async (req, res) => {
+  try {
+    console.log('🔄 Manual sync requested - pulling tournaments from portal...');
+    
+    const PortalApiService = require('./services/portalApiService');
+    const portalApi = new PortalApiService();
+    
+    // Fetch tournaments from portal
+    const portalResult = await portalApi.getTournaments();
+    
+    if (!portalResult.success) {
+      throw new Error('Failed to fetch tournaments from portal');
+    }
+    
+    let syncedCount = 0;
+    let updatedCount = 0;
+    const errors = [];
+    
+    // Process each tournament from portal
+    for (const portalTournament of portalResult.tournaments) {
+      try {
+        // Check if tournament already exists in local database (same logic as webhook)
+        const Tournament = require('./models/Tournament');
+        const existingTournament = await Tournament.findOne({
+          $or: [
+            { portalApplicationId: portalTournament.applicationId },
+            { portalTournamentId: portalTournament.applicationId },
+            { applicationId: portalTournament.applicationId } // Backward compatibility
+          ]
+        });
+        
+        // Map portal classification to local type
+        let localType = 'local'; // default
+        if (portalTournament.classification) {
+          const classification = portalTournament.classification.toLowerCase();
+          if (classification.includes('international')) localType = 'international';
+          else if (classification.includes('national')) localType = 'national';
+          else if (classification.includes('state') || classification.includes('divisional')) localType = 'state';
+          else localType = 'local';
+        }
+        
+        // Prepare tournament data for local database (matching webhook field names)
+        const tournamentData = {
+          name: portalTournament.eventTitle,
+          eventTitle: portalTournament.eventTitle,
+          applicationId: portalTournament.applicationId,
+          startDate: portalTournament.eventStartDate,
+          endDate: portalTournament.eventEndDate,
+          location: portalTournament.city,
+          state: portalTournament.state,
+          venue: portalTournament.venue,
+          type: localType, // Required field
+          classification: portalTournament.classification,
+          organiserName: portalTournament.organiserName,
+          personInCharge: portalTournament.personInCharge,
+          email: portalTournament.email,
+          telContact: portalTournament.telContact,
+          expectedParticipants: portalTournament.expectedParticipants,
+          eventSummary: portalTournament.eventSummary,
+          description: portalTournament.eventSummary,
+          status: 'upcoming',
+          source: 'portal',
+          managedByPortal: true,
+          portalApplicationId: portalTournament.applicationId, // Match webhook field names
+          portalTournamentId: portalTournament.applicationId,   // Match webhook field names
+          lastModifiedBy: 'manual-sync',
+          portalData: portalTournament
+        };
+        
+        if (existingTournament) {
+          // Update existing tournament
+          await Tournament.findByIdAndUpdate(existingTournament._id, tournamentData);
+          updatedCount++;
+          console.log(`🔄 Updated tournament: ${portalTournament.eventTitle}`);
+        } else {
+          // Create new tournament
+          await Tournament.create(tournamentData);
+          syncedCount++;
+          console.log(`✅ Created new tournament: ${portalTournament.eventTitle}`);
+        }
+      } catch (error) {
+        console.error(`❌ Error processing tournament ${portalTournament.eventTitle}:`, error.message);
+        errors.push(`${portalTournament.eventTitle}: ${error.message}`);
+      }
+    }
+    
+    console.log(`🎯 Sync completed: ${syncedCount} new, ${updatedCount} updated`);
+    
+    res.json({
+      success: true,
+      message: `Sync completed successfully`,
+      stats: {
+        totalFromPortal: portalResult.tournaments.length,
+        newTournaments: syncedCount,
+        updatedTournaments: updatedCount,
+        errors: errors.length
+      },
+      errors: errors,
+      timestamp: new Date().toISOString()
+    });
+    
+  } catch (error) {
+    console.error('❌ Sync failed:', error.message);
+    res.json({
+      success: false,
+      error: error.message,
+      timestamp: new Date().toISOString()
     });
   }
 });
@@ -1026,6 +1389,23 @@ app.post('/admin/tournaments', adminAuth, [
   try {
     const tournament = await DatabaseService.createTournament(req.body);
     
+    // Trigger webhook to sync with portal (bi-directional sync)
+    try {
+      const axios = require('axios');
+      await axios.post('http://localhost:5000/api/webhooks/send-to-portal', {
+        tournament: tournament,
+        action: 'created'
+      }, {
+        headers: {
+          'Cookie': req.headers.cookie // Forward admin session
+        },
+        timeout: 5000
+      });
+      console.log('🔔 Tournament creation webhook triggered successfully');
+    } catch (webhookError) {
+      console.error('⚠️  Webhook trigger failed (tournament still created):', webhookError.message);
+    }
+    
     // Check if it's an AJAX request
     if (req.headers['x-requested-with'] === 'XMLHttpRequest') {
       return res.json({
@@ -1066,7 +1446,28 @@ app.post('/admin/tournaments/delete/:id', adminAuth, async (req, res) => {
     const reason = req.body.reason || 'Tournament cancelled by admin';
     const modifiedBy = req.session.username || 'admin';
     
+    // Store tournament data before deletion for webhook
+    const tournamentBeforeDeletion = tournament;
+    
     await DatabaseService.deleteTournament(req.params.id, reason, modifiedBy);
+    
+    // Trigger webhook to sync with portal (bi-directional sync)
+    try {
+      const axios = require('axios');
+      await axios.post('http://localhost:5000/api/webhooks/send-to-portal', {
+        tournament: tournamentBeforeDeletion,
+        action: 'deleted'
+      }, {
+        headers: {
+          'Cookie': req.headers.cookie // Forward admin session
+        },
+        timeout: 5000
+      });
+      console.log('🔔 Tournament deletion webhook triggered successfully');
+    } catch (webhookError) {
+      console.error('⚠️  Webhook trigger failed (tournament still deleted):', webhookError.message);
+    }
+    
     res.json({
       success: true,
       message: 'Tournament deleted successfully and cancellation notice created'
@@ -1150,7 +1551,24 @@ app.post('/admin/tournaments/update/:id', adminAuth, [
     const currentVersion = req.body.version ? parseInt(req.body.version) : null;
     const modifiedBy = req.session.username || 'admin';
 
-    await DatabaseService.updateTournament(tournamentId, updateData, currentVersion, modifiedBy);
+    const updatedTournament = await DatabaseService.updateTournament(tournamentId, updateData, currentVersion, modifiedBy);
+    
+    // Trigger webhook to sync with portal (bi-directional sync)
+    try {
+      const axios = require('axios');
+      await axios.post('http://localhost:5000/api/webhooks/send-to-portal', {
+        tournament: updatedTournament,
+        action: 'updated'
+      }, {
+        headers: {
+          'Cookie': req.headers.cookie // Forward admin session
+        },
+        timeout: 5000
+      });
+      console.log('🔔 Tournament update webhook triggered successfully');
+    } catch (webhookError) {
+      console.error('⚠️  Webhook trigger failed (tournament still updated):', webhookError.message);
+    }
     
     res.json({
       success: true,
@@ -1889,6 +2307,16 @@ app.get('/admin/referees', adminAuth, async (req, res) => {
       referees: [], 
       session: req.session 
     });
+  }
+});
+
+// Admin: View Organisers
+app.get('/admin/organisers', adminAuth, async (req, res) => {
+  try {
+    res.render('pages/admin/organisers', { session: req.session });
+  } catch (error) {
+    console.error('Admin organisers page error:', error);
+    res.render('pages/admin/organisers', { session: req.session });
   }
 });
 
@@ -4883,6 +5311,94 @@ app.post('/admin/settings/reject-admin/:id', adminAuth, async (req, res) => {
   }
 });
 
+// Portal API Configuration Routes
+let apiConfig = {
+  portalUrl: 'http://localhost:5001/api',
+  apiKey: '',
+  timeout: 10
+};
+
+// Get current API configuration
+app.get('/admin/settings/api-config', adminAuth, (req, res) => {
+  res.json(apiConfig);
+});
+
+// Get API connection status
+app.get('/admin/settings/api-status', adminAuth, async (req, res) => {
+  try {
+    const axios = require('axios');
+    const response = await axios.get(`${apiConfig.portalUrl}/health`, {
+      timeout: apiConfig.timeout * 1000,
+      headers: apiConfig.apiKey ? { 'Authorization': `Bearer ${apiConfig.apiKey}` } : {}
+    });
+    
+    res.json({
+      connected: response.status === 200,
+      portalUrl: apiConfig.portalUrl
+    });
+  } catch (error) {
+    res.json({
+      connected: false,
+      portalUrl: apiConfig.portalUrl,
+      error: error.message
+    });
+  }
+});
+
+// Test API connection
+app.post('/admin/settings/test-api-connection', adminAuth, async (req, res) => {
+  try {
+    const { portalUrl, apiKey, timeout } = req.body;
+    const axios = require('axios');
+    
+    const response = await axios.get(`${portalUrl}/health`, {
+      timeout: (timeout || 10) * 1000,
+      headers: apiKey ? { 'Authorization': `Bearer ${apiKey}` } : {}
+    });
+    
+    res.json({
+      success: true,
+      status: response.status,
+      data: response.data
+    });
+  } catch (error) {
+    res.json({
+      success: false,
+      error: error.message
+    });
+  }
+});
+
+// Save API configuration
+app.post('/admin/settings/save-api-config', adminAuth, (req, res) => {
+  try {
+    const { portalUrl, apiKey, timeout } = req.body;
+    
+    // Validate inputs
+    if (!portalUrl) {
+      return res.json({ success: false, message: 'Portal URL is required' });
+    }
+    
+    // Update configuration
+    apiConfig = {
+      portalUrl: portalUrl.trim(),
+      apiKey: apiKey ? apiKey.trim() : '',
+      timeout: timeout || 10
+    };
+    
+    console.log('🔧 API Configuration updated:', {
+      portalUrl: apiConfig.portalUrl,
+      hasApiKey: !!apiConfig.apiKey,
+      timeout: apiConfig.timeout
+    });
+    
+    res.json({ success: true, message: 'API configuration saved successfully' });
+  } catch (error) {
+    console.error('Save API config error:', error);
+    res.json({ success: false, message: error.message });
+  }
+});
+
 // Training Events API Routes
 app.get('/api/training/events', async (req, res) => {
   try {
@@ -5022,20 +5538,6 @@ app.post('/api/admin/training/clinics', adminAuth, async (req, res) => {
 // API routes already added at the top of the file
 console.log('✅ API routes enabled at /api endpoint');
 
-// API Keys Management Routes
-app.get('/admin/api-keys', adminAuth, async (req, res) => {
-  try {
-    res.render('pages/admin/manage-api-keys', { 
-      session: req.session 
-    });
-  } catch (error) {
-    console.error('Error loading API keys admin page:', error);
-    res.render('pages/admin/manage-api-keys', { 
-      session: req.session,
-      error: 'Failed to load API keys management page' 
-    });
-  }
-});
 
 // Unregistered Players Management Routes
 app.get('/admin/unregistered-players', adminAuth, async (req, res) => {
@@ -5519,6 +6021,179 @@ app.get('/api/tournament-notices', async (req, res) => {
   }
 });
 
+
+// Get organisers data from portal and tournaments
+app.get('/api/admin/organisers', adminAuth, async (req, res) => {
+  try {
+    // Get all tournaments to extract organiser information
+    const tournaments = await Tournament.find({}, 'name organizer personInCharge phoneNumber contactEmail portalApplicationId managedByPortal createdAt updatedAt').sort({ updatedAt: -1 });
+    
+    // Extract unique organisers from tournament data
+    const organiserMap = new Map();
+    
+    tournaments.forEach(tournament => {
+      // Check both organizer and personInCharge fields
+      const organiserName = tournament.organizer || tournament.personInCharge;
+      
+      if (organiserName) {
+        const key = organiserName.toLowerCase();
+        
+        
+        if (!organiserMap.has(key)) {
+          organiserMap.set(key, {
+            name: organiserName,
+            organization: tournament.organizer || organiserName,
+            email: tournament.contactEmail || null,
+            phone: tournament.phoneNumber || null,
+            portalId: tournament.portalApplicationId || null,
+            isActive: true,
+            tournamentsCount: 1,
+            lastActive: tournament.updatedAt || tournament.createdAt,
+            createdAt: tournament.createdAt,
+            source: tournament.managedByPortal ? 'portal' : 'local'
+          });
+        } else {
+          // Update existing organiser data
+          const existing = organiserMap.get(key);
+          existing.tournamentsCount += 1;
+          
+          // Update with more recent data if available
+          if (tournament.updatedAt > new Date(existing.lastActive)) {
+            existing.lastActive = tournament.updatedAt;
+            if (tournament.contactEmail && !existing.email) {
+              existing.email = tournament.contactEmail;
+            }
+            if (tournament.phoneNumber && !existing.phone) {
+              existing.phone = tournament.phoneNumber;
+            }
+          }
+        }
+      }
+    });
+    
+    // Convert map to array and add additional info
+    const organisers = Array.from(organiserMap.values()).map(organiser => {
+      // Determine if organiser is active (has activity in last 6 months)
+      const sixMonthsAgo = new Date();
+      sixMonthsAgo.setMonth(sixMonthsAgo.getMonth() - 6);
+      organiser.isActive = new Date(organiser.lastActive) > sixMonthsAgo;
+      
+      return organiser;
+    });
+    
+    // Sort by most recent activity
+    organisers.sort((a, b) => new Date(b.lastActive) - new Date(a.lastActive));
+    
+    
+    res.json({
+      success: true,
+      organisers: organisers,
+      totalCount: organisers.length,
+      activeCount: organisers.filter(o => o.isActive).length,
+      portalCount: organisers.filter(o => o.source === 'portal').length
+    });
+    
+  } catch (error) {
+    console.error('Error getting organisers data:', error);
+    res.status(500).json({ 
+      success: false, 
+      message: 'Failed to get organisers data',
+      error: error.message 
+    });
+  }
+});
+
+// Test endpoint to verify automatic notice generation
+app.post('/api/test/tournament-notices', adminAuth, async (req, res) => {
+  try {
+    const { action, tournamentId, testData } = req.body;
+    
+    if (!action || !tournamentId) {
+      return res.status(400).json({ 
+        success: false, 
+        message: 'Action and tournamentId are required' 
+      });
+    }
+
+    const TournamentNoticeService = require('./services/tournamentNoticeService');
+    const Tournament = require('./models/Tournament');
+    
+    const tournament = await Tournament.findById(tournamentId);
+    if (!tournament) {
+      return res.status(404).json({ 
+        success: false, 
+        message: 'Tournament not found' 
+      });
+    }
+
+    let notices = [];
+    
+    switch (action) {
+      case 'date_change':
+        const originalData = {
+          startDate: testData.originalStartDate || tournament.startDate,
+          endDate: testData.originalEndDate || tournament.endDate
+        };
+        const updatedData = {
+          startDate: testData.newStartDate,
+          endDate: testData.newEndDate
+        };
+        notices = await TournamentNoticeService.generateAutomaticNotices(
+          tournamentId, 
+          originalData, 
+          updatedData, 
+          'test-admin'
+        );
+        break;
+        
+      case 'venue_change':
+        const originalVenueData = {
+          venue: testData.originalVenue || tournament.venue,
+          city: testData.originalCity || tournament.city
+        };
+        const updatedVenueData = {
+          venue: testData.newVenue,
+          city: testData.newCity
+        };
+        notices = await TournamentNoticeService.generateAutomaticNotices(
+          tournamentId, 
+          originalVenueData, 
+          updatedVenueData, 
+          'test-admin'
+        );
+        break;
+        
+      case 'cancellation':
+        const notice = await TournamentNoticeService.createCancellationNotice(
+          tournament, 
+          testData.reason || 'Test cancellation', 
+          'test-admin'
+        );
+        notices = notice ? [notice] : [];
+        break;
+        
+      default:
+        return res.status(400).json({ 
+          success: false, 
+          message: 'Invalid action. Use: date_change, venue_change, or cancellation' 
+        });
+    }
+
+    res.json({ 
+      success: true, 
+      message: `Generated ${notices.length} test notice(s)`,
+      notices: notices
+    });
+  } catch (error) {
+    console.error('Error testing tournament notices:', error);
+    res.status(500).json({ 
+      success: false, 
+      message: 'Failed to test tournament notices',
+      error: error.message 
+    });
+  }
+});
+
 // Create tournament notice
 app.post('/admin/tournament-notices', adminAuth, [
   body('title').notEmpty().trim().escape().withMessage('Title is required'),
@@ -5913,133 +6588,6 @@ app.patch('/api/milestones/:id/toggle-feature', adminAuth, async (req, res) => {
   }
 });
 
-// =============================================================================
-// TOURNAMENT SYNC ENDPOINTS
-// =============================================================================
-
-const TournamentSyncService = require('./services/tournamentSyncService');
-const AutoPromotionService = require('./services/autoPromotionService');
-
-// Manual sync endpoint (admin only)
-app.post('/admin/sync/tournaments', adminAuth, async (req, res) => {
-  try {
-    console.log('🔄 Manual tournament sync initiated by:', req.session.username);
-    
-    const syncService = new TournamentSyncService();
-    const result = await syncService.syncTournaments();
-    await syncService.cleanup();
-    
-    res.json({
-      success: true,
-      message: 'Tournament sync completed successfully',
-      data: result
-    });
-    
-  } catch (error) {
-    console.error('❌ Tournament sync error:', error);
-    res.status(500).json({
-      success: false,
-      message: 'Tournament sync failed: ' + error.message
-    });
-  }
-});
-
-// Get sync status endpoint (admin only)
-app.get('/admin/sync/tournaments/status', adminAuth, async (req, res) => {
-  try {
-    const syncedTournaments = await Tournament.find({ 
-      syncedFromPortal: true 
-    }).select('name portalSyncDate lastPortalUpdate portalApplicationId').sort({ portalSyncDate: -1 });
-    
-    const totalTournaments = await Tournament.countDocuments();
-    const syncedCount = syncedTournaments.length;
-    
-    const scheduledSync = require('./services/scheduledSync');
-    const scheduleStatus = scheduledSync.getStatus();
-    
-    res.json({
-      success: true,
-      data: {
-        totalTournaments,
-        syncedTournaments: syncedCount,
-        unsyncedTournaments: totalTournaments - syncedCount,
-        recentSyncs: syncedTournaments.slice(0, 10),
-        scheduledSync: scheduleStatus
-      }
-    });
-    
-  } catch (error) {
-    console.error('❌ Error getting sync status:', error);
-    res.status(500).json({
-      success: false,
-      message: 'Failed to get sync status: ' + error.message
-    });
-  }
-});
-
-// Control scheduled sync (admin only)
-app.post('/admin/sync/tournaments/schedule/:action', adminAuth, async (req, res) => {
-  try {
-    const { action } = req.params;
-    const { intervalMinutes } = req.body;
-    
-    const scheduledSync = require('./services/scheduledSync');
-    
-    switch (action) {
-      case 'start':
-        scheduledSync.start();
-        res.json({
-          success: true,
-          message: 'Scheduled sync started successfully'
-        });
-        break;
-        
-      case 'stop':
-        scheduledSync.stop();
-        res.json({
-          success: true,
-          message: 'Scheduled sync stopped successfully'
-        });
-        break;
-        
-      case 'restart':
-        scheduledSync.stop();
-        scheduledSync.start();
-        res.json({
-          success: true,
-          message: 'Scheduled sync restarted successfully'
-        });
-        break;
-        
-      case 'setInterval':
-        if (!intervalMinutes || intervalMinutes < 5) {
-          return res.status(400).json({
-            success: false,
-            message: 'Interval must be at least 5 minutes'
-          });
-        }
-        scheduledSync.setSyncInterval(intervalMinutes);
-        res.json({
-          success: true,
-          message: `Sync interval set to ${intervalMinutes} minutes`
-        });
-        break;
-        
-      default:
-        res.status(400).json({
-          success: false,
-          message: 'Invalid action. Use: start, stop, restart, or setInterval'
-        });
-    }
-    
-  } catch (error) {
-    console.error('❌ Error controlling scheduled sync:', error);
-    res.status(500).json({
-      success: false,
-      message: 'Failed to control scheduled sync: ' + error.message
-    });
-  }
-});
 
 // Start the server
 const PORT = process.env.PORT || 3000;
@@ -6053,29 +6601,7 @@ async function startServer() {
     await connectDB();
     console.log('📊 Database connected successfully');
     
-    // Start scheduled tournament sync
-    const scheduledSync = require('./services/scheduledSync');
-    try {
-      // Stop any existing sync first
-      scheduledSync.stop();
-      // Start fresh sync
-      scheduledSync.start();
-      console.log('✅ Scheduled tournament sync started successfully');
-    } catch (syncError) {
-      console.error('⚠️  Failed to start scheduled sync:', syncError.message);
-      console.log('🔧 Attempting to start sync in 10 seconds...');
-      setTimeout(() => {
-        try {
-          scheduledSync.start();
-          console.log('✅ Delayed sync start successful');
-        } catch (delayedError) {
-          console.error('❌ Delayed sync start failed:', delayedError.message);
-        }
-      }, 10000);
-    }
     
-    // Start auto-promotion service
-    await AutoPromotionService.initialize();
     
     // Start HTTP server
     app.listen(PORT, () => {
@@ -6083,7 +6609,6 @@ async function startServer() {
       console.log(`🌐 Admin panel: http://localhost:${PORT}/admin/login`);
       console.log(`🏓 Public site: http://localhost:${PORT}`);
       console.log(`📋 Organization Chart: http://localhost:${PORT}/organization-chart`);
-      console.log('🔄 Tournament sync service started');
     });
     
   } catch (error) {
@@ -6173,55 +6698,6 @@ app.post('/api/webhook/tournament-deleted', async (req, res) => {
   }
 });
 
-// Webhook endpoint for instant tournament status change
-app.post('/api/webhook/tournament-status-changed', async (req, res) => {
-  try {
-    console.log('🚨 INSTANT STATUS CHANGE WEBHOOK received from portal');
-    const { applicationId, eventTitle, newStatus, oldStatus } = req.body;
-    
-    console.log(`📝 Status change: ${eventTitle} (${applicationId})`);
-    console.log(`   ${oldStatus} → ${newStatus}`);
-    
-    // If status changed to rejected/cancelled, delete from main site
-    if (['Rejected', 'Cancelled', 'More Info Required'].includes(newStatus)) {
-      const Tournament = require('./models/Tournament');
-      let deletedTournament = null;
-      
-      // Find and delete tournament
-      if (applicationId) {
-        deletedTournament = await Tournament.findOneAndDelete({
-          portalApplicationId: applicationId
-        });
-      }
-      
-      if (!deletedTournament && eventTitle) {
-        deletedTournament = await Tournament.findOneAndDelete({
-          name: { $regex: new RegExp(`^${eventTitle.trim()}$`, 'i') },
-          $or: [
-            { managedByPortal: true },
-            { syncedFromPortal: true },
-            { portalApplicationId: { $exists: true } }
-          ]
-        });
-      }
-      
-      if (deletedTournament) {
-        console.log(`✅ INSTANTLY REMOVED due to status change: "${deletedTournament.name}"`);
-        console.log(`   Reason: Status changed to "${newStatus}"`);
-        console.log(`   ⚡ INSTANT REMOVAL SUCCESSFUL!`);
-      }
-    }
-    
-    res.json({ success: true, message: 'Status change processed instantly' });
-    
-  } catch (error) {
-    console.error('❌ Webhook status change error:', error.message);
-    res.status(500).json({
-      success: false,
-      error: 'Failed to process status change webhook'
-    });
-  }
-});
 
 // Start the server
 startServer();

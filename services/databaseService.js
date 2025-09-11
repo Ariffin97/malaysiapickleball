@@ -13,7 +13,6 @@ const Venue = require('../models/Venue');
 const Milestone = require('../models/Milestone');
 const PastPresident = require('../models/PastPresident');
 const LocalStorageService = require('./localStorageService');
-const ReverseSyncService = require('./reverseSyncService');
 
 class DatabaseService {
   // Tournament operations
@@ -28,18 +27,9 @@ class DatabaseService {
 
   static async getPublicTournaments() {
     try {
-      return await Tournament.find({ visibility: 'live' }).sort({ startDate: 1 });
+      return await Tournament.find().sort({ startDate: 1 });
     } catch (error) {
       console.error('Error getting public tournaments:', error);
-      throw error;
-    }
-  }
-
-  static async getTournamentsByVisibility(visibility) {
-    try {
-      return await Tournament.find({ visibility }).sort({ startDate: 1 });
-    } catch (error) {
-      console.error('Error getting tournaments by visibility:', error);
       throw error;
     }
   }
@@ -53,22 +43,19 @@ class DatabaseService {
     }
   }
 
+  static async getTournamentByApplicationId(applicationId) {
+    try {
+      return await Tournament.findOne({ applicationId: applicationId });
+    } catch (error) {
+      console.error('Error getting tournament by application ID:', error);
+      throw error;
+    }
+  }
+
   static async createTournament(tournamentData) {
     try {
       const tournament = new Tournament(tournamentData);
-      const savedTournament = await tournament.save();
-      
-      // Reverse sync to portal (skip if already portal-managed)
-      if (!savedTournament.managedByPortal && !savedTournament.syncedFromPortal) {
-        if (savedTournament.portalApplicationId) {
-          console.log(`🔗 Tournament already has portal ID: ${savedTournament.portalApplicationId}`);
-        } else {
-          console.log(`🔗 Creating tournament in portal via HTTP API`);
-          this.syncTournamentToPortal(savedTournament._id);
-        }
-      }
-      
-      return savedTournament;
+      return await tournament.save();
     } catch (error) {
       console.error('Error creating tournament:', error);
       throw error;
@@ -144,21 +131,6 @@ class DatabaseService {
         console.error('Error generating automatic notices:', noticeError);
       }
 
-      // Reverse sync to portal (skip only if portal-managed, otherwise sync with UPDATE)
-      if (!updatedTournament.managedByPortal && !updatedTournament.syncedFromPortal) {
-        if (updatedTournament.portalApplicationId) {
-          console.log(`🔗 Auto-syncing tournament to portal - has portal ID: ${updatedTournament.portalApplicationId}`);
-          this.syncTournamentToPortal(updatedTournament._id);
-        } else {
-          console.log(`🔗 Creating tournament in portal - no portal ID yet`);
-          this.triggerReverseSync(updatedTournament, 'create');
-        }
-      } else if (updatedTournament.managedByPortal) {
-        console.log(`⏭️  Skipping reverse sync - tournament is managed by portal`);
-      } else if (updatedTournament.syncedFromPortal) {
-        console.log(`⏭️  Skipping reverse sync - tournament was synced from portal`);
-      }
-
       return updatedTournament;
     } catch (error) {
       console.error('Error updating tournament:', error);
@@ -181,11 +153,6 @@ class DatabaseService {
       } catch (noticeError) {
         console.error('Error generating cancellation notice:', noticeError);
         // Continue with deletion even if notice creation fails
-      }
-
-      // Reverse sync to portal before deletion (skip if already portal-managed)
-      if (!tournament.managedByPortal && !tournament.syncedFromPortal) {
-        this.triggerReverseSync(null, 'delete', id);
       }
 
       // Delete the tournament
@@ -1457,133 +1424,6 @@ Malaysia Pickleball Association Team`,
     }
   }
 
-  // Portal sync method - uses reverse sync service for proper HTTP API communication
-  static syncTournamentToPortal(tournamentId) {
-    // Run sync in background to avoid blocking main operations
-    setImmediate(async () => {
-      try {
-        console.log(`🔄 Auto-syncing tournament ${tournamentId} to portal via HTTP API...`);
-        
-        // Get tournament data first
-        const tournament = await Tournament.findById(tournamentId);
-        if (!tournament) {
-          console.error(`❌ Tournament ${tournamentId} not found for sync`);
-          return { success: false, error: 'Tournament not found' };
-        }
-        
-        // Use reverse sync service for proper API communication
-        const reverseSync = new ReverseSyncService();
-        const action = tournament.portalApplicationId ? 'update' : 'create';
-        
-        const syncResult = await reverseSync.syncTournamentToPortal(tournament, action);
-        
-        if (syncResult && syncResult.success && syncResult.applicationId) {
-          console.log(`✅ Tournament synced to portal: ${syncResult.applicationId}`);
-          
-          // Update tournament with portal ID if not already present
-          if (!tournament.portalApplicationId || tournament.portalApplicationId !== syncResult.applicationId) {
-            try {
-              await Tournament.findByIdAndUpdate(tournamentId, {
-                portalApplicationId: syncResult.applicationId,
-                portalSyncDate: new Date()
-              });
-              console.log(`🔗 Portal ID ${syncResult.applicationId} linked to tournament`);
-            } catch (updateError) {
-              console.error('❌ Failed to link portal ID:', updateError.message);
-            }
-          }
-          
-          return { success: true, applicationId: syncResult.applicationId };
-        } else {
-          console.error('❌ Portal sync failed:', syncResult);
-          return { success: false, error: syncResult.error || 'Portal sync failed' };
-        }
-
-      } catch (error) {
-        console.error('❌ Error syncing to portal:', error.message);
-        return { success: false, error: error.message };
-      }
-    });
-  }
-
-  // Manual deletion sync method
-  static async triggerDeletionSync() {
-    try {
-      const TournamentSyncService = require('./tournamentSyncService');
-      const syncService = new TournamentSyncService();
-      
-      console.log('🔄 Manual deletion sync triggered...');
-      
-      // Get approved tournaments from portal
-      const approvedTournaments = await syncService.getApprovedTournaments();
-      
-      // Check for deleted/rejected tournaments and remove them
-      const deletionResult = await syncService.handleDeletedTournaments(approvedTournaments);
-      
-      await syncService.cleanup();
-      
-      console.log(`✅ Manual deletion sync completed: ${deletionResult.deletedCount} tournaments deleted`);
-      
-      return {
-        success: true,
-        deletedCount: deletionResult.deletedCount,
-        errors: deletionResult.errors
-      };
-      
-    } catch (error) {
-      console.error('❌ Manual deletion sync failed:', error);
-      return {
-        success: false,
-        error: error.message
-      };
-    }
-  }
-
-  // Reverse sync helper method
-  static triggerReverseSync(tournament, action, tournamentId = null) {
-    // Run reverse sync in background to avoid blocking main operations
-    setImmediate(async () => {
-      try {
-        const reverseSync = new ReverseSyncService();
-        let syncResult;
-        
-        if (action === 'delete') {
-          // For delete, we need to pass both tournamentId and portalApplicationId
-          const portalApplicationId = tournament ? tournament.portalApplicationId : null;
-          syncResult = await reverseSync.deleteTournamentInPortal(tournamentId, portalApplicationId);
-        } else {
-          syncResult = await reverseSync.syncTournamentToPortal(tournament, action);
-        }
-        
-        // If sync was successful and returned a portal ID, update the tournament
-        if (syncResult && syncResult.success && syncResult.applicationId && tournament && tournament._id) {
-          // Only update if the tournament doesn't already have this portal ID
-          if (!tournament.portalApplicationId || tournament.portalApplicationId !== syncResult.applicationId) {
-            console.log(`🔗 Linking portal ID ${syncResult.applicationId} to tournament ${tournament.name}`);
-            
-            try {
-              await Tournament.findByIdAndUpdate(tournament._id, {
-                portalApplicationId: syncResult.applicationId,
-                portalSyncDate: new Date(),
-                syncedFromPortal: false, // This was synced TO portal, not FROM portal
-                managedByPortal: false
-              });
-              console.log(`✅ Portal ID ${syncResult.applicationId} linked to tournament ${tournament.name}`);
-            } catch (updateError) {
-              console.error(`❌ Failed to link portal ID to tournament:`, updateError.message);
-            }
-          } else {
-            console.log(`🔗 Tournament ${tournament.name} already has portal ID ${tournament.portalApplicationId}`);
-          }
-        } else {
-          console.log(`⚠️  Reverse sync completed but no portal ID to link:`, syncResult);
-        }
-      } catch (error) {
-        // Log error but don't fail the main operation
-        console.error(`Reverse sync failed for ${action}:`, error.message);
-      }
-    });
-  }
 }
 
 module.exports = DatabaseService; 
