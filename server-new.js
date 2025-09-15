@@ -3459,15 +3459,15 @@ app.get('/organization-chart', async (req, res) => {
     
     console.log('🔍 Data source:', dataSource);
     
-    // Default data if none exists in database
+    // Default data if none exists in database (using Cloudinary URLs for Heroku deployment)
     const defaultOrgChartData = {
-      acting_president: { name: "Puan Delima Ibrahim", photo: "/images/DelimaIbrahim.jpeg" },
-      secretary: { name: "Puan Sally Jong Siew Nyuk", photo: "/images/Sally.jpg" },
-      disciplinary_chair: { name: "Cik Jenny Ting Hua Hung", photo: "/images/Jenny.jpeg" },
-      dev_committee_chair: { name: "Prof. Dr. Mohamad Rahizam Abdul Rahim", photo: "/images/rahizam.jpeg" },
-      dev_member1: { name: "En. Thor Meng Tatt", photo: "/images/thor.jpg" },
-      dev_member2: { name: "En. Mohammad @ Razali bin Ibrahim", photo: "/images/Mohammad.jpeg" },
-      committee_member: { name: "Cik Choong Wai Li", photo: "/images/Waili.jpg" }
+      acting_president: { name: "Puan Delima Ibrahim", photo: "https://res.cloudinary.com/dkev9cy5e/image/upload/v1757921244/organization_chart/org_chart_acting_president_permanent.jpg" },
+      secretary: { name: "Puan Sally Jong Siew Nyuk", photo: "https://res.cloudinary.com/dkev9cy5e/image/upload/v1757921254/organization_chart/org_chart_secretary_permanent.jpg" },
+      disciplinary_chair: { name: "Cik Jenny Ting Hua Hung", photo: "https://res.cloudinary.com/dkev9cy5e/image/upload/v1757921264/organization_chart/org_chart_disciplinary_chair_permanent.jpg" },
+      dev_committee_chair: { name: "Prof. Dr. Mohamad Rahizam Abdul Rahim", photo: "https://res.cloudinary.com/dkev9cy5e/image/upload/v1757921273/organization_chart/org_chart_dev_committee_chair_permanent.jpg" },
+      dev_member1: { name: "En. Thor Meng Tatt", photo: "https://res.cloudinary.com/dkev9cy5e/image/upload/v1757921283/organization_chart/org_chart_dev_member1_permanent.jpg" },
+      dev_member2: { name: "En. Mohammad @ Razali bin Ibrahim", photo: "https://res.cloudinary.com/dkev9cy5e/image/upload/v1757921293/organization_chart/org_chart_dev_member2_permanent.jpg" },
+      committee_member: { name: "Cik Choong Wai Li", photo: "https://res.cloudinary.com/dkev9cy5e/image/upload/v1757921304/organization_chart/org_chart_committee_member_permanent.jpg" }
     };
     
     // Get past presidents data
