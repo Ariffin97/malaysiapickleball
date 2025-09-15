@@ -3469,7 +3469,7 @@ app.get('/organization-chart', async (req, res) => {
       dev_member2: { name: "En. Mohammad @ Razali bin Ibrahim", photo: "https://res.cloudinary.com/dkev9cy5e/image/upload/v1757921293/organization_chart/org_chart_dev_member2_permanent.jpg" },
       committee_member: { name: "Cik Choong Wai Li", photo: "https://res.cloudinary.com/dkev9cy5e/image/upload/v1757921304/organization_chart/org_chart_committee_member_permanent.jpg" }
     };
-    
+
     // Get past presidents data
     const pastPresidents = await DatabaseService.getActivePastPresidents();
     
@@ -3489,6 +3489,7 @@ app.get('/organization-chart', async (req, res) => {
     });
   }
 });
+
 
 // Admin Login Routes
 app.get('/admin/login', (req, res) => {
