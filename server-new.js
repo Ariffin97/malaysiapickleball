@@ -3636,6 +3636,7 @@ app.get('/admin', async (req, res) => {
 
 
 
+
 // ===== PAST PRESIDENTS ROUTES =====
 
 // Display Past Presidents (public route for organization chart)
