@@ -19,27 +19,12 @@
         </div>
 
 
-        <!-- Committee Dropdown - Hidden on Mobile -->
-        <div class="committee-dropdown relative hidden md:block">
-            <button class="nav-button flex items-center justify-center w-10 h-10 rounded-xl font-medium text-black transition-all duration-300 hover:bg-black hover:bg-opacity-10 hover:text-black" id="committee-menu-button" type="button" aria-expanded="false" data-tooltip="Committee">
-              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
-              </svg>
-            </button>
-          
-          <!-- Committee Dropdown Content -->
-          <div class="absolute left-0 mt-2 w-64 rounded-xl shadow-2xl border border-gray-200 opacity-0 invisible pointer-events-none transition-all duration-300 bg-white" id="committee-dropdown" style="z-index: 9998;">
-            <div class="flex flex-col gap-1 p-4">
-              <div class="px-3 py-2 text-xs font-bold text-gray-500 uppercase tracking-wide border-b border-gray-100 mb-2">Committee</div>
-              <a href="/organization-chart" class="nav-dropdown-item flex items-center gap-3 px-3 py-2 rounded-lg font-medium text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition-all duration-200 text-sm">
-                <i class="fas fa-flag text-blue-500 w-4"></i> National
-              </a>
-              <a href="#" class="nav-dropdown-item flex items-center gap-3 px-3 py-2 rounded-lg font-medium text-gray-700 hover:bg-green-50 hover:text-green-600 transition-all duration-200 text-sm">
-                <i class="fas fa-map-marker-alt text-green-500 w-4"></i> State
-              </a>
-            </div>
-          </div>
-        </div>
+        <!-- Committee Button - Hidden on Mobile -->
+        <a href="/organization-chart" class="nav-button hidden md:flex items-center justify-center w-10 h-10 rounded-xl font-medium text-black transition-all duration-300 hover:bg-black hover:bg-opacity-10 hover:text-black" data-tooltip="Committee">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
+          </svg>
+        </a>
 
                 <!-- Ranking Button - Hidden on Mobile -->
         <a href="/services/ranking" class="nav-button hidden md:flex items-center justify-center w-10 h-10 rounded-xl font-medium text-black transition-all duration-300 hover:bg-black hover:bg-opacity-10 hover:text-black" data-tooltip="Ranking">
@@ -175,12 +160,9 @@
             <!-- Committee - Mobile Only -->
             <div class="nav-section md:hidden">
               <div class="px-3 py-2 text-xs font-bold text-gray-500 uppercase tracking-wide border-b border-gray-100 mb-2">Committee</div>
-              <a href="#" class="nav-dropdown-item flex items-center gap-3 px-3 py-2 rounded-lg font-medium text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition-all duration-200 text-sm">
-                <i class="fas fa-flag text-blue-500 w-4"></i> National
+              <a href="/organization-chart" class="nav-dropdown-item flex items-center gap-3 px-3 py-2 rounded-lg font-medium text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition-all duration-200 text-sm">
+                <i class="fas fa-flag text-blue-500 w-4"></i> Committee
             </a>
-              <a href="#" class="nav-dropdown-item flex items-center gap-3 px-3 py-2 rounded-lg font-medium text-gray-700 hover:bg-green-50 hover:text-green-600 transition-all duration-200 text-sm">
-                <i class="fas fa-map-marker-alt text-green-500 w-4"></i> State
-              </a>
             </div>
 
             <!-- Tournament & Events -->
@@ -477,7 +459,6 @@
 
   /* Ensure dropdowns appear above everything */
   #quick-actions-dropdown,
-  #committee-dropdown,
   #user-dropdown {
     backdrop-filter: blur(10px);
     border: 1px solid rgba(255, 255, 255, 0.2);
@@ -527,42 +508,6 @@
 })();
 
 
-// Committee Dropdown Toggle
-(function() {
-  const btn = document.getElementById('committee-menu-button');
-  const dropdown = document.getElementById('committee-dropdown');
-  let open = false;
-
-  function openMenu() {
-    dropdown.classList.remove('opacity-0', 'invisible', 'pointer-events-none');
-    dropdown.classList.add('opacity-100', 'visible');
-    btn.setAttribute('aria-expanded', 'true');
-    open = true;
-  }
-  function closeMenu() {
-    dropdown.classList.add('opacity-0', 'invisible', 'pointer-events-none');
-    dropdown.classList.remove('opacity-100', 'visible');
-    btn.setAttribute('aria-expanded', 'false');
-    open = false;
-  }
-  btn && btn.addEventListener('click', function(e) {
-    e.stopPropagation();
-    if (open) {
-      closeMenu();
-    } else {
-      openMenu();
-    }
-  });
-  document.addEventListener('click', function(e) {
-    if (open && !dropdown.contains(e.target) && e.target !== btn) {
-      closeMenu();
-    }
-  });
-  // Optional: close on ESC
-  document.addEventListener('keydown', function(e) {
-    if (open && e.key === 'Escape') closeMenu();
-  });
-})();
 
   // Brand container click handler
   const brandContainer = document.getElementById('brandContainer');
