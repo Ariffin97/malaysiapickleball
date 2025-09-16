@@ -3490,6 +3490,12 @@ app.get('/organization-chart', async (req, res) => {
   }
 });
 
+// Test page for debugging images
+app.get('/test-images', (req, res) => {
+  res.render('pages/test-images', {
+    session: req.session
+  });
+});
 
 // Admin Login Routes
 app.get('/admin/login', (req, res) => {
