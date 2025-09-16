@@ -126,8 +126,11 @@ uploads/
 public/uploads/
 
 # Generated PDFs or documents
-*.pdf
+# *.pdf  # Allow specific PDF documents
 generated/
+
+# Allow specific documents but ignore generated PDFs
+!public/documents/*.pdf
 
 # Backup files
 *.bak
