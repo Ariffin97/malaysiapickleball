@@ -3506,6 +3506,11 @@ app.get('/organization-chart', async (req, res) => {
     console.log(`   - Background image: ${backgroundImage}`);
     console.log(`   - Org chart data source: ${dataSource}`);
     console.log(`   - Past presidents count: ${pastPresidents.length}`);
+    console.log('📋 Organization chart data being sent to template:');
+    console.log('   Acting President:', finalOrgChartData?.acting_president?.name || 'NOT FOUND');
+    console.log('   Acting President Photo:', finalOrgChartData?.acting_president?.photo || 'NO PHOTO');
+    console.log('   Secretary:', finalOrgChartData?.secretary?.name || 'NOT FOUND');
+    console.log('   Secretary Photo:', finalOrgChartData?.secretary?.photo || 'NO PHOTO');
 
     res.render('pages/organization-chart', {
       session: req.session,
