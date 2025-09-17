@@ -3414,77 +3414,124 @@ app.get('/services/club-guidelines', async (req, res) => {
 app.get('/organization-chart', async (req, res) => {
   try {
     const backgroundImage = await DatabaseService.getSetting('background_image', '/images/defaultbg.png');
-    
+
     // Get organization chart data from database
     console.log('🔍 Loading organization chart display page...');
     let orgChartDataString = await DatabaseService.getSetting('organization_chart_data', null);
     let orgChartData = null;
     let dataSource = 'default';
-    
+
     if (orgChartDataString) {
       try {
         orgChartData = JSON.parse(orgChartDataString);
         dataSource = 'database';
-        console.log('🔍 Organization chart data loaded from database');
-        console.log('🔍 VP2 photo:', orgChartData.vicePresidents?.[1]?.photo || 'Not found');
-        console.log('🔍 Secretary photo:', orgChartData.secretary?.photo || 'Not found');
-        console.log('🔍 Treasurer photo:', orgChartData.treasurer?.photo || 'Not found');
-        console.log('🔍 Dev Committee photo:', orgChartData.committees?.[0]?.photo || 'Not found');
+        console.log('✅ Organization chart data loaded from database');
+        console.log('🔍 Acting President:', orgChartData.acting_president?.name || 'Not found');
+        console.log('🔍 Secretary:', orgChartData.secretary?.name || 'Not found');
+        console.log('🔍 Disciplinary Chair:', orgChartData.disciplinary_chair?.name || 'Not found');
+        console.log('🔍 Dev Committee Chair:', orgChartData.dev_committee_chair?.name || 'Not found');
+        console.log('🔍 Data source: Database');
       } catch (parseError) {
-        console.error('Error parsing organization chart data from database:', parseError);
+        console.error('❌ Error parsing organization chart data from database:', parseError);
         orgChartData = null;
       }
     }
-    
+
     // If no data from database, try local storage
     if (!orgChartData) {
-      console.log('🔍 No valid data from database, checking local storage...');
+      console.log('⚠️  No valid data from database, checking local storage...');
       try {
         const LocalStorageService = require('./services/localStorageService');
         orgChartDataString = LocalStorageService.getSetting('organization_chart_data', null);
         if (orgChartDataString) {
           orgChartData = JSON.parse(orgChartDataString);
           dataSource = 'local_storage';
-          console.log('🔍 Organization chart data loaded from local storage');
-          console.log('🔍 VP2 photo:', orgChartData.vicePresidents?.[1]?.photo || 'Not found');
-          console.log('🔍 Secretary photo:', orgChartData.secretary?.photo || 'Not found');
-          console.log('🔍 Treasurer photo:', orgChartData.treasurer?.photo || 'Not found');
+          console.log('✅ Organization chart data loaded from local storage');
         } else {
-          console.log('🔍 No organization chart data found in local storage either, using defaults');
+          console.log('⚠️  No organization chart data found in local storage either, using defaults');
         }
       } catch (localError) {
-        console.error('Error loading from local storage:', localError);
+        console.error('❌ Error loading from local storage:', localError);
       }
     }
-    
-    console.log('🔍 Data source:', dataSource);
-    
-    // Default data if none exists in database (using Cloudinary URLs for Heroku deployment)
+
+    console.log(`📊 Data source: ${dataSource}`);
+
+    // Updated default data with proper placeholder images
     const defaultOrgChartData = {
-      acting_president: { name: "Puan Delima Ibrahim", photo: "https://res.cloudinary.com/dkev9cy5e/image/upload/v1757921244/organization_chart/org_chart_acting_president_permanent.jpg" },
-      secretary: { name: "Puan Sally Jong Siew Nyuk", photo: "https://res.cloudinary.com/dkev9cy5e/image/upload/v1757921254/organization_chart/org_chart_secretary_permanent.jpg" },
-      disciplinary_chair: { name: "Cik Jenny Ting Hua Hung", photo: "https://res.cloudinary.com/dkev9cy5e/image/upload/v1757921264/organization_chart/org_chart_disciplinary_chair_permanent.jpg" },
-      dev_committee_chair: { name: "Prof. Dr. Mohamad Rahizam Abdul Rahim", photo: "https://res.cloudinary.com/dkev9cy5e/image/upload/v1757921273/organization_chart/org_chart_dev_committee_chair_permanent.jpg" },
-      dev_member1: { name: "En. Thor Meng Tatt", photo: "https://res.cloudinary.com/dkev9cy5e/image/upload/v1757921283/organization_chart/org_chart_dev_member1_permanent.jpg" },
-      dev_member2: { name: "En. Mohammad @ Razali bin Ibrahim", photo: "https://res.cloudinary.com/dkev9cy5e/image/upload/v1757921293/organization_chart/org_chart_dev_member2_permanent.jpg" },
-      committee_member: { name: "Cik Choong Wai Li", photo: "https://res.cloudinary.com/dkev9cy5e/image/upload/v1757921304/organization_chart/org_chart_committee_member_permanent.jpg" }
+      acting_president: {
+        name: "Puan Delima Ibrahim",
+        photo: null // Will show placeholder icon
+      },
+      secretary: {
+        name: "Puan Sally Jong Siew Nyuk",
+        photo: null
+      },
+      disciplinary_chair: {
+        name: "Cik Jenny Ting Hua Hung",
+        photo: null
+      },
+      dev_committee_chair: {
+        name: "Prof. Dr. Mohamad Rahizam Abdul Rahim",
+        photo: null
+      },
+      dev_member1: {
+        name: "En. Thor Meng Tatt",
+        photo: null
+      },
+      dev_member2: {
+        name: "En. Mohammad @ Razali bin Ibrahim",
+        photo: null
+      },
+      committee_member: {
+        name: "Cik Choong Wai Li",
+        photo: null
+      }
     };
 
     // Get past presidents data
-    const pastPresidents = await DatabaseService.getActivePastPresidents();
-    
-    res.render('pages/organization-chart', { 
-      session: req.session, 
+    let pastPresidents = [];
+    try {
+      pastPresidents = await DatabaseService.getActivePastPresidents();
+      console.log(`📜 Found ${pastPresidents?.length || 0} past presidents`);
+    } catch (presidentsError) {
+      console.error('❌ Error loading past presidents:', presidentsError);
+      pastPresidents = [];
+    }
+
+    // Final data to render
+    const finalOrgChartData = orgChartData || defaultOrgChartData;
+
+    console.log('📊 Final render data:');
+    console.log(`   - Background image: ${backgroundImage}`);
+    console.log(`   - Org chart data source: ${dataSource}`);
+    console.log(`   - Past presidents count: ${pastPresidents.length}`);
+
+    res.render('pages/organization-chart', {
+      session: req.session,
       backgroundImage: backgroundImage,
-      orgChartData: orgChartData || defaultOrgChartData,
+      orgChartData: finalOrgChartData,
       pastPresidents: pastPresidents || []
     });
   } catch (error) {
-    console.error('Error loading organization chart page:', error);
-    res.render('pages/organization-chart', { 
-      session: req.session, 
+    console.error('❌ Critical error loading organization chart page:', error);
+    console.error('❌ Error stack:', error.stack);
+
+    // Emergency fallback data
+    const emergencyOrgChartData = {
+      acting_president: { name: "Puan Delima Ibrahim", photo: null },
+      secretary: { name: "Puan Sally Jong Siew Nyuk", photo: null },
+      disciplinary_chair: { name: "Cik Jenny Ting Hua Hung", photo: null },
+      dev_committee_chair: { name: "Prof. Dr. Mohamad Rahizam Abdul Rahim", photo: null },
+      dev_member1: { name: "En. Thor Meng Tatt", photo: null },
+      dev_member2: { name: "En. Mohammad @ Razali bin Ibrahim", photo: null },
+      committee_member: { name: "Cik Choong Wai Li", photo: null }
+    };
+
+    res.render('pages/organization-chart', {
+      session: req.session,
       backgroundImage: '/images/defaultbg.png',
-      orgChartData: null,
+      orgChartData: emergencyOrgChartData,
       pastPresidents: []
     });
   }
