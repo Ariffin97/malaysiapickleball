@@ -3410,120 +3410,72 @@ app.get('/services/club-guidelines', async (req, res) => {
   }
 });
 
-// Organization Chart
+// Organization Chart - Static approach like tournament guidelines
 app.get('/organization-chart', async (req, res) => {
   try {
     const backgroundImage = await DatabaseService.getSetting('background_image', '/images/defaultbg.png');
 
-    // Get organization chart data from database
-    console.log('🔍 Loading organization chart display page...');
-    let orgChartDataString = await DatabaseService.getSetting('organization_chart_data', null);
-    let orgChartData = null;
-    let dataSource = 'default';
-
-    if (orgChartDataString) {
-      try {
-        orgChartData = JSON.parse(orgChartDataString);
-        dataSource = 'database';
-        console.log('✅ Organization chart data loaded from database');
-        console.log('🔍 Acting President:', orgChartData.acting_president?.name || 'Not found');
-        console.log('🔍 Secretary:', orgChartData.secretary?.name || 'Not found');
-        console.log('🔍 Disciplinary Chair:', orgChartData.disciplinary_chair?.name || 'Not found');
-        console.log('🔍 Dev Committee Chair:', orgChartData.dev_committee_chair?.name || 'Not found');
-        console.log('🔍 Data source: Database');
-      } catch (parseError) {
-        console.error('❌ Error parsing organization chart data from database:', parseError);
-        orgChartData = null;
-      }
-    }
-
-    // If no data from database, try local storage
-    if (!orgChartData) {
-      console.log('⚠️  No valid data from database, checking local storage...');
-      try {
-        const LocalStorageService = require('./services/localStorageService');
-        orgChartDataString = LocalStorageService.getSetting('organization_chart_data', null);
-        if (orgChartDataString) {
-          orgChartData = JSON.parse(orgChartDataString);
-          dataSource = 'local_storage';
-          console.log('✅ Organization chart data loaded from local storage');
-        } else {
-          console.log('⚠️  No organization chart data found in local storage either, using defaults');
-        }
-      } catch (localError) {
-        console.error('❌ Error loading from local storage:', localError);
-      }
-    }
-
-    console.log(`📊 Data source: ${dataSource}`);
-
-    // Updated default data with proper placeholder images
-    const defaultOrgChartData = {
+    // Static organization chart data (like tournament guidelines)
+    const orgChartData = {
       acting_president: {
         name: "Puan Delima Ibrahim",
-        photo: null // Will show placeholder icon
+        photo: "/images/org-chart/acting-president.jpg"
       },
       secretary: {
         name: "Puan Sally Jong Siew Nyuk",
-        photo: null
+        photo: "/images/org-chart/secretary.jpg"
       },
       disciplinary_chair: {
         name: "Cik Jenny Ting Hua Hung",
-        photo: null
+        photo: "/images/org-chart/disciplinary-chair.jpg"
       },
       dev_committee_chair: {
         name: "Prof. Dr. Mohamad Rahizam Abdul Rahim",
-        photo: null
+        photo: "/images/org-chart/dev-committee-chair.jpg"
       },
       dev_member1: {
         name: "En. Thor Meng Tatt",
-        photo: null
+        photo: "/images/org-chart/dev-member1.jpg"
       },
       dev_member2: {
         name: "En. Mohammad @ Razali bin Ibrahim",
-        photo: null
+        photo: "/images/org-chart/dev-member2.jpg"
       },
       committee_member: {
         name: "Cik Choong Wai Li",
-        photo: null
+        photo: "/images/org-chart/committee-member.jpg"
       }
     };
 
-    // Get past presidents data
-    let pastPresidents = [];
-    try {
-      pastPresidents = await DatabaseService.getActivePastPresidents();
-      console.log(`📜 Found ${pastPresidents?.length || 0} past presidents`);
-    } catch (presidentsError) {
-      console.error('❌ Error loading past presidents:', presidentsError);
-      pastPresidents = [];
-    }
-
-    // Final data to render
-    const finalOrgChartData = orgChartData || defaultOrgChartData;
-
-    console.log('📊 Final render data:');
-    console.log(`   - Background image: ${backgroundImage}`);
-    console.log(`   - Org chart data source: ${dataSource}`);
-    console.log(`   - Past presidents count: ${pastPresidents.length}`);
-    console.log('📋 Organization chart data being sent to template:');
-    console.log('   Acting President:', finalOrgChartData?.acting_president?.name || 'NOT FOUND');
-    console.log('   Acting President Photo:', finalOrgChartData?.acting_president?.photo || 'NO PHOTO');
-    console.log('   Secretary:', finalOrgChartData?.secretary?.name || 'NOT FOUND');
-    console.log('   Secretary Photo:', finalOrgChartData?.secretary?.photo || 'NO PHOTO');
+    // Static past presidents data
+    const pastPresidents = [
+      {
+        name: "Past President 1",
+        image: null,  // Use null to show placeholder until real image is added
+        startYear: "2020",
+        endYear: "2022",
+        contribution: "Led the organization through digital transformation and expanded membership nationwide."
+      },
+      {
+        name: "Past President 2",
+        image: null,  // Use null to show placeholder until real image is added
+        startYear: "2018",
+        endYear: "2020",
+        contribution: "Established key partnerships with international pickleball organizations."
+      }
+    ];
 
     res.render('pages/organization-chart', {
       session: req.session,
       backgroundImage: backgroundImage,
-      orgChartData: finalOrgChartData,
-      pastPresidents: pastPresidents || []
+      orgChartData: orgChartData,
+      pastPresidents: pastPresidents
     });
   } catch (error) {
-    console.error('❌ Critical error loading organization chart page:', error);
-    console.error('❌ Error stack:', error.stack);
+    console.error('❌ Error loading organization chart page:', error);
 
-    // Emergency fallback data
-    const emergencyOrgChartData = {
+    // Simple fallback with static data
+    const orgChartData = {
       acting_president: { name: "Puan Delima Ibrahim", photo: null },
       secretary: { name: "Puan Sally Jong Siew Nyuk", photo: null },
       disciplinary_chair: { name: "Cik Jenny Ting Hua Hung", photo: null },
@@ -3536,7 +3488,7 @@ app.get('/organization-chart', async (req, res) => {
     res.render('pages/organization-chart', {
       session: req.session,
       backgroundImage: '/images/defaultbg.png',
-      orgChartData: emergencyOrgChartData,
+      orgChartData: orgChartData,
       pastPresidents: []
     });
   }
