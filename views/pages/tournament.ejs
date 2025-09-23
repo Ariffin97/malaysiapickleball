@@ -9,26 +9,6 @@
   <link rel="stylesheet" href="/css/styles.css">
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
   <style>
-    .tournament-hero {
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      position: relative;
-      overflow: hidden;
-      padding-top: 7rem; /* Fixed padding-top for navbar clearance */
-    }
-    .tournament-hero::before {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.1'%3E%3Ccircle cx='30' cy='30' r='2'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E") repeat;
-      animation: float 20s infinite linear;
-    }
-    @keyframes float {
-      0% { transform: translateX(0) translateY(0); }
-      100% { transform: translateX(-60px) translateY(-60px); }
-    }
     .tournament-card {
       transition: all 0.3s ease;
       backdrop-filter: blur(10px);
@@ -172,80 +152,30 @@
       }
     }
     
-    /* Mobile responsive adjustments for navbar */
-    @media (max-width: 640px) {
-      .tournament-hero {
-        padding-top: 6rem !important; /* 96px for mobile */
-      }
+    /* Add proper spacing for navbar clearance */
+    .tournament-page {
+      padding-top: 6rem; /* 96px for mobile */
     }
     
     @media (min-width: 641px) and (max-width: 1024px) {
-      .tournament-hero {
-        padding-top: 6.5rem !important; /* 104px for tablet */
+      .tournament-page {
+        padding-top: 6.5rem; /* 104px for tablet */
       }
     }
     
     @media (min-width: 1025px) {
-      .tournament-hero {
-        padding-top: 7rem !important; /* 112px for desktop */
+      .tournament-page {
+        padding-top: 7rem; /* 112px for desktop */
       }
     }
+    
   </style>
 </head>
 <body class="bg-gray-50">
   <%- include('../partials/header') %>
   
-  <!-- Hero Section -->
-  <section class="tournament-hero text-white py-20">
-    <div class="container mx-auto px-4 text-center relative z-10">
-      <div class="max-w-4xl mx-auto">
-        <h1 class="text-5xl md:text-7xl font-bold mb-6 slide-in">
-          <i class="fas fa-trophy mr-4 text-yellow-300"></i>
-          2025 Tournament Calendar
-        </h1>
-        <p class="text-xl md:text-2xl mb-8 opacity-90 fade-in">
-          Discover exciting pickleball tournaments across Malaysia
-        </p>
-        
-        <!-- Enhanced Stats Grid -->
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mt-12 fade-in">
-          <div class="bg-white bg-opacity-20 backdrop-blur-md rounded-2xl p-6 text-center transform hover:scale-105 transition-all duration-300">
-            <div class="text-4xl font-bold text-yellow-300 mb-2"><%= tournaments.length %></div>
-            <div class="text-sm opacity-90">Total Tournaments</div>
-            <div class="text-xs opacity-70 mt-2">Scheduled for 2025</div>
-          </div>
-          <div class="bg-white bg-opacity-20 backdrop-blur-md rounded-2xl p-6 text-center transform hover:scale-105 transition-all duration-300">
-            <div class="text-4xl font-bold text-yellow-300 mb-2">4</div>
-            <div class="text-sm opacity-90">Tournament Types</div>
-            <div class="text-xs opacity-70 mt-2">Local to International</div>
-          </div>
-          <div class="bg-white bg-opacity-20 backdrop-blur-md rounded-2xl p-6 text-center transform hover:scale-105 transition-all duration-300">
-            <div class="text-4xl font-bold text-yellow-300 mb-2">12</div>
-            <div class="text-sm opacity-90">Months Coverage</div>
-            <div class="text-xs opacity-70 mt-2">Year-round Events</div>
-          </div>
-        </div>
 
-        <!-- Quick Action Buttons -->
-        <div class="flex flex-col sm:flex-row gap-4 justify-center mt-8">
-          <a href="#calendar-view" class="bg-white bg-opacity-20 backdrop-blur-md text-white px-8 py-3 rounded-full font-semibold hover:bg-opacity-30 transition-all duration-300 flex items-center justify-center">
-            <i class="fas fa-calendar-alt mr-2"></i>
-            View Calendar
-          </a>
-          <a href="/tournament/download-pdf" class="bg-green-500 hover:bg-green-600 text-white px-6 py-3 rounded-full font-semibold transition-all duration-300 flex items-center justify-center shadow-lg">
-            <i class="fas fa-download mr-2"></i>
-            Auto PDF
-          </a>
-          <a href="/tournament/print-pdf" target="_blank" class="bg-blue-500 hover:bg-blue-600 text-white px-6 py-3 rounded-full font-semibold transition-all duration-300 flex items-center justify-center shadow-lg">
-            <i class="fas fa-print mr-2"></i>
-            Print PDF
-          </a>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <main class="py-12 tournament-page">
+  <main class="pt-24 pb-12 tournament-page">
     <div class="container mx-auto px-4 max-w-7xl">
       
       <!-- Enhanced Control Panel -->
@@ -348,7 +278,7 @@
         </div>
         
         <!-- Notice Cards -->
-        <div id="noticesContainer" class="space-y-4">
+        <div id="noticesContainer" class="space-y-4 max-h-96 overflow-y-auto">
           <!-- Notices will be loaded here dynamically -->
         </div>
         
@@ -771,6 +701,41 @@
   <%- include('../partials/footer') %>
   
   <style>
+    /* Tournament Notices Container Scrolling */
+    #noticesContainer {
+      scrollbar-width: thin;
+      scrollbar-color: #cbd5e0 #f7fafc;
+    }
+    
+    #noticesContainer::-webkit-scrollbar {
+      width: 8px;
+    }
+    
+    #noticesContainer::-webkit-scrollbar-track {
+      background: #f7fafc;
+      border-radius: 4px;
+    }
+    
+    #noticesContainer::-webkit-scrollbar-thumb {
+      background: #cbd5e0;
+      border-radius: 4px;
+    }
+    
+    #noticesContainer::-webkit-scrollbar-thumb:hover {
+      background: #a0aec0;
+    }
+    
+    /* Add subtle gradient at bottom to indicate scrollable content */
+    #noticesContainer::after {
+      content: '';
+      position: sticky;
+      bottom: 0;
+      display: block;
+      height: 20px;
+      background: linear-gradient(transparent, rgba(255, 255, 255, 0.8));
+      pointer-events: none;
+    }
+    
     /* Calendar Grid Wrapper */
     .calendar-grid-wrapper {
       overflow: auto;

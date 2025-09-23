@@ -23,6 +23,7 @@ cloudinary.config({
 const { connectDB } = require('./config/database');
 const DatabaseService = require('./services/databaseService');
 const EmailService = require('./services/emailService');
+const Tournament = require('./models/Tournament');
 
 const app = express();
 
@@ -109,7 +110,8 @@ app.use(helmet({
         "'unsafe-hashes'",
         "https://cdn.jsdelivr.net",
         "https://cdnjs.cloudflare.com",
-        "https://cdn.tailwindcss.com"
+        "https://cdn.tailwindcss.com",
+        "https://unpkg.com"
       ],
       'script-src-attr': ["'unsafe-inline'"],
       styleSrc: [
@@ -161,8 +163,17 @@ app.use(fileUpload({
   createParentPath: true
 }));
 
-// Static files middleware
-app.use(express.static(path.join(__dirname, 'public')));
+// Static files middleware with explicit MIME types and cache busting
+app.use(express.static(path.join(__dirname, 'public'), {
+  setHeaders: (res, path) => {
+    if (path.endsWith('.js')) {
+      res.setHeader('Content-Type', 'application/javascript');
+      res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
+      res.setHeader('Pragma', 'no-cache');
+      res.setHeader('Expires', '0');
+    }
+  }
+}));
 
 // View engine configuration
 app.set('view engine', 'ejs');
@@ -421,26 +432,54 @@ app.get('/', async (req, res) => {
 
 app.get('/tournament', async (req, res) => {
   try {
+    console.log('🏆 Loading tournament calendar page...');
+    
     const tournaments = await DatabaseService.getAllTournaments();
+    console.log(`📊 Found ${tournaments ? tournaments.length : 0} tournaments in database`);
+    
     const notices = await DatabaseService.getActiveTournamentNotices();
+    console.log(`📢 Found ${notices ? notices.length : 0} tournament notices`);
+    
     const backgroundImage = await DatabaseService.getSetting('background_image', '/images/defaultbg.png');
     
-    const formattedTournaments = tournaments.map(t => ({
-      ...t.toObject(),
-      color: tournamentTypes[t.type]?.color || 'green'
-    }));
+    const formattedTournaments = tournaments.map(t => {
+      const tournamentObj = t.toObject ? t.toObject() : t;
+      return {
+        ...tournamentObj,
+        color: tournamentTypes[tournamentObj.type]?.color || 'green'
+      };
+    });
+    
+    console.log(`✅ Rendering tournament page with ${formattedTournaments.length} formatted tournaments`);
     
     res.render('pages/tournament', { 
       tournaments: formattedTournaments, 
-      notices: notices,
+      notices: notices || [],
       session: req.session, 
       backgroundImage 
     });
   } catch (error) {
-    console.error('Tournament page error:', error);
+    console.error('❌ Tournament page error:', error);
+    console.error('Stack trace:', error.stack);
+    
+    // Still try to get basic data even if there's an error
+    let fallbackTournaments = [];
+    let fallbackNotices = [];
+    
+    try {
+      fallbackTournaments = await DatabaseService.getAllTournaments() || [];
+      fallbackNotices = await DatabaseService.getActiveTournamentNotices() || [];
+      console.log(`🔄 Fallback: ${fallbackTournaments.length} tournaments, ${fallbackNotices.length} notices`);
+    } catch (fallbackError) {
+      console.error('❌ Fallback also failed:', fallbackError);
+    }
+    
     res.render('pages/tournament', { 
-      tournaments: [], 
-      notices: [],
+      tournaments: fallbackTournaments.map(t => ({
+        ...(t.toObject ? t.toObject() : t),
+        color: tournamentTypes[t.type]?.color || 'green'
+      })), 
+      notices: fallbackNotices,
       session: req.session, 
       backgroundImage: '/images/defaultbg.png'
     });
@@ -780,6 +819,206 @@ app.post('/login', [
   }
 });
 
+
+// REMOVED: Old polling-based sync functions replaced by webhook system
+// Functions savePortalTournamentsToDatabase() and mapPortalTypeToDbType() 
+// have been removed as part of implementing webhook-based bi-directional sync
+
+// ===========================
+// WEBHOOK SYSTEM FOR BI-DIRECTIONAL SYNC
+// ===========================
+
+// Webhook endpoint to receive tournament updates from portal
+app.post('/api/webhooks/tournament-updated', express.json(), async (req, res) => {
+  console.log('🔔 Webhook received: Tournament updated from portal');
+  
+  try {
+    const { tournament, action } = req.body;
+    
+    if (!tournament || !action) {
+      console.error('❌ Invalid webhook payload:', req.body);
+      return res.status(400).json({ error: 'Invalid webhook payload' });
+    }
+
+    const Tournament = require('./models/Tournament');
+
+    if (action === 'created' || action === 'updated') {
+      // Map portal tournament data to database format
+      const tournamentData = {
+        name: tournament.eventTitle || tournament.name,
+        startDate: tournament.startDate || tournament.eventStartDate,
+        endDate: tournament.endDate || tournament.eventEndDate,
+        type: mapPortalTypeToDbType(tournament.tournamentType || tournament.type),
+        venue: tournament.venue,
+        city: tournament.city,
+        state: tournament.state,
+        organizer: tournament.organizer,
+        personInCharge: tournament.personInCharge,
+        phoneNumber: tournament.telContact || tournament.phoneNumber,
+        contactEmail: tournament.contactEmail,
+        description: tournament.description || tournament.eventSummary,
+        registrationOpen: tournament.registrationOpen !== false,
+        maxParticipants: tournament.maxParticipants,
+        managedByPortal: true,
+        portalApplicationId: tournament.applicationId,
+        portalTournamentId: tournament.id,
+        source: 'portal',
+        lastModifiedBy: 'portal-webhook',
+        status: 'upcoming'
+      };
+
+      // Find existing tournament
+      const existingTournament = await Tournament.findOne({
+        $or: [
+          { portalApplicationId: tournament.applicationId },
+          { portalTournamentId: tournament.id }
+        ]
+      });
+
+      if (existingTournament) {
+        // Store original data for change detection
+        const originalData = {
+          name: existingTournament.name,
+          startDate: existingTournament.startDate,
+          endDate: existingTournament.endDate,
+          venue: existingTournament.venue,
+          city: existingTournament.city,
+          organizer: existingTournament.organizer,
+          personInCharge: existingTournament.personInCharge,
+          phoneNumber: existingTournament.phoneNumber
+        };
+
+        // Update the tournament
+        await Tournament.findByIdAndUpdate(existingTournament._id, tournamentData);
+        console.log(`🔄 Updated tournament via webhook: ${tournamentData.name}`);
+
+        // Generate automatic notices for changes from portal
+        try {
+          const TournamentNoticeService = require('./services/tournamentNoticeService');
+          await TournamentNoticeService.generateAutomaticNotices(
+            existingTournament._id,
+            originalData,
+            tournamentData,
+            'portal-webhook'
+          );
+        } catch (noticeError) {
+          console.error('Error generating automatic notices for portal update:', noticeError);
+        }
+      } else {
+        await Tournament.create(tournamentData);
+        console.log(`✅ Created new tournament via webhook: ${tournamentData.name}`);
+      }
+
+    } else if (action === 'deleted') {
+      // Find tournament before deletion to generate cancellation notice
+      const tournamentToDelete = await Tournament.findOne({
+        $or: [
+          { portalApplicationId: tournament.applicationId },
+          { portalTournamentId: tournament.id }
+        ]
+      });
+
+      if (tournamentToDelete) {
+        // Generate cancellation notice before deletion
+        try {
+          const TournamentNoticeService = require('./services/tournamentNoticeService');
+          await TournamentNoticeService.createCancellationNotice(
+            tournamentToDelete,
+            'Tournament cancelled by MPA Portal',
+            'portal-webhook'
+          );
+        } catch (noticeError) {
+          console.error('Error generating cancellation notice for portal deletion:', noticeError);
+        }
+
+        // Remove tournament from database
+        const result = await Tournament.deleteOne({
+          $or: [
+            { portalApplicationId: tournament.applicationId },
+            { portalTournamentId: tournament.id }
+          ]
+        });
+
+        if (result.deletedCount > 0) {
+          console.log(`🗑️  Deleted tournament via webhook: ${tournament.name || tournamentToDelete.name}`);
+        }
+      } else {
+        console.log(`⚠️  Tournament not found for deletion: ${tournament.name}`);
+      }
+    }
+
+    res.json({ success: true, message: `Tournament ${action} processed successfully` });
+
+  } catch (error) {
+    console.error('❌ Webhook processing error:', error);
+    res.status(500).json({ error: 'Webhook processing failed', details: error.message });
+  }
+});
+
+// Webhook endpoint to send tournament updates to portal
+app.post('/api/webhooks/send-to-portal', adminAuth, async (req, res) => {
+  console.log('🔔 Sending tournament update to portal');
+  
+  try {
+    const { tournament, action } = req.body;
+    
+    if (!tournament || !action) {
+      return res.status(400).json({ error: 'Invalid request payload' });
+    }
+
+    // Send webhook to portal if it's not a portal-managed tournament
+    if (!tournament.managedByPortal) {
+      const portalApiService = new (require('./services/portalApiService'))();
+      
+      // Transform tournament data for portal
+      const portalTournament = {
+        eventTitle: tournament.name,
+        eventStartDate: tournament.startDate,
+        eventEndDate: tournament.endDate,
+        tournamentType: tournament.type,
+        venue: tournament.venue,
+        city: tournament.city,
+        state: tournament.state,
+        organizer: tournament.organizer,
+        personInCharge: tournament.personInCharge,
+        telContact: tournament.phoneNumber,
+        contactEmail: tournament.contactEmail,
+        description: tournament.description,
+        maxParticipants: tournament.maxParticipants,
+        source: 'main-site'
+      };
+
+      if (action === 'created' || action === 'updated') {
+        await portalApiService.createApplication(portalTournament);
+        console.log(`✅ Sent ${action} tournament to portal: ${tournament.name}`);
+      }
+    }
+
+    res.json({ success: true, message: `Tournament ${action} sent to portal successfully` });
+
+  } catch (error) {
+    console.error('❌ Portal webhook error:', error);
+    res.status(500).json({ error: 'Portal webhook failed', details: error.message });
+  }
+});
+
+// Helper function for mapping tournament types (recreated for webhooks)
+function mapPortalTypeToDbType(portalType) {
+  const typeMap = {
+    'local': 'local',
+    'state': 'state', 
+    'national': 'national',
+    'international': 'international',
+    'sarawak': 'sarawak',
+    'west malaysia': 'wmalaysia',
+    'regional': 'state', // fallback
+    'district': 'local'  // fallback
+  };
+  
+  if (!portalType) return 'local'; // default
+  return typeMap[portalType.toLowerCase()] || 'local';
+}
+
 // Admin Routes
 app.get('/admin/dashboard', adminAuth, async (req, res) => {
   try {
@@ -883,20 +1122,207 @@ app.post('/admin/registrations/reject/:id', adminAuth, async (req, res) => {
 
 app.get('/admin/tournaments', adminAuth, async (req, res) => {
   try {
-    const tournaments = await DatabaseService.getAllTournaments();
-    res.render('pages/admin/manage-tournaments', {
-      tournaments: tournaments || [],
+    res.render('pages/admin/manage-tournaments-react', {
       session: req.session,
       errors: [],
       formData: {}
     });
   } catch (error) {
     console.error('Error loading tournaments:', error);
-    res.render('pages/admin/manage-tournaments', {
-      tournaments: [],
+    res.render('pages/admin/manage-tournaments-react', {
       session: req.session,
       errors: [{ msg: 'Failed to load tournaments.' }],
       formData: {}
+    });
+  }
+});
+
+// API endpoint for React component to fetch tournament data
+// API endpoint for React component to fetch tournament data (Webhook-based)
+app.get('/api/admin/tournaments-data', adminAuth, async (req, res) => {
+  console.log('🔗 ADMIN TOURNAMENTS DATA - Webhook-based system');
+  console.log('🎯 User session:', req.session?.username || 'No session');
+  
+  try {
+    // Only fetch from local database (synced via webhooks from portal)
+    const tournaments = await DatabaseService.getAllTournaments();
+    console.log(`📊 Found ${tournaments ? tournaments.length : 0} tournaments in local database`);
+    
+    // Mark tournaments with their sources and format for admin display
+    const formattedTournaments = tournaments.map(tournament => {
+      const tournamentObj = tournament.toObject ? tournament.toObject() : tournament;
+      return {
+        ...tournamentObj,
+        // Determine source based on managedByPortal flag
+        source: tournamentObj.managedByPortal ? 'portal' : 'local-db',
+        sourceLabel: tournamentObj.managedByPortal ? 'Portal (Webhook Sync)' : 'Local Database',
+        inMainDatabase: true, // All are in main database now
+        dbCheckStatus: 'confirmed', // All confirmed in local DB
+        // Preserve portal IDs if available
+        id: tournamentObj.portalTournamentId || tournamentObj._id || tournamentObj.id,
+        applicationId: tournamentObj.portalApplicationId,
+        name: tournamentObj.name || tournamentObj.eventTitle
+      };
+    });
+    
+    const portalTournaments = formattedTournaments.filter(t => t.managedByPortal);
+    const localTournaments = formattedTournaments.filter(t => !t.managedByPortal);
+    
+    console.log(`✅ Returning ${portalTournaments.length} portal + ${localTournaments.length} local tournaments`);
+    
+    res.json({
+      tournaments: formattedTournaments,
+      stats: {
+        total: formattedTournaments.length,
+        local: localTournaments.length,
+        portal: portalTournaments.length,
+        localDb: formattedTournaments.length, // All are in local DB
+        inMainDb: formattedTournaments.length,
+        likelyInMainDb: formattedTournaments.length
+      },
+      portalStatus: 'webhook', // Webhook-based system
+      portalError: null,
+      syncMethod: 'webhook',
+      timestamp: new Date().toISOString()
+    });
+  } catch (error) {
+    console.error('❌ Error fetching tournament data:', error);
+    res.status(500).json({
+      error: 'Failed to load tournaments',
+      message: error.message
+    });
+  }
+});
+
+// Test portal API connection (no auth required)
+app.get('/api/portal/test', async (req, res) => {
+  try {
+    const PortalApiService = require('./services/portalApiService');
+    const portalApi = new PortalApiService();
+    const result = await portalApi.testConnection();
+    
+    res.json({
+      success: true,
+      portal: result,
+      timestamp: new Date().toISOString()
+    });
+  } catch (error) {
+    res.json({
+      success: false,
+      error: error.message,
+      timestamp: new Date().toISOString()
+    });
+  }
+});
+
+// Manual sync endpoint to pull tournaments from portal
+app.post('/api/portal/sync-tournaments', async (req, res) => {
+  try {
+    console.log('🔄 Manual sync requested - pulling tournaments from portal...');
+    
+    const PortalApiService = require('./services/portalApiService');
+    const portalApi = new PortalApiService();
+    
+    // Fetch tournaments from portal
+    const portalResult = await portalApi.getTournaments();
+    
+    if (!portalResult.success) {
+      throw new Error('Failed to fetch tournaments from portal');
+    }
+    
+    let syncedCount = 0;
+    let updatedCount = 0;
+    const errors = [];
+    
+    // Process each tournament from portal
+    for (const portalTournament of portalResult.tournaments) {
+      try {
+        // Check if tournament already exists in local database (same logic as webhook)
+        const Tournament = require('./models/Tournament');
+        const existingTournament = await Tournament.findOne({
+          $or: [
+            { portalApplicationId: portalTournament.applicationId },
+            { portalTournamentId: portalTournament.applicationId },
+            { applicationId: portalTournament.applicationId } // Backward compatibility
+          ]
+        });
+        
+        // Map portal classification to local type
+        let localType = 'local'; // default
+        if (portalTournament.classification) {
+          const classification = portalTournament.classification.toLowerCase();
+          if (classification.includes('international')) localType = 'international';
+          else if (classification.includes('national')) localType = 'national';
+          else if (classification.includes('state') || classification.includes('divisional')) localType = 'state';
+          else localType = 'local';
+        }
+        
+        // Prepare tournament data for local database (matching webhook field names)
+        const tournamentData = {
+          name: portalTournament.eventTitle,
+          eventTitle: portalTournament.eventTitle,
+          applicationId: portalTournament.applicationId,
+          startDate: portalTournament.eventStartDate,
+          endDate: portalTournament.eventEndDate,
+          location: portalTournament.city,
+          state: portalTournament.state,
+          venue: portalTournament.venue,
+          type: localType, // Required field
+          classification: portalTournament.classification,
+          organiserName: portalTournament.organiserName,
+          personInCharge: portalTournament.personInCharge,
+          email: portalTournament.email,
+          telContact: portalTournament.telContact,
+          expectedParticipants: portalTournament.expectedParticipants,
+          eventSummary: portalTournament.eventSummary,
+          description: portalTournament.eventSummary,
+          status: 'upcoming',
+          source: 'portal',
+          managedByPortal: true,
+          portalApplicationId: portalTournament.applicationId, // Match webhook field names
+          portalTournamentId: portalTournament.applicationId,   // Match webhook field names
+          lastModifiedBy: 'manual-sync',
+          portalData: portalTournament
+        };
+        
+        if (existingTournament) {
+          // Update existing tournament
+          await Tournament.findByIdAndUpdate(existingTournament._id, tournamentData);
+          updatedCount++;
+          console.log(`🔄 Updated tournament: ${portalTournament.eventTitle}`);
+        } else {
+          // Create new tournament
+          await Tournament.create(tournamentData);
+          syncedCount++;
+          console.log(`✅ Created new tournament: ${portalTournament.eventTitle}`);
+        }
+      } catch (error) {
+        console.error(`❌ Error processing tournament ${portalTournament.eventTitle}:`, error.message);
+        errors.push(`${portalTournament.eventTitle}: ${error.message}`);
+      }
+    }
+    
+    console.log(`🎯 Sync completed: ${syncedCount} new, ${updatedCount} updated`);
+    
+    res.json({
+      success: true,
+      message: `Sync completed successfully`,
+      stats: {
+        totalFromPortal: portalResult.tournaments.length,
+        newTournaments: syncedCount,
+        updatedTournaments: updatedCount,
+        errors: errors.length
+      },
+      errors: errors,
+      timestamp: new Date().toISOString()
+    });
+    
+  } catch (error) {
+    console.error('❌ Sync failed:', error.message);
+    res.json({
+      success: false,
+      error: error.message,
+      timestamp: new Date().toISOString()
     });
   }
 });
@@ -963,6 +1389,23 @@ app.post('/admin/tournaments', adminAuth, [
   try {
     const tournament = await DatabaseService.createTournament(req.body);
     
+    // Trigger webhook to sync with portal (bi-directional sync)
+    try {
+      const axios = require('axios');
+      await axios.post('http://localhost:5000/api/webhooks/send-to-portal', {
+        tournament: tournament,
+        action: 'created'
+      }, {
+        headers: {
+          'Cookie': req.headers.cookie // Forward admin session
+        },
+        timeout: 5000
+      });
+      console.log('🔔 Tournament creation webhook triggered successfully');
+    } catch (webhookError) {
+      console.error('⚠️  Webhook trigger failed (tournament still created):', webhookError.message);
+    }
+    
     // Check if it's an AJAX request
     if (req.headers['x-requested-with'] === 'XMLHttpRequest') {
       return res.json({
@@ -991,10 +1434,43 @@ app.post('/admin/tournaments', adminAuth, [
 
 app.post('/admin/tournaments/delete/:id', adminAuth, async (req, res) => {
   try {
-    await DatabaseService.deleteTournament(req.params.id);
+    // Check if tournament is managed by portal
+    const tournament = await Tournament.findById(req.params.id);
+    if (tournament && tournament.managedByPortal) {
+      return res.status(403).json({
+        success: false,
+        message: 'This tournament is managed by MPA Portal and cannot be deleted here. Changes must be made in the MPA Portal system.'
+      });
+    }
+    
+    const reason = req.body.reason || 'Tournament cancelled by admin';
+    const modifiedBy = req.session.username || 'admin';
+    
+    // Store tournament data before deletion for webhook
+    const tournamentBeforeDeletion = tournament;
+    
+    await DatabaseService.deleteTournament(req.params.id, reason, modifiedBy);
+    
+    // Trigger webhook to sync with portal (bi-directional sync)
+    try {
+      const axios = require('axios');
+      await axios.post('http://localhost:5000/api/webhooks/send-to-portal', {
+        tournament: tournamentBeforeDeletion,
+        action: 'deleted'
+      }, {
+        headers: {
+          'Cookie': req.headers.cookie // Forward admin session
+        },
+        timeout: 5000
+      });
+      console.log('🔔 Tournament deletion webhook triggered successfully');
+    } catch (webhookError) {
+      console.error('⚠️  Webhook trigger failed (tournament still deleted):', webhookError.message);
+    }
+    
     res.json({
       success: true,
-      message: 'Tournament deleted successfully'
+      message: 'Tournament deleted successfully and cancellation notice created'
     });
   } catch (error) {
     console.error('Delete tournament error:', error);
@@ -1010,7 +1486,7 @@ app.post('/admin/tournaments/delete/:id', adminAuth, async (req, res) => {
 // Tournament update route
 app.post('/admin/tournaments/update/:id', adminAuth, [
   body('name').notEmpty().trim().withMessage('Tournament name is required'),
-  body('type').isIn(['local', 'state', 'national', 'sarawak', 'wmalaysia']).withMessage('Valid tournament type is required'),
+  body('type').isIn(['local', 'state', 'national', 'international', 'sarawak', 'wmalaysia']).withMessage('Valid tournament type is required'),
   body('startDate').optional({ checkFalsy: true }).isISO8601().withMessage('Valid start date is required'),
   body('endDate').optional({ checkFalsy: true }).isISO8601().withMessage('Valid end date is required'),
   body('venue').optional().trim(),
@@ -1021,6 +1497,8 @@ app.post('/admin/tournaments/update/:id', adminAuth, [
 ], async (req, res) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
+    console.error('🚫 Tournament update validation failed:', errors.array());
+    console.error('📋 Request body:', req.body);
     return res.status(400).json({
       success: false,
       message: 'Validation failed',
@@ -1030,6 +1508,16 @@ app.post('/admin/tournaments/update/:id', adminAuth, [
 
   try {
     const tournamentId = req.params.id;
+    
+    // Check if tournament is managed by portal
+    const existingTournament = await Tournament.findById(tournamentId);
+    if (existingTournament && existingTournament.managedByPortal) {
+      return res.status(403).json({
+        success: false,
+        message: 'This tournament is managed by MPA Portal and cannot be edited here. Changes must be made in the MPA Portal system.'
+      });
+    }
+    
     const updateData = {
       name: req.body.name,
       type: req.body.type,
@@ -1063,7 +1551,24 @@ app.post('/admin/tournaments/update/:id', adminAuth, [
     const currentVersion = req.body.version ? parseInt(req.body.version) : null;
     const modifiedBy = req.session.username || 'admin';
 
-    await DatabaseService.updateTournament(tournamentId, updateData, currentVersion, modifiedBy);
+    const updatedTournament = await DatabaseService.updateTournament(tournamentId, updateData, currentVersion, modifiedBy);
+    
+    // Trigger webhook to sync with portal (bi-directional sync)
+    try {
+      const axios = require('axios');
+      await axios.post('http://localhost:5000/api/webhooks/send-to-portal', {
+        tournament: updatedTournament,
+        action: 'updated'
+      }, {
+        headers: {
+          'Cookie': req.headers.cookie // Forward admin session
+        },
+        timeout: 5000
+      });
+      console.log('🔔 Tournament update webhook triggered successfully');
+    } catch (webhookError) {
+      console.error('⚠️  Webhook trigger failed (tournament still updated):', webhookError.message);
+    }
     
     res.json({
       success: true,
@@ -1802,6 +2307,16 @@ app.get('/admin/referees', adminAuth, async (req, res) => {
       referees: [], 
       session: req.session 
     });
+  }
+});
+
+// Admin: View Organisers
+app.get('/admin/organisers', adminAuth, async (req, res) => {
+  try {
+    res.render('pages/admin/organisers', { session: req.session });
+  } catch (error) {
+    console.error('Admin organisers page error:', error);
+    res.render('pages/admin/organisers', { session: req.session });
   }
 });
 
@@ -2895,94 +3410,95 @@ app.get('/services/club-guidelines', async (req, res) => {
   }
 });
 
-// Organization Chart
+// Organization Chart - Static approach like tournament guidelines
 app.get('/organization-chart', async (req, res) => {
   try {
     const backgroundImage = await DatabaseService.getSetting('background_image', '/images/defaultbg.png');
-    
-    // Get organization chart data from database
-    console.log('🔍 Loading organization chart display page...');
-    let orgChartDataString = await DatabaseService.getSetting('organization_chart_data', null);
-    let orgChartData = null;
-    let dataSource = 'default';
-    
-    if (orgChartDataString) {
-      try {
-        orgChartData = JSON.parse(orgChartDataString);
-        dataSource = 'database';
-        console.log('🔍 Organization chart data loaded from database');
-        console.log('🔍 VP2 photo:', orgChartData.vicePresidents?.[1]?.photo || 'Not found');
-        console.log('🔍 Secretary photo:', orgChartData.secretary?.photo || 'Not found');
-        console.log('🔍 Treasurer photo:', orgChartData.treasurer?.photo || 'Not found');
-        console.log('🔍 Dev Committee photo:', orgChartData.committees?.[0]?.photo || 'Not found');
-      } catch (parseError) {
-        console.error('Error parsing organization chart data from database:', parseError);
-        orgChartData = null;
+
+    // Static organization chart data (like tournament guidelines)
+    const orgChartData = {
+      acting_president: {
+        name: "Puan Delima Ibrahim",
+        photo: "/images/org-chart/acting-president.jpg"
+      },
+      secretary: {
+        name: "Puan Sally Jong Siew Nyuk",
+        photo: "/images/org-chart/secretary.jpg"
+      },
+      disciplinary_chair: {
+        name: "Cik Jenny Ting Hua Hung",
+        photo: "/images/org-chart/disciplinary-chair.jpg"
+      },
+      dev_committee_chair: {
+        name: "Prof. Dr. Mohamad Rahizam Abdul Rahim",
+        photo: "/images/org-chart/dev-committee-chair.jpg"
+      },
+      dev_member1: {
+        name: "En. Thor Meng Tatt",
+        photo: "/images/org-chart/dev-member1.jpg"
+      },
+      dev_member2: {
+        name: "En. Mohammad @ Razali bin Ibrahim",
+        photo: "/images/org-chart/dev-member2.jpg"
+      },
+      committee_member: {
+        name: "Cik Choong Wai Li",
+        photo: "/images/org-chart/committee-member.jpg"
       }
-    }
-    
-    // If no data from database, try local storage
-    if (!orgChartData) {
-      console.log('🔍 No valid data from database, checking local storage...');
-      try {
-        const LocalStorageService = require('./services/localStorageService');
-        orgChartDataString = LocalStorageService.getSetting('organization_chart_data', null);
-        if (orgChartDataString) {
-          orgChartData = JSON.parse(orgChartDataString);
-          dataSource = 'local_storage';
-          console.log('🔍 Organization chart data loaded from local storage');
-          console.log('🔍 VP2 photo:', orgChartData.vicePresidents?.[1]?.photo || 'Not found');
-          console.log('🔍 Secretary photo:', orgChartData.secretary?.photo || 'Not found');
-          console.log('🔍 Treasurer photo:', orgChartData.treasurer?.photo || 'Not found');
-        } else {
-          console.log('🔍 No organization chart data found in local storage either, using defaults');
-        }
-      } catch (localError) {
-        console.error('Error loading from local storage:', localError);
-      }
-    }
-    
-    console.log('🔍 Data source:', dataSource);
-    
-    // Default data if none exists in database
-    const defaultOrgChartData = {
-      advisors: [
-        { name: "Tan Sri Dr. Lim", phone: "+60 12-345 6789", photo: "👨‍💼" },
-        { name: "Dato' Sarah Ismail", phone: "+60 12-345 6790", photo: "👩‍💼" },
-        { name: "Prof. Dr. Raj Kumar", phone: "+60 12-345 6791", photo: "👨‍💼" }
-      ],
-      president: { name: "Datuk Ahmad Zulkarnain", phone: "+60 12-345 6780", photo: "👨‍💼" },
-      vicePresidents: [
-        { name: "Dato' Dr. Lim Chong", phone: "+60 12-345 6781", photo: "👨‍💼" },
-        { name: "Datuk Seri Wong Lee", phone: "+60 12-345 6782", photo: "👨‍💼" }
-      ],
-      secretary: { name: "Mohd Azlan bin Abdullah", phone: "+60 12-345 6783", photo: "👨‍💼" },
-      treasurer: { name: "Wong Mei Ling", phone: "+60 12-345 6784", photo: "👩‍💼" },
-      committees: [
-        { name: "Chairman: Ahmad Fadzil", phone: "+60 12-345 6785", photo: "👨‍💼", type: "Development" },
-        { name: "Chairman: Lim Wei Chen", phone: "+60 12-345 6786", photo: "👨‍💼", type: "Tournament" },
-        { name: "Chairman: Dr. Kamal Singh", phone: "+60 12-345 6787", photo: "👨‍💼", type: "Disciplinary" }
-      ]
     };
-    
-    // Get past presidents data
-    const pastPresidents = await DatabaseService.getActivePastPresidents();
-    
-    res.render('pages/organization-chart', { 
-      session: req.session, 
+
+    // Static past presidents data
+    const pastPresidents = [
+      {
+        name: "Past President 1",
+        image: null,  // Use null to show placeholder until real image is added
+        startYear: "2020",
+        endYear: "2022",
+        contribution: "Led the organization through digital transformation and expanded membership nationwide."
+      },
+      {
+        name: "Past President 2",
+        image: null,  // Use null to show placeholder until real image is added
+        startYear: "2018",
+        endYear: "2020",
+        contribution: "Established key partnerships with international pickleball organizations."
+      }
+    ];
+
+    res.render('pages/organization-chart', {
+      session: req.session,
       backgroundImage: backgroundImage,
-      orgChartData: orgChartData || defaultOrgChartData,
-      pastPresidents: pastPresidents || []
+      orgChartData: orgChartData,
+      pastPresidents: pastPresidents
     });
   } catch (error) {
-    console.error('Error loading organization chart page:', error);
-    res.render('pages/organization-chart', { 
-      session: req.session, 
+    console.error('❌ Error loading organization chart page:', error);
+
+    // Simple fallback with static data
+    const orgChartData = {
+      acting_president: { name: "Puan Delima Ibrahim", photo: null },
+      secretary: { name: "Puan Sally Jong Siew Nyuk", photo: null },
+      disciplinary_chair: { name: "Cik Jenny Ting Hua Hung", photo: null },
+      dev_committee_chair: { name: "Prof. Dr. Mohamad Rahizam Abdul Rahim", photo: null },
+      dev_member1: { name: "En. Thor Meng Tatt", photo: null },
+      dev_member2: { name: "En. Mohammad @ Razali bin Ibrahim", photo: null },
+      committee_member: { name: "Cik Choong Wai Li", photo: null }
+    };
+
+    res.render('pages/organization-chart', {
+      session: req.session,
       backgroundImage: '/images/defaultbg.png',
-      orgChartData: null,
+      orgChartData: orgChartData,
       pastPresidents: []
     });
   }
+});
+
+// Test page for debugging images
+app.get('/test-images', (req, res) => {
+  res.render('pages/test-images', {
+    session: req.session
+  });
 });
 
 // Admin Login Routes
@@ -3121,507 +3637,16 @@ app.get('/admin', async (req, res) => {
   }
 });
 
-// Admin Organization Chart Management
-app.get('/admin/organization-chart', adminAuth, async (req, res) => {
-  try {
-    
-    const backgroundImage = await DatabaseService.getSetting('background_image', '/images/defaultbg.png');
-    
-    // Get existing organization chart data
-    let orgChartDataString = await DatabaseService.getSetting('organization_chart_data', null);
-    let orgChartData = null;
-    let dataSource = 'default';
-    
-    if (orgChartDataString) {
-      try {
-        orgChartData = JSON.parse(orgChartDataString);
-        dataSource = 'database';
-        console.log('📋 Admin: Organization chart data loaded from database');
-      } catch (parseError) {
-        console.error('Error parsing organization chart data from database:', parseError);
-        orgChartData = null;
-      }
-    }
-    
-    // If no data from database, try local storage
-    if (!orgChartData) {
-      console.log('📋 Admin: No valid data from database, checking local storage...');
-      try {
-        const LocalStorageService = require('./services/localStorageService');
-        orgChartDataString = LocalStorageService.getSetting('organization_chart_data', null);
-        if (orgChartDataString) {
-          orgChartData = JSON.parse(orgChartDataString);
-          dataSource = 'local_storage';
-          console.log('📋 Admin: Organization chart data loaded from local storage');
-        } else {
-          console.log('📋 Admin: No organization chart data found in local storage either, using defaults');
-        }
-      } catch (localError) {
-        console.error('Admin: Error loading from local storage:', localError);
-      }
-    }
-    
-    console.log('📋 Admin data source:', dataSource);
-    
-    // Default data if none exists
-    const defaultOrgChartData = {
-      advisors: [
-        { name: "Tan Sri Dr. Lim", phone: "+60 12-345 6789", photo: "👨‍💼" },
-        { name: "Dato' Sarah Ismail", phone: "+60 12-345 6790", photo: "👩‍💼" },
-        { name: "Prof. Dr. Raj Kumar", phone: "+60 12-345 6791", photo: "👨‍💼" }
-      ],
-      president: { name: "Datuk Ahmad Zulkarnain", phone: "+60 12-345 6780", photo: "👨‍💼" },
-      vicePresidents: [
-        { name: "Dato' Dr. Lim Chong", phone: "+60 12-345 6781", photo: "👨‍💼" },
-        { name: "Datuk Seri Wong Lee", phone: "+60 12-345 6782", photo: "👨‍💼" }
-      ],
-      secretary: { name: "Mohd Azlan bin Abdullah", phone: "+60 12-345 6783", photo: "👨‍💼" },
-      treasurer: { name: "Wong Mei Ling", phone: "+60 12-345 6784", photo: "👩‍💼" },
-      committees: [
-        { name: "Chairman: Ahmad Fadzil", phone: "+60 12-345 6785", photo: "👨‍💼", type: "Development" },
-        { name: "Chairman: Lim Wei Chen", phone: "+60 12-345 6786", photo: "👨‍💼", type: "Tournament" },
-        { name: "Chairman: Dr. Kamal Singh", phone: "+60 12-345 6787", photo: "👨‍💼", type: "Disciplinary" }
-      ]
-    };
-    
-    const data = orgChartData || defaultOrgChartData;
-    
-    res.render('pages/admin/manage-organization-chart', { 
-      session: req.session, 
-      backgroundImage: backgroundImage,
-      orgChartData: data,
-      success: req.query.success === 'true',
-      error: req.query.error === 'true'
-    });
-  } catch (error) {
-    console.error('Error loading admin organization chart page:', error);
-    res.render('pages/admin/manage-organization-chart', { 
-      session: req.session, 
-      backgroundImage: '/images/defaultbg.png',
-      orgChartData: null,
-      success: false,
-      error: true
-    });
-  }
-});
 
-// Handle Organization Chart Updates
-app.post('/admin/organization-chart/update', adminAuth, async (req, res) => {
-  try {
-    console.log('\n=== ORGANIZATION CHART UPDATE START ===');
-    console.log('📁 Timestamp:', new Date().toISOString());
-    console.log('📁 Admin user:', req.session.adminUsername || 'Unknown');
-    console.log('📁 Files received:', req.files ? Object.keys(req.files) : 'No files');
-    console.log('📁 Body fields:', Object.keys(req.body));
-    
-    // Log specific file details
-    if (req.files) {
-      console.log('📁 File details:');
-      Object.keys(req.files).forEach(key => {
-        const file = req.files[key];
-        console.log(`  ${key}: ${file.name} (${file.size} bytes, ${file.mimetype})`);
-      });
-    }
-    
-    // Debug: Check if files object exists and has properties
-    if (req.files) {
-      console.log('📁 Files object keys:', Object.keys(req.files));
-      Object.keys(req.files).forEach(key => {
-        console.log(`📁 File ${key}:`, {
-          name: req.files[key].name,
-          size: req.files[key].size,
-          mimetype: req.files[key].mimetype
-        });
-      });
-    } else {
-      console.log('📁 No files object in request');
-    }
-    
-    // Handle file uploads
-    const uploadPromises = [];
-    const photoFields = [
-      'advisor1_photo', 'advisor2_photo', 'advisor3_photo',
-      'president_photo', 'vp1_photo', 'vp2_photo',
-      'secretary_photo', 'treasurer_photo',
-      'dev_committee_photo', 'tournament_committee_photo', 'disciplinary_committee_photo'
-    ];
 
-    const uploadedPhotos = {};
 
-    // Process file uploads
-    for (const field of photoFields) {
-      console.log(`🔍 Checking field: ${field}`);
-      console.log(`  - req.files exists: ${!!req.files}`);
-      console.log(`  - req.files[${field}] exists: ${!!(req.files && req.files[field])}`);
-      
-      if (req.files && req.files[field]) {
-        console.log(`📁 Processing upload for ${field}:`, req.files[field].name);
-        const file = req.files[field];
-        const timestamp = Date.now();
-        const randomId = Math.random().toString(36).substr(2, 9);
-        
-        uploadPromises.push(
-          new Promise((resolve, reject) => {
-            cloudinary.uploader.upload_stream(
-              {
-                public_id: `org_chart_${field}_${timestamp}_${randomId}`,
-                folder: 'organization_chart',
-                transformation: [
-                  { width: 300, height: 300, crop: 'fill', gravity: 'face' },
-                  { quality: 'auto:good' },
-                  { format: 'auto' }
-                ],
-                tags: ['organization_chart', field]
-              },
-              (error, result) => {
-                if (error) {
-                  console.error(`❌ Error uploading ${field} to Cloudinary:`, error);
-                  reject(error);
-                } else {
-                  console.log(`✅ Successfully uploaded ${field} to Cloudinary: ${result.secure_url}`);
-                  uploadedPhotos[field] = result.secure_url;
-                  resolve(result);
-                }
-              }
-            ).end(file.data);
-          })
-        );
-      } else {
-        console.log(`📁 No file uploaded for ${field} - field not in request or empty`);
-        if (req.files) {
-          console.log(`  Available fields in req.files:`, Object.keys(req.files));
-        }
-      }
-    }
 
-    // Wait for all uploads to complete
-    await Promise.all(uploadPromises);
 
-    const {
-      // Advisors
-      advisor1_name, advisor1_phone,
-      advisor2_name, advisor2_phone,
-      advisor3_name, advisor3_phone,
-      // President
-      president_name, president_phone,
-      // Vice Presidents
-      vp1_name, vp1_phone,
-      vp2_name, vp2_phone,
-      // Secretary & Treasurer
-      secretary_name, secretary_phone,
-      treasurer_name, treasurer_phone,
-      // Committees
-      dev_committee_name, dev_committee_phone,
-      tournament_committee_name, tournament_committee_phone,
-      disciplinary_committee_name, disciplinary_committee_phone
-    } = req.body;
 
-    // Get existing organization chart data to preserve photos if no new upload
-    const existingDataString = await DatabaseService.getSetting('organization_chart_data', null);
-    let existingData = null;
-    if (existingDataString) {
-      try {
-        existingData = JSON.parse(existingDataString);
-      } catch (parseError) {
-        console.error('Error parsing existing organization chart data:', parseError);
-      }
-    }
 
-    // Helper function to get photo path - prioritize uploads, keep existing real photos, default to null
-    function getPhotoPath(fieldName, uploadedPhoto, existingPhoto) {
-      console.log(`📸 getPhotoPath for ${fieldName}:`);
-      console.log(`  - uploadedPhoto: ${uploadedPhoto || 'none'}`);
-      console.log(`  - existingPhoto: ${existingPhoto || 'none'}`);
-      
-      // If new photo uploaded, use it
-      if (uploadedPhoto) {
-        console.log(`📸 ${fieldName}: Using newly uploaded photo: ${uploadedPhoto}`);
-        return uploadedPhoto;
-      }
-      
-      // If existing photo exists and is not an emoji or null values, keep it
-      if (existingPhoto && 
-          existingPhoto !== '👨‍💼' && 
-          existingPhoto !== '👩‍💼' && 
-          existingPhoto !== null && 
-          existingPhoto !== 'null' && 
-          existingPhoto.trim() !== '') {
-        console.log(`📸 ${fieldName}: Keeping existing photo: ${existingPhoto}`);
-        return existingPhoto;
-      }
-      
-      // Otherwise return null (no photo)
-      console.log(`📸 ${fieldName}: No photo available, using null`);
-      return null;
-    }
 
-    // Create organization chart data object with uploaded photos or existing ones
-    const orgChartData = {
-      advisors: [
-        { 
-          name: advisor1_name, 
-          phone: advisor1_phone, 
-          photo: getPhotoPath('advisor1', uploadedPhotos.advisor1_photo, existingData?.advisors?.[0]?.photo)
-        },
-        { 
-          name: advisor2_name, 
-          phone: advisor2_phone, 
-          photo: getPhotoPath('advisor2', uploadedPhotos.advisor2_photo, existingData?.advisors?.[1]?.photo)
-        },
-        { 
-          name: advisor3_name, 
-          phone: advisor3_phone, 
-          photo: getPhotoPath('advisor3', uploadedPhotos.advisor3_photo, existingData?.advisors?.[2]?.photo)
-        }
-      ],
-      president: { 
-        name: president_name, 
-        phone: president_phone, 
-        photo: getPhotoPath('president', uploadedPhotos.president_photo, existingData?.president?.photo)
-      },
-      vicePresidents: [
-        { 
-          name: vp1_name, 
-          phone: vp1_phone, 
-          photo: getPhotoPath('vp1', uploadedPhotos.vp1_photo, existingData?.vicePresidents?.[0]?.photo)
-        },
-        { 
-          name: vp2_name, 
-          phone: vp2_phone, 
-          photo: getPhotoPath('vp2', uploadedPhotos.vp2_photo, existingData?.vicePresidents?.[1]?.photo)
-        }
-      ],
-      secretary: { 
-        name: secretary_name, 
-        phone: secretary_phone, 
-        photo: getPhotoPath('secretary', uploadedPhotos.secretary_photo, existingData?.secretary?.photo)
-      },
-      treasurer: { 
-        name: treasurer_name, 
-        phone: treasurer_phone, 
-        photo: getPhotoPath('treasurer', uploadedPhotos.treasurer_photo, existingData?.treasurer?.photo)
-      },
-      committees: [
-        { 
-          name: dev_committee_name, 
-          phone: dev_committee_phone, 
-          photo: getPhotoPath('dev_committee', uploadedPhotos.dev_committee_photo, existingData?.committees?.[0]?.photo), 
-          type: 'Development' 
-        },
-        { 
-          name: tournament_committee_name, 
-          phone: tournament_committee_phone, 
-          photo: getPhotoPath('tournament_committee', uploadedPhotos.tournament_committee_photo, existingData?.committees?.[1]?.photo), 
-          type: 'Tournament' 
-        },
-        { 
-          name: disciplinary_committee_name, 
-          phone: disciplinary_committee_phone, 
-          photo: getPhotoPath('disciplinary_committee', uploadedPhotos.disciplinary_committee_photo, existingData?.committees?.[2]?.photo), 
-          type: 'Disciplinary' 
-        }
-      ]
-    };
 
-    console.log('📁 Final uploaded photos:', uploadedPhotos);
-    console.log('📁 Individual uploads status:', {
-      president: uploadedPhotos.president_photo || 'No upload',
-      vp1: uploadedPhotos.vp1_photo || 'No upload',
-      vp2: uploadedPhotos.vp2_photo || 'No upload',
-      secretary: uploadedPhotos.secretary_photo || 'No upload',
-      treasurer: uploadedPhotos.treasurer_photo || 'No upload',
-      dev: uploadedPhotos.dev_committee_photo || 'No upload',
-      tournament: uploadedPhotos.tournament_committee_photo || 'No upload',
-      disciplinary: uploadedPhotos.disciplinary_committee_photo || 'No upload'
-    });
 
-    // Save to database using DatabaseService
-    console.log('💾 Saving organization chart data to database...');
-    console.log('💾 Data being saved:', JSON.stringify(orgChartData, null, 2));
-    
-    try {
-      // First, try to save the data
-      const saveResult = await DatabaseService.setSetting('organization_chart_data', JSON.stringify(orgChartData), 'Organization chart structure and member details', 'general', req.session.adminUsername || 'admin');
-      console.log('✅ Successfully saved to database, result:', saveResult?._id ? 'Document created/updated' : 'No result');
-      
-      // Verify the save by reading back immediately
-      const savedData = await DatabaseService.getSetting('organization_chart_data', null);
-      if (savedData) {
-        console.log('✅ Verification: Data successfully retrieved from database');
-        const parsedData = JSON.parse(savedData);
-        console.log('✅ VP2 photo in database:', parsedData.vicePresidents?.[1]?.photo || 'Not found');
-        console.log('✅ Secretary photo in database:', parsedData.secretary?.photo || 'Not found');
-        console.log('✅ Treasurer photo in database:', parsedData.treasurer?.photo || 'Not found');
-        
-        // Additional verification: check a few more fields
-        console.log('✅ President name:', parsedData.president?.name || 'Not found');
-        console.log('✅ Total advisors:', parsedData.advisors?.length || 0);
-        console.log('✅ Total committees:', parsedData.committees?.length || 0);
-      } else {
-        console.error('❌ Verification failed: Could not retrieve data from database');
-        console.error('❌ This indicates a database connection or persistence issue');
-        
-        // Try to save to local storage as fallback
-        console.log('💾 Attempting to save to local storage as fallback...');
-        const LocalStorageService = require('./services/localStorageService');
-        const localSaveResult = LocalStorageService.setSetting('organization_chart_data', JSON.stringify(orgChartData));
-        if (localSaveResult) {
-          console.log('✅ Data saved to local storage successfully');
-        } else {
-          console.error('❌ Local storage save also failed');
-        }
-      }
-    } catch (dbError) {
-      console.error('❌ Database save error:', dbError);
-      console.error('❌ Error details:', {
-        name: dbError.name,
-        message: dbError.message,
-        stack: dbError.stack?.split('\n')[0]
-      });
-      
-      // Try to save to local storage as fallback
-      console.log('💾 Attempting to save to local storage as fallback due to database error...');
-      try {
-        const LocalStorageService = require('./services/localStorageService');
-        const localSaveResult = LocalStorageService.setSetting('organization_chart_data', JSON.stringify(orgChartData));
-        if (localSaveResult) {
-          console.log('✅ Data saved to local storage successfully as fallback');
-        } else {
-          console.error('❌ Local storage save also failed');
-          return res.redirect('/admin/organization-chart?error=save_failed');
-        }
-      } catch (localError) {
-        console.error('❌ Local storage fallback also failed:', localError);
-        return res.redirect('/admin/organization-chart?error=all_saves_failed');
-      }
-    }
-
-    // Redirect with success message
-    console.log('=== ORGANIZATION CHART UPDATE END ===\n');
-    res.redirect('/admin/organization-chart?success=true');
-  } catch (error) {
-    console.error('Error updating organization chart:', error);
-    console.log('=== ORGANIZATION CHART UPDATE FAILED ===\n');
-    res.redirect('/admin/organization-chart?error=true');
-  }
-});
-
-// Diagnostic endpoint to check current organization chart data
-app.get('/admin/organization-chart/debug', adminAuth, async (req, res) => {
-  try {
-    const data = await DatabaseService.getSetting('organization_chart_data', null);
-    
-    res.json({
-      hasData: !!data,
-      timestamp: new Date().toISOString(),
-      data: data ? JSON.parse(data) : null,
-      photoPaths: data ? (() => {
-        const parsed = JSON.parse(data);
-        return {
-          president: parsed.president?.photo,
-          vp1: parsed.vicePresidents?.[0]?.photo,
-          vp2: parsed.vicePresidents?.[1]?.photo,
-          secretary: parsed.secretary?.photo,
-          treasurer: parsed.treasurer?.photo,
-          committees: parsed.committees?.map(c => c.photo)
-        };
-      })() : null
-    });
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
-});
-
-// Force-fix endpoint to manually update database with existing uploaded photos
-app.post('/admin/organization-chart/force-fix', adminAuth, async (req, res) => {
-  try {
-    const fs = require('fs');
-    const path = require('path');
-    
-    // Get list of uploaded files
-    const uploadDir = path.join(__dirname, 'public/uploads/org_chart');
-    let uploadedFiles = [];
-    
-    if (fs.existsSync(uploadDir)) {
-      uploadedFiles = fs.readdirSync(uploadDir);
-    }
-    
-    console.log('🔧 Force-fix: Found uploaded files:', uploadedFiles);
-    
-    // Get current data
-    const currentDataString = await DatabaseService.getSetting('organization_chart_data', null);
-    let currentData = null;
-    
-    if (currentDataString) {
-      currentData = JSON.parse(currentDataString);
-    }
-    
-    if (!currentData) {
-      return res.json({ success: false, message: 'No existing organization chart data found' });
-    }
-    
-    // Find the most recent file for each position
-    const positions = ['president', 'vp1', 'vp2', 'secretary', 'treasurer', 'advisor1', 'advisor2', 'advisor3', 'dev_committee', 'tournament_committee', 'disciplinary_committee'];
-    const photoUpdates = {};
-    
-    positions.forEach(position => {
-      const positionFiles = uploadedFiles.filter(file => file.includes(`${position}_photo`));
-      if (positionFiles.length > 0) {
-        // Get the most recent file (highest timestamp)
-        const mostRecent = positionFiles.sort().pop();
-        photoUpdates[position] = `/uploads/org_chart/${mostRecent}`;
-        console.log(`🔧 Found photo for ${position}: ${mostRecent}`);
-      }
-    });
-    
-    // Update the data structure - replace ALL emojis with uploaded photos or remove emojis entirely
-    
-    // Helper function to replace emoji or keep existing real photo
-    function updatePhoto(currentPhoto, newPhoto, fallbackPhoto = null) {
-      // If new photo uploaded, use it
-      if (newPhoto) return newPhoto;
-      
-      // If current photo is emoji, replace with fallback or remove
-      if (currentPhoto && (currentPhoto.includes('👨‍💼') || currentPhoto.includes('👩‍💼'))) {
-        return fallbackPhoto || null; // Remove emoji, use fallback if available
-      }
-      
-      // Keep existing real photo
-      return currentPhoto;
-    }
-    
-    // Update each position
-    currentData.president.photo = updatePhoto(currentData.president.photo, photoUpdates.president);
-    currentData.vicePresidents[0].photo = updatePhoto(currentData.vicePresidents[0].photo, photoUpdates.vp1);
-    currentData.vicePresidents[1].photo = updatePhoto(currentData.vicePresidents[1].photo, photoUpdates.vp2);
-    currentData.secretary.photo = updatePhoto(currentData.secretary.photo, photoUpdates.secretary);
-    currentData.treasurer.photo = updatePhoto(currentData.treasurer.photo, photoUpdates.treasurer);
-    currentData.advisors[0].photo = updatePhoto(currentData.advisors[0].photo, photoUpdates.advisor1);
-    currentData.advisors[1].photo = updatePhoto(currentData.advisors[1].photo, photoUpdates.advisor2);
-    currentData.advisors[2].photo = updatePhoto(currentData.advisors[2].photo, photoUpdates.advisor3);
-    currentData.committees[0].photo = updatePhoto(currentData.committees[0].photo, photoUpdates.dev_committee);
-    currentData.committees[1].photo = updatePhoto(currentData.committees[1].photo, photoUpdates.tournament_committee);
-    currentData.committees[2].photo = updatePhoto(currentData.committees[2].photo, photoUpdates.disciplinary_committee);
-    
-    console.log('🔧 Force-fix: Removed emojis and updated with uploaded photos');
-    
-    // Save updated data
-    await DatabaseService.setSetting('organization_chart_data', JSON.stringify(currentData), 'Organization chart structure updated via force-fix', 'general', req.session.adminUsername || 'admin');
-    
-    console.log('🔧 Force-fix: Database updated with photo paths');
-    
-    res.json({ 
-      success: true, 
-      message: 'Organization chart photos updated successfully',
-      updatedPositions: Object.keys(photoUpdates),
-      photoUpdates
-    });
-    
-  } catch (error) {
-    console.error('Force-fix error:', error);
-    res.status(500).json({ success: false, error: error.message });
-  }
-});
 
 // ===== PAST PRESIDENTS ROUTES =====
 
@@ -4796,6 +4821,94 @@ app.post('/admin/settings/reject-admin/:id', adminAuth, async (req, res) => {
   }
 });
 
+// Portal API Configuration Routes
+let apiConfig = {
+  portalUrl: 'http://localhost:5001/api',
+  apiKey: '',
+  timeout: 10
+};
+
+// Get current API configuration
+app.get('/admin/settings/api-config', adminAuth, (req, res) => {
+  res.json(apiConfig);
+});
+
+// Get API connection status
+app.get('/admin/settings/api-status', adminAuth, async (req, res) => {
+  try {
+    const axios = require('axios');
+    const response = await axios.get(`${apiConfig.portalUrl}/health`, {
+      timeout: apiConfig.timeout * 1000,
+      headers: apiConfig.apiKey ? { 'Authorization': `Bearer ${apiConfig.apiKey}` } : {}
+    });
+    
+    res.json({
+      connected: response.status === 200,
+      portalUrl: apiConfig.portalUrl
+    });
+  } catch (error) {
+    res.json({
+      connected: false,
+      portalUrl: apiConfig.portalUrl,
+      error: error.message
+    });
+  }
+});
+
+// Test API connection
+app.post('/admin/settings/test-api-connection', adminAuth, async (req, res) => {
+  try {
+    const { portalUrl, apiKey, timeout } = req.body;
+    const axios = require('axios');
+    
+    const response = await axios.get(`${portalUrl}/health`, {
+      timeout: (timeout || 10) * 1000,
+      headers: apiKey ? { 'Authorization': `Bearer ${apiKey}` } : {}
+    });
+    
+    res.json({
+      success: true,
+      status: response.status,
+      data: response.data
+    });
+  } catch (error) {
+    res.json({
+      success: false,
+      error: error.message
+    });
+  }
+});
+
+// Save API configuration
+app.post('/admin/settings/save-api-config', adminAuth, (req, res) => {
+  try {
+    const { portalUrl, apiKey, timeout } = req.body;
+    
+    // Validate inputs
+    if (!portalUrl) {
+      return res.json({ success: false, message: 'Portal URL is required' });
+    }
+    
+    // Update configuration
+    apiConfig = {
+      portalUrl: portalUrl.trim(),
+      apiKey: apiKey ? apiKey.trim() : '',
+      timeout: timeout || 10
+    };
+    
+    console.log('🔧 API Configuration updated:', {
+      portalUrl: apiConfig.portalUrl,
+      hasApiKey: !!apiConfig.apiKey,
+      timeout: apiConfig.timeout
+    });
+    
+    res.json({ success: true, message: 'API configuration saved successfully' });
+  } catch (error) {
+    console.error('Save API config error:', error);
+    res.json({ success: false, message: error.message });
+  }
+});
+
 // Training Events API Routes
 app.get('/api/training/events', async (req, res) => {
   try {
@@ -4935,20 +5048,6 @@ app.post('/api/admin/training/clinics', adminAuth, async (req, res) => {
 // API routes already added at the top of the file
 console.log('✅ API routes enabled at /api endpoint');
 
-// API Keys Management Routes
-app.get('/admin/api-keys', adminAuth, async (req, res) => {
-  try {
-    res.render('pages/admin/manage-api-keys', { 
-      session: req.session 
-    });
-  } catch (error) {
-    console.error('Error loading API keys admin page:', error);
-    res.render('pages/admin/manage-api-keys', { 
-      session: req.session,
-      error: 'Failed to load API keys management page' 
-    });
-  }
-});
 
 // Unregistered Players Management Routes
 app.get('/admin/unregistered-players', adminAuth, async (req, res) => {
@@ -5432,6 +5531,179 @@ app.get('/api/tournament-notices', async (req, res) => {
   }
 });
 
+
+// Get organisers data from portal and tournaments
+app.get('/api/admin/organisers', adminAuth, async (req, res) => {
+  try {
+    // Get all tournaments to extract organiser information
+    const tournaments = await Tournament.find({}, 'name organizer personInCharge phoneNumber contactEmail portalApplicationId managedByPortal createdAt updatedAt').sort({ updatedAt: -1 });
+    
+    // Extract unique organisers from tournament data
+    const organiserMap = new Map();
+    
+    tournaments.forEach(tournament => {
+      // Check both organizer and personInCharge fields
+      const organiserName = tournament.organizer || tournament.personInCharge;
+      
+      if (organiserName) {
+        const key = organiserName.toLowerCase();
+        
+        
+        if (!organiserMap.has(key)) {
+          organiserMap.set(key, {
+            name: organiserName,
+            organization: tournament.organizer || organiserName,
+            email: tournament.contactEmail || null,
+            phone: tournament.phoneNumber || null,
+            portalId: tournament.portalApplicationId || null,
+            isActive: true,
+            tournamentsCount: 1,
+            lastActive: tournament.updatedAt || tournament.createdAt,
+            createdAt: tournament.createdAt,
+            source: tournament.managedByPortal ? 'portal' : 'local'
+          });
+        } else {
+          // Update existing organiser data
+          const existing = organiserMap.get(key);
+          existing.tournamentsCount += 1;
+          
+          // Update with more recent data if available
+          if (tournament.updatedAt > new Date(existing.lastActive)) {
+            existing.lastActive = tournament.updatedAt;
+            if (tournament.contactEmail && !existing.email) {
+              existing.email = tournament.contactEmail;
+            }
+            if (tournament.phoneNumber && !existing.phone) {
+              existing.phone = tournament.phoneNumber;
+            }
+          }
+        }
+      }
+    });
+    
+    // Convert map to array and add additional info
+    const organisers = Array.from(organiserMap.values()).map(organiser => {
+      // Determine if organiser is active (has activity in last 6 months)
+      const sixMonthsAgo = new Date();
+      sixMonthsAgo.setMonth(sixMonthsAgo.getMonth() - 6);
+      organiser.isActive = new Date(organiser.lastActive) > sixMonthsAgo;
+      
+      return organiser;
+    });
+    
+    // Sort by most recent activity
+    organisers.sort((a, b) => new Date(b.lastActive) - new Date(a.lastActive));
+    
+    
+    res.json({
+      success: true,
+      organisers: organisers,
+      totalCount: organisers.length,
+      activeCount: organisers.filter(o => o.isActive).length,
+      portalCount: organisers.filter(o => o.source === 'portal').length
+    });
+    
+  } catch (error) {
+    console.error('Error getting organisers data:', error);
+    res.status(500).json({ 
+      success: false, 
+      message: 'Failed to get organisers data',
+      error: error.message 
+    });
+  }
+});
+
+// Test endpoint to verify automatic notice generation
+app.post('/api/test/tournament-notices', adminAuth, async (req, res) => {
+  try {
+    const { action, tournamentId, testData } = req.body;
+    
+    if (!action || !tournamentId) {
+      return res.status(400).json({ 
+        success: false, 
+        message: 'Action and tournamentId are required' 
+      });
+    }
+
+    const TournamentNoticeService = require('./services/tournamentNoticeService');
+    const Tournament = require('./models/Tournament');
+    
+    const tournament = await Tournament.findById(tournamentId);
+    if (!tournament) {
+      return res.status(404).json({ 
+        success: false, 
+        message: 'Tournament not found' 
+      });
+    }
+
+    let notices = [];
+    
+    switch (action) {
+      case 'date_change':
+        const originalData = {
+          startDate: testData.originalStartDate || tournament.startDate,
+          endDate: testData.originalEndDate || tournament.endDate
+        };
+        const updatedData = {
+          startDate: testData.newStartDate,
+          endDate: testData.newEndDate
+        };
+        notices = await TournamentNoticeService.generateAutomaticNotices(
+          tournamentId, 
+          originalData, 
+          updatedData, 
+          'test-admin'
+        );
+        break;
+        
+      case 'venue_change':
+        const originalVenueData = {
+          venue: testData.originalVenue || tournament.venue,
+          city: testData.originalCity || tournament.city
+        };
+        const updatedVenueData = {
+          venue: testData.newVenue,
+          city: testData.newCity
+        };
+        notices = await TournamentNoticeService.generateAutomaticNotices(
+          tournamentId, 
+          originalVenueData, 
+          updatedVenueData, 
+          'test-admin'
+        );
+        break;
+        
+      case 'cancellation':
+        const notice = await TournamentNoticeService.createCancellationNotice(
+          tournament, 
+          testData.reason || 'Test cancellation', 
+          'test-admin'
+        );
+        notices = notice ? [notice] : [];
+        break;
+        
+      default:
+        return res.status(400).json({ 
+          success: false, 
+          message: 'Invalid action. Use: date_change, venue_change, or cancellation' 
+        });
+    }
+
+    res.json({ 
+      success: true, 
+      message: `Generated ${notices.length} test notice(s)`,
+      notices: notices
+    });
+  } catch (error) {
+    console.error('Error testing tournament notices:', error);
+    res.status(500).json({ 
+      success: false, 
+      message: 'Failed to test tournament notices',
+      error: error.message 
+    });
+  }
+});
+
 // Create tournament notice
 app.post('/admin/tournament-notices', adminAuth, [
   body('title').notEmpty().trim().escape().withMessage('Title is required'),
@@ -5826,6 +6098,7 @@ app.patch('/api/milestones/:id/toggle-feature', adminAuth, async (req, res) => {
   }
 });
 
+
 // Start the server
 const PORT = process.env.PORT || 3000;
 
@@ -5837,6 +6110,8 @@ async function startServer() {
     // Connect to database
     await connectDB();
     console.log('📊 Database connected successfully');
+    
+    
     
     // Start HTTP server
     app.listen(PORT, () => {
@@ -5862,6 +6137,77 @@ process.on('unhandledRejection', (reason, promise) => {
   console.error('💥 Unhandled Rejection at:', promise, 'reason:', reason);
   process.exit(1);
 });
+
+// Webhook endpoint for instant tournament deletion from portal
+app.post('/api/webhook/tournament-deleted', async (req, res) => {
+  try {
+    console.log('🚨 INSTANT DELETION WEBHOOK received from portal');
+    const { applicationId, eventTitle, action } = req.body;
+    
+    if (!applicationId && !eventTitle) {
+      return res.status(400).json({ error: 'Missing applicationId or eventTitle' });
+    }
+    
+    console.log(`🗑️ Instant deletion request: ${eventTitle || 'Unknown'} (${applicationId || 'No ID'})`);
+    
+    // Find and delete tournament immediately
+    const Tournament = require('./models/Tournament');
+    let deletedTournament = null;
+    
+    // Try to find by portal application ID first
+    if (applicationId) {
+      deletedTournament = await Tournament.findOneAndDelete({
+        portalApplicationId: applicationId
+      });
+      console.log(`🔍 Searched by portal ID ${applicationId}: ${deletedTournament ? 'FOUND & DELETED' : 'NOT FOUND'}`);
+    }
+    
+    // If not found by ID, try by name
+    if (!deletedTournament && eventTitle) {
+      deletedTournament = await Tournament.findOneAndDelete({
+        name: { $regex: new RegExp(`^${eventTitle.trim()}$`, 'i') },
+        $or: [
+          { managedByPortal: true },
+          { syncedFromPortal: true },
+          { portalApplicationId: { $exists: true } }
+        ]
+      });
+      console.log(`🔍 Searched by name "${eventTitle}": ${deletedTournament ? 'FOUND & DELETED' : 'NOT FOUND'}`);
+    }
+    
+    if (deletedTournament) {
+      console.log(`✅ INSTANTLY DELETED: "${deletedTournament.name}"`);
+      console.log(`   Tournament ID: ${deletedTournament._id}`);
+      console.log(`   Portal ID: ${deletedTournament.portalApplicationId || 'None'}`);
+      console.log(`   ⚡ INSTANT DELETION SUCCESSFUL - No 2-minute wait!`);
+      
+      res.json({
+        success: true,
+        message: 'Tournament deleted instantly',
+        deletedTournament: {
+          id: deletedTournament._id,
+          name: deletedTournament.name,
+          portalApplicationId: deletedTournament.portalApplicationId
+        }
+      });
+    } else {
+      console.log(`⚠️  No matching tournament found for instant deletion`);
+      res.status(404).json({
+        success: false,
+        message: 'Tournament not found for deletion'
+      });
+    }
+    
+  } catch (error) {
+    console.error('❌ Webhook deletion error:', error.message);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to process deletion webhook',
+      message: error.message
+    });
+  }
+});
+
 
 // Start the server
 startServer();

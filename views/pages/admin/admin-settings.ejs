@@ -183,6 +183,29 @@
         </div>
         <% } %>
 
+        <!-- Portal API Configuration -->
+        <div class="settings-card bg-white rounded-xl shadow-lg p-6">
+          <h3 class="text-xl font-bold text-gray-800 mb-4 flex items-center">
+            <i class="fas fa-plug mr-3 text-teal-500"></i>Portal API Configuration
+          </h3>
+          <p class="text-gray-600 mb-6">Configure connection to Malaysia Pickleball Portal API</p>
+          
+          <button id="apiConfigButton" class="w-full bg-teal-600 text-black py-3 px-4 rounded-lg hover:bg-teal-700 transition-colors font-semibold">
+            <i class="fas fa-cogs mr-2"></i>Configure API Settings
+          </button>
+          
+          <div class="mt-4 p-3 bg-gray-50 rounded-lg">
+            <div class="flex items-center justify-between">
+              <span class="text-sm font-medium text-gray-600">Current Status:</span>
+              <span id="apiStatus" class="text-sm font-semibold text-gray-800">Loading...</span>
+            </div>
+            <div class="flex items-center justify-between mt-1">
+              <span class="text-sm font-medium text-gray-600">Portal URL:</span>
+              <span id="currentPortalUrl" class="text-sm text-gray-700">Loading...</span>
+            </div>
+          </div>
+        </div>
+
       </div>
 
       <!-- Security Notice -->
@@ -424,9 +447,65 @@
     </div>
   </div>
 
+  <!-- API Configuration Modal -->
+  <div id="apiConfigModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center p-4" style="z-index: 9999;">
+    <div class="modal-content bg-white rounded-2xl max-w-lg w-full max-h-[90vh] overflow-y-auto">
+      <div class="p-6 border-b border-gray-200">
+        <div class="flex justify-between items-center">
+          <h2 class="text-xl font-bold text-gray-800">Portal API Configuration</h2>
+          <button onclick="closeApiConfigModal()" class="text-gray-500 hover:text-gray-700 text-2xl">
+            <i class="fas fa-times"></i>
+          </button>
+        </div>
+      </div>
+      <form id="apiConfigForm" class="p-6">
+        <div class="mb-6">
+          <label class="block text-sm font-medium text-gray-700 mb-2">Portal API URL *</label>
+          <input type="url" name="portalUrl" id="portalUrlInput" required
+                 class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500"
+                 placeholder="http://localhost:5001/api">
+          <p class="text-xs text-gray-500 mt-1">Base URL for the Malaysia Pickleball Portal API</p>
+        </div>
+
+        <div class="mb-6">
+          <label class="block text-sm font-medium text-gray-700 mb-2">API Key (Optional)</label>
+          <input type="text" name="apiKey" id="apiKeyInput"
+                 class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500"
+                 placeholder="Enter API key if required">
+          <p class="text-xs text-gray-500 mt-1">Leave empty if API key authentication is not required</p>
+        </div>
+
+        <div class="mb-6">
+          <label class="block text-sm font-medium text-gray-700 mb-2">Connection Timeout (seconds)</label>
+          <input type="number" name="timeout" id="timeoutInput" min="5" max="60" value="10"
+                 class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500">
+        </div>
+
+        <div class="mb-6">
+          <div class="flex items-center space-x-3">
+            <button type="button" onclick="testApiConnection()" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors">
+              <i class="fas fa-plug mr-2"></i>Test Connection
+            </button>
+            <span id="connectionStatus" class="text-sm font-medium"></span>
+          </div>
+        </div>
+
+        <div class="flex justify-end gap-4">
+          <button type="button" onclick="closeApiConfigModal()" class="px-6 py-3 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
+            Cancel
+          </button>
+          <button type="submit" class="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-semibold">
+            <i class="fas fa-save mr-2"></i>Save Configuration
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
   <%- include('../../partials/footer') %>
   <script src="/js/script.js"></script>
   <script>
+    console.log('Admin settings script loaded');
     // Modal functions
     function openChangeUsernameModal() {
       document.getElementById('usernameModal').classList.remove('hidden');
@@ -690,6 +769,155 @@
         }
       } catch (error) {
         alert('Error updating profile. Please try again.');
+      }
+    });
+
+    // API Configuration Modal Functions
+    window.openApiConfigModal = function() {
+      console.log('Opening API Config Modal...');
+      const modal = document.getElementById('apiConfigModal');
+      console.log('Modal element:', modal);
+      if (modal) {
+        modal.style.display = 'flex';
+        modal.classList.remove('hidden');
+        modal.classList.add('flex');
+        console.log('Modal classes after update:', modal.className);
+        console.log('Modal display style:', modal.style.display);
+        loadCurrentApiConfig();
+      } else {
+        console.error('Modal element not found!');
+      }
+    }
+
+    window.closeApiConfigModal = function() {
+      const modal = document.getElementById('apiConfigModal');
+      if (modal) {
+        modal.style.display = 'none';
+        modal.classList.add('hidden');
+        modal.classList.remove('flex');
+      }
+    }
+
+    async function loadCurrentApiConfig() {
+      try {
+        const response = await fetch('/admin/settings/api-config');
+        const config = await response.json();
+        
+        document.getElementById('portalUrlInput').value = config.portalUrl || 'http://localhost:5001/api';
+        document.getElementById('apiKeyInput').value = config.apiKey || '';
+        document.getElementById('timeoutInput').value = config.timeout || 10;
+        
+        updateApiStatus();
+      } catch (error) {
+        console.error('Error loading API config:', error);
+      }
+    }
+
+    window.testApiConnection = async function() {
+      const portalUrl = document.getElementById('portalUrlInput').value;
+      const apiKey = document.getElementById('apiKeyInput').value;
+      const timeout = document.getElementById('timeoutInput').value;
+      
+      const statusSpan = document.getElementById('connectionStatus');
+      statusSpan.textContent = 'Testing...';
+      statusSpan.className = 'text-sm font-medium text-blue-600';
+      
+      try {
+        const response = await fetch('/admin/settings/test-api-connection', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ portalUrl, apiKey, timeout })
+        });
+        
+        const result = await response.json();
+        
+        if (result.success) {
+          statusSpan.textContent = '✅ Connection successful!';
+          statusSpan.className = 'text-sm font-medium text-green-600';
+        } else {
+          statusSpan.textContent = '❌ Connection failed: ' + result.error;
+          statusSpan.className = 'text-sm font-medium text-red-600';
+        }
+      } catch (error) {
+        statusSpan.textContent = '❌ Connection test failed';
+        statusSpan.className = 'text-sm font-medium text-red-600';
+      }
+    }
+
+    async function updateApiStatus() {
+      try {
+        const response = await fetch('/admin/settings/api-status');
+        const status = await response.json();
+        
+        const statusElement = document.getElementById('apiStatus');
+        const urlElement = document.getElementById('currentPortalUrl');
+        
+        if (status.connected) {
+          statusElement.textContent = '✅ Connected';
+          statusElement.className = 'text-sm font-semibold text-green-600';
+        } else {
+          statusElement.textContent = '❌ Disconnected';
+          statusElement.className = 'text-sm font-semibold text-red-600';
+        }
+        
+        urlElement.textContent = status.portalUrl || 'Not configured';
+      } catch (error) {
+        document.getElementById('apiStatus').textContent = '❌ Error';
+        document.getElementById('apiStatus').className = 'text-sm font-semibold text-red-600';
+      }
+    }
+
+    // API Configuration Form Submit
+    document.getElementById('apiConfigForm').addEventListener('submit', async function(e) {
+      e.preventDefault();
+      const formData = new FormData(this);
+      
+      const configData = {
+        portalUrl: formData.get('portalUrl'),
+        apiKey: formData.get('apiKey'),
+        timeout: parseInt(formData.get('timeout'))
+      };
+      
+      try {
+        const response = await fetch('/admin/settings/save-api-config', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(configData)
+        });
+        
+        const result = await response.json();
+        
+        if (result.success) {
+          alert('API configuration saved successfully!');
+          closeApiConfigModal();
+          updateApiStatus();
+        } else {
+          alert('Error: ' + result.message);
+        }
+      } catch (error) {
+        alert('Error saving API configuration. Please try again.');
+      }
+    });
+
+    // Load API status on page load
+    document.addEventListener('DOMContentLoaded', function() {
+      console.log('DOM Content Loaded');
+      updateApiStatus();
+      
+      // Add event listener for API config button
+      const apiConfigButton = document.getElementById('apiConfigButton');
+      if (apiConfigButton) {
+        console.log('API Config button found, adding event listener');
+        apiConfigButton.addEventListener('click', function() {
+          console.log('API Config button clicked via event listener');
+          openApiConfigModal();
+        });
+      } else {
+        console.error('API Config button not found!');
       }
     });
   </script>

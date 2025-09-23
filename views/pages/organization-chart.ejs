@@ -129,12 +129,23 @@
       margin: 0 auto 1.5rem;
       overflow: hidden;
       position: relative;
+      border: 3px solid #e2e8f0;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      transition: all 0.3s ease;
+      background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
     }
-    
+
+    .member-photo:hover {
+      border-color: #3b82f6;
+      box-shadow: 0 8px 20px rgba(59, 130, 246, 0.2);
+      transform: translateY(-2px);
+    }
+
     .member-photo img {
       width: 100%;
       height: 100%;
       object-fit: cover;
+      border-radius: 8px;
     }
     
     .member-photo-placeholder {
@@ -158,11 +169,12 @@
     }
     
     .member-name {
-      font-size: 1.25rem;
-      font-weight: 700;
+      font-size: 1rem;
+      font-weight: 600;
       color: #1a202c;
       margin-bottom: 1rem;
-      line-height: 1.3;
+      line-height: 1.4;
+      text-align: center;
     }
     
     /* Past Presidents Table */
@@ -371,73 +383,31 @@
 
       <!-- Executive Committee Section -->
       <div id="executive-section">
-        <!-- President Section -->
+        <!-- Acting President Section -->
         <div style="margin-bottom: 4rem;">
           <h2 class="section-title">Leadership</h2>
           <div class="committee-grid">
             <div class="member-card" style="grid-column: 1 / -1; max-width: 400px; margin: 0 auto;">
               <div class="member-photo">
-                <% if (orgChartData?.president?.photo && orgChartData.president.photo !== '👨‍💼' && orgChartData.president.photo !== '👩‍💼' && orgChartData.president.photo !== null) { %>
-                  <img src="<%= orgChartData.president.photo %>" alt="<%= orgChartData.president.name %>">
+                <% if (orgChartData?.acting_president?.photo && orgChartData.acting_president.photo !== '👨‍💼' && orgChartData.acting_president.photo !== '👩‍💼' && orgChartData.acting_president.photo !== null && orgChartData.acting_president.photo !== 'null') { %>
+                  <img src="<%= orgChartData.acting_president.photo %>" alt="<%= orgChartData.acting_president.name %>">
                 <% } else { %>
                   <div class="member-photo-placeholder">
                     <i class="fas fa-user"></i>
                   </div>
                 <% } %>
               </div>
-              <div class="member-title">President</div>
-              <div class="member-name"><%= orgChartData?.president?.name || 'Datuk Ahmad Zulkarnain' %></div>
+              <div class="member-title">Acting President</div>
+              <div class="member-name"><%= orgChartData?.acting_president?.name || 'Mdm. Delima Ibrahim' %></div>
             </div>
           </div>
         </div>
 
-        <!-- Vice Presidents Section -->
+        <!-- Committee Members Section -->
         <div style="margin-bottom: 4rem;">
-          <h2 class="section-title">Vice Presidents</h2>
+          <h2 class="section-title">Committee Members</h2>
           <div class="committee-grid">
-            <% if (orgChartData && orgChartData.vicePresidents) { %>
-              <% orgChartData.vicePresidents.forEach(vp => { %>
-                <div class="member-card">
-                  <div class="member-photo">
-                    <% if (vp.photo && vp.photo !== '👨‍💼' && vp.photo !== '👩‍💼' && vp.photo !== null) { %>
-                      <img src="<%= vp.photo %>" alt="<%= vp.name %>">
-                    <% } else { %>
-                      <div class="member-photo-placeholder">
-                        <i class="fas fa-user"></i>
-                      </div>
-                    <% } %>
-                  </div>
-                  <div class="member-title">Vice President</div>
-                  <div class="member-name"><%= vp.name %></div>
-                </div>
-              <% }) %>
-            <% } else { %>
-              <div class="member-card">
-                <div class="member-photo">
-                  <div class="member-photo-placeholder">
-                    <i class="fas fa-user"></i>
-                  </div>
-                </div>
-                <div class="member-title">Vice President</div>
-                <div class="member-name">Dato' Dr. Lim Chong</div>
-              </div>
-              <div class="member-card">
-                <div class="member-photo">
-                  <div class="member-photo-placeholder">
-                    <i class="fas fa-user"></i>
-                  </div>
-                </div>
-                <div class="member-title">Vice President</div>
-                <div class="member-name">Datuk Seri Wong Lee</div>
-              </div>
-            <% } %>
-          </div>
-        </div>
-
-        <!-- Executive Committee Section -->
-        <div style="margin-bottom: 4rem;">
-          <h2 class="section-title">Executive Committee</h2>
-          <div class="committee-grid">
+            <!-- Secretary -->
             <div class="member-card">
               <div class="member-photo">
                 <% if (orgChartData?.secretary?.photo && orgChartData.secretary.photo !== '👨‍💼' && orgChartData.secretary.photo !== '👩‍💼' && orgChartData.secretary.photo !== null) { %>
@@ -449,21 +419,82 @@
                 <% } %>
               </div>
               <div class="member-title">Secretary</div>
-              <div class="member-name"><%= orgChartData?.secretary?.name || 'Mohd Azlan bin Abdullah' %></div>
+              <div class="member-name"><%= orgChartData?.secretary?.name || '' %></div>
             </div>
-            
+
+            <!-- Chairperson of Disciplinary Sub-Committee -->
             <div class="member-card">
               <div class="member-photo">
-                <% if (orgChartData?.treasurer?.photo && orgChartData.treasurer.photo !== '👨‍💼' && orgChartData.treasurer.photo !== '👩‍💼' && orgChartData.treasurer.photo !== null) { %>
-                  <img src="<%= orgChartData.treasurer.photo %>" alt="<%= orgChartData.treasurer.name %>">
+                <% if (orgChartData?.disciplinary_chair?.photo && orgChartData.disciplinary_chair.photo !== '👨‍💼' && orgChartData.disciplinary_chair.photo !== '👩‍💼' && orgChartData.disciplinary_chair.photo !== null) { %>
+                  <img src="<%= orgChartData.disciplinary_chair.photo %>" alt="<%= orgChartData.disciplinary_chair.name %>">
                 <% } else { %>
                   <div class="member-photo-placeholder">
                     <i class="fas fa-user"></i>
                   </div>
                 <% } %>
               </div>
-              <div class="member-title">Treasurer</div>
-              <div class="member-name"><%= orgChartData?.treasurer?.name || 'Wong Mei Ling' %></div>
+              <div class="member-title">Chairperson of Disciplinary Sub-Committee</div>
+              <div class="member-name"><%= orgChartData?.disciplinary_chair?.name || '' %></div>
+            </div>
+
+            <!-- Chairman of Development Sub Committee -->
+            <div class="member-card">
+              <div class="member-photo">
+                <% if (orgChartData?.dev_committee_chair?.photo && orgChartData.dev_committee_chair.photo !== '👨‍💼' && orgChartData.dev_committee_chair.photo !== '👩‍💼' && orgChartData.dev_committee_chair.photo !== null) { %>
+                  <img src="<%= orgChartData.dev_committee_chair.photo %>" alt="<%= orgChartData.dev_committee_chair.name %>">
+                <% } else { %>
+                  <div class="member-photo-placeholder">
+                    <i class="fas fa-user"></i>
+                  </div>
+                <% } %>
+              </div>
+              <div class="member-title">Chairman of Development Sub Committee</div>
+              <div class="member-name"><%= orgChartData?.dev_committee_chair?.name || '' %></div>
+            </div>
+
+            <!-- Development Committee Member 1 -->
+            <div class="member-card">
+              <div class="member-photo">
+                <% if (orgChartData?.dev_member1?.photo && orgChartData.dev_member1.photo !== '👨‍💼' && orgChartData.dev_member1.photo !== '👩‍💼' && orgChartData.dev_member1.photo !== null) { %>
+                  <img src="<%= orgChartData.dev_member1.photo %>" alt="<%= orgChartData.dev_member1.name %>">
+                <% } else { %>
+                  <div class="member-photo-placeholder">
+                    <i class="fas fa-user"></i>
+                  </div>
+                <% } %>
+              </div>
+              <div class="member-title">Development Committee Member</div>
+              <div class="member-name"><%= orgChartData?.dev_member1?.name || '' %></div>
+            </div>
+
+            <!-- Development Committee Member 2 -->
+            <div class="member-card">
+              <div class="member-photo">
+                <% if (orgChartData?.dev_member2?.photo && orgChartData.dev_member2.photo !== '👨‍💼' && orgChartData.dev_member2.photo !== '👩‍💼' && orgChartData.dev_member2.photo !== null) { %>
+                  <img src="<%= orgChartData.dev_member2.photo %>" alt="<%= orgChartData.dev_member2.name %>">
+                <% } else { %>
+                  <div class="member-photo-placeholder">
+                    <i class="fas fa-user"></i>
+                  </div>
+                <% } %>
+              </div>
+              <div class="member-title">Committee Member</div>
+              <div class="member-name"><%= orgChartData?.dev_member2?.name || '' %></div>
+            </div>
+
+            <!-- Committee Member -->
+            <div class="member-card">
+              <div class="member-photo">
+                <% if (orgChartData?.committee_member?.photo && orgChartData.committee_member.photo !== '👨‍💼' && orgChartData.committee_member.photo !== '👩‍💼' && orgChartData.committee_member.photo !== null) { %>
+                  <img src="<%= orgChartData.committee_member.photo %>" alt="<%= orgChartData.committee_member.name %>">
+                <% } else { %>
+                  <div class="member-photo-placeholder">
+                    <i class="fas fa-user"></i>
+                  </div>
+                <% } %>
+              </div>
+              <div class="member-title">Tournament Exco</div>
+              <div class="member-name"><%= orgChartData?.committee_member?.name || '' %></div>
             </div>
           </div>
         </div>

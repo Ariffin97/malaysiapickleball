@@ -8,7 +8,7 @@ const Player = require('../models/Player');
 const Admin = require('../models/Admin');
 const PlayerRegistration = require('../models/PlayerRegistration');
 const UnregisteredPlayer = require('../models/UnregisteredPlayer');
-const APIKey = require('../models/APIKey');
+// const APIKey = require('../models/APIKey'); // Commented out - API key model removed
 const cloudinary = require('cloudinary').v2;
 
 // Import utilities and middleware
@@ -2026,42 +2026,9 @@ function generateMPAId(name) {
 
 // Middleware to validate API key
 const validateApiKey = async (req, res, next) => {
-  const apiKey = req.headers['x-api-key'] || req.query.apikey;
-  
-  if (!apiKey) {
-    return APIResponse.unauthorized(res, 'API key required');
-  }
-  
-  try {
-    // Hash the provided API key to compare with stored hash
-    const keyHash = APIKey.hashAPIKey(apiKey);
-    
-    // Find active API key in database
-    const keyRecord = await APIKey.findOne({ 
-      keyHash: keyHash, 
-      isActive: true 
-    });
-    
-    if (!keyRecord) {
-      return APIResponse.unauthorized(res, 'Invalid API key');
-    }
-    
-    // Update last used timestamp
-    await keyRecord.updateUsage();
-    
-    req.apiKeyData = {
-      keyId: keyRecord.keyId,
-      description: keyRecord.description,
-      permissions: keyRecord.permissions,
-      createdBy: keyRecord.createdBy,
-      lastUsed: keyRecord.lastUsed
-    };
-    
-    next();
-  } catch (error) {
-    console.error('API key validation error:', error);
-    return APIResponse.error(res, 'API key validation failed', 500);
-  }
+  // API key validation disabled - admin interface removed
+  console.warn('⚠️ API key validation is disabled - allowing request through');
+  next();
 };
 
 // Create new unregistered player API endpoint
@@ -2722,10 +2689,7 @@ router.get('/health', (req, res) => {
 // Get All Approved Players List
 router.get('/players-list', validateApiKey, async (req, res) => {
   try {
-    // Check if API key has players-list permission
-    if (!req.apiKeyData.permissions.includes('players-list')) {
-      return APIResponse.forbidden(res, 'API key does not have players-list permission');
-    }
+    // API key permission check disabled - admin interface removed
 
     const { limit = 100, offset = 0, state, division } = req.query;
     

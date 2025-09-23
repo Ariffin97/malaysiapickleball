@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Image Test - Malaysia Pickleball Association</title>
+  <style>
+    body { font-family: Arial, sans-serif; padding: 20px; }
+    .test-container { max-width: 800px; margin: 0 auto; }
+    .image-test { margin: 20px 0; padding: 20px; border: 1px solid #ddd; border-radius: 8px; }
+    .image-test img { max-width: 200px; height: auto; border: 2px solid #ccc; border-radius: 8px; }
+    .status { padding: 10px; margin: 10px 0; border-radius: 4px; }
+    .success { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+    .error { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+  </style>
+</head>
+<body>
+  <div class="test-container">
+    <h1>🧪 Organization Chart Image Test</h1>
+    <p>This page tests if the Cloudinary images are loading correctly.</p>
+
+    <div class="image-test">
+      <h3>1. Acting President - Puan Delima Ibrahim</h3>
+      <img src="https://res.cloudinary.com/dkev9cy5e/image/upload/v1757921244/organization_chart/org_chart_acting_president_permanent.jpg"
+           alt="Acting President"
+           onload="showStatus('ap-status', 'success', '✅ Image loaded successfully')"
+           onerror="showStatus('ap-status', 'error', '❌ Image failed to load')">
+      <div id="ap-status" class="status">⏳ Loading...</div>
+    </div>
+
+    <div class="image-test">
+      <h3>2. Secretary - Puan Sally Jong Siew Nyuk</h3>
+      <img src="https://res.cloudinary.com/dkev9cy5e/image/upload/v1757921254/organization_chart/org_chart_secretary_permanent.jpg"
+           alt="Secretary"
+           onload="showStatus('sec-status', 'success', '✅ Image loaded successfully')"
+           onerror="showStatus('sec-status', 'error', '❌ Image failed to load')">
+      <div id="sec-status" class="status">⏳ Loading...</div>
+    </div>
+
+    <div class="image-test">
+      <h3>3. Disciplinary Chair - Cik Jenny Ting Hua Hung</h3>
+      <img src="https://res.cloudinary.com/dkev9cy5e/image/upload/v1757921264/organization_chart/org_chart_disciplinary_chair_permanent.jpg"
+           alt="Disciplinary Chair"
+           onload="showStatus('disc-status', 'success', '✅ Image loaded successfully')"
+           onerror="showStatus('disc-status', 'error', '❌ Image failed to load')">
+      <div id="disc-status" class="status">⏳ Loading...</div>
+    </div>
+
+    <div class="image-test">
+      <h3>4. Dev Committee Chair - Prof. Dr. Mohamad Rahizam Abdul Rahim</h3>
+      <img src="https://res.cloudinary.com/dkev9cy5e/image/upload/v1757921273/organization_chart/org_chart_dev_committee_chair_permanent.jpg"
+           alt="Dev Committee Chair"
+           onload="showStatus('dev-status', 'success', '✅ Image loaded successfully')"
+           onerror="showStatus('dev-status', 'error', '❌ Image failed to load')">
+      <div id="dev-status" class="status">⏳ Loading...</div>
+    </div>
+
+    <div class="image-test">
+      <h3>5. Dev Member 1 - En. Thor Meng Tatt</h3>
+      <img src="https://res.cloudinary.com/dkev9cy5e/image/upload/v1757921283/organization_chart/org_chart_dev_member1_permanent.jpg"
+           alt="Dev Member 1"
+           onload="showStatus('dev1-status', 'success', '✅ Image loaded successfully')"
+           onerror="showStatus('dev1-status', 'error', '❌ Image failed to load')">
+      <div id="dev1-status" class="status">⏳ Loading...</div>
+    </div>
+
+    <div class="image-test">
+      <h3>6. Dev Member 2 - En. Mohammad @ Razali bin Ibrahim</h3>
+      <img src="https://res.cloudinary.com/dkev9cy5e/image/upload/v1757921293/organization_chart/org_chart_dev_member2_permanent.jpg"
+           alt="Dev Member 2"
+           onload="showStatus('dev2-status', 'success', '✅ Image loaded successfully')"
+           onerror="showStatus('dev2-status', 'error', '❌ Image failed to load')">
+      <div id="dev2-status" class="status">⏳ Loading...</div>
+    </div>
+
+    <div class="image-test">
+      <h3>7. Committee Member - Cik Choong Wai Li</h3>
+      <img src="https://res.cloudinary.com/dkev9cy5e/image/upload/v1757921304/organization_chart/org_chart_committee_member_permanent.jpg"
+           alt="Committee Member"
+           onload="showStatus('cm-status', 'success', '✅ Image loaded successfully')"
+           onerror="showStatus('cm-status', 'error', '❌ Image failed to load')">
+      <div id="cm-status" class="status">⏳ Loading...</div>
+    </div>
+
+    <div style="margin-top: 40px; padding: 20px; background: #f8f9fa; border-radius: 8px;">
+      <h3>🔧 Troubleshooting</h3>
+      <p>If images fail to load, try:</p>
+      <ul>
+        <li>Hard refresh this page (Ctrl+F5 or Cmd+Shift+R)</li>
+        <li>Disable ad blockers</li>
+        <li>Check browser console for errors (F12 → Console)</li>
+        <li>Try different browser/device</li>
+        <li>Check network connectivity</li>
+      </ul>
+    </div>
+
+    <div style="margin-top: 20px; text-align: center;">
+      <a href="/organization-chart" style="display: inline-block; padding: 12px 24px; background: #007bff; color: white; text-decoration: none; border-radius: 8px;">
+        ← Back to Organization Chart
+      </a>
+    </div>
+  </div>
+
+  <script>
+    function showStatus(elementId, type, message) {
+      const element = document.getElementById(elementId);
+      element.className = `status ${type}`;
+      element.textContent = message;
+    }
+  </script>
+</body>
+</html>

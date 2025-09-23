@@ -25,11 +25,29 @@ class DatabaseService {
     }
   }
 
+  static async getPublicTournaments() {
+    try {
+      return await Tournament.find().sort({ startDate: 1 });
+    } catch (error) {
+      console.error('Error getting public tournaments:', error);
+      throw error;
+    }
+  }
+
   static async getTournamentById(id) {
     try {
       return await Tournament.findById(id);
     } catch (error) {
       console.error('Error getting tournament by ID:', error);
+      throw error;
+    }
+  }
+
+  static async getTournamentByApplicationId(applicationId) {
+    try {
+      return await Tournament.findOne({ applicationId: applicationId });
+    } catch (error) {
+      console.error('Error getting tournament by application ID:', error);
       throw error;
     }
   }
@@ -46,14 +64,34 @@ class DatabaseService {
 
   static async updateTournament(id, updateData, currentVersion = null, modifiedBy = null) {
     try {
+      // First, get the original tournament data for comparison
+      const originalTournament = await Tournament.findById(id);
+      if (!originalTournament) {
+        throw new Error('Tournament not found');
+      }
+
+      // Store original data for change detection
+      const originalData = {
+        name: originalTournament.name,
+        startDate: originalTournament.startDate,
+        endDate: originalTournament.endDate,
+        venue: originalTournament.venue,
+        city: originalTournament.city,
+        organizer: originalTournament.organizer,
+        personInCharge: originalTournament.personInCharge,
+        phoneNumber: originalTournament.phoneNumber
+      };
+
       // Add modification tracking
       if (modifiedBy) {
         updateData.lastModifiedBy = modifiedBy;
       }
 
+      let updatedTournament;
+
       // If version is provided, use optimistic locking
       if (currentVersion !== null) {
-        const tournament = await Tournament.findOneAndUpdate(
+        updatedTournament = await Tournament.findOneAndUpdate(
           { 
             _id: id, 
             version: currentVersion // Only update if version matches
@@ -65,7 +103,7 @@ class DatabaseService {
           }
         );
 
-        if (!tournament) {
+        if (!updatedTournament) {
           // Check if tournament exists but version doesn't match
           const existingTournament = await Tournament.findById(id);
           if (existingTournament) {
@@ -74,21 +112,54 @@ class DatabaseService {
             throw new Error('Tournament not found');
           }
         }
-
-        return tournament;
       } else {
         // Fallback to regular update (less safe)
-        return await Tournament.findByIdAndUpdate(id, updateData, { new: true });
+        updatedTournament = await Tournament.findByIdAndUpdate(id, updateData, { new: true });
       }
+
+      // Generate automatic notices for significant changes
+      try {
+        const TournamentNoticeService = require('./tournamentNoticeService');
+        await TournamentNoticeService.generateAutomaticNotices(
+          id, 
+          originalData, 
+          updateData, 
+          modifiedBy || 'system'
+        );
+      } catch (noticeError) {
+        // Log the error but don't fail the tournament update
+        console.error('Error generating automatic notices:', noticeError);
+      }
+
+      return updatedTournament;
     } catch (error) {
       console.error('Error updating tournament:', error);
       throw error;
     }
   }
 
-  static async deleteTournament(id) {
+  static async deleteTournament(id, reason = 'Tournament cancelled', modifiedBy = 'system') {
     try {
-      return await Tournament.findByIdAndDelete(id);
+      // Get tournament data before deletion for cancellation notice
+      const tournament = await Tournament.findById(id);
+      if (!tournament) {
+        throw new Error('Tournament not found');
+      }
+
+      // Generate cancellation notice before deletion
+      try {
+        const TournamentNoticeService = require('./tournamentNoticeService');
+        await TournamentNoticeService.createCancellationNotice(tournament, reason, modifiedBy);
+      } catch (noticeError) {
+        console.error('Error generating cancellation notice:', noticeError);
+        // Continue with deletion even if notice creation fails
+      }
+
+      // Delete the tournament
+      const deletedTournament = await Tournament.findByIdAndDelete(id);
+      
+      console.log(`🗑️ Tournament deleted and cancellation notice created: ${tournament.name}`);
+      return deletedTournament;
     } catch (error) {
       console.error('Error deleting tournament:', error);
       throw error;
@@ -1352,6 +1423,7 @@ Malaysia Pickleball Association Team`,
       throw error;
     }
   }
+
 }
 
 module.exports = DatabaseService; 

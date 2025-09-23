@@ -108,6 +108,69 @@ const tournamentSchema = new mongoose.Schema({
   version: {
     type: Number,
     default: 0
+  },
+  
+  status: {
+    type: String,
+    enum: ['upcoming', 'ongoing', 'completed', 'cancelled'],
+    default: 'upcoming'
+  },
+  
+  // Additional tournament fields
+  state: {
+    type: String,
+    required: false
+  },
+  maxParticipants: {
+    type: Number,
+    required: false
+  },
+  contactEmail: {
+    type: String,
+    required: false
+  },
+  contactPhone: {
+    type: String,
+    required: false
+  },
+  registrationNo: {
+    type: String,
+    required: false
+  },
+  organisingPartner: {
+    type: String,
+    required: false
+  },
+  classification: {
+    type: String,
+    required: false
+  },
+  eventSummary: {
+    type: String,
+    required: false
+  },
+  scoringFormat: {
+    type: String,
+    required: false
+  },
+  
+  // Portal integration fields
+  managedByPortal: {
+    type: Boolean,
+    default: false
+  },
+  portalApplicationId: {
+    type: String,
+    required: false
+  },
+  portalTournamentId: {
+    type: String,
+    required: false
+  },
+  source: {
+    type: String,
+    enum: ['local', 'portal', 'api-key'],
+    default: 'local'
   }
 }, {
   timestamps: true,
