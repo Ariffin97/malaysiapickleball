@@ -19,6 +19,13 @@ const tournamentSchema = new mongoose.Schema({
     required: true,
     enum: ['local', 'state', 'national', 'international', 'sarawak', 'wmalaysia']
   },
+  tier: {
+    type: Number,
+    required: true,
+    min: 1,
+    max: 5,
+    default: 5  // 5 = non-ranked, used for legacy tournaments
+  },
   months: [{
     type: Number,
     min: 0,
@@ -69,6 +76,31 @@ const tournamentSchema = new mongoose.Schema({
     type: Boolean,
     default: true
   },
+  state: {
+    type: String,
+    required: false,
+    trim: true
+  },
+  status: {
+    type: String,
+    enum: ['draft', 'approved', 'ongoing', 'completed'],
+    default: 'draft'
+  },
+  finalized: {
+    type: Boolean,
+    default: false
+  },
+  finalizedAt: {
+    type: Date,
+    required: false
+  },
+  finalizedBy: {
+    type: String,
+    required: false
+  },
+  divisionsOffered: [{
+    type: String
+  }],
   lastModifiedBy: {
     type: String,
     required: false
