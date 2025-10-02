@@ -8,6 +8,13 @@ class EmailService {
 
   initializeTransporter() {
     try {
+      // Check if email credentials are configured
+      if (!process.env.EMAIL_USER || !process.env.EMAIL_PASSWORD) {
+        console.warn('⚠️ Email service not configured: EMAIL_USER or EMAIL_PASSWORD environment variables are missing');
+        this.transporter = null;
+        return;
+      }
+
       // Configure email transporter based on environment variables
       // Matches MPA portal configuration
       this.transporter = nodemailer.createTransport({
@@ -26,6 +33,7 @@ class EmailService {
       console.log('📧 Email service initialized with:', process.env.EMAIL_USER);
     } catch (error) {
       console.error('❌ Failed to initialize email service:', error);
+      this.transporter = null;
     }
   }
 
