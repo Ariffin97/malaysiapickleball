@@ -248,7 +248,46 @@ class DatabaseService {
 
   static async deletePlayer(id) {
     try {
-      return await Player.findByIdAndDelete(id);
+      // Get player details first
+      const player = await Player.findById(id);
+      if (!player) {
+        throw new Error('Player not found');
+      }
+
+      // Delete player's messages
+      const Message = require('../models/Message');
+      await Message.deleteMany({
+        $or: [
+          { recipientId: id },
+          { senderId: id }
+        ]
+      });
+
+      // Delete player's registration records (by IC number and email)
+      const PlayerRegistration = require('../models/PlayerRegistration');
+      const deletedRegistrations = await PlayerRegistration.deleteMany({
+        $or: [
+          { icNumber: player.icNumber },
+          { email: player.email }
+        ]
+      });
+
+      if (deletedRegistrations.deletedCount > 0) {
+        console.log(`Deleted ${deletedRegistrations.deletedCount} registration record(s) for IC: ${player.icNumber}`);
+      }
+
+      // Delete player's tournament registrations (if you have a separate collection)
+      // await TournamentRegistration.deleteMany({ playerId: id });
+
+      // Delete player's ranking records (if you have a separate collection)
+      // await Ranking.deleteMany({ playerId: id });
+
+      // Delete the player record itself
+      await Player.findByIdAndDelete(id);
+
+      console.log(`Player ${player.fullName} (${player.playerId}) and all related records deleted successfully`);
+
+      return player;
     } catch (error) {
       console.error('Error deleting player:', error);
       throw error;

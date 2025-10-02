@@ -83,7 +83,7 @@
               <input type="checkbox" class="mr-2">
               <span class="text-sm text-gray-600">Remember me</span>
             </label>
-            <a href="#" class="text-sm text-blue-600 hover:underline">Forgot password?</a>
+            <a href="#" id="forgotPasswordLink" class="text-sm text-blue-600 hover:underline">Forgot password?</a>
           </div>
 
           <!-- Submit Button -->
@@ -108,6 +108,43 @@
     </div>
   </main>
 
+  <!-- Forgot Password Modal -->
+  <div id="forgotPasswordModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50">
+    <div class="bg-white rounded-2xl shadow-2xl p-8 max-w-md w-full mx-4">
+      <div class="text-center mb-6">
+        <div class="bg-blue-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+          <i class="fas fa-key text-2xl text-blue-600"></i>
+        </div>
+        <h3 class="text-2xl font-bold text-gray-800 mb-2">Forgot Password?</h3>
+        <p class="text-gray-600 text-sm">Enter your registered email address and we'll send your password.</p>
+      </div>
+
+      <div id="forgotPasswordAlert" class="hidden mb-4 px-4 py-3 rounded"></div>
+
+      <form id="forgotPasswordForm">
+        <div class="mb-6">
+          <label for="forgotEmail" class="block text-sm font-medium text-gray-700 mb-2">
+            <i class="fas fa-envelope mr-2"></i>Email Address
+          </label>
+          <input type="email" id="forgotEmail" name="email" required
+                 class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                 placeholder="Enter your registered email">
+        </div>
+
+        <div class="flex gap-3">
+          <button type="button" id="cancelForgotPassword"
+                  class="flex-1 bg-gray-300 text-gray-700 py-3 px-6 rounded-lg font-semibold hover:bg-gray-400 transition-all duration-300">
+            Cancel
+          </button>
+          <button type="submit" id="submitForgotPassword"
+                  class="flex-1 bg-gradient-to-r from-blue-600 to-purple-600 text-white py-3 px-6 rounded-lg font-semibold hover:from-blue-700 hover:to-purple-700 transition-all duration-300">
+            <i class="fas fa-paper-plane mr-2"></i>Send Password
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
   <script src="/js/script.js"></script>
   <script>
     // Form submission handling
@@ -121,6 +158,85 @@
     document.addEventListener('keydown', function(e) {
       if (e.key === 'Enter') {
         document.getElementById('loginForm').submit();
+      }
+    });
+
+    // Forgot Password Modal handling
+    const forgotPasswordModal = document.getElementById('forgotPasswordModal');
+    const forgotPasswordLink = document.getElementById('forgotPasswordLink');
+    const cancelForgotPassword = document.getElementById('cancelForgotPassword');
+    const forgotPasswordForm = document.getElementById('forgotPasswordForm');
+    const forgotPasswordAlert = document.getElementById('forgotPasswordAlert');
+
+    // Open modal
+    forgotPasswordLink.addEventListener('click', function(e) {
+      e.preventDefault();
+      forgotPasswordModal.classList.remove('hidden');
+      forgotPasswordModal.classList.add('flex');
+      document.getElementById('forgotEmail').value = '';
+      forgotPasswordAlert.classList.add('hidden');
+    });
+
+    // Close modal
+    cancelForgotPassword.addEventListener('click', function() {
+      forgotPasswordModal.classList.add('hidden');
+      forgotPasswordModal.classList.remove('flex');
+    });
+
+    // Close modal when clicking outside
+    forgotPasswordModal.addEventListener('click', function(e) {
+      if (e.target === forgotPasswordModal) {
+        forgotPasswordModal.classList.add('hidden');
+        forgotPasswordModal.classList.remove('flex');
+      }
+    });
+
+    // Handle forgot password form submission
+    forgotPasswordForm.addEventListener('submit', async function(e) {
+      e.preventDefault();
+
+      const submitBtn = document.getElementById('submitForgotPassword');
+      const email = document.getElementById('forgotEmail').value;
+
+      // Disable submit button
+      submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Sending...';
+      submitBtn.disabled = true;
+
+      try {
+        const response = await fetch('/player/forgot-password', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ email })
+        });
+
+        const data = await response.json();
+
+        // Show alert
+        forgotPasswordAlert.classList.remove('hidden');
+
+        if (data.success) {
+          forgotPasswordAlert.className = 'mb-4 px-4 py-3 rounded bg-green-100 border border-green-400 text-green-700';
+          forgotPasswordAlert.innerHTML = '<i class="fas fa-check-circle mr-2"></i>' + data.message;
+
+          // Close modal after 2 seconds
+          setTimeout(() => {
+            forgotPasswordModal.classList.add('hidden');
+            forgotPasswordModal.classList.remove('flex');
+          }, 2000);
+        } else {
+          forgotPasswordAlert.className = 'mb-4 px-4 py-3 rounded bg-red-100 border border-red-400 text-red-700';
+          forgotPasswordAlert.innerHTML = '<i class="fas fa-exclamation-triangle mr-2"></i>' + data.message;
+        }
+      } catch (error) {
+        forgotPasswordAlert.classList.remove('hidden');
+        forgotPasswordAlert.className = 'mb-4 px-4 py-3 rounded bg-red-100 border border-red-400 text-red-700';
+        forgotPasswordAlert.innerHTML = '<i class="fas fa-exclamation-triangle mr-2"></i>Failed to send password. Please try again.';
+      } finally {
+        // Re-enable submit button
+        submitBtn.innerHTML = '<i class="fas fa-paper-plane mr-2"></i>Send Password';
+        submitBtn.disabled = false;
       }
     });
   </script>

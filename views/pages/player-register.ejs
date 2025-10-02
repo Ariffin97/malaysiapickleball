@@ -55,12 +55,19 @@
 
   <main class="py-12">
     <div class="container mx-auto px-4 max-w-4xl">
-      
+
+      <!-- Back to Home Button -->
+      <div class="mb-6">
+        <a href="/" class="inline-flex items-center px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg shadow-lg transition-all duration-300 transform hover:scale-105">
+          <i class="fas fa-home mr-2"></i>
+          Back to Home
+        </a>
+      </div>
+
       <!-- Registration Form -->
       <div class="form-card rounded-2xl shadow-2xl p-8 mb-8">
         <div class="text-center mb-8">
           <h2 class="text-3xl font-bold text-gray-800 mb-2">
-            <i class="fas fa-clipboard-list text-blue-600 mr-3"></i>
             Registration Form
           </h2>
           <p class="text-gray-600">Please fill in all required information to complete your registration</p>
@@ -85,8 +92,7 @@
             
             <!-- Personal Information -->
             <div class="md:col-span-2">
-              <h3 class="text-xl font-semibold text-gray-800 mb-4 flex items-center">
-                <i class="fas fa-user text-blue-600 mr-2"></i>
+              <h3 class="text-xl font-semibold text-gray-800 mb-4">
                 Personal Information
               </h3>
             </div>
@@ -94,7 +100,7 @@
             <!-- Full Name -->
             <div class="input-group">
               <label for="fullName" class="block text-sm font-medium text-gray-700 mb-2">
-                <i class="fas fa-user mr-2"></i>Full Name *
+                Full Name *
               </label>
               <input type="text" id="fullName" name="fullName" required
                      class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
@@ -104,7 +110,7 @@
             <!-- Identity Card Number -->
             <div class="input-group">
               <label for="icNumber" class="block text-sm font-medium text-gray-700 mb-2">
-                <i class="fas fa-id-card mr-2"></i>Identity Card Number *
+                Identity Card Number *
               </label>
               <input type="text" id="icNumber" name="icNumber" required
                      pattern="^[0-9]{6}-[0-9]{2}-[0-9]{4}$"
@@ -128,17 +134,30 @@
             <!-- Age -->
             <div class="input-group">
               <label for="age" class="block text-sm font-medium text-gray-700 mb-2">
-                <i class="fas fa-calendar-alt mr-2"></i>Age *
+                Age *
               </label>
               <input type="number" id="age" name="age" required min="12" max="100"
                      class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                      placeholder="25">
             </div>
 
+            <!-- Gender -->
+            <div class="input-group">
+              <label for="gender" class="block text-sm font-medium text-gray-700 mb-2">
+                Gender *
+              </label>
+              <select id="gender" name="gender" required
+                      class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white">
+                <option value="">Select gender</option>
+                <option value="Male">Male</option>
+                <option value="Female">Female</option>
+              </select>
+            </div>
+
             <!-- Phone Number -->
             <div class="input-group">
               <label for="phoneNumber" class="block text-sm font-medium text-gray-700 mb-2">
-                <i class="fas fa-phone mr-2"></i>Phone Number *
+                Phone Number *
               </label>
               <input type="tel" id="phoneNumber" name="phoneNumber" required
                      pattern="[0-9+\-\s()]*"
@@ -149,27 +168,44 @@
             <!-- Email -->
             <div class="input-group md:col-span-2">
               <label for="email" class="block text-sm font-medium text-gray-700 mb-2">
-                <i class="fas fa-envelope mr-2"></i>Email Address *
+                Email Address *
               </label>
               <input type="email" id="email" name="email" required
                      class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                      placeholder="your.email@example.com">
             </div>
 
-            <!-- Address -->
+            <!-- Address Section -->
+            <div class="md:col-span-2 mt-4">
+              <h4 class="text-lg font-semibold text-gray-800 mb-4">
+                Address Information
+              </h4>
+            </div>
+
+            <!-- Address Line 1 -->
             <div class="input-group md:col-span-2">
-              <label for="address" class="block text-sm font-medium text-gray-700 mb-2">
-                <i class="fas fa-map-marker-alt mr-2"></i>Address *
+              <label for="addressLine1" class="block text-sm font-medium text-gray-700 mb-2">
+                Address Line 1 *
               </label>
-              <textarea id="address" name="address" required rows="3"
-                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                        placeholder="Enter your complete address"></textarea>
+              <input type="text" id="addressLine1" name="addressLine1" required
+                     class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                     placeholder="Street address, P.O. box, unit number">
+            </div>
+
+            <!-- Address Line 2 -->
+            <div class="input-group md:col-span-2">
+              <label for="addressLine2" class="block text-sm font-medium text-gray-700 mb-2">
+                Address Line 2
+              </label>
+              <input type="text" id="addressLine2" name="addressLine2"
+                     class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                     placeholder="Apartment, suite, building (optional)">
             </div>
 
             <!-- City -->
             <div class="input-group">
               <label for="city" class="block text-sm font-medium text-gray-700 mb-2">
-                <i class="fas fa-city mr-2"></i>City *
+                City *
               </label>
               <select id="city" name="city" required
                       class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white">
@@ -319,10 +355,37 @@
               </select>
             </div>
 
+            <!-- State -->
+            <div class="input-group">
+              <label for="state" class="block text-sm font-medium text-gray-700 mb-2">
+                State *
+              </label>
+              <select id="state" name="state" required
+                      class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white">
+                <option value="">Select state</option>
+                <option value="Johor">Johor</option>
+                <option value="Kedah">Kedah</option>
+                <option value="Kelantan">Kelantan</option>
+                <option value="Kuala Lumpur">Kuala Lumpur</option>
+                <option value="Labuan">Labuan</option>
+                <option value="Malacca">Malacca</option>
+                <option value="Negeri Sembilan">Negeri Sembilan</option>
+                <option value="Pahang">Pahang</option>
+                <option value="Penang">Penang</option>
+                <option value="Perak">Perak</option>
+                <option value="Perlis">Perlis</option>
+                <option value="Putrajaya">Putrajaya</option>
+                <option value="Sabah">Sabah</option>
+                <option value="Sarawak">Sarawak</option>
+                <option value="Selangor">Selangor</option>
+                <option value="Terengganu">Terengganu</option>
+              </select>
+            </div>
+
             <!-- Postcode -->
             <div class="input-group">
               <label for="postcode" class="block text-sm font-medium text-gray-700 mb-2">
-                <i class="fas fa-mail-bulk mr-2"></i>Postcode *
+                Postcode *
               </label>
               <input type="text" id="postcode" name="postcode" required pattern="[0-9]{5}"
                      class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
@@ -331,8 +394,7 @@
 
             <!-- Account Information -->
             <div class="md:col-span-2 mt-6">
-              <h3 class="text-xl font-semibold text-gray-800 mb-4 flex items-center">
-                <i class="fas fa-key text-green-600 mr-2"></i>
+              <h3 class="text-xl font-semibold text-gray-800 mb-4">
                 Account Information
               </h3>
             </div>
@@ -340,7 +402,7 @@
             <!-- Username -->
             <div class="input-group">
               <label for="username" class="block text-sm font-medium text-gray-700 mb-2">
-                <i class="fas fa-user-circle mr-2"></i>Username *
+                Username *
               </label>
               <input type="text" id="username" name="username" required
                      pattern="[a-zA-Z0-9_]{3,20}"
@@ -352,7 +414,7 @@
             <!-- Password -->
             <div class="input-group">
               <label for="password" class="block text-sm font-medium text-gray-700 mb-2">
-                <i class="fas fa-lock mr-2"></i>Password *
+                Password *
               </label>
               <input type="password" id="password" name="password" required
                      minlength="6"
@@ -424,37 +486,6 @@
 
           </div>
         </form>
-      </div>
-
-      <!-- Benefits Section -->
-      <div class="form-card rounded-2xl shadow-xl p-8">
-        <h3 class="text-2xl font-bold text-gray-800 mb-6 text-center">
-          <i class="fas fa-star text-yellow-500 mr-2"></i>
-          Member Benefits
-        </h3>
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <div class="text-center">
-            <div class="bg-blue-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
-              <i class="fas fa-id-badge text-2xl text-blue-600"></i>
-            </div>
-            <h4 class="font-semibold text-gray-800 mb-2">Unique Player ID</h4>
-            <p class="text-sm text-gray-600">Get your unique 5-character Player ID linked to your IC number</p>
-          </div>
-          <div class="text-center">
-            <div class="bg-green-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
-              <i class="fas fa-trophy text-2xl text-green-600"></i>
-            </div>
-            <h4 class="font-semibold text-gray-800 mb-2">Tournament Access</h4>
-            <p class="text-sm text-gray-600">Register for official tournaments and competitions</p>
-          </div>
-          <div class="text-center">
-            <div class="bg-purple-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
-              <i class="fas fa-chart-line text-2xl text-purple-600"></i>
-            </div>
-            <h4 class="font-semibold text-gray-800 mb-2">Ranking System</h4>
-            <p class="text-sm text-gray-600">Track your progress and national ranking</p>
-          </div>
-        </div>
       </div>
 
     </div>

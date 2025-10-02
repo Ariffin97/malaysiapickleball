@@ -42,9 +42,15 @@
       <div class="dashboard-card rounded-2xl shadow-xl p-8 mb-8">
         <div class="flex flex-col md:flex-row items-center justify-between">
           <div class="flex items-center space-x-6 mb-6 md:mb-0">
-            <img src="<%= player.profilePicture || '/images/default-avatar.png' %>" 
-                 alt="<%= player.fullName %>" 
-                 class="w-24 h-24 rounded-full border-4 border-blue-500 shadow-lg">
+            <% if (player.profilePicture) { %>
+              <img src="<%= player.profilePicture %>"
+                   alt="<%= player.fullName %>"
+                   class="w-24 h-24 rounded-full border-4 border-blue-500 shadow-lg object-cover">
+            <% } else { %>
+              <div class="w-24 h-24 rounded-full border-4 border-gray-300 shadow-lg bg-gray-100 flex items-center justify-center">
+                <i class="fas fa-user text-4xl text-gray-400"></i>
+              </div>
+            <% } %>
             <div>
               <h1 class="text-3xl font-bold text-gray-800 mb-2">
                 Welcome back, <%= player.fullName %>!

@@ -1583,6 +1583,55 @@ app.post('/admin/tournaments/update/:id', adminAuth, [
   }
 });
 
+// Get player details route (for modal view) - MUST be before /admin/players
+app.get('/admin/players/details/:id', adminAuth, async (req, res) => {
+  try {
+    const playerId = req.params.id;
+    console.log(`Fetching details for player ID: ${playerId}`);
+
+    const player = await DatabaseService.getPlayerById(playerId);
+
+    if (!player) {
+      return res.status(404).json({
+        success: false,
+        message: 'Player not found'
+      });
+    }
+
+    // Return player details (excluding sensitive data like password)
+    res.json({
+      success: true,
+      data: {
+        player: {
+          _id: player._id,
+          playerId: player.playerId,
+          fullName: player.fullName,
+          icNumber: player.icNumber,
+          age: player.age,
+          gender: player.gender,
+          state: player.state,
+          division: player.division,
+          email: player.email,
+          phoneNumber: player.phoneNumber,
+          address: player.address,
+          username: player.username,
+          profilePicture: player.profilePicture,
+          status: player.status,
+          joinDate: player.joinDate,
+          tournaments: player.tournaments,
+          ranking: player.ranking
+        }
+      }
+    });
+  } catch (error) {
+    console.error('Error fetching player details:', error);
+    res.status(500).json({
+      success: false,
+      message: error.message || 'Failed to fetch player details'
+    });
+  }
+});
+
 app.get('/admin/players', adminAuth, async (req, res) => {
   try {
     const players = await DatabaseService.getAllPlayers();
@@ -1661,18 +1710,54 @@ app.post('/admin/players/reject/:id', adminAuth, async (req, res) => {
     const registrationId = req.params.id;
     const processedBy = req.session.username || 'admin';
     const notes = req.body.notes || '';
-    
+
     await DatabaseService.rejectPlayerRegistration(registrationId, processedBy, notes);
-    
-    res.json({ 
-      success: true, 
-      message: 'Player registration rejected successfully' 
+
+    res.json({
+      success: true,
+      message: 'Player registration rejected successfully'
     });
   } catch (error) {
     console.error('Error rejecting player:', error);
-    res.status(500).json({ 
-      success: false, 
-      message: error.message || 'Failed to reject player registration' 
+    res.status(500).json({
+      success: false,
+      message: error.message || 'Failed to reject player registration'
+    });
+  }
+});
+
+// Delete approved player route
+app.delete('/admin/players/delete/:id', adminAuth, async (req, res) => {
+  try {
+    const playerId = req.params.id;
+    const deletedBy = req.session.username || 'admin';
+
+    console.log(`Deleting player with ID: ${playerId} by ${deletedBy}`);
+
+    // Get player details before deletion for logging
+    const player = await DatabaseService.getPlayerById(playerId);
+
+    if (!player) {
+      return res.status(404).json({
+        success: false,
+        message: 'Player not found'
+      });
+    }
+
+    // Delete player and all related records
+    await DatabaseService.deletePlayer(playerId);
+
+    console.log(`Player deleted successfully: ${player.fullName} (${player.playerId}) by ${deletedBy}`);
+
+    res.json({
+      success: true,
+      message: `Player ${player.fullName} and all related records have been permanently deleted`
+    });
+  } catch (error) {
+    console.error('Error deleting player:', error);
+    res.status(500).json({
+      success: false,
+      message: error.message || 'Failed to delete player'
     });
   }
 });
@@ -1727,9 +1812,13 @@ app.post('/player/register', [
   body('fullName').notEmpty().trim().withMessage('Full name is required'),
   body('icNumber').notEmpty().trim().matches(/^[0-9]{6}-[0-9]{2}-[0-9]{4}$/).withMessage('Valid IC number is required'),
   body('age').isInt({ min: 12, max: 100 }).withMessage('Age must be between 12 and 100'),
+  body('gender').notEmpty().withMessage('Gender is required'),
   body('phoneNumber').notEmpty().trim().withMessage('Phone number is required'),
   body('email').isEmail().withMessage('Valid email is required'),
-  body('address').notEmpty().trim().withMessage('Address is required'),
+  body('addressLine1').notEmpty().trim().withMessage('Address Line 1 is required'),
+  body('city').notEmpty().withMessage('City is required'),
+  body('state').notEmpty().withMessage('State is required'),
+  body('postcode').notEmpty().trim().matches(/^[0-9]{5}$/).withMessage('Valid 5-digit postcode is required'),
   body('username').notEmpty().trim().isLength({ min: 3, max: 20 }).matches(/^[a-zA-Z0-9_]+$/).withMessage('Username must be 3-20 characters, letters, numbers, and underscores only'),
   body('password').isLength({ min: 6 }).withMessage('Password must be at least 6 characters'),
   body('terms').equals('on').withMessage('You must accept the terms and conditions')
@@ -1792,14 +1881,20 @@ app.post('/player/register', [
       });
     }
 
-    // Prepare registration data
+    // Prepare registration data with all fields
     const registrationData = {
       fullName: req.body.fullName,
       icNumber: req.body.icNumber,
       age: parseInt(req.body.age),
+      gender: req.body.gender,
       phoneNumber: req.body.phoneNumber,
       email: req.body.email,
-      address: req.body.address,
+      addressLine1: req.body.addressLine1,
+      addressLine2: req.body.addressLine2 || '',
+      city: req.body.city,
+      state: req.body.state,
+      postcode: req.body.postcode,
+      address: `${req.body.addressLine1}${req.body.addressLine2 ? ', ' + req.body.addressLine2 : ''}, ${req.body.city}, ${req.body.state} ${req.body.postcode}`,
       username: req.body.username,
       password: req.body.password,
       profilePicture: req.files && req.files.profilePicture ? req.files.profilePicture.name : null,
@@ -1948,12 +2043,68 @@ app.post('/player/login', async (req, res) => {
   }
 });
 
+// Forgot password route
+app.post('/player/forgot-password', async (req, res) => {
+  try {
+    const { email } = req.body;
+
+    if (!email) {
+      return res.status(400).json({
+        success: false,
+        message: 'Email address is required'
+      });
+    }
+
+    // Find player by email - check PlayerRegistration first (has plain text password)
+    const PlayerRegistration = require('./models/PlayerRegistration');
+    const registration = await PlayerRegistration.findOne({
+      email: email.toLowerCase(),
+      status: 'approved' // Only approved registrations have active accounts
+    });
+
+    if (!registration) {
+      return res.status(404).json({
+        success: false,
+        message: 'No account found with this email address'
+      });
+    }
+
+    // Send password recovery email with plain text password from registration
+    const emailResult = await EmailService.sendPasswordRecoveryEmail({
+      fullName: registration.fullName,
+      email: registration.email,
+      username: registration.username,
+      password: registration.password // Plain text password from registration
+    });
+
+    if (emailResult.success) {
+      console.log(`✅ Password recovery email sent to ${email}`);
+      return res.json({
+        success: true,
+        message: 'Password has been sent to your email address'
+      });
+    } else {
+      return res.status(500).json({
+        success: false,
+        message: 'Failed to send recovery email. Please try again later.'
+      });
+    }
+
+  } catch (error) {
+    console.error('Forgot password error:', error);
+    return res.status(500).json({
+      success: false,
+      message: 'An error occurred. Please try again later.'
+    });
+  }
+});
+
 app.get('/player/dashboard', playerAuth, async (req, res) => {
   try {
     const player = await DatabaseService.getPlayerById(req.session.playerId);
     const backgroundImage = await DatabaseService.getSetting('background_image', '/images/defaultbg.png');
     const unreadCount = await DatabaseService.getUnreadMessageCount(player.playerId);
-    
+
     res.render('pages/player/dashboard', {
       player: player,
       unreadCount: unreadCount,
@@ -1963,6 +2114,25 @@ app.get('/player/dashboard', playerAuth, async (req, res) => {
   } catch (error) {
     console.error('Player dashboard error:', error);
     res.redirect('/player/login?error=dashboard_failed');
+  }
+});
+
+// Player profile edit route
+app.get('/player/profile/edit', playerAuth, async (req, res) => {
+  try {
+    const player = await DatabaseService.getPlayerById(req.session.playerId);
+    const backgroundImage = await DatabaseService.getSetting('background_image', '/images/defaultbg.png');
+    const unreadCount = await DatabaseService.getUnreadMessageCount(player.playerId);
+
+    res.render('pages/player/profile-edit', {
+      player: player,
+      unreadCount: unreadCount,
+      session: req.session,
+      backgroundImage
+    });
+  } catch (error) {
+    console.error('Player profile edit error:', error);
+    res.redirect('/player/dashboard?error=profile_load_failed');
   }
 });
 
@@ -3421,6 +3591,10 @@ app.get('/organization-chart', async (req, res) => {
         name: "Puan Delima Ibrahim",
         photo: "/images/org-chart/acting-president.jpg"
       },
+      acting_deputy_president: {
+        name: "Michael Robin Jayesuria",
+        photo: "/images/org-chart/robin.jpg"
+      },
       secretary: {
         name: "Puan Sally Jong Siew Nyuk",
         photo: "/images/org-chart/secretary.jpg"
@@ -3477,6 +3651,7 @@ app.get('/organization-chart', async (req, res) => {
     // Simple fallback with static data
     const orgChartData = {
       acting_president: { name: "Puan Delima Ibrahim", photo: null },
+      acting_deputy_president: { name: "Michael Robin Jayesuria", photo: null },
       secretary: { name: "Puan Sally Jong Siew Nyuk", photo: null },
       disciplinary_chair: { name: "Cik Jenny Ting Hua Hung", photo: null },
       dev_committee_chair: { name: "Prof. Dr. Mohamad Rahizam Abdul Rahim", photo: null },
@@ -6103,16 +6278,53 @@ app.patch('/api/milestones/:id/toggle-feature', adminAuth, async (req, res) => {
 const PORT = process.env.PORT || 3000;
 
 // Initialize database connection and start server
+// Test email endpoint
+app.get('/test-email', async (req, res) => {
+  try {
+    console.log('📧 Testing email with configuration:');
+    console.log('EMAIL_USER:', process.env.EMAIL_USER);
+    console.log('EMAIL_PASSWORD:', process.env.EMAIL_PASSWORD ? '****' + process.env.EMAIL_PASSWORD.slice(-4) : 'NOT SET');
+
+    const testResult = await EmailService.sendRegistrationSuccessEmail({
+      fullName: 'Test User',
+      email: 'ariffinanuar@gmail.com',
+      username: 'testuser',
+      password: 'test123'
+    });
+
+    if (testResult.success) {
+      res.json({
+        success: true,
+        message: '✅ Test email sent successfully to ariffinanuar@gmail.com',
+        messageId: testResult.messageId
+      });
+    } else {
+      res.status(500).json({
+        success: false,
+        message: '❌ Failed to send test email',
+        error: testResult.error || testResult.message
+      });
+    }
+  } catch (error) {
+    console.error('Test email error:', error);
+    res.status(500).json({
+      success: false,
+      message: '❌ Error sending test email',
+      error: error.message
+    });
+  }
+});
+
 async function startServer() {
   try {
     console.log('🚀 Starting Malaysia Pickleball Server...');
-    
+
     // Connect to database
     await connectDB();
     console.log('📊 Database connected successfully');
-    
-    
-    
+
+
+
     // Start HTTP server
     app.listen(PORT, () => {
       console.log(`✅ Server running on port ${PORT}`);

@@ -22,6 +22,36 @@ const playerRegistrationSchema = new mongoose.Schema({
     min: 12,
     max: 100
   },
+  gender: {
+    type: String,
+    required: false,
+    enum: ['Male', 'Female']
+  },
+  addressLine1: {
+    type: String,
+    required: false,
+    trim: true
+  },
+  addressLine2: {
+    type: String,
+    required: false,
+    trim: true
+  },
+  city: {
+    type: String,
+    required: false,
+    trim: true
+  },
+  state: {
+    type: String,
+    required: false,
+    trim: true
+  },
+  postcode: {
+    type: String,
+    required: false,
+    trim: true
+  },
   address: {
     type: String,
     required: true,
@@ -89,10 +119,14 @@ playerRegistrationSchema.statics.generateRegistrationId = async function() {
   return `REG${String(nextNumber).padStart(4, '0')}`;
 };
 
-// Check if IC number is already in registration system (pending or approved)
+// Check if IC number is already in registration system (only pending registrations)
 playerRegistrationSchema.statics.isIcNumberInSystem = async function(icNumber) {
   try {
-    const existingRegistration = await this.findOne({ icNumber });
+    // Only check for pending registrations, not approved or rejected
+    const existingRegistration = await this.findOne({
+      icNumber,
+      status: 'pending'
+    });
     return !!existingRegistration;
   } catch (error) {
     console.error('Error checking IC number in registration system:', error);

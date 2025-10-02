@@ -403,6 +403,26 @@
           </div>
         </div>
 
+        <!-- Acting Deputy President Section -->
+        <div style="margin-bottom: 4rem;">
+          <h2 class="section-title">Deputy Leadership</h2>
+          <div class="committee-grid">
+            <div class="member-card" style="grid-column: 1 / -1; max-width: 400px; margin: 0 auto;">
+              <div class="member-photo">
+                <% if (orgChartData?.acting_deputy_president?.photo && orgChartData.acting_deputy_president.photo !== '👨‍💼' && orgChartData.acting_deputy_president.photo !== '👩‍💼' && orgChartData.acting_deputy_president.photo !== null && orgChartData.acting_deputy_president.photo !== 'null') { %>
+                  <img src="<%= orgChartData.acting_deputy_president.photo %>" alt="<%= orgChartData.acting_deputy_president.name %>">
+                <% } else { %>
+                  <div class="member-photo-placeholder">
+                    <i class="fas fa-user"></i>
+                  </div>
+                <% } %>
+              </div>
+              <div class="member-title">Acting Deputy President</div>
+              <div class="member-name"><%= orgChartData?.acting_deputy_president?.name || 'Michael Robin Jayesuria' %></div>
+            </div>
+          </div>
+        </div>
+
         <!-- Committee Members Section -->
         <div style="margin-bottom: 4rem;">
           <h2 class="section-title">Committee Members</h2>
