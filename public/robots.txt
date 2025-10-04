@@ -1,0 +1,12 @@
+# Allow all search engines to index the site
+User-agent: *
+Allow: /
+
+# Disallow admin pages from indexing
+Disallow: /admin/
+
+# Sitemap location
+Sitemap: https://malaysiapickleball.my/sitemap.xml
+
+# Crawl-delay (optional, can be adjusted)
+Crawl-delay: 1
