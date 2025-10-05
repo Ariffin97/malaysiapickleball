@@ -94,106 +94,35 @@ function Home() {
     fetchUpcomingTournaments();
   }, []);
 
-  // Continuous horizontal auto-scroll
+  // Smooth infinite scroll with CSS animation
   useEffect(() => {
     if (milestones.length === 0) return;
 
-    let autoScrollInterval;
-    let isPaused = false;
-    let isUserScrolling = false;
-    let userScrollTimeout;
-    const scrollSpeed = 0.5; // pixels per frame
+    const wrapper = document.querySelector('.timeline-wrapper');
+    if (!wrapper) return;
 
+    // Calculate animation duration based on number of milestones
+    const itemWidth = 320; // milestone card width + gap
+    const totalWidth = itemWidth * milestones.length;
+    const duration = totalWidth / 30; // 30px per second for smooth scrolling
+
+    wrapper.style.animation = `scroll-timeline ${duration}s linear infinite`;
+
+    // Pause animation on hover
     const container = document.getElementById('timelineContainer');
-    if (!container) return;
+    if (container) {
+      container.addEventListener('mouseenter', () => {
+        wrapper.style.animationPlayState = 'paused';
+      });
 
-    // Calculate halfway point for seamless loop
-    const getHalfwayScrollWidth = () => {
-      const itemWidth = 320; // milestone card width + gap
-      return itemWidth * milestones.length;
-    };
+      container.addEventListener('mouseleave', () => {
+        wrapper.style.animationPlayState = 'running';
+      });
+    }
 
-    // Continuous smooth auto-scroll
-    const continuousAutoScroll = () => {
-      if (isPaused || isUserScrolling) return;
-
-      const halfwayPoint = getHalfwayScrollWidth();
-
-      // Move scroll position by speed
-      container.scrollLeft += scrollSpeed;
-
-      // Reset to beginning when reached halfway for seamless loop
-      if (container.scrollLeft >= halfwayPoint) {
-        container.scrollLeft = 0;
-      }
-    };
-
-    // Start auto-scroll
-    const startAutoScroll = () => {
-      stopAutoScroll();
-      autoScrollInterval = setInterval(continuousAutoScroll, 16); // ~60fps
-    };
-
-    // Stop auto-scroll
-    const stopAutoScroll = () => {
-      if (autoScrollInterval) {
-        clearInterval(autoScrollInterval);
-        autoScrollInterval = null;
-      }
-    };
-
-    // Pause auto-scroll when user interacts
-    const pauseAutoScroll = () => {
-      isPaused = true;
-
-      // Resume after 3 seconds of no interaction
-      setTimeout(() => {
-        if (isPaused) {
-          isPaused = false;
-        }
-      }, 3000);
-    };
-
-    // User interaction detection
-    container.addEventListener('mousedown', () => {
-      isUserScrolling = true;
-      clearTimeout(userScrollTimeout);
-      pauseAutoScroll();
-    });
-
-    container.addEventListener('mouseup', () => {
-      userScrollTimeout = setTimeout(() => {
-        isUserScrolling = false;
-      }, 100);
-    });
-
-    container.addEventListener('touchstart', () => {
-      isUserScrolling = true;
-      clearTimeout(userScrollTimeout);
-      pauseAutoScroll();
-    });
-
-    container.addEventListener('touchend', () => {
-      userScrollTimeout = setTimeout(() => {
-        isUserScrolling = false;
-      }, 100);
-    });
-
-    // Pause on hover
-    container.addEventListener('mouseenter', pauseAutoScroll);
-
-    // Start auto-scroll
-    startAutoScroll();
-
-    // Cleanup
     return () => {
-      stopAutoScroll();
-      if (container) {
-        container.removeEventListener('mousedown', () => {});
-        container.removeEventListener('mouseup', () => {});
-        container.removeEventListener('touchstart', () => {});
-        container.removeEventListener('touchend', () => {});
-        container.removeEventListener('mouseenter', pauseAutoScroll);
+      if (wrapper) {
+        wrapper.style.animation = '';
       }
     };
   }, [milestones]);
