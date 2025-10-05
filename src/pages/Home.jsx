@@ -83,7 +83,7 @@ function Home() {
             return startDate >= today;
           })
           .sort((a, b) => new Date(a.startDate) - new Date(b.startDate))
-          .slice(0, 4); // Get only the next 4 tournaments
+          .slice(0, 3); // Get only the next 3 tournaments
 
         setUpcomingTournaments(upcoming);
       } catch (error) {
@@ -822,7 +822,7 @@ function Home() {
                       {item.media && item.media.length > 0 && item.media[0].url && (
                         <div className="news-image">
                           <img
-                            src={`http://localhost:5001${item.media[0].url}`}
+                            src={item.media[0].url.startsWith('http') ? item.media[0].url : `http://localhost:5001${item.media[0].url}`}
                             alt={item.title}
                             onError={(e) => { e.target.style.display = 'none'; }}
                           />
@@ -879,7 +879,7 @@ function Home() {
               {selectedNews.media && selectedNews.media.length > 0 && selectedNews.media[0].url && (
                 <div className="news-modal-image" style={{ marginBottom: '1.5rem', borderRadius: '12px', overflow: 'hidden' }}>
                   <img
-                    src={`http://localhost:5001${selectedNews.media[0].url}`}
+                    src={selectedNews.media[0].url.startsWith('http') ? selectedNews.media[0].url : `http://localhost:5001${selectedNews.media[0].url}`}
                     alt={selectedNews.title}
                     style={{ width: '100%', height: 'auto', display: 'block' }}
                     onError={(e) => { e.target.parentElement.style.display = 'none'; }}
