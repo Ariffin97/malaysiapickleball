@@ -1,22 +1,27 @@
-// Tournament Service - handles all tournament CRUD operations with MPA Portal
-const PORTAL_API_URL = import.meta.env.VITE_PORTAL_API_URL || 'http://localhost:5001/api';
+// Tournament Service - handles all tournament operations via local backend
+// Local backend syncs with Portal API bidirectionally
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000/api';
 
 class TournamentService {
   /**
-   * Fetch all approved tournaments from MPA Portal
+   * Fetch all approved tournaments (from local backend)
    */
-  async getApprovedTournaments() {
+  async getApprovedTournaments(filters = {}) {
     try {
-      const response = await fetch(`${PORTAL_API_URL}/approved-tournaments`);
+      const params = new URLSearchParams();
+
+      if (filters.state) params.append('state', filters.state);
+      if (filters.type) params.append('type', filters.type);
+      if (filters.upcoming) params.append('upcoming', 'true');
+
+      const url = `${API_BASE_URL}/tournaments${params.toString() ? '?' + params.toString() : ''}`;
+      const response = await fetch(url);
 
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
 
-      const data = await response.json();
-
-      // Map portal data to our format
-      return data.map(tournament => this.mapPortalToLocal(tournament));
+      return await response.json();
     } catch (error) {
       console.error('Error fetching approved tournaments:', error);
       throw error;
@@ -24,18 +29,17 @@ class TournamentService {
   }
 
   /**
-   * Get a single tournament by ID
+   * Get a single tournament by ID (from local backend)
    */
   async getTournamentById(applicationId) {
     try {
-      const response = await fetch(`${PORTAL_API_URL}/applications/${applicationId}`);
+      const response = await fetch(`${API_BASE_URL}/tournaments/${applicationId}`);
 
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
 
-      const data = await response.json();
-      return this.mapPortalToLocal(data);
+      return await response.json();
     } catch (error) {
       console.error('Error fetching tournament:', error);
       throw error;
@@ -43,66 +47,13 @@ class TournamentService {
   }
 
   /**
-   * Create a new tournament (bi-directional - creates in portal)
+   * Sync tournaments from Portal API
+   * This should be called periodically or triggered by admin action
    */
-  async createTournament(tournamentData) {
+  async syncFromPortal() {
     try {
-      const portalData = this.mapLocalToPortal(tournamentData);
-
-      const response = await fetch(`${PORTAL_API_URL}/applications`, {
+      const response = await fetch(`${API_BASE_URL}/tournaments/sync`, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(portalData),
-      });
-
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-
-      const data = await response.json();
-      return this.mapPortalToLocal(data);
-    } catch (error) {
-      console.error('Error creating tournament:', error);
-      throw error;
-    }
-  }
-
-  /**
-   * Update an existing tournament (bi-directional - updates in portal)
-   */
-  async updateTournament(applicationId, tournamentData) {
-    try {
-      const portalData = this.mapLocalToPortal(tournamentData);
-
-      const response = await fetch(`${PORTAL_API_URL}/applications/${applicationId}`, {
-        method: 'PATCH',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(portalData),
-      });
-
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-
-      const data = await response.json();
-      return this.mapPortalToLocal(data.application || data);
-    } catch (error) {
-      console.error('Error updating tournament:', error);
-      throw error;
-    }
-  }
-
-  /**
-   * Delete a tournament (bi-directional - deletes from portal)
-   */
-  async deleteTournament(applicationId) {
-    try {
-      const response = await fetch(`${PORTAL_API_URL}/applications/${applicationId}`, {
-        method: 'DELETE',
         headers: {
           'Content-Type': 'application/json',
         },
@@ -114,105 +65,43 @@ class TournamentService {
 
       return await response.json();
     } catch (error) {
-      console.error('Error deleting tournament:', error);
+      console.error('Error syncing from portal:', error);
       throw error;
     }
   }
 
   /**
-   * Map portal tournament data to local format
+   * Get upcoming tournaments
    */
-  mapPortalToLocal(tournament) {
-    // Determine tournament type based on classification
-    const getTypeFromClassification = (classification) => {
-      const typeMap = {
-        'District': 'local',
-        'Divisional': 'local',
-        'State': 'state',
-        'National': 'national',
-        'International': 'international'
-      };
-      return typeMap[classification] || 'local';
-    };
-
-    // Determine color based on type
-    const getColorFromType = (type) => {
-      const colorMap = {
-        'local': 'green',
-        'state': 'red',
-        'national': 'blue',
-        'international': 'orange'
-      };
-      return colorMap[type] || 'blue';
-    };
-
-    const type = getTypeFromClassification(tournament.classification);
-
-    return {
-      id: tournament.applicationId,
-      applicationId: tournament.applicationId,
-      name: tournament.eventTitle,
-      type: type,
-      color: getColorFromType(type),
-      startDate: tournament.eventStartDate,
-      endDate: tournament.eventEndDate,
-      venue: tournament.venue,
-      city: tournament.city,
-      state: tournament.state,
-      organizer: tournament.organiserName,
-      personInCharge: tournament.personInCharge || tournament.organiserName,
-      phoneNumber: tournament.telContact,
-      contactEmail: tournament.email,
-      description: tournament.eventSummary,
-      classification: tournament.classification,
-      eventType: tournament.eventType,
-      expectedParticipants: tournament.expectedParticipants,
-      categories: tournament.categories,
-      scoringFormat: tournament.scoringFormat,
-      status: tournament.status,
-      submissionDate: tournament.submissionDate,
-      // Original portal data
-      _original: tournament
-    };
+  async getUpcomingTournaments() {
+    return this.getApprovedTournaments({ upcoming: true });
   }
 
   /**
-   * Map local tournament data to portal format
+   * Get tournaments by state
    */
-  mapLocalToPortal(tournament) {
-    // Determine classification based on type
-    const getClassificationFromType = (type) => {
-      const classMap = {
-        'local': 'District',
-        'state': 'State',
-        'national': 'National',
-        'international': 'International'
-      };
-      return classMap[type] || 'District';
-    };
+  async getTournamentsByState(state) {
+    return this.getApprovedTournaments({ state });
+  }
 
-    return {
-      eventTitle: tournament.name,
-      eventStartDate: tournament.startDate,
-      eventEndDate: tournament.endDate,
-      venue: tournament.venue,
-      city: tournament.city,
-      state: tournament.state,
-      organiserName: tournament.organizer,
-      personInCharge: tournament.personInCharge,
-      telContact: tournament.phoneNumber,
-      email: tournament.contactEmail,
-      eventSummary: tournament.description,
-      classification: getClassificationFromType(tournament.type),
-      eventType: tournament.eventType || 'Open',
-      expectedParticipants: tournament.expectedParticipants || 100,
-      categories: tournament.categories || [],
-      scoringFormat: tournament.scoringFormat || 'traditional',
-      dataConsent: true,
-      termsConsent: true,
-      status: 'Approved',
-      createdByAdmin: true
-    };
+  /**
+   * Get tournaments by type
+   */
+  async getTournamentsByType(type) {
+    return this.getApprovedTournaments({ type });
+  }
+
+  /**
+   * Check backend health
+   */
+  async checkHealth() {
+    try {
+      const response = await fetch(`${API_BASE_URL}/health`);
+      return await response.json();
+    } catch (error) {
+      console.error('Error checking health:', error);
+      throw error;
+    }
   }
 }
 
