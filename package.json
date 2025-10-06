@@ -11,7 +11,8 @@
     "lint": "eslint .",
     "preview": "vite preview",
     "start": "node server/index.js",
-    "heroku-postbuild": "npm run build"
+    "heroku-postbuild": "npm run build",
+    "seed:milestones": "node server/seedMilestones.js"
   },
   "dependencies": {
     "cloudinary": "^1.41.3",

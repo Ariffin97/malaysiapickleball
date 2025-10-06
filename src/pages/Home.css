@@ -1173,11 +1173,17 @@
 
 @keyframes scroll-timeline {
   0% {
-    transform: translateX(0);
+    transform: translateX(0%);
   }
   100% {
     transform: translateX(-50%);
   }
+}
+
+/* Ensure smooth infinite loop */
+.timeline-wrapper {
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
 }
 
 .timeline-wrapper::before {

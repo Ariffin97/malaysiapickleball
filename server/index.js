@@ -4,6 +4,8 @@ import cors from 'cors';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import dotenv from 'dotenv';
+import multer from 'multer';
+import { journeyStorage } from './cloudinaryConfig.js';
 
 dotenv.config();
 
@@ -147,6 +149,40 @@ const featuredVideoSchema = new mongoose.Schema({
 });
 
 const FeaturedVideo = mongoose.model('FeaturedVideo', featuredVideoSchema);
+
+// Milestone Schema (Journey)
+const milestoneSchema = new mongoose.Schema({
+  date: {
+    type: Date,
+    required: true,
+    index: true
+  },
+  title: {
+    type: String,
+    required: true
+  },
+  description: {
+    type: String,
+    required: true
+  },
+  image: {
+    type: String, // Cloudinary URL
+    default: null
+  },
+  order: {
+    type: Number,
+    default: 0
+  }
+}, {
+  timestamps: true
+});
+
+milestoneSchema.index({ date: 1 });
+
+const Milestone = mongoose.model('Milestone', milestoneSchema);
+
+// Multer configuration for journey images
+const uploadJourneyImage = multer({ storage: journeyStorage });
 
 // Portal API Configuration
 const PORTAL_API_URL = process.env.PORTAL_API_URL || 'https://portalmpa.com/api';
@@ -376,6 +412,111 @@ app.post('/api/featured-video', async (req, res) => {
     res.json(video);
   } catch (error) {
     console.error('Error saving featured video:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Journey Milestones Routes
+// Get all milestones (sorted by date)
+app.get('/api/milestones', async (req, res) => {
+  try {
+    const milestones = await Milestone.find()
+      .sort({ date: 1 }) // Sort by date ascending (oldest to newest)
+      .lean();
+
+    res.json(milestones);
+  } catch (error) {
+    console.error('Error fetching milestones:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Get single milestone by ID
+app.get('/api/milestones/:id', async (req, res) => {
+  try {
+    const milestone = await Milestone.findById(req.params.id).lean();
+
+    if (!milestone) {
+      return res.status(404).json({ error: 'Milestone not found' });
+    }
+
+    res.json(milestone);
+  } catch (error) {
+    console.error('Error fetching milestone:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Create new milestone
+app.post('/api/milestones', uploadJourneyImage.single('milestoneImage'), async (req, res) => {
+  try {
+    const { date, title, description, order } = req.body;
+
+    if (!date || !title || !description) {
+      return res.status(400).json({ error: 'Date, title, and description are required' });
+    }
+
+    const milestoneData = {
+      date: new Date(date),
+      title,
+      description,
+      order: order || 0,
+      image: req.file ? req.file.path : null
+    };
+
+    const milestone = await Milestone.create(milestoneData);
+
+    console.log('✅ Milestone created:', milestone.title);
+    res.status(201).json(milestone);
+  } catch (error) {
+    console.error('Error creating milestone:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Update milestone
+app.patch('/api/milestones/:id', uploadJourneyImage.single('milestoneImage'), async (req, res) => {
+  try {
+    const { date, title, description, order } = req.body;
+
+    const updateData = {};
+    if (date) updateData.date = new Date(date);
+    if (title) updateData.title = title;
+    if (description) updateData.description = description;
+    if (order !== undefined) updateData.order = order;
+    if (req.file) updateData.image = req.file.path;
+
+    const milestone = await Milestone.findByIdAndUpdate(
+      req.params.id,
+      updateData,
+      { new: true, runValidators: true }
+    );
+
+    if (!milestone) {
+      return res.status(404).json({ error: 'Milestone not found' });
+    }
+
+    console.log('✅ Milestone updated:', milestone.title);
+    res.json(milestone);
+  } catch (error) {
+    console.error('Error updating milestone:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Delete milestone
+app.delete('/api/milestones/:id', async (req, res) => {
+  try {
+    const milestone = await Milestone.findByIdAndDelete(req.params.id);
+
+    if (!milestone) {
+      return res.status(404).json({ error: 'Milestone not found' });
+    }
+
+    console.log('✅ Milestone deleted:', milestone.title);
+    res.json({ success: true, message: 'Milestone deleted successfully' });
+  } catch (error) {
+    console.error('Error deleting milestone:', error);
     res.status(500).json({ error: error.message });
   }
 });

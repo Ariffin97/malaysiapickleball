@@ -48,7 +48,7 @@ function Home() {
   useEffect(() => {
     const fetchNewsAndVideo = async () => {
       try {
-        const PORTAL_API_URL = import.meta.env.VITE_PORTAL_API_URL || 'http://localhost:5001/api';
+        const PORTAL_API_URL = import.meta.env.VITE_PORTAL_API_URL || '/api';
 
         // Fetch latest news (only 2)
         const newsResponse = await fetch(`${PORTAL_API_URL}/news?status=Published&limit=2`);
@@ -157,7 +157,7 @@ function Home() {
       // Check IC validation when complete (12 digits)
       if (digitsOnly.length === 12) {
         try {
-          const PORTAL_API_URL = import.meta.env.VITE_PORTAL_API_URL || 'http://localhost:5001/api';
+          const PORTAL_API_URL = import.meta.env.VITE_PORTAL_API_URL || '/api';
           const checkResponse = await fetch(`${PORTAL_API_URL}/players/check-ic/${formatted}`);
           const checkResult = await checkResponse.json();
 
@@ -206,7 +206,7 @@ function Home() {
     }
 
     try {
-      const PORTAL_API_URL = import.meta.env.VITE_PORTAL_API_URL || 'http://localhost:5001/api';
+      const PORTAL_API_URL = import.meta.env.VITE_PORTAL_API_URL || '/api';
 
       // Check if IC number already exists
       const checkResponse = await fetch(`${PORTAL_API_URL}/players/check-ic/${registerFormData.icNumber}`);
@@ -749,9 +749,9 @@ function Home() {
 
           <div className="timeline-container" id="timelineContainer">
             <div className="timeline-wrapper">
-              {/* Original milestones */}
+              {/* First set of milestones */}
               {milestones.map((milestone) => (
-                <div key={milestone.id} className="timeline-item">
+                <div key={`set1-${milestone._id}`} className="timeline-item">
                   <div className="timeline-date">{new Date(milestone.date).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' })}</div>
                   <div className="timeline-point"></div>
                   <div className="milestone-content">
@@ -773,9 +773,9 @@ function Home() {
                   </div>
                 </div>
               ))}
-              {/* Duplicate milestones for seamless loop */}
+              {/* Second set - duplicate for seamless loop */}
               {milestones.map((milestone) => (
-                <div key={`duplicate-${milestone.id}`} className="timeline-item">
+                <div key={`set2-${milestone._id}`} className="timeline-item">
                   <div className="timeline-date">{new Date(milestone.date).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' })}</div>
                   <div className="timeline-point"></div>
                   <div className="milestone-content">
