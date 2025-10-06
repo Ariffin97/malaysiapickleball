@@ -4,9 +4,9 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "vite",
+    "dev": "concurrently \"vite\" \"nodemon server/index.js\"",
     "dev:backend": "nodemon server/index.js",
-    "dev:all": "concurrently \"npm run dev\" \"npm run dev:backend\"",
+    "dev:frontend": "vite",
     "build": "vite build",
     "lint": "eslint .",
     "preview": "vite preview",

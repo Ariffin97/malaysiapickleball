@@ -644,7 +644,7 @@ function Home() {
                   <li>Bidding procedures for international events</li>
                   <li>Legal compliance under Sports Development Act 1997</li>
                 </ul>
-                <button className="guideline-detail-button">Tournament Guidelines</button>
+                <Link to="/tournament-guidelines" className="guideline-detail-button">Tournament Guidelines</Link>
               </div>
               <div className="guideline-card">
                 <h3>Venue Guidelines</h3>
@@ -654,7 +654,7 @@ function Home() {
                   <li>Facility management protocols</li>
                   <li>Booking and reservation procedures</li>
                 </ul>
-                <button className="guideline-detail-button">Venue Guidelines</button>
+                <Link to="/venue-guidelines" className="guideline-detail-button">Venue Guidelines</Link>
               </div>
             </div>
           </div>

@@ -6,6 +6,8 @@ import About from './pages/About';
 import Tournament from './pages/Tournament';
 import Affiliate from './pages/Affiliate';
 import News from './pages/News';
+import TournamentGuidelines from './pages/TournamentGuidelines';
+import VenueGuidelines from './pages/VenueGuidelines';
 import AdminLogin from './pages/AdminLogin';
 import AdminDashboard from './pages/AdminDashboard';
 import PlayerLogin from './pages/PlayerLogin';
@@ -28,6 +30,8 @@ function AppContent() {
           <Route path="/affiliate" element={<Affiliate />} />
           <Route path="/news" element={<News />} />
           <Route path="/news/:newsId" element={<News />} />
+          <Route path="/tournament-guidelines" element={<TournamentGuidelines />} />
+          <Route path="/venue-guidelines" element={<VenueGuidelines />} />
           <Route path="/admin" element={<AdminLogin />} />
           <Route path="/admin/dashboard" element={<AdminDashboard />} />
           <Route path="/player/login" element={<PlayerLogin />} />

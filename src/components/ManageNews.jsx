@@ -147,9 +147,15 @@ function ManageNews() {
         return;
       }
 
+      console.log('Submitting video with URL:', PORTAL_API_URL);
+      console.log('Extracted URL:', extractedUrl);
+
       const response = await fetch(`${PORTAL_API_URL}/featured-video`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
+        },
         body: JSON.stringify({
           title: videoFormData.title,
           description: videoFormData.description,
@@ -163,12 +169,22 @@ function ManageNews() {
         setShowVideoModal(false);
         resetVideoForm();
       } else {
-        const error = await response.json();
-        alert('Error saving video: ' + (error.error || 'Unknown error'));
+        const errorText = await response.text();
+        console.error('Server response:', errorText);
+        try {
+          const error = JSON.parse(errorText);
+          alert('Error saving video: ' + (error.error || error.message || 'Unknown error'));
+        } catch {
+          alert('Error saving video: ' + errorText);
+        }
       }
     } catch (error) {
       console.error('Error saving video:', error);
-      alert('Error saving video: ' + error.message);
+      if (error.message === 'Failed to fetch') {
+        alert('Cannot connect to the server. Please ensure:\n1. The backend server is running (npm run dev in the backend folder)\n2. The API URL is correct: ' + PORTAL_API_URL);
+      } else {
+        alert('Error saving video: ' + error.message);
+      }
     }
   };
 

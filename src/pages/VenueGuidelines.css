@@ -1,0 +1,249 @@
+/* Venue Guidelines Page */
+.venue-guidelines-page {
+  min-height: 100vh;
+  background: white;
+}
+
+/* Header */
+.guidelines-header {
+  background: #2c3e50;
+  color: white;
+  padding: 3rem 0;
+  text-align: center;
+  border-bottom: 4px solid #3498db;
+}
+
+.guidelines-header h1 {
+  font-size: 2.5rem;
+  font-weight: 700;
+  margin: 0 0 1rem 0;
+}
+
+.guidelines-header p {
+  font-size: 1.1rem;
+  line-height: 1.6;
+  margin: 0 auto;
+  max-width: 800px;
+  opacity: 0.95;
+}
+
+/* Body */
+.guidelines-body {
+  padding: 3rem 0 4rem;
+}
+
+.guidelines-body .container {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 0 2rem;
+}
+
+/* Typography */
+.guidelines-body h2 {
+  color: #2c3e50;
+  font-size: 1.8rem;
+  font-weight: 700;
+  margin: 3rem 0 1.5rem 0;
+  padding-bottom: 0.75rem;
+  border-bottom: 3px solid #3498db;
+}
+
+.guidelines-body h2:first-child {
+  margin-top: 0;
+}
+
+.guidelines-body h3 {
+  color: #34495e;
+  font-size: 1.3rem;
+  font-weight: 600;
+  margin: 2rem 0 1rem 0;
+}
+
+.guidelines-body h4 {
+  color: #495057;
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin: 1.5rem 0 0.75rem 0;
+}
+
+.guidelines-body p {
+  color: #495057;
+  line-height: 1.8;
+  margin: 0 0 1.25rem 0;
+  font-size: 1rem;
+}
+
+.guidelines-body ul {
+  margin: 0 0 1.5rem 0;
+  padding-left: 2rem;
+}
+
+.guidelines-body li {
+  color: #495057;
+  line-height: 1.8;
+  margin-bottom: 0.75rem;
+}
+
+.guidelines-body strong {
+  color: #2c3e50;
+  font-weight: 600;
+}
+
+/* Highlight Text */
+.highlight-text {
+  background: #e3f2fd;
+  border-left: 4px solid #3498db;
+  padding: 1rem 1.25rem;
+  margin: 1.5rem 0;
+  border-radius: 4px;
+  color: #1565c0;
+}
+
+/* Diagrams Grid */
+.diagrams-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 2rem;
+  margin: 2rem 0;
+}
+
+/* Diagram Section */
+.diagram-section {
+  text-align: center;
+}
+
+.diagram-section h3 {
+  text-align: center;
+  margin-bottom: 1rem;
+  font-size: 1.15rem;
+}
+
+.diagram-placeholder {
+  margin: 0;
+}
+
+.diagram-placeholder img {
+  max-width: 100%;
+  height: auto;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Specs Grid */
+.specs-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 2rem;
+  margin: 2rem 0;
+}
+
+.specs-grid ul {
+  list-style: none;
+  padding-left: 0;
+}
+
+.specs-grid li {
+  padding-left: 1.25rem;
+  position: relative;
+}
+
+.specs-grid li::before {
+  content: "•";
+  position: absolute;
+  left: 0;
+  color: #3498db;
+  font-weight: bold;
+}
+
+/* Tolerance List */
+.tolerance-list {
+  margin: 1.5rem 0 2rem 0;
+}
+
+.tolerance-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.75rem 0;
+  border-bottom: 1px solid #e9ecef;
+}
+
+.tolerance-item:last-child {
+  border-bottom: none;
+}
+
+.tolerance-item span:first-child {
+  color: #495057;
+}
+
+.tolerance-item .measurement {
+  font-family: 'Courier New', monospace;
+  font-weight: 600;
+  color: #2c3e50;
+  font-size: 0.95rem;
+}
+
+/* Layout Grid */
+.layout-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 2rem;
+  margin: 1.5rem 0;
+}
+
+/* Two Column Grid */
+.two-column-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 2rem;
+  margin: 2rem 0;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .guidelines-header {
+    padding: 2rem 1rem;
+  }
+
+  .guidelines-header h1 {
+    font-size: 1.75rem;
+  }
+
+  .guidelines-header p {
+    font-size: 1rem;
+  }
+
+  .guidelines-body {
+    padding: 2rem 0 3rem;
+  }
+
+  .guidelines-body .container {
+    padding: 0 1rem;
+  }
+
+  .guidelines-body h2 {
+    font-size: 1.5rem;
+  }
+
+  .guidelines-body h3 {
+    font-size: 1.2rem;
+  }
+
+  .guidelines-body h4 {
+    font-size: 1.05rem;
+  }
+
+  .diagrams-grid,
+  .specs-grid,
+  .layout-grid,
+  .two-column-grid {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
+
+  .tolerance-item {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.25rem;
+  }
+}

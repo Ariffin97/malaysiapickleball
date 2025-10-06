@@ -131,6 +131,23 @@ tournamentSchema.index({ type: 1, status: 1 });
 
 const Tournament = mongoose.model('Tournament', tournamentSchema);
 
+// Featured Video Schema
+const featuredVideoSchema = new mongoose.Schema({
+  title: {
+    type: String,
+    required: true
+  },
+  description: String,
+  videoUrl: {
+    type: String,
+    required: true
+  }
+}, {
+  timestamps: true
+});
+
+const FeaturedVideo = mongoose.model('FeaturedVideo', featuredVideoSchema);
+
 // Portal API Configuration
 const PORTAL_API_URL = process.env.PORTAL_API_URL || 'https://portalmpa.com/api';
 
@@ -316,6 +333,49 @@ app.post('/api/webhooks/tournament-updated', async (req, res) => {
     res.json({ success: true });
   } catch (error) {
     console.error('Webhook error:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Featured Video Routes
+// Get featured video
+app.get('/api/featured-video', async (req, res) => {
+  try {
+    const video = await FeaturedVideo.findOne().sort({ createdAt: -1 }).lean();
+
+    if (!video) {
+      return res.status(404).json({ error: 'No featured video found' });
+    }
+
+    res.json(video);
+  } catch (error) {
+    console.error('Error fetching featured video:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Create or update featured video
+app.post('/api/featured-video', async (req, res) => {
+  try {
+    const { title, description, videoUrl } = req.body;
+
+    if (!title || !videoUrl) {
+      return res.status(400).json({ error: 'Title and video URL are required' });
+    }
+
+    // Delete all existing videos and create a new one (only one featured video at a time)
+    await FeaturedVideo.deleteMany({});
+
+    const video = await FeaturedVideo.create({
+      title,
+      description,
+      videoUrl
+    });
+
+    console.log('✅ Featured video updated:', video.title);
+    res.json(video);
+  } catch (error) {
+    console.error('Error saving featured video:', error);
     res.status(500).json({ error: error.message });
   }
 });

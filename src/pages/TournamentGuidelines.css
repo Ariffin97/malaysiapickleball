@@ -1,0 +1,276 @@
+/* Tournament Guidelines Page */
+.tournament-guidelines-page {
+  min-height: 100vh;
+  background: white;
+}
+
+/* Header */
+.guidelines-header {
+  background: #2c3e50;
+  color: white;
+  padding: 3rem 0;
+  text-align: center;
+  border-bottom: 4px solid #3498db;
+}
+
+.guidelines-header h1 {
+  font-size: 2.5rem;
+  font-weight: 700;
+  margin: 0 0 0.5rem 0;
+}
+
+.guidelines-header p {
+  font-size: 1.1rem;
+  margin: 0;
+  opacity: 0.95;
+}
+
+/* Body */
+.guidelines-body {
+  padding: 3rem 0 4rem;
+}
+
+.guidelines-body .container {
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 0 2rem;
+}
+
+/* Typography */
+.guidelines-body h2 {
+  color: #2c3e50;
+  font-size: 1.8rem;
+  font-weight: 700;
+  margin: 3rem 0 1.5rem 0;
+  padding-bottom: 0.75rem;
+  border-bottom: 3px solid #3498db;
+}
+
+.guidelines-body h2:first-child {
+  margin-top: 0;
+}
+
+.guidelines-body h2.template-title {
+  color: #e74c3c;
+  border-bottom-color: #e74c3c;
+  margin-top: 4rem;
+}
+
+.guidelines-body h3 {
+  color: #34495e;
+  font-size: 1.3rem;
+  font-weight: 600;
+  margin: 2rem 0 1rem 0;
+}
+
+.guidelines-body h4 {
+  color: #495057;
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin: 1.5rem 0 0.75rem 0;
+}
+
+.guidelines-body p {
+  color: #495057;
+  line-height: 1.8;
+  margin: 0 0 1.25rem 0;
+  font-size: 1rem;
+}
+
+.guidelines-body ul {
+  margin: 0 0 1.5rem 0;
+  padding-left: 2rem;
+}
+
+.guidelines-body li {
+  color: #495057;
+  line-height: 1.8;
+  margin-bottom: 0.75rem;
+}
+
+.guidelines-body strong {
+  color: #2c3e50;
+  font-weight: 600;
+}
+
+/* Note */
+.note {
+  color: #6c757d;
+  font-style: italic;
+  font-size: 0.95rem;
+}
+
+/* Banner Example */
+.banner-example {
+  margin: 2rem 0;
+  text-align: center;
+}
+
+.banner-example img {
+  max-width: 100%;
+  height: auto;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  margin-bottom: 1rem;
+}
+
+/* Document Template - Make it look like a formal document */
+.document-template {
+  background: #ffffff;
+  border: 2px solid #2c3e50;
+  padding: 3rem;
+  margin: 3rem 0;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  position: relative;
+}
+
+.document-template::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 8px;
+  background: linear-gradient(90deg, #2c3e50 0%, #3498db 100%);
+}
+
+.document-template .template-title {
+  text-align: center;
+  color: #2c3e50;
+  font-size: 1.6rem;
+  font-weight: 700;
+  margin: 0 0 0.5rem 0;
+  padding-bottom: 0.5rem;
+  border-bottom: none;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.document-template .template-name {
+  text-align: center;
+  color: #2c3e50;
+  font-weight: 600;
+  font-size: 1.1rem;
+  margin: 0 0 2rem 0;
+  padding-bottom: 1.5rem;
+  border-bottom: 2px solid #2c3e50;
+}
+
+.document-template h3 {
+  color: #2c3e50;
+  font-size: 1.2rem;
+  font-weight: 700;
+  margin: 2rem 0 1rem 0;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+
+.document-template h4 {
+  color: #34495e;
+  font-size: 1.05rem;
+  font-weight: 600;
+  margin: 1.5rem 0 0.75rem 0;
+}
+
+.document-template p {
+  text-align: justify;
+  line-height: 1.9;
+  margin-bottom: 1rem;
+}
+
+.document-template ul {
+  margin: 1rem 0 1.5rem 0;
+}
+
+.document-template li {
+  text-align: justify;
+  line-height: 1.9;
+}
+
+/* Signature Section */
+.document-template .signature-section {
+  margin: 3rem 0 2rem 0;
+  padding-top: 2rem;
+  border-top: 2px solid #2c3e50;
+  text-align: left;
+}
+
+.document-template .signature-section p {
+  text-align: left;
+  margin-bottom: 0.5rem;
+  font-size: 0.95rem;
+}
+
+.document-template .signature-line {
+  font-family: 'Courier New', monospace;
+  color: #2c3e50;
+  display: block;
+  margin: 1.5rem 0;
+}
+
+/* Disclaimer */
+.document-template .disclaimer {
+  background: #f8f9fa;
+  border: 1px solid #dee2e6;
+  border-left: 4px solid #2c3e50;
+  padding: 1.25rem;
+  margin: 2.5rem 0 0 0;
+  border-radius: 4px;
+  color: #495057;
+  font-size: 0.85rem;
+  font-style: italic;
+  line-height: 1.7;
+  text-align: left;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .guidelines-header {
+    padding: 2rem 1rem;
+  }
+
+  .guidelines-header h1 {
+    font-size: 1.75rem;
+  }
+
+  .guidelines-header p {
+    font-size: 1rem;
+  }
+
+  .guidelines-body {
+    padding: 2rem 0 3rem;
+  }
+
+  .guidelines-body .container {
+    padding: 0 1rem;
+  }
+
+  .guidelines-body h2 {
+    font-size: 1.5rem;
+  }
+
+  .guidelines-body h3 {
+    font-size: 1.2rem;
+  }
+
+  .guidelines-body h4 {
+    font-size: 1.05rem;
+  }
+
+  .document-template {
+    padding: 1.5rem;
+    margin: 2rem 0;
+  }
+
+  .document-template .template-title {
+    font-size: 1.3rem;
+  }
+
+  .document-template h3 {
+    font-size: 1.1rem;
+  }
+
+  .document-template h4 {
+    font-size: 1rem;
+  }
+}
