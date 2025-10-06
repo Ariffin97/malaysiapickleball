@@ -25,7 +25,8 @@ function ManageNews() {
     videoUrl: ''
   });
 
-  const PORTAL_API_URL = import.meta.env.VITE_PORTAL_API_URL || 'http://localhost:5001/api';
+  // Use environment variable or fallback to relative path for production
+  const PORTAL_API_URL = import.meta.env.VITE_PORTAL_API_URL || '/api';
 
   useEffect(() => {
     fetchNews();
