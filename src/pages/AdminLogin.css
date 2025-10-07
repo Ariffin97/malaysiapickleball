@@ -115,8 +115,8 @@
 }
 
 .login-logo {
-  width: 140px;
-  height: 140px;
+  width: 180px !important;
+  height: 180px !important;
   margin-bottom: 1.5rem;
   object-fit: contain;
   filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.1));
@@ -135,17 +135,13 @@
 .login-header h1 {
   font-size: 2.25rem;
   font-weight: 800;
-  color: #111827;
+  color: #ffffff !important;
   margin-bottom: 0.75rem;
   letter-spacing: -0.025em;
-  background: linear-gradient(135deg, #111827 0%, #374151 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
 }
 
 .login-header p {
-  color: #64748b;
+  color: #ffffff !important;
   font-size: 0.9375rem;
   font-weight: 500;
   letter-spacing: 0.01em;
@@ -360,12 +356,12 @@
 .login-footer {
   margin-top: 2.5rem;
   padding-top: 2rem;
-  border-top: 1px solid #e2e8f0;
+  border-top: 1px solid rgba(255, 255, 255, 0.2);
   text-align: center;
 }
 
 .login-footer p {
-  color: #64748b;
+  color: #ffffff !important;
   font-size: 0.875rem;
   display: flex;
   align-items: center;
@@ -416,7 +412,7 @@
   }
 
   .login-logo {
-    width: 60px;
-    height: 60px;
+    width: 120px !important;
+    height: 120px !important;
   }
 }

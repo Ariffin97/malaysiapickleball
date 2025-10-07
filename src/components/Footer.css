@@ -57,7 +57,7 @@
 /* Desktop Full Footer Content */
 .desktop-footer-grid {
   display: none;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: 1.5fr 1fr 1fr 1.5fr;
   gap: 2rem;
   margin-bottom: 2rem;
 }
@@ -260,7 +260,12 @@
 }
 
 .contact-item span {
-  word-break: break-all;
+  word-break: break-word;
+  line-height: 1.4;
+}
+
+.contact-item i.fa-user {
+  color: #f59e0b;
 }
 
 /* Newsletter */

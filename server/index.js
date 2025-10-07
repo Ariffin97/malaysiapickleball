@@ -5,7 +5,7 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import dotenv from 'dotenv';
 import multer from 'multer';
-import { journeyStorage } from './cloudinaryConfig.js';
+import { journeyStorage, newsStorage } from './cloudinaryConfig.js';
 
 dotenv.config();
 
@@ -154,8 +154,7 @@ const FeaturedVideo = mongoose.model('FeaturedVideo', featuredVideoSchema);
 const milestoneSchema = new mongoose.Schema({
   date: {
     type: Date,
-    required: true,
-    index: true
+    required: true
   },
   title: {
     type: String,
@@ -177,12 +176,59 @@ const milestoneSchema = new mongoose.Schema({
   timestamps: true
 });
 
+// Index for date (removed duplicate index: true from field definition)
 milestoneSchema.index({ date: 1 });
 
 const Milestone = mongoose.model('Milestone', milestoneSchema);
 
+// News Schema
+const newsSchema = new mongoose.Schema({
+  newsId: {
+    type: String,
+    required: true,
+    unique: true,
+    index: true
+  },
+  title: {
+    type: String,
+    required: true
+  },
+  summary: String,
+  content: {
+    type: String,
+    required: true
+  },
+  publishDate: {
+    type: Date,
+    required: true,
+    index: true
+  },
+  status: {
+    type: String,
+    enum: ['Draft', 'Published', 'Archived'],
+    default: 'Published'
+  },
+  media: [{
+    type: {
+      type: String,
+      enum: ['image', 'video']
+    },
+    url: String,
+    caption: String
+  }]
+}, {
+  timestamps: true
+});
+
+newsSchema.index({ status: 1, publishDate: -1 });
+
+const News = mongoose.model('News', newsSchema);
+
 // Multer configuration for journey images
 const uploadJourneyImage = multer({ storage: journeyStorage });
+
+// Multer configuration for news images
+const uploadNewsImage = multer({ storage: newsStorage });
 
 // Portal API Configuration
 const PORTAL_API_URL = process.env.PORTAL_API_URL || 'https://portalmpa.com/api';
@@ -517,6 +563,137 @@ app.delete('/api/milestones/:id', async (req, res) => {
     res.json({ success: true, message: 'Milestone deleted successfully' });
   } catch (error) {
     console.error('Error deleting milestone:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// News Routes
+// Get all news (with optional filters)
+app.get('/api/news', async (req, res) => {
+  try {
+    const { status, limit } = req.query;
+
+    let query = {};
+    if (status) query.status = status;
+
+    const newsLimit = limit ? parseInt(limit) : 50;
+
+    const news = await News.find(query)
+      .sort({ publishDate: -1 })
+      .limit(newsLimit)
+      .lean();
+
+    res.json(news);
+  } catch (error) {
+    console.error('Error fetching news:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Get single news by newsId
+app.get('/api/news/:newsId', async (req, res) => {
+  try {
+    const news = await News.findOne({ newsId: req.params.newsId }).lean();
+
+    if (!news) {
+      return res.status(404).json({ error: 'News not found' });
+    }
+
+    res.json(news);
+  } catch (error) {
+    console.error('Error fetching news:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Create new news
+app.post('/api/news', uploadNewsImage.single('newsImage'), async (req, res) => {
+  try {
+    const { newsId, title, summary, content, publishDate, status } = req.body;
+
+    if (!newsId || !title || !content || !publishDate) {
+      return res.status(400).json({ error: 'NewsId, title, content, and publishDate are required' });
+    }
+
+    const newsData = {
+      newsId,
+      title,
+      summary: summary || '',
+      content,
+      publishDate: new Date(publishDate),
+      status: status || 'Published',
+      media: []
+    };
+
+    // Add image if uploaded
+    if (req.file) {
+      newsData.media.push({
+        type: 'image',
+        url: req.file.path
+      });
+    }
+
+    const news = await News.create(newsData);
+
+    console.log('✅ News created:', news.title);
+    res.status(201).json(news);
+  } catch (error) {
+    console.error('Error creating news:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Update news
+app.patch('/api/news/:newsId', uploadNewsImage.single('newsImage'), async (req, res) => {
+  try {
+    const { title, summary, content, publishDate, status } = req.body;
+
+    const updateData = {};
+    if (title) updateData.title = title;
+    if (summary !== undefined) updateData.summary = summary;
+    if (content) updateData.content = content;
+    if (publishDate) updateData.publishDate = new Date(publishDate);
+    if (status) updateData.status = status;
+
+    // Add new image if uploaded
+    if (req.file) {
+      updateData.media = [{
+        type: 'image',
+        url: req.file.path
+      }];
+    }
+
+    const news = await News.findOneAndUpdate(
+      { newsId: req.params.newsId },
+      updateData,
+      { new: true, runValidators: true }
+    );
+
+    if (!news) {
+      return res.status(404).json({ error: 'News not found' });
+    }
+
+    console.log('✅ News updated:', news.title);
+    res.json(news);
+  } catch (error) {
+    console.error('Error updating news:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Delete news
+app.delete('/api/news/:newsId', async (req, res) => {
+  try {
+    const news = await News.findOneAndDelete({ newsId: req.params.newsId });
+
+    if (!news) {
+      return res.status(404).json({ error: 'News not found' });
+    }
+
+    console.log('✅ News deleted:', news.title);
+    res.json({ success: true, message: 'News deleted successfully' });
+  } catch (error) {
+    console.error('Error deleting news:', error);
     res.status(500).json({ error: error.message });
   }
 });

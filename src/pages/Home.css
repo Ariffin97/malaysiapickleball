@@ -6,8 +6,8 @@
 .hero {
   background: url('/background.png') center/cover no-repeat;
   color: white;
-  padding: 6rem 2rem 10rem;
-  min-height: 600px;
+  padding: 4rem 2rem 6rem;
+  min-height: 500px;
   text-align: center;
   position: relative;
   display: flex;
@@ -32,10 +32,10 @@
 }
 
 .hero-logo {
-  width: 200px;
-  height: 200px;
+  width: 150px;
+  height: 150px;
   object-fit: contain;
-  margin-bottom: 2rem;
+  margin-bottom: 1.5rem;
   filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.3));
 }
 
@@ -173,7 +173,7 @@
 }
 
 .quick-stats {
-  padding: 5rem 2rem;
+  padding: 3rem 2rem;
   background-color: white;
   text-align: center;
 }
@@ -232,7 +232,7 @@
 
 /* Player Registration Section */
 .player-registration {
-  padding: 5rem 2rem;
+  padding: 3rem 2rem;
   background: white;
 }
 
@@ -770,7 +770,7 @@
 }
 
 .guidelines {
-  padding: 5rem 2rem;
+  padding: 3rem 2rem;
   background: white;
 }
 
@@ -848,7 +848,7 @@
 
 /* Upcoming Tournaments Section */
 .upcoming-tournaments {
-  padding: 5rem 2rem;
+  padding: 3rem 2rem;
   background: #f9fafb;
 }
 
@@ -1046,7 +1046,7 @@
 
 /* Training Programs Section */
 .training-programs {
-  padding: 5rem 2rem;
+  padding: 3rem 2rem;
   background: white;
 }
 
@@ -1160,6 +1160,7 @@
 .timeline-container {
   overflow: hidden;
   padding: 2rem 0;
+  position: relative;
 }
 
 .timeline-wrapper {
@@ -1169,21 +1170,22 @@
   position: relative;
   min-height: 500px;
   will-change: transform;
-}
-
-@keyframes scroll-timeline {
-  0% {
-    transform: translateX(0%);
-  }
-  100% {
-    transform: translateX(-50%);
-  }
-}
-
-/* Ensure smooth infinite loop */
-.timeline-wrapper {
   animation-timing-function: linear;
   animation-iteration-count: infinite;
+  /* GPU acceleration for smoother animation */
+  transform: translateZ(0);
+  backface-visibility: hidden;
+  perspective: 1000px;
+}
+
+/* Seamless infinite scroll animation */
+@keyframes scroll-timeline {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
 }
 
 .timeline-wrapper::before {
@@ -1331,7 +1333,7 @@
 .cta-section {
   background: white;
   color: #1f2937;
-  padding: 5rem 2rem;
+  padding: 3rem 2rem;
   text-align: center;
   border-top: 1px solid #e5e7eb;
 }

@@ -99,31 +99,35 @@ function Home() {
     if (milestones.length === 0) return;
 
     const wrapper = document.querySelector('.timeline-wrapper');
-    if (!wrapper) return;
+    const container = document.getElementById('timelineContainer');
+    if (!wrapper || !container) return;
 
     // Calculate animation duration based on number of milestones
-    const itemWidth = 320; // milestone card width + gap
+    // Each milestone card is approximately 300px width + 16px gap = 316px
+    const itemWidth = 316;
     const totalWidth = itemWidth * milestones.length;
-    const duration = totalWidth / 30; // 30px per second for smooth scrolling
+    const speed = 50; // pixels per second (adjust for faster/slower scroll)
+    const duration = totalWidth / speed;
 
-    wrapper.style.animation = `scroll-timeline ${duration}s linear infinite`;
+    // Apply animation
+    wrapper.style.setProperty('--scroll-duration', `${duration}s`);
+    wrapper.style.animation = `scroll-timeline var(--scroll-duration) linear infinite`;
 
     // Pause animation on hover
-    const container = document.getElementById('timelineContainer');
-    if (container) {
-      container.addEventListener('mouseenter', () => {
-        wrapper.style.animationPlayState = 'paused';
-      });
+    const handleMouseEnter = () => {
+      wrapper.style.animationPlayState = 'paused';
+    };
 
-      container.addEventListener('mouseleave', () => {
-        wrapper.style.animationPlayState = 'running';
-      });
-    }
+    const handleMouseLeave = () => {
+      wrapper.style.animationPlayState = 'running';
+    };
+
+    container.addEventListener('mouseenter', handleMouseEnter);
+    container.addEventListener('mouseleave', handleMouseLeave);
 
     return () => {
-      if (wrapper) {
-        wrapper.style.animation = '';
-      }
+      container.removeEventListener('mouseenter', handleMouseEnter);
+      container.removeEventListener('mouseleave', handleMouseLeave);
     };
   }, [milestones]);
 
@@ -671,7 +675,7 @@ function Home() {
           <div className="tournaments-grid">
             {upcomingTournaments.length > 0 ? (
               upcomingTournaments.map((tournament) => (
-                <div key={tournament.id} className="tournament-card">
+                <div key={tournament._id || tournament.applicationId} className="tournament-card">
                   <div className="tournament-date">
                     {new Date(tournament.startDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
                     {tournament.endDate && tournament.endDate !== tournament.startDate && (
@@ -749,33 +753,9 @@ function Home() {
 
           <div className="timeline-container" id="timelineContainer">
             <div className="timeline-wrapper">
-              {/* First set of milestones */}
-              {milestones.map((milestone) => (
-                <div key={`set1-${milestone._id}`} className="timeline-item">
-                  <div className="timeline-date">{new Date(milestone.date).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' })}</div>
-                  <div className="timeline-point"></div>
-                  <div className="milestone-content">
-                    {milestone.image ? (
-                      <img
-                        src={milestone.image}
-                        alt={milestone.title}
-                        onError={(e) => {
-                          e.target.outerHTML = `<div class="image-placeholder"><i class="fas fa-flag-checkered"></i></div>`;
-                        }}
-                      />
-                    ) : (
-                      <div className="image-placeholder">
-                        <i className="fas fa-flag-checkered"></i>
-                      </div>
-                    )}
-                    <div className="milestone-title">{milestone.title}</div>
-                    <div className="milestone-description">{milestone.description}</div>
-                  </div>
-                </div>
-              ))}
-              {/* Second set - duplicate for seamless loop */}
-              {milestones.map((milestone) => (
-                <div key={`set2-${milestone._id}`} className="timeline-item">
+              {/* Render milestones twice for seamless infinite loop */}
+              {[...milestones, ...milestones].map((milestone, index) => (
+                <div key={`milestone-${milestone._id}-${index}`} className="timeline-item">
                   <div className="timeline-date">{new Date(milestone.date).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' })}</div>
                   <div className="timeline-point"></div>
                   <div className="milestone-content">

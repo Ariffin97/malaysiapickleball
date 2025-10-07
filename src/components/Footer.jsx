@@ -56,17 +56,11 @@ function Footer() {
                 Connecting Malaysia's pickleball community through tournaments and coaching excellence.
               </p>
               <div className="social-links">
-                <a href="#" className="social-icon facebook">
+                <a href="https://www.facebook.com/malaysiapickleball" target="_blank" rel="noopener noreferrer" className="social-icon facebook">
                   <i className="fab fa-facebook"></i>
                 </a>
-                <a href="#" className="social-icon instagram">
+                <a href="https://www.instagram.com/learnplaypickleballmsia/" target="_blank" rel="noopener noreferrer" className="social-icon instagram">
                   <i className="fab fa-instagram"></i>
-                </a>
-                <a href="#" className="social-icon twitter">
-                  <i className="fab fa-twitter"></i>
-                </a>
-                <a href="#" className="social-icon youtube">
-                  <i className="fab fa-youtube"></i>
                 </a>
               </div>
             </div>
@@ -94,42 +88,48 @@ function Footer() {
               </nav>
             </div>
 
-            {/* Services */}
+            {/* Technical Contact */}
             <div className="footer-section">
-              <h4>Services</h4>
-              <nav className="footer-nav">
-                <a href="/services/sponsorship" className="footer-link">
-                  <i className="fas fa-handshake"></i>
-                  <span>Sponsorship</span>
-                </a>
-                <a href="/services/ranking" className="footer-link">
-                  <i className="fas fa-chart-line"></i>
-                  <span>Rankings</span>
-                </a>
-              </nav>
-            </div>
-
-            {/* Contact & Newsletter */}
-            <div className="footer-section">
-              <h4>Contact</h4>
+              <h4>Technical Contact</h4>
               <div className="contact-info">
                 <div className="contact-item">
                   <i className="fas fa-envelope"></i>
-                  <span>ariffin@fenixdigital.com</span>
+                  <span>ariffin@fenixdigital.my</span>
                 </div>
                 <div className="contact-item">
                   <i className="fas fa-phone"></i>
                   <span>+6011-16197471</span>
                 </div>
+                <div className="contact-item">
+                  <i className="fas fa-envelope"></i>
+                  <span>zac@fenixdigital.my</span>
+                </div>
+                <div className="contact-item">
+                  <i className="fas fa-phone"></i>
+                  <span>+6017-8941403</span>
+                </div>
               </div>
+            </div>
 
-              <div className="newsletter">
-                <p>Newsletter</p>
-                <div className="newsletter-form">
-                  <input type="email" placeholder="Email" />
-                  <button>
-                    <i className="fas fa-paper-plane"></i>
-                  </button>
+            {/* MPA Contact */}
+            <div className="footer-section">
+              <h4>MPA Contact</h4>
+              <div className="contact-info">
+                <div className="contact-item">
+                  <i className="fas fa-user"></i>
+                  <span>Puan Delima Ibrahim</span>
+                </div>
+                <div className="contact-item">
+                  <i className="fas fa-phone"></i>
+                  <span>+6012-8830407</span>
+                </div>
+                <div className="contact-item">
+                  <i className="fas fa-envelope"></i>
+                  <span>president@malaysiapickleballassociation.org</span>
+                </div>
+                <div className="contact-item">
+                  <i className="fas fa-envelope"></i>
+                  <span>tournament@malaysiapickleballassociation.org</span>
                 </div>
               </div>
             </div>
