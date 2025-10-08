@@ -5,7 +5,8 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import dotenv from 'dotenv';
 import multer from 'multer';
-import { journeyStorage, newsStorage } from './cloudinaryConfig.js';
+import nodemailer from 'nodemailer';
+import { journeyStorage, newsStorage, profileStorage } from './cloudinaryConfig.js';
 
 dotenv.config();
 
@@ -28,6 +29,20 @@ const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/malays
 mongoose.connect(MONGODB_URI)
   .then(() => console.log('✅ Connected to MongoDB'))
   .catch((err) => console.error('❌ MongoDB connection error:', err));
+
+// Email Configuration
+const transporter = nodemailer.createTransport({
+  host: 'smtp.gmail.com',
+  port: 587,
+  secure: false,
+  auth: {
+    user: process.env.EMAIL_USER,
+    pass: process.env.EMAIL_PASSWORD
+  },
+  tls: {
+    rejectUnauthorized: false
+  }
+});
 
 // Tournament Schema - Local copy synced with Portal
 const tournamentSchema = new mongoose.Schema({
@@ -205,8 +220,8 @@ const newsSchema = new mongoose.Schema({
   },
   status: {
     type: String,
-    enum: ['Draft', 'Published', 'Archived'],
-    default: 'Published'
+    enum: ['draft', 'published', 'archived', 'Draft', 'Published', 'Archived'],
+    default: 'published'
   },
   media: [{
     type: {
@@ -223,6 +238,133 @@ const newsSchema = new mongoose.Schema({
 newsSchema.index({ status: 1, publishDate: -1 });
 
 const News = mongoose.model('News', newsSchema);
+
+// Player Schema
+const playerSchema = new mongoose.Schema({
+  playerId: {
+    type: String,
+    unique: true,
+    index: true
+  },
+  fullName: {
+    type: String,
+    required: true
+  },
+  profilePicture: String,
+  gender: {
+    type: String,
+    enum: ['Male', 'Female', 'Other'],
+    required: true
+  },
+  icNumber: {
+    type: String,
+    required: true,
+    unique: true,
+    index: true
+  },
+  age: {
+    type: Number,
+    required: true
+  },
+  email: {
+    type: String,
+    required: true,
+    unique: true,
+    index: true
+  },
+  phoneNumber: {
+    type: String,
+    required: true
+  },
+  addressLine1: {
+    type: String,
+    required: true
+  },
+  addressLine2: String,
+  city: {
+    type: String,
+    required: true
+  },
+  state: {
+    type: String,
+    required: true
+  },
+  username: {
+    type: String,
+    required: true,
+    unique: true,
+    index: true
+  },
+  password: {
+    type: String,
+    required: true
+  },
+  termsAccepted: {
+    type: Boolean,
+    default: true
+  },
+  status: {
+    type: String,
+    enum: ['active', 'inactive', 'suspended'],
+    default: 'active'
+  }
+}, {
+  timestamps: true
+});
+
+const Player = mongoose.model('Player', playerSchema);
+
+// Message Schema
+const messageSchema = new mongoose.Schema({
+  playerId: {
+    type: String,
+    required: true,
+    index: true
+  },
+  subject: {
+    type: String,
+    required: true
+  },
+  message: {
+    type: String,
+    required: true
+  },
+  read: {
+    type: Boolean,
+    default: false
+  }
+}, {
+  timestamps: true
+});
+
+const Message = mongoose.model('Message', messageSchema);
+
+// Function to generate unique MPA ID (MPA + 5 alphanumeric characters)
+async function generateMpaId() {
+  const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+  let playerId;
+  let isUnique = false;
+
+  while (!isUnique) {
+    // Generate 5 random alphanumeric characters
+    let randomChars = '';
+    for (let i = 0; i < 5; i++) {
+      randomChars += characters.charAt(Math.floor(Math.random() * characters.length));
+    }
+    playerId = `MPA${randomChars}`;
+
+    // Check if this ID already exists
+    const existing = await Player.findOne({ playerId });
+    if (!existing) {
+      isUnique = true;
+    }
+  }
+
+  return playerId;
+}
+
+// Multer configuration for player profile pictures
+const uploadPlayerImage = multer({ storage: profileStorage });
 
 // Multer configuration for journey images
 const uploadJourneyImage = multer({ storage: journeyStorage });
@@ -663,11 +805,21 @@ app.patch('/api/news/:newsId', uploadNewsImage.single('newsImage'), async (req, 
       }];
     }
 
-    const news = await News.findOneAndUpdate(
+    // Try to find by newsId first, then by _id as fallback for old records
+    let news = await News.findOneAndUpdate(
       { newsId: req.params.newsId },
       updateData,
       { new: true, runValidators: true }
     );
+
+    // If not found by newsId, try by _id
+    if (!news && req.params.newsId.match(/^[0-9a-fA-F]{24}$/)) {
+      news = await News.findByIdAndUpdate(
+        req.params.newsId,
+        updateData,
+        { new: true, runValidators: true }
+      );
+    }
 
     if (!news) {
       return res.status(404).json({ error: 'News not found' });
@@ -694,6 +846,643 @@ app.delete('/api/news/:newsId', async (req, res) => {
     res.json({ success: true, message: 'News deleted successfully' });
   } catch (error) {
     console.error('Error deleting news:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// ============================================
+// PLAYER ENDPOINTS
+// ============================================
+
+// Check if IC number exists
+app.get('/api/players/check-ic/:icNumber', async (req, res) => {
+  try {
+    const player = await Player.findOne({ icNumber: req.params.icNumber });
+    res.json({ exists: !!player });
+  } catch (error) {
+    console.error('Error checking IC:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Register new player
+app.post('/api/players/register', uploadPlayerImage.single('profilePicture'), async (req, res) => {
+  try {
+    const {
+      fullName,
+      gender,
+      icNumber,
+      age,
+      email,
+      phoneNumber,
+      addressLine1,
+      addressLine2,
+      city,
+      state,
+      username,
+      password,
+      termsAccepted
+    } = req.body;
+
+    // Check if IC number already exists
+    const existingIC = await Player.findOne({ icNumber });
+    if (existingIC) {
+      return res.status(400).json({ error: 'IC number already registered' });
+    }
+
+    // Check if email already exists
+    const existingEmail = await Player.findOne({ email });
+    if (existingEmail) {
+      return res.status(400).json({ error: 'Email already registered' });
+    }
+
+    // Check if username already exists
+    const existingUsername = await Player.findOne({ username });
+    if (existingUsername) {
+      return res.status(400).json({ error: 'Username already taken' });
+    }
+
+    // Generate unique MPA ID
+    const playerId = await generateMpaId();
+
+    const playerData = {
+      playerId,
+      fullName,
+      gender,
+      icNumber,
+      age: parseInt(age),
+      email,
+      phoneNumber,
+      addressLine1,
+      addressLine2,
+      city,
+      state,
+      username,
+      password, // In production, hash this password!
+      termsAccepted: termsAccepted === 'true' || termsAccepted === true
+    };
+
+    // Add profile picture if uploaded
+    if (req.file) {
+      playerData.profilePicture = req.file.path;
+    }
+
+    const player = await Player.create(playerData);
+
+    console.log('✅ Player registered:', player.fullName);
+
+    // Send welcome message to inbox
+    await Message.create({
+      playerId: player.playerId,
+      subject: 'Welcome to Malaysia Pickleball Association!',
+      message: `Dear ${player.fullName},
+
+Welcome to the Malaysia Pickleball Association (MPA)! We are thrilled to have you join our growing community of pickleball enthusiasts.
+
+Your MPA ID: ${player.playerId}
+
+As a registered member, you now have access to:
+• Upcoming tournaments and events
+• Training programs and coaching resources
+• Community forums and player connections
+• Latest news and updates from MPA
+
+Please keep your login credentials secure:
+Username: ${player.username}
+
+If you have any questions or need assistance, please don't hesitate to reach out to our support team.
+
+Thank you for being part of our pickleball family!
+
+Best regards,
+Malaysia Pickleball Association Team`,
+      read: false
+    });
+
+    console.log('📧 Welcome message sent to inbox:', player.fullName);
+
+    // Send welcome email
+    try {
+      const mailOptions = {
+        from: process.env.EMAIL_USER,
+        to: player.email,
+        subject: 'Welcome to Malaysia Pickleball Association - Registration Successful!',
+        html: `
+          <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
+            <div style="text-align: center; margin-bottom: 30px;">
+              <h1 style="color: #10b981; margin: 0;">Malaysia Pickleball Association</h1>
+              <p style="color: #6b7280; margin-top: 10px;">Player Portal</p>
+            </div>
+
+            <div style="background: #f0fdf4; padding: 30px; border-radius: 10px; margin-bottom: 20px; border-left: 4px solid #10b981;">
+              <h2 style="color: #1f2937; margin-top: 0;">🎉 Registration Successful!</h2>
+              <p style="color: #374151; line-height: 1.6;">Dear <strong>${player.fullName}</strong>,</p>
+              <p style="color: #374151; line-height: 1.6;">
+                Congratulations! Your registration with the Malaysia Pickleball Association has been successfully completed.
+                We are thrilled to have you join our growing community of pickleball enthusiasts!
+              </p>
+            </div>
+
+            <div style="background: white; padding: 20px; border-radius: 8px; margin: 20px 0; border: 2px solid #10b981;">
+              <h3 style="color: #1f2937; margin-top: 0;">Your Account Details</h3>
+              <p style="margin: 10px 0; color: #374151;"><strong>Player ID:</strong> ${player.playerId}</p>
+              <p style="margin: 10px 0; color: #374151;"><strong>Username:</strong> ${player.username}</p>
+              <p style="margin: 10px 0; color: #374151;"><strong>Password:</strong> ${player.password}</p>
+              <p style="margin: 10px 0; color: #374151;"><strong>Email:</strong> ${player.email}</p>
+            </div>
+
+            <div style="background: #fef3c7; padding: 15px; border-radius: 8px; margin-bottom: 20px; border-left: 4px solid #f59e0b;">
+              <p style="color: #92400e; margin: 0; font-size: 14px;">
+                <strong>🔐 Important:</strong> Please keep your login credentials secure. We recommend changing your password after your first login.
+              </p>
+            </div>
+
+            <div style="background: #eff6ff; padding: 20px; border-radius: 8px; margin-bottom: 20px;">
+              <h3 style="color: #1f2937; margin-top: 0;">What's Next?</h3>
+              <p style="color: #374151; line-height: 1.6;">As a registered member, you now have access to:</p>
+              <ul style="color: #374151; line-height: 1.8;">
+                <li>✅ Upcoming tournaments and events</li>
+                <li>✅ Training programs and coaching resources</li>
+                <li>✅ Player dashboard and profile management</li>
+                <li>✅ Community news and updates</li>
+                <li>✅ Direct communication with MPA administrators</li>
+              </ul>
+            </div>
+
+            <div style="text-align: center; margin: 30px 0;">
+              <p style="margin-bottom: 15px; color: #374151;">Ready to get started?</p>
+              <a href="https://malaysiapickleballassociation.org/player/login"
+                 style="display: inline-block; padding: 15px 30px; background: #10b981; color: white; text-decoration: none; border-radius: 8px; font-weight: bold; font-size: 16px;">
+                Login to Your Account
+              </a>
+            </div>
+
+            <div style="background: #f9fafb; padding: 20px; border-radius: 8px; margin-bottom: 20px;">
+              <h3 style="color: #1f2937; margin-top: 0;">Need Help?</h3>
+              <p style="color: #374151; line-height: 1.6; margin-bottom: 10px;">
+                If you have any questions or need assistance, please don't hesitate to contact us:
+              </p>
+              <p style="color: #374151; margin: 5px 0;">
+                📧 Email: <a href="mailto:tournament@malaysiapickleballassociation.org" style="color: #10b981;">tournament@malaysiapickleballassociation.org</a>
+              </p>
+              <p style="color: #374151; margin: 5px 0;">
+                🌐 Website: <a href="https://malaysiapickleballassociation.org" style="color: #10b981;">malaysiapickleballassociation.org</a>
+              </p>
+            </div>
+
+            <div style="text-align: center; padding-top: 20px; border-top: 1px solid #e5e7eb; color: #6b7280; font-size: 14px;">
+              <p style="margin: 10px 0;">Thank you for being part of our pickleball family!</p>
+              <p style="margin: 10px 0; font-weight: bold; color: #1f2937;">Malaysia Pickleball Association Team</p>
+              <p style="margin-top: 20px; font-size: 12px;">
+                © ${new Date().getFullYear()} Malaysia Pickleball Association. All rights reserved.
+              </p>
+              <p style="margin-top: 10px; font-size: 12px;">
+                Technical Partner: <strong>Fenix Digital</strong>
+              </p>
+            </div>
+          </div>
+        `
+      };
+
+      await transporter.sendMail(mailOptions);
+      console.log('✅ Welcome email sent successfully to:', player.email);
+    } catch (emailError) {
+      console.error('❌ Failed to send welcome email:', emailError);
+      // Don't fail the registration if email fails
+    }
+
+    // Return player data without password
+    const { password: _, ...playerWithoutPassword } = player.toObject();
+    res.status(201).json(playerWithoutPassword);
+  } catch (error) {
+    console.error('Error registering player:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Get all players
+app.get('/api/players', async (req, res) => {
+  try {
+    const players = await Player.find()
+      .select('-password')
+      .sort({ createdAt: -1 });
+    res.json(players);
+  } catch (error) {
+    console.error('Error fetching players:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Get player by ID
+app.get('/api/players/:id', async (req, res) => {
+  try {
+    // Try to find by playerId first (MPA ID), then by _id (MongoDB ID)
+    let player = await Player.findOne({ playerId: req.params.id }).select('-password');
+
+    // If not found by playerId and the id looks like a MongoDB ObjectId, try by _id
+    if (!player && req.params.id.match(/^[0-9a-fA-F]{24}$/)) {
+      player = await Player.findById(req.params.id).select('-password');
+    }
+
+    if (!player) {
+      return res.status(404).json({ error: 'Player not found' });
+    }
+
+    res.json(player);
+  } catch (error) {
+    console.error('Error fetching player:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Player login
+app.post('/api/players/login', async (req, res) => {
+  try {
+    const { username, password } = req.body;
+
+    if (!username || !password) {
+      return res.status(400).json({ error: 'Username and password are required' });
+    }
+
+    // Find player by username
+    const player = await Player.findOne({ username });
+
+    if (!player) {
+      return res.status(401).json({ error: 'Invalid username or password' });
+    }
+
+    // Check if player is active
+    if (player.status !== 'active') {
+      return res.status(403).json({ error: 'Your account is not active. Please contact the administrator.' });
+    }
+
+    // Compare password (plain text for now - in production, use bcrypt.compare)
+    if (player.password !== password) {
+      return res.status(401).json({ error: 'Invalid username or password' });
+    }
+
+    // Generate a simple token (in production, use JWT)
+    const token = Buffer.from(`${player._id}:${Date.now()}`).toString('base64');
+
+    console.log('✅ Player logged in:', player.fullName);
+
+    res.json({
+      token,
+      player: {
+        id: player._id,
+        playerId: player.playerId,
+        fullName: player.fullName,
+        email: player.email,
+        username: player.username,
+        profilePicture: player.profilePicture,
+        status: player.status,
+        phoneNumber: player.phoneNumber,
+        gender: player.gender,
+        city: player.city,
+        state: player.state
+      }
+    });
+  } catch (error) {
+    console.error('Login error:', error);
+    res.status(500).json({ error: 'Server error during login' });
+  }
+});
+
+// Forgot password - send credentials via email
+app.post('/api/players/forgot-password', async (req, res) => {
+  try {
+    const { email } = req.body;
+
+    if (!email) {
+      return res.status(400).json({ error: 'Email is required' });
+    }
+
+    // Find player by email
+    const player = await Player.findOne({ email: email.toLowerCase() });
+
+    if (!player) {
+      return res.status(404).json({ error: 'No account found with this email address' });
+    }
+
+    console.log('📧 Sending forgot password email to:', player.email);
+
+    // Send email with credentials
+    const mailOptions = {
+      from: process.env.EMAIL_USER,
+      to: player.email,
+      subject: 'Your MPA Player Portal Login Credentials',
+      html: `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
+          <div style="text-align: center; margin-bottom: 30px;">
+            <h1 style="color: #10b981; margin: 0;">Malaysia Pickleball Association</h1>
+            <p style="color: #6b7280; margin-top: 10px;">Player Portal</p>
+          </div>
+
+          <div style="background: #f9fafb; padding: 30px; border-radius: 10px; margin-bottom: 20px;">
+            <h2 style="color: #1f2937; margin-top: 0;">Login Credentials Recovery</h2>
+            <p style="color: #374151; line-height: 1.6;">Hello ${player.fullName},</p>
+            <p style="color: #374151; line-height: 1.6;">You requested your login credentials for the MPA Player Portal. Here are your details:</p>
+
+            <div style="background: white; padding: 20px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #10b981;">
+              <p style="margin: 10px 0; color: #374151;"><strong>Player ID:</strong> ${player.playerId}</p>
+              <p style="margin: 10px 0; color: #374151;"><strong>Username:</strong> ${player.username}</p>
+              <p style="margin: 10px 0; color: #374151;"><strong>Password:</strong> ${player.password}</p>
+            </div>
+
+            <p style="color: #374151; line-height: 1.6;">You can login to the player portal at:</p>
+            <p style="margin: 15px 0;">
+              <a href="https://malaysiapickleballassociation.org/player/login"
+                 style="display: inline-block; padding: 12px 24px; background: #10b981; color: white; text-decoration: none; border-radius: 6px; font-weight: bold;">
+                Login to Player Portal
+              </a>
+            </p>
+          </div>
+
+          <div style="background: #fef3c7; padding: 15px; border-radius: 8px; margin-bottom: 20px; border-left: 4px solid #f59e0b;">
+            <p style="color: #92400e; margin: 0; font-size: 14px;">
+              <strong>⚠️ Security Notice:</strong> Please keep your credentials secure. If you didn't request this email, please contact us immediately at tournament@malaysiapickleballassociation.org
+            </p>
+          </div>
+
+          <div style="text-align: center; padding-top: 20px; border-top: 1px solid #e5e7eb; color: #6b7280; font-size: 14px;">
+            <p>© ${new Date().getFullYear()} Malaysia Pickleball Association. All rights reserved.</p>
+            <p style="margin-top: 10px;">
+              <a href="https://malaysiapickleballassociation.org" style="color: #10b981; text-decoration: none;">Visit our website</a>
+            </p>
+          </div>
+        </div>
+      `
+    };
+
+    await transporter.sendMail(mailOptions);
+    console.log('✅ Credentials email sent successfully to:', player.email);
+
+    res.json({
+      message: 'Credentials sent to your email'
+    });
+  } catch (error) {
+    console.error('❌ Forgot password error:', error);
+    res.status(500).json({ error: 'Failed to send email. Please try again later.' });
+  }
+});
+
+// Get player credentials
+app.get('/api/players/:id/credentials', async (req, res) => {
+  try {
+    // Try to find by playerId first, then by _id
+    let player = await Player.findOne({ playerId: req.params.id }).select('username password');
+
+    // If not found by playerId and the id looks like a MongoDB ObjectId, try by _id
+    if (!player && req.params.id.match(/^[0-9a-fA-F]{24}$/)) {
+      player = await Player.findById(req.params.id).select('username password');
+    }
+
+    if (!player) {
+      return res.status(404).json({ error: 'Player not found' });
+    }
+
+    res.json({
+      username: player.username,
+      password: player.password
+    });
+  } catch (error) {
+    console.error('Error fetching credentials:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Send message to player
+app.post('/api/players/:id/send-message', async (req, res) => {
+  try {
+    const { subject, message } = req.body;
+
+    // Try to find by playerId first, then by _id
+    let player = await Player.findOne({ playerId: req.params.id });
+
+    // If not found by playerId and the id looks like a MongoDB ObjectId, try by _id
+    if (!player && req.params.id.match(/^[0-9a-fA-F]{24}$/)) {
+      player = await Player.findById(req.params.id);
+    }
+
+    if (!player) {
+      return res.status(404).json({ error: 'Player not found' });
+    }
+
+    // Save message to database
+    const newMessage = await Message.create({
+      playerId: player.playerId,
+      subject,
+      message,
+      read: false
+    });
+
+    console.log('📧 Message sent to:', player.fullName);
+
+    // TODO: Integrate with nodemailer to actually send emails
+    // Example:
+    // await transporter.sendMail({
+    //   from: 'noreply@mpa.com',
+    //   to: player.email,
+    //   subject: subject,
+    //   text: message,
+    //   html: `<p>${message}</p>`
+    // });
+
+    res.json({
+      success: true,
+      message: 'Message sent successfully',
+      recipient: player.email,
+      data: newMessage
+    });
+  } catch (error) {
+    console.error('Error sending message:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Get messages for a player
+app.get('/api/players/:id/messages', async (req, res) => {
+  try {
+    // Try to find player by playerId first, then by _id
+    let player = await Player.findOne({ playerId: req.params.id });
+
+    // If not found by playerId and the id looks like a MongoDB ObjectId, try by _id
+    if (!player && req.params.id.match(/^[0-9a-fA-F]{24}$/)) {
+      player = await Player.findById(req.params.id);
+    }
+
+    if (!player) {
+      return res.status(404).json({ error: 'Player not found' });
+    }
+
+    const messages = await Message.find({ playerId: player.playerId })
+      .sort({ createdAt: -1 });
+
+    res.json(messages);
+  } catch (error) {
+    console.error('Error fetching messages:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Reset player password
+app.post('/api/players/:id/reset-password', async (req, res) => {
+  try {
+    // Generate a new random password
+    const newPassword = Math.random().toString(36).slice(-8) + Math.random().toString(36).slice(-8).toUpperCase();
+
+    // Try to find by playerId first, then by _id
+    let player = await Player.findOne({ playerId: req.params.id });
+
+    // If not found by playerId and the id looks like a MongoDB ObjectId, try by _id
+    if (!player && req.params.id.match(/^[0-9a-fA-F]{24}$/)) {
+      player = await Player.findById(req.params.id);
+    }
+
+    if (!player) {
+      return res.status(404).json({ error: 'Player not found' });
+    }
+
+    // Update password
+    player.password = newPassword;
+    await player.save();
+
+    console.log('✅ Password reset for:', player.fullName);
+    res.json({ newPassword });
+  } catch (error) {
+    console.error('Error resetting password:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Update player
+app.patch('/api/players/:id', uploadPlayerImage.single('profilePicture'), async (req, res) => {
+  try {
+    const updateData = { ...req.body };
+
+    // Don't allow password updates through this endpoint
+    delete updateData.password;
+    // Don't allow playerId updates
+    delete updateData.playerId;
+
+    // Add profile picture if uploaded
+    if (req.file) {
+      updateData.profilePicture = req.file.path;
+    }
+
+    // Try to find by playerId first, then by _id
+    let player = await Player.findOneAndUpdate(
+      { playerId: req.params.id },
+      updateData,
+      { new: true, runValidators: true }
+    ).select('-password');
+
+    // If not found by playerId and the id looks like a MongoDB ObjectId, try by _id
+    if (!player && req.params.id.match(/^[0-9a-fA-F]{24}$/)) {
+      player = await Player.findByIdAndUpdate(
+        req.params.id,
+        updateData,
+        { new: true, runValidators: true }
+      ).select('-password');
+    }
+
+    if (!player) {
+      return res.status(404).json({ error: 'Player not found' });
+    }
+
+    console.log('✅ Player updated:', player.fullName);
+    res.json(player);
+  } catch (error) {
+    console.error('Error updating player:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Delete player
+app.delete('/api/players/:id', async (req, res) => {
+  try {
+    // Try to find by playerId first, then by _id
+    let player = await Player.findOneAndDelete({ playerId: req.params.id });
+
+    // If not found by playerId and the id looks like a MongoDB ObjectId, try by _id
+    if (!player && req.params.id.match(/^[0-9a-fA-F]{24}$/)) {
+      player = await Player.findByIdAndDelete(req.params.id);
+    }
+
+    if (!player) {
+      return res.status(404).json({ error: 'Player not found' });
+    }
+
+    console.log('✅ Player deleted:', player.fullName);
+    res.json({ success: true, message: 'Player deleted successfully' });
+  } catch (error) {
+    console.error('Error deleting player:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Fix player status for existing players
+app.post('/api/players/fix-status', async (req, res) => {
+  try {
+    const playersToUpdate = await Player.find({
+      $or: [
+        { status: null },
+        { status: { $exists: false } }
+      ]
+    });
+
+    let updated = 0;
+    for (const player of playersToUpdate) {
+      await Player.updateOne(
+        { _id: player._id },
+        { $set: { status: 'active' } }
+      );
+      updated++;
+    }
+
+    console.log(`✅ Updated status for ${updated} players`);
+    res.json({
+      success: true,
+      message: `Updated ${updated} players to active status`,
+      updated
+    });
+  } catch (error) {
+    console.error('Error fixing player status:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Migrate existing players to add MPA IDs
+app.post('/api/players/migrate-ids', async (req, res) => {
+  try {
+    // Find all players without proper MPA prefix
+    const playersToUpdate = await Player.find({
+      $or: [
+        { playerId: null },
+        { playerId: { $exists: false } },
+        { playerId: { $not: /^MPA/ } } // Find IDs that don't start with MPA
+      ]
+    });
+
+    let updated = 0;
+    for (const player of playersToUpdate) {
+      const newPlayerId = await generateMpaId();
+      await Player.updateOne(
+        { _id: player._id },
+        { $set: { playerId: newPlayerId } },
+        { runValidators: false }
+      );
+      updated++;
+      console.log(`✅ Updated ${player.fullName} with MPA ID: ${newPlayerId}`);
+    }
+
+    res.json({
+      success: true,
+      message: `Successfully updated ${updated} players with MPA IDs`,
+      updated
+    });
+  } catch (error) {
+    console.error('Error migrating player IDs:', error);
     res.status(500).json({ error: error.message });
   }
 });

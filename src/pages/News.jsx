@@ -17,7 +17,8 @@ function News() {
 
   useEffect(() => {
     if (newsId && news.length > 0) {
-      const found = news.find(item => item.newsId === newsId);
+      // Try to find by newsId or _id
+      const found = news.find(item => item.newsId === newsId || item._id === newsId);
       setSelectedNews(found);
     } else if (news.length > 0) {
       setSelectedNews(news[0]);
@@ -26,7 +27,7 @@ function News() {
 
   const fetchNews = async () => {
     try {
-      const response = await fetch(`${PORTAL_API_URL}/news?status=Published&limit=50`);
+      const response = await fetch(`${PORTAL_API_URL}/news?status=published&limit=50`);
       const data = await response.json();
       setNews(Array.isArray(data) ? data : []);
     } catch (error) {
@@ -47,7 +48,7 @@ function News() {
 
   const handleNewsClick = (item) => {
     setSelectedNews(item);
-    navigate(`/news/${item.newsId}`);
+    navigate(`/news/${item.newsId || item._id}`);
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
@@ -78,7 +79,7 @@ function News() {
                 {selectedNews.media && selectedNews.media.length > 0 && selectedNews.media[0].url && (
                   <div className="news-article-image">
                     <img
-                      src={`http://localhost:5001${selectedNews.media[0].url}`}
+                      src={selectedNews.media[0].url.startsWith('http') ? selectedNews.media[0].url : `${PORTAL_API_URL}${selectedNews.media[0].url}`}
                       alt={selectedNews.title}
                     />
                   </div>
@@ -109,7 +110,7 @@ function News() {
                   {item.media && item.media.length > 0 && item.media[0].url && (
                     <div className="news-list-image">
                       <img
-                        src={`http://localhost:5001${item.media[0].url}`}
+                        src={item.media[0].url.startsWith('http') ? item.media[0].url : `${PORTAL_API_URL}${item.media[0].url}`}
                         alt={item.title}
                         onError={(e) => { e.target.style.display = 'none'; }}
                       />

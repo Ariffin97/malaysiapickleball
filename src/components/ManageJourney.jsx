@@ -12,7 +12,7 @@ function ManageJourney() {
     date: '',
     title: '',
     description: '',
-    image: null
+    imageFile: null
   });
   const [imagePreview, setImagePreview] = useState(null);
   const [error, setError] = useState(null);
@@ -39,7 +39,7 @@ function ManageJourney() {
       date: '',
       title: '',
       description: '',
-      image: null
+      imageFile: null
     });
     setImagePreview(null);
     setShowModal(true);
@@ -48,11 +48,12 @@ function ManageJourney() {
 
   const openEditModal = (milestone) => {
     setEditingMilestone(milestone);
+    const dateStr = new Date(milestone.date).toISOString().split('T')[0];
     setFormData({
-      date: milestone.date,
+      date: dateStr,
       title: milestone.title,
       description: milestone.description,
-      image: milestone.image
+      imageFile: null
     });
     setImagePreview(milestone.image);
     setShowModal(true);
@@ -66,7 +67,7 @@ function ManageJourney() {
       date: '',
       title: '',
       description: '',
-      image: null
+      imageFile: null
     });
     setImagePreview(null);
     document.body.style.overflow = '';
@@ -80,7 +81,7 @@ function ManageJourney() {
     }));
   };
 
-  const handleImageChange = async (e) => {
+  const handleImageChange = (e) => {
     const file = e.target.files[0];
     if (file) {
       // Validate file type
@@ -95,24 +96,23 @@ function ManageJourney() {
         return;
       }
 
-      try {
-        const base64 = await journeyService.imageToBase64(file);
-        setFormData(prev => ({
-          ...prev,
-          image: base64
-        }));
-        setImagePreview(base64);
-        setError(null);
-      } catch (err) {
-        setError('Failed to process image');
-      }
+      // Store the actual file object for FormData
+      setFormData(prev => ({
+        ...prev,
+        imageFile: file
+      }));
+
+      // Create preview URL
+      const previewUrl = URL.createObjectURL(file);
+      setImagePreview(previewUrl);
+      setError(null);
     }
   };
 
   const handleRemoveImage = () => {
     setFormData(prev => ({
       ...prev,
-      image: null
+      imageFile: null
     }));
     setImagePreview(null);
   };
@@ -200,8 +200,8 @@ function ManageJourney() {
           </div>
         ) : (
           milestones.map((milestone) => (
-            <div key={milestone.id} className="milestone-item">
-              <div className="milestone-year-badge">{milestone.date}</div>
+            <div key={milestone._id} className="milestone-item">
+              <div className="milestone-year-badge">{new Date(milestone.date).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' })}</div>
 
               <div className="milestone-details">
                 {milestone.image && (
@@ -386,7 +386,7 @@ function ManageJourney() {
               </button>
               <button
                 className="btn-danger"
-                onClick={() => handleDelete(deleteConfirm.id)}
+                onClick={() => handleDelete(deleteConfirm._id)}
                 disabled={loading}
               >
                 <i className="fas fa-trash"></i>

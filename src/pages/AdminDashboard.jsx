@@ -44,7 +44,7 @@ function AdminDashboard() {
     {
       id: 'update-news',
       icon: 'fa-newspaper',
-      label: 'Update News',
+      label: 'Update News & Video',
     },
     {
       id: 'manage-venue',

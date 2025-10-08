@@ -91,46 +91,42 @@ function Footer() {
             {/* Technical Contact */}
             <div className="footer-section">
               <h4>Technical Contact</h4>
-              <div className="contact-info">
-                <div className="contact-item">
-                  <i className="fas fa-envelope"></i>
-                  <span>ariffin@fenixdigital.my</span>
-                </div>
-                <div className="contact-item">
-                  <i className="fas fa-phone"></i>
-                  <span>+6011-16197471</span>
-                </div>
-                <div className="contact-item">
-                  <i className="fas fa-envelope"></i>
-                  <span>zac@fenixdigital.my</span>
-                </div>
-                <div className="contact-item">
-                  <i className="fas fa-phone"></i>
-                  <span>+6017-8941403</span>
-                </div>
+              <div className="contact-item">
+                <i className="fas fa-envelope"></i>
+                <span>ariffin@fenixdigital.my</span>
+              </div>
+              <div className="contact-item">
+                <i className="fas fa-phone"></i>
+                <span>+6011-16197471</span>
+              </div>
+              <div className="contact-item">
+                <i className="fas fa-envelope"></i>
+                <span>zac@fenixdigital.my</span>
+              </div>
+              <div className="contact-item">
+                <i className="fas fa-phone"></i>
+                <span>+6017-8941403</span>
               </div>
             </div>
 
             {/* MPA Contact */}
             <div className="footer-section">
               <h4>MPA Contact</h4>
-              <div className="contact-info">
-                <div className="contact-item">
-                  <i className="fas fa-user"></i>
-                  <span>Puan Delima Ibrahim</span>
-                </div>
-                <div className="contact-item">
-                  <i className="fas fa-phone"></i>
-                  <span>+6012-8830407</span>
-                </div>
-                <div className="contact-item">
-                  <i className="fas fa-envelope"></i>
-                  <span>president@malaysiapickleballassociation.org</span>
-                </div>
-                <div className="contact-item">
-                  <i className="fas fa-envelope"></i>
-                  <span>tournament@malaysiapickleballassociation.org</span>
-                </div>
+              <div className="contact-item">
+                <i className="fas fa-user"></i>
+                <span>Puan Delima Ibrahim</span>
+              </div>
+              <div className="contact-item">
+                <i className="fas fa-phone"></i>
+                <span>+6012-8830407</span>
+              </div>
+              <div className="contact-item">
+                <i className="fas fa-envelope"></i>
+                <span>president@malaysiapickleballassociation.org</span>
+              </div>
+              <div className="contact-item">
+                <i className="fas fa-envelope"></i>
+                <span>tournament@malaysiapickleballassociation.org</span>
               </div>
             </div>
           </div>

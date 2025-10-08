@@ -8,6 +8,10 @@ function PlayerLogin() {
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [showForgotPassword, setShowForgotPassword] = useState(false);
+  const [forgotEmail, setForgotEmail] = useState('');
+  const [forgotMessage, setForgotMessage] = useState('');
+  const [forgotLoading, setForgotLoading] = useState(false);
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
@@ -46,103 +50,184 @@ function PlayerLogin() {
     }
   };
 
+  const handleForgotPassword = async (e) => {
+    e.preventDefault();
+    setForgotMessage('');
+    setForgotLoading(true);
+
+    try {
+      const PORTAL_API_URL = import.meta.env.VITE_PORTAL_API_URL || 'http://localhost:5001/api';
+
+      const response = await fetch(`${PORTAL_API_URL}/players/forgot-password`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email: forgotEmail }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        setForgotMessage('success');
+        setTimeout(() => {
+          setShowForgotPassword(false);
+          setForgotEmail('');
+          setForgotMessage('');
+        }, 3000);
+      } else {
+        setForgotMessage(data.error || 'Email not found');
+      }
+    } catch (error) {
+      console.error('Forgot password error:', error);
+      setForgotMessage('Unable to process request. Please try again later.');
+    } finally {
+      setForgotLoading(false);
+    }
+  };
+
   return (
     <div className="player-login-page">
       <div className="login-container">
-        <div className="login-card">
-          <div className="login-header">
-            <img src="/mpa.png" alt="MPA Logo" className="login-logo" />
-            <h1>Player Login</h1>
-            <p>Malaysia Pickleball Association</p>
+        <div className="login-header">
+          <img src="/mpa.png" alt="MPA Logo" className="login-logo" />
+          <h1>Player Login</h1>
+          <p>Malaysia Pickleball Association</p>
+        </div>
+
+        <form onSubmit={handleSubmit} className="login-form">
+          {error && (
+            <div className="error-message">
+              <i className="fas fa-exclamation-circle"></i>
+              <span>{error}</span>
+            </div>
+          )}
+
+          <div className="form-group">
+            <label htmlFor="username">Username</label>
+            <input
+              type="text"
+              id="username"
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
+              placeholder="Enter your username"
+              required
+              autoComplete="username"
+            />
           </div>
 
-          <form onSubmit={handleSubmit} className="login-form">
-            {error && (
-              <div className="error-message">
-                <i className="fas fa-exclamation-circle"></i>
-                <span>{error}</span>
-              </div>
-            )}
-
-            <div className="form-group">
-              <label htmlFor="username">
-                <i className="fas fa-user"></i>
-                Username
-              </label>
+          <div className="form-group">
+            <label htmlFor="password">Password</label>
+            <div className="password-input-wrapper">
               <input
-                type="text"
-                id="username"
-                value={username}
-                onChange={(e) => setUsername(e.target.value)}
-                placeholder="Enter your username"
+                type={showPassword ? 'text' : 'password'}
+                id="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder="Enter your password"
                 required
-                autoComplete="username"
+                autoComplete="current-password"
               />
+              <button
+                type="button"
+                className="toggle-password"
+                onClick={() => setShowPassword(!showPassword)}
+              >
+                <i className={`fas fa-eye${showPassword ? '-slash' : ''}`}></i>
+              </button>
             </div>
+          </div>
 
-            <div className="form-group">
-              <label htmlFor="password">
-                <i className="fas fa-lock"></i>
-                Password
-              </label>
-              <div className="password-input-wrapper">
-                <input
-                  type={showPassword ? 'text' : 'password'}
-                  id="password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  placeholder="Enter your password"
-                  required
-                  autoComplete="current-password"
-                />
-                <button
-                  type="button"
-                  className="toggle-password"
-                  onClick={() => setShowPassword(!showPassword)}
-                >
-                  <i className={`fas fa-eye${showPassword ? '-slash' : ''}`}></i>
-                </button>
-              </div>
-            </div>
-
-            <div className="form-options">
-              <label className="remember-me">
-                <input type="checkbox" />
-                <span>Remember me</span>
-              </label>
-            </div>
-
-            <button type="submit" className="login-button" disabled={loading}>
-              {loading ? (
-                <>
-                  <i className="fas fa-spinner fa-spin"></i>
-                  Signing in...
-                </>
-              ) : (
-                <>
-                  <i className="fas fa-sign-in-alt"></i>
-                  Sign In
-                </>
-              )}
+          <div className="forgot-password-link">
+            <button type="button" onClick={() => setShowForgotPassword(true)}>
+              Forgot Password?
             </button>
+          </div>
 
-            <a href="/" className="home-button-inline">
-              <i className="fas fa-home"></i>
-              <span>Back to Home</span>
+          <button type="submit" className="login-button" disabled={loading}>
+            {loading ? (
+              <>
+                <i className="fas fa-spinner fa-spin"></i>
+                Signing in...
+              </>
+            ) : (
+              <>
+                Sign In
+              </>
+            )}
+          </button>
+
+          <div className="register-link">
+            <p>Don't have an account?</p>
+            <a href="/#register" className="register-button">
+              Register as Player
             </a>
-          </form>
+          </div>
 
-          <div className="login-footer">
-            <p>
-              <i className="fas fa-shield-alt"></i>
-              Secure login powered by encryption
-            </p>
-            <p className="register-prompt">
-              Don't have an account? <a href="/">Register here</a>
-            </p>
+          <a href="/" className="home-button-inline">
+            Back to Home
+          </a>
+        </form>
+      </div>
+
+      {/* Forgot Password Modal */}
+      {showForgotPassword && (
+        <div className="modal-overlay" onClick={() => setShowForgotPassword(false)}>
+          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+            <div className="modal-header">
+              <h2>Forgot Password</h2>
+              <button className="modal-close" onClick={() => setShowForgotPassword(false)}>
+                ✕
+              </button>
+            </div>
+
+            <div className="modal-body">
+              <p className="modal-description">
+                Enter your registered email address and we'll send you your username and password.
+              </p>
+
+              <form onSubmit={handleForgotPassword}>
+                <div className="form-group">
+                  <label htmlFor="forgot-email">Email Address</label>
+                  <input
+                    type="email"
+                    id="forgot-email"
+                    value={forgotEmail}
+                    onChange={(e) => setForgotEmail(e.target.value)}
+                    placeholder="Enter your email"
+                    required
+                  />
+                </div>
+
+                {forgotMessage && (
+                  <div className={`message ${forgotMessage === 'success' ? 'success' : 'error'}`}>
+                    {forgotMessage === 'success'
+                      ? 'Email sent! Check your inbox for your credentials.'
+                      : forgotMessage}
+                  </div>
+                )}
+
+                <div className="modal-actions">
+                  <button
+                    type="button"
+                    className="btn-secondary"
+                    onClick={() => setShowForgotPassword(false)}
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    className="btn-primary"
+                    disabled={forgotLoading}
+                  >
+                    {forgotLoading ? 'Sending...' : 'Send Credentials'}
+                  </button>
+                </div>
+              </form>
+            </div>
           </div>
         </div>
-      </div>
+      )}
     </div>
   );
 }

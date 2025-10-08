@@ -35,6 +35,7 @@ function Home() {
     const fetchMilestones = async () => {
       try {
         const data = await journeyService.getAllMilestones();
+        console.log('Fetched milestones:', data);
         setMilestones(data);
       } catch (error) {
         console.error('Error fetching milestones:', error);
@@ -44,6 +45,16 @@ function Home() {
     fetchMilestones();
   }, []);
 
+  // Check for hash to open registration modal
+  useEffect(() => {
+    if (window.location.hash === '#register') {
+      setShowRegisterModal(true);
+      document.body.style.overflow = 'hidden';
+      // Clear the hash
+      window.history.replaceState(null, null, ' ');
+    }
+  }, []);
+
   // Fetch news and featured video
   useEffect(() => {
     const fetchNewsAndVideo = async () => {
@@ -51,7 +62,7 @@ function Home() {
         const PORTAL_API_URL = import.meta.env.VITE_PORTAL_API_URL || '/api';
 
         // Fetch latest news (only 2)
-        const newsResponse = await fetch(`${PORTAL_API_URL}/news?status=Published&limit=2`);
+        const newsResponse = await fetch(`${PORTAL_API_URL}/news?status=published&limit=2`);
         const newsData = await newsResponse.json();
         setNews(Array.isArray(newsData) ? newsData : []);
 
@@ -94,24 +105,13 @@ function Home() {
     fetchUpcomingTournaments();
   }, []);
 
-  // Smooth infinite scroll with CSS animation
+  // Pause/resume animation on hover
   useEffect(() => {
     if (milestones.length === 0) return;
 
     const wrapper = document.querySelector('.timeline-wrapper');
     const container = document.getElementById('timelineContainer');
     if (!wrapper || !container) return;
-
-    // Calculate animation duration based on number of milestones
-    // Each milestone card is approximately 300px width + 16px gap = 316px
-    const itemWidth = 316;
-    const totalWidth = itemWidth * milestones.length;
-    const speed = 50; // pixels per second (adjust for faster/slower scroll)
-    const duration = totalWidth / speed;
-
-    // Apply animation
-    wrapper.style.setProperty('--scroll-duration', `${duration}s`);
-    wrapper.style.animation = `scroll-timeline var(--scroll-duration) linear infinite`;
 
     // Pause animation on hover
     const handleMouseEnter = () => {
@@ -248,8 +248,14 @@ function Home() {
       });
 
       if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.error || 'Registration failed');
+        let errorMessage = 'Registration failed';
+        try {
+          const error = await response.json();
+          errorMessage = error.error || error.message || 'Registration failed';
+        } catch {
+          errorMessage = `Registration service unavailable (${response.status})`;
+        }
+        throw new Error(errorMessage);
       }
 
       const result = await response.json();
@@ -615,7 +621,7 @@ function Home() {
                       required
                     />
                     <label htmlFor="terms">
-                      I agree to the <a href="#" target="_blank">Terms and Conditions</a> and <a href="#" target="_blank">Privacy Policy</a> <span className="required">*</span>
+                      I agree to the <a href="/terms-and-conditions" target="_blank" rel="noopener noreferrer">Terms and Conditions</a> and <a href="/privacy-policy" target="_blank" rel="noopener noreferrer">Privacy Policy</a> <span className="required">*</span>
                     </label>
                   </div>
                 </div>
@@ -752,32 +758,45 @@ function Home() {
           </div>
 
           <div className="timeline-container" id="timelineContainer">
-            <div className="timeline-wrapper">
-              {/* Render milestones twice for seamless infinite loop */}
-              {[...milestones, ...milestones].map((milestone, index) => (
-                <div key={`milestone-${milestone._id}-${index}`} className="timeline-item">
-                  <div className="timeline-date">{new Date(milestone.date).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' })}</div>
-                  <div className="timeline-point"></div>
-                  <div className="milestone-content">
-                    {milestone.image ? (
-                      <img
-                        src={milestone.image}
-                        alt={milestone.title}
-                        onError={(e) => {
-                          e.target.outerHTML = `<div class="image-placeholder"><i class="fas fa-flag-checkered"></i></div>`;
-                        }}
-                      />
-                    ) : (
-                      <div className="image-placeholder">
-                        <i className="fas fa-flag-checkered"></i>
-                      </div>
-                    )}
-                    <div className="milestone-title">{milestone.title}</div>
-                    <div className="milestone-description">{milestone.description}</div>
+            {milestones.length > 0 ? (
+              <div className="timeline-wrapper">
+                {/* Render milestones 3 times for truly seamless infinite loop */}
+                {[...milestones, ...milestones, ...milestones].map((milestone, index) => (
+                  <div key={`milestone-${milestone._id}-${index}`} className="timeline-item">
+                    <div className="timeline-date">{new Date(milestone.date).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' })}</div>
+                    <div className="timeline-point"></div>
+                    <div className="milestone-content">
+                      {milestone.image ? (
+                        <img
+                          src={milestone.image}
+                          alt={milestone.title}
+                          onError={(e) => {
+                            e.target.outerHTML = `<div class="image-placeholder"><i class="fas fa-flag-checkered"></i></div>`;
+                          }}
+                        />
+                      ) : (
+                        <div className="image-placeholder">
+                          <i className="fas fa-flag-checkered"></i>
+                        </div>
+                      )}
+                      <div className="milestone-title">{milestone.title}</div>
+                      <div className="milestone-description">{milestone.description}</div>
+                    </div>
                   </div>
-                </div>
-              ))}
-            </div>
+                ))}
+              </div>
+            ) : (
+              <div style={{ textAlign: 'center', padding: '3rem', color: '#6b7280' }}>
+                <p>Loading milestones...</p>
+              </div>
+            )}
+          </div>
+
+          <div className="view-all-milestones">
+            <Link to="/milestones" className="btn-view-all">
+              View All Milestones
+              <i className="fas fa-arrow-right"></i>
+            </Link>
           </div>
         </div>
       </section>
@@ -802,14 +821,14 @@ function Home() {
                       {item.media && item.media.length > 0 && item.media[0].url && (
                         <div className="news-image">
                           <img
-                            src={item.media[0].url.startsWith('http') ? item.media[0].url : `http://localhost:5001${item.media[0].url}`}
+                            src={item.media[0].url}
                             alt={item.title}
                             onError={(e) => { e.target.style.display = 'none'; }}
                           />
                         </div>
                       )}
                       <p>{item.summary || item.content.substring(0, 150)}...</p>
-                      <Link to={`/news/${item.newsId}`} className="news-link">
+                      <Link to={`/news/${item.newsId || item._id}`} className="news-link">
                         Read More →
                       </Link>
                     </div>

@@ -81,19 +81,24 @@ function ManageNews() {
     e.preventDefault();
     try {
       const formData = new FormData();
-      formData.append('newsId', editingNews ? editingNews.newsId : `NEWS${Date.now()}`);
+      // Generate newsId if creating new, or use existing newsId, or fallback to _id for old records
+      const newsId = editingNews
+        ? (editingNews.newsId || editingNews._id)
+        : `NEWS${Date.now()}`;
+
+      formData.append('newsId', newsId);
       formData.append('title', newsFormData.title);
       formData.append('summary', newsFormData.summary);
       formData.append('content', newsFormData.content);
       formData.append('publishDate', newsFormData.publishDate);
-      formData.append('status', 'Published');
+      formData.append('status', 'published');
 
       if (newsFormData.imageFile) {
         formData.append('newsImage', newsFormData.imageFile);
       }
 
       const url = editingNews
-        ? `${PORTAL_API_URL}/news/${editingNews.newsId}`
+        ? `${PORTAL_API_URL}/news/${newsId}`
         : `${PORTAL_API_URL}/news`;
 
       const method = editingNews ? 'PATCH' : 'POST';

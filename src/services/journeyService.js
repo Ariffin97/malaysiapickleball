@@ -11,11 +11,16 @@ class JourneyService {
    */
   async getAllMilestones() {
     try {
-      const response = await fetch(`${this.API_URL}/milestones`);
+      // Add cache-busting timestamp to force fresh data
+      const timestamp = new Date().getTime();
+      const response = await fetch(`${this.API_URL}/milestones?_t=${timestamp}`, {
+        cache: 'no-store'
+      });
       if (!response.ok) {
         throw new Error('Failed to fetch milestones');
       }
       const milestones = await response.json();
+      console.log('Raw milestones from API:', milestones);
       // Backend already sorts by date, but ensure it's sorted
       return milestones.sort((a, b) => new Date(a.date) - new Date(b.date));
     } catch (error) {

@@ -985,7 +985,8 @@
   font-size: 1.1rem;
 }
 
-.view-all-tournaments {
+.view-all-tournaments,
+.view-all-milestones {
   text-align: center;
   margin-top: 3rem;
 }
@@ -1161,30 +1162,26 @@
   overflow: hidden;
   padding: 2rem 0;
   position: relative;
+  width: 100%;
 }
 
 .timeline-wrapper {
   display: flex;
-  gap: 1rem;
-  padding: 1.5rem 3rem;
+  gap: 2rem;
+  padding: 1.5rem 0;
   position: relative;
   min-height: 500px;
-  will-change: transform;
-  animation-timing-function: linear;
-  animation-iteration-count: infinite;
-  /* GPU acceleration for smoother animation */
-  transform: translateZ(0);
-  backface-visibility: hidden;
-  perspective: 1000px;
+  animation: scroll-timeline 60s linear infinite;
+  width: fit-content;
 }
 
 /* Seamless infinite scroll animation */
 @keyframes scroll-timeline {
-  from {
+  0% {
     transform: translateX(0);
   }
-  to {
-    transform: translateX(-50%);
+  100% {
+    transform: translateX(calc(-100% / 3));
   }
 }
 
