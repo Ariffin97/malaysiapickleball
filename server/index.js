@@ -622,6 +622,16 @@ app.get('/api/milestones', async (req, res) => {
 // Get single milestone by ID
 app.get('/api/milestones/:id', async (req, res) => {
   try {
+    // Validate ID parameter
+    if (!req.params.id || req.params.id === 'undefined') {
+      return res.status(400).json({ error: 'Invalid milestone ID' });
+    }
+
+    // Validate if it's a valid MongoDB ObjectId
+    if (!req.params.id.match(/^[0-9a-fA-F]{24}$/)) {
+      return res.status(400).json({ error: 'Invalid milestone ID format' });
+    }
+
     const milestone = await Milestone.findById(req.params.id).lean();
 
     if (!milestone) {
@@ -665,6 +675,16 @@ app.post('/api/milestones', uploadJourneyImage.single('milestoneImage'), async (
 // Update milestone
 app.patch('/api/milestones/:id', uploadJourneyImage.single('milestoneImage'), async (req, res) => {
   try {
+    // Validate ID parameter
+    if (!req.params.id || req.params.id === 'undefined') {
+      return res.status(400).json({ error: 'Invalid milestone ID' });
+    }
+
+    // Validate if it's a valid MongoDB ObjectId
+    if (!req.params.id.match(/^[0-9a-fA-F]{24}$/)) {
+      return res.status(400).json({ error: 'Invalid milestone ID format' });
+    }
+
     const { date, title, description, order } = req.body;
 
     const updateData = {};
@@ -695,6 +715,16 @@ app.patch('/api/milestones/:id', uploadJourneyImage.single('milestoneImage'), as
 // Delete milestone
 app.delete('/api/milestones/:id', async (req, res) => {
   try {
+    // Validate ID parameter
+    if (!req.params.id || req.params.id === 'undefined') {
+      return res.status(400).json({ error: 'Invalid milestone ID' });
+    }
+
+    // Validate if it's a valid MongoDB ObjectId
+    if (!req.params.id.match(/^[0-9a-fA-F]{24}$/)) {
+      return res.status(400).json({ error: 'Invalid milestone ID format' });
+    }
+
     const milestone = await Milestone.findByIdAndDelete(req.params.id);
 
     if (!milestone) {
