@@ -4,6 +4,8 @@ import ManageTournament from '../components/ManageTournament';
 import ManageJourney from '../components/ManageJourney';
 import ManagePlayers from '../components/ManagePlayers';
 import ManageNews from '../components/ManageNews';
+import ManageCourses from '../components/ManageCourses';
+import ManageClinics from '../components/ManageClinics';
 import './AdminDashboard.css';
 
 function AdminDashboard() {
@@ -35,6 +37,16 @@ function AdminDashboard() {
       id: 'manage-players',
       icon: 'fa-users',
       label: 'Manage Players',
+    },
+    {
+      id: 'manage-courses',
+      icon: 'fa-graduation-cap',
+      label: 'Manage Courses',
+    },
+    {
+      id: 'manage-clinics',
+      icon: 'fa-chalkboard-teacher',
+      label: 'Manage Clinics',
     },
     {
       id: 'manage-journey',
@@ -71,6 +83,20 @@ function AdminDashboard() {
         return (
           <div className="dashboard-content">
             <ManagePlayers />
+          </div>
+        );
+
+      case 'manage-courses':
+        return (
+          <div className="dashboard-content">
+            <ManageCourses />
+          </div>
+        );
+
+      case 'manage-clinics':
+        return (
+          <div className="dashboard-content">
+            <ManageClinics />
           </div>
         );
 

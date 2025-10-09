@@ -9,6 +9,7 @@ import News from './pages/News';
 import Milestones from './pages/Milestones';
 import TournamentGuidelines from './pages/TournamentGuidelines';
 import VenueGuidelines from './pages/VenueGuidelines';
+import TrainingProgram from './pages/TrainingProgram';
 import AdminLogin from './pages/AdminLogin';
 import AdminDashboard from './pages/AdminDashboard';
 import PlayerLogin from './pages/PlayerLogin';
@@ -36,6 +37,7 @@ function AppContent() {
           <Route path="/milestones" element={<Milestones />} />
           <Route path="/tournament-guidelines" element={<TournamentGuidelines />} />
           <Route path="/venue-guidelines" element={<VenueGuidelines />} />
+          <Route path="/training" element={<TrainingProgram />} />
           <Route path="/admin" element={<AdminLogin />} />
           <Route path="/admin/dashboard" element={<AdminDashboard />} />
           <Route path="/player/login" element={<PlayerLogin />} />

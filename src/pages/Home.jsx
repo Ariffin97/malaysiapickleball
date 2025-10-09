@@ -728,7 +728,9 @@ function Home() {
                   <li>Comprehensive learning materials included</li>
                   <li>Available for all levels (2.0 - 5.0+)</li>
                 </ul>
-                <button className="training-button">Explore Courses</button>
+                <a href="/training">
+                  <button className="training-button">Explore Courses</button>
+                </a>
               </div>
               <div className="training-card">
                 <h3>Skill Clinics</h3>
@@ -739,7 +741,9 @@ function Home() {
                   <li>Immediate feedback & quick results</li>
                   <li>Weekend intensive workshops</li>
                 </ul>
-                <button className="training-button">Book Clinics</button>
+                <a href="/training">
+                  <button className="training-button">Book Clinics</button>
+                </a>
               </div>
             </div>
             <h2>

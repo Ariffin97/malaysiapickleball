@@ -37,16 +37,12 @@ function VenueGuidelines() {
           <div className="diagrams-grid">
             <div className="diagram-section">
               <h3>Court Dimensions</h3>
-              <div className="diagram-placeholder">
-                <img src="/court.png" alt="Pickleball Court Dimensions" />
-              </div>
+              <img src="/court.png" alt="Pickleball Court Dimensions" />
             </div>
 
             <div className="diagram-section">
               <h3>Net Specifications</h3>
-              <div className="diagram-placeholder">
-                <img src="/Net.png" alt="Pickleball Net Diagram" />
-              </div>
+              <img src="/Net.png" alt="Pickleball Net Diagram" />
             </div>
           </div>
 

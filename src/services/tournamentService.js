@@ -92,6 +92,29 @@ class TournamentService {
   }
 
   /**
+   * Delete a tournament by applicationId
+   */
+  async deleteTournament(applicationId) {
+    try {
+      const response = await fetch(`${API_BASE_URL}/tournaments/${applicationId}`, {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      return await response.json();
+    } catch (error) {
+      console.error('Error deleting tournament:', error);
+      throw error;
+    }
+  }
+
+  /**
    * Check backend health
    */
   async checkHealth() {

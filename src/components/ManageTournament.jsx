@@ -20,6 +20,8 @@ function ManageTournament() {
     try {
       setLoading(true);
       setError(null);
+      // Fetch ONLY approved tournaments from MPA Portal
+      // This excludes: Pending Review, Under Review, Rejected, or any other status
       const data = await tournamentService.getApprovedTournaments();
       setTournaments(data);
     } catch (err) {
@@ -184,7 +186,7 @@ function ManageTournament() {
           </div>
         ) : (
           filteredTournaments.map((tournament) => (
-            <div key={tournament.id} className="tournament-card">
+            <div key={tournament._id || tournament.applicationId} className="tournament-card">
               <div className="card-header">
                 <div className="card-title">
                   <div className={`color-indicator color-${tournament.color}`}></div>

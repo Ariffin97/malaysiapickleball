@@ -127,7 +127,7 @@ const tournamentSchema = new mongoose.Schema({
   status: {
     type: String,
     default: 'Approved',
-    enum: ['Approved', 'Archived']
+    enum: ['Approved', 'Pending Review', 'Under Review', 'Rejected', 'Archived']
   },
   lastSyncedAt: {
     type: Date,
@@ -339,6 +339,104 @@ const messageSchema = new mongoose.Schema({
 
 const Message = mongoose.model('Message', messageSchema);
 
+// Course Schema
+const courseSchema = new mongoose.Schema({
+  title: {
+    type: String,
+    required: true
+  },
+  description: {
+    type: String,
+    required: true
+  },
+  date: {
+    type: String,
+    required: true
+  },
+  time: {
+    type: String,
+    required: true
+  },
+  location: {
+    type: String,
+    required: true
+  },
+  coach: {
+    type: String,
+    required: true
+  },
+  maxParticipants: {
+    type: Number,
+    required: true
+  },
+  enrolled: {
+    type: Number,
+    default: 0
+  },
+  price: {
+    type: Number,
+    required: true
+  },
+  status: {
+    type: String,
+    enum: ['active', 'inactive', 'completed'],
+    default: 'active'
+  }
+}, {
+  timestamps: true
+});
+
+const Course = mongoose.model('Course', courseSchema);
+
+// Clinic Schema
+const clinicSchema = new mongoose.Schema({
+  title: {
+    type: String,
+    required: true
+  },
+  description: {
+    type: String,
+    required: true
+  },
+  date: {
+    type: String,
+    required: true
+  },
+  time: {
+    type: String,
+    required: true
+  },
+  location: {
+    type: String,
+    required: true
+  },
+  coach: {
+    type: String,
+    required: true
+  },
+  maxParticipants: {
+    type: Number,
+    required: true
+  },
+  enrolled: {
+    type: Number,
+    default: 0
+  },
+  price: {
+    type: Number,
+    required: true
+  },
+  status: {
+    type: String,
+    enum: ['active', 'inactive', 'completed'],
+    default: 'active'
+  }
+}, {
+  timestamps: true
+});
+
+const Clinic = mongoose.model('Clinic', clinicSchema);
+
 // Function to generate unique MPA ID (MPA + 5 alphanumeric characters)
 async function generateMpaId() {
   const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
@@ -430,7 +528,7 @@ function mapPortalToLocal(portalTournament) {
     expectedParticipants: portalTournament.expectedParticipants,
     categories: portalTournament.categories,
     scoringFormat: portalTournament.scoringFormat,
-    status: 'Approved',
+    status: portalTournament.status || 'Approved', // Use actual status from portal
     lastSyncedAt: new Date(),
     portalData: portalTournament
   };
@@ -481,6 +579,61 @@ app.get('/api/tournaments/:id', async (req, res) => {
   }
 });
 
+// Delete tournament by applicationId
+app.delete('/api/tournaments/:id', async (req, res) => {
+  try {
+    const tournament = await Tournament.findOneAndDelete({
+      applicationId: req.params.id
+    });
+
+    if (!tournament) {
+      return res.status(404).json({ error: 'Tournament not found' });
+    }
+
+    console.log('✅ Tournament deleted:', tournament.name);
+    res.json({ success: true, message: 'Tournament deleted successfully' });
+  } catch (error) {
+    console.error('Error deleting tournament:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Cleanup endpoint - Remove all non-approved tournaments
+app.post('/api/tournaments/cleanup', async (req, res) => {
+  try {
+    console.log('🧹 Cleaning up non-approved tournaments...');
+
+    // Find all tournaments that are NOT approved
+    const nonApprovedTournaments = await Tournament.find({
+      status: { $ne: 'Approved' }
+    });
+
+    const count = nonApprovedTournaments.length;
+    const tournamentNames = nonApprovedTournaments.map(t => ({
+      applicationId: t.applicationId,
+      name: t.name,
+      status: t.status
+    }));
+
+    // Delete all non-approved tournaments
+    const result = await Tournament.deleteMany({
+      status: { $ne: 'Approved' }
+    });
+
+    console.log(`✅ Cleanup complete: ${result.deletedCount} non-approved tournaments removed`);
+
+    res.json({
+      success: true,
+      message: `Removed ${result.deletedCount} non-approved tournaments`,
+      deletedCount: result.deletedCount,
+      deletedTournaments: tournamentNames
+    });
+  } catch (error) {
+    console.error('Error cleaning up tournaments:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
 // Sync approved tournaments from Portal
 app.post('/api/tournaments/sync', async (req, res) => {
   try {
@@ -497,9 +650,18 @@ app.post('/api/tournaments/sync', async (req, res) => {
 
     let created = 0;
     let updated = 0;
+    let skipped = 0;
 
-    // Sync each tournament
+    // Sync each tournament - ONLY if status is 'Approved'
     for (const portalTournament of portalTournaments) {
+      // Explicitly check if tournament is approved
+      // Skip pending review, under review, rejected, or any other status
+      if (portalTournament.status !== 'Approved') {
+        console.log(`⏭️ Skipping tournament ${portalTournament.applicationId} - Status: ${portalTournament.status}`);
+        skipped++;
+        continue;
+      }
+
       const localData = mapPortalToLocal(portalTournament);
 
       const result = await Tournament.findOneAndUpdate(
@@ -515,12 +677,13 @@ app.post('/api/tournaments/sync', async (req, res) => {
       }
     }
 
-    console.log(`✅ Sync complete: ${created} created, ${updated} updated`);
+    console.log(`✅ Sync complete: ${created} created, ${updated} updated, ${skipped} skipped`);
 
     res.json({
       success: true,
       created,
       updated,
+      skipped,
       total: portalTournaments.length
     });
   } catch (error) {
@@ -537,21 +700,32 @@ app.post('/api/webhooks/tournament-updated', async (req, res) => {
     console.log(`🔔 Webhook received: ${action} for tournament ${tournament.applicationId}`);
 
     if (action === 'deleted') {
-      // Archive the tournament locally
-      await Tournament.findOneAndUpdate(
-        { applicationId: tournament.applicationId },
-        { status: 'Archived', lastSyncedAt: new Date() }
-      );
+      // Delete the tournament locally
+      await Tournament.findOneAndDelete({
+        applicationId: tournament.applicationId
+      });
+      console.log(`🗑️ Tournament ${tournament.applicationId} deleted from local database`);
     } else {
       // Sync from Portal
       const portalData = await syncWithPortal(tournament.applicationId);
-      const localData = mapPortalToLocal(portalData);
 
-      await Tournament.findOneAndUpdate(
-        { applicationId: tournament.applicationId },
-        localData,
-        { upsert: true }
-      );
+      // ONLY sync if the tournament is approved
+      // If status is pending review, under review, or rejected - delete from local DB
+      if (portalData.status !== 'Approved') {
+        console.log(`❌ Tournament ${tournament.applicationId} status is ${portalData.status} - removing from local database`);
+        await Tournament.findOneAndDelete({
+          applicationId: tournament.applicationId
+        });
+      } else {
+        // Tournament is approved - sync it
+        const localData = mapPortalToLocal(portalData);
+        await Tournament.findOneAndUpdate(
+          { applicationId: tournament.applicationId },
+          localData,
+          { upsert: true }
+        );
+        console.log(`✅ Tournament ${tournament.applicationId} synced successfully`);
+      }
     }
 
     res.json({ success: true });
@@ -1513,6 +1687,216 @@ app.post('/api/players/migrate-ids', async (req, res) => {
     });
   } catch (error) {
     console.error('Error migrating player IDs:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Course Routes
+// Get all courses
+app.get('/api/courses', async (req, res) => {
+  try {
+    const { status } = req.query;
+    let query = {};
+    if (status) query.status = status;
+
+    const courses = await Course.find(query).sort({ date: 1 });
+    res.json(courses);
+  } catch (error) {
+    console.error('Error fetching courses:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Get course by ID
+app.get('/api/courses/:id', async (req, res) => {
+  try {
+    if (!req.params.id || req.params.id === 'undefined') {
+      return res.status(400).json({ error: 'Invalid course ID' });
+    }
+
+    if (!req.params.id.match(/^[0-9a-fA-F]{24}$/)) {
+      return res.status(400).json({ error: 'Invalid course ID format' });
+    }
+
+    const course = await Course.findById(req.params.id);
+    if (!course) {
+      return res.status(404).json({ error: 'Course not found' });
+    }
+    res.json(course);
+  } catch (error) {
+    console.error('Error fetching course:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Create new course
+app.post('/api/courses', async (req, res) => {
+  try {
+    const course = new Course(req.body);
+    await course.save();
+    console.log('✅ Course created:', course.title);
+    res.status(201).json(course);
+  } catch (error) {
+    console.error('Error creating course:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Update course
+app.patch('/api/courses/:id', async (req, res) => {
+  try {
+    if (!req.params.id || req.params.id === 'undefined') {
+      return res.status(400).json({ error: 'Invalid course ID' });
+    }
+
+    if (!req.params.id.match(/^[0-9a-fA-F]{24}$/)) {
+      return res.status(400).json({ error: 'Invalid course ID format' });
+    }
+
+    const course = await Course.findByIdAndUpdate(
+      req.params.id,
+      req.body,
+      { new: true, runValidators: true }
+    );
+
+    if (!course) {
+      return res.status(404).json({ error: 'Course not found' });
+    }
+
+    console.log('✅ Course updated:', course.title);
+    res.json(course);
+  } catch (error) {
+    console.error('Error updating course:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Delete course
+app.delete('/api/courses/:id', async (req, res) => {
+  try {
+    if (!req.params.id || req.params.id === 'undefined') {
+      return res.status(400).json({ error: 'Invalid course ID' });
+    }
+
+    if (!req.params.id.match(/^[0-9a-fA-F]{24}$/)) {
+      return res.status(400).json({ error: 'Invalid course ID format' });
+    }
+
+    const course = await Course.findByIdAndDelete(req.params.id);
+
+    if (!course) {
+      return res.status(404).json({ error: 'Course not found' });
+    }
+
+    console.log('✅ Course deleted:', course.title);
+    res.json({ success: true, message: 'Course deleted successfully' });
+  } catch (error) {
+    console.error('Error deleting course:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Clinic Routes
+// Get all clinics
+app.get('/api/clinics', async (req, res) => {
+  try {
+    const { status } = req.query;
+    let query = {};
+    if (status) query.status = status;
+
+    const clinics = await Clinic.find(query).sort({ date: 1 });
+    res.json(clinics);
+  } catch (error) {
+    console.error('Error fetching clinics:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Get clinic by ID
+app.get('/api/clinics/:id', async (req, res) => {
+  try {
+    if (!req.params.id || req.params.id === 'undefined') {
+      return res.status(400).json({ error: 'Invalid clinic ID' });
+    }
+
+    if (!req.params.id.match(/^[0-9a-fA-F]{24}$/)) {
+      return res.status(400).json({ error: 'Invalid clinic ID format' });
+    }
+
+    const clinic = await Clinic.findById(req.params.id);
+    if (!clinic) {
+      return res.status(404).json({ error: 'Clinic not found' });
+    }
+    res.json(clinic);
+  } catch (error) {
+    console.error('Error fetching clinic:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Create new clinic
+app.post('/api/clinics', async (req, res) => {
+  try {
+    const clinic = new Clinic(req.body);
+    await clinic.save();
+    console.log('✅ Clinic created:', clinic.title);
+    res.status(201).json(clinic);
+  } catch (error) {
+    console.error('Error creating clinic:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Update clinic
+app.patch('/api/clinics/:id', async (req, res) => {
+  try {
+    if (!req.params.id || req.params.id === 'undefined') {
+      return res.status(400).json({ error: 'Invalid clinic ID' });
+    }
+
+    if (!req.params.id.match(/^[0-9a-fA-F]{24}$/)) {
+      return res.status(400).json({ error: 'Invalid clinic ID format' });
+    }
+
+    const clinic = await Clinic.findByIdAndUpdate(
+      req.params.id,
+      req.body,
+      { new: true, runValidators: true }
+    );
+
+    if (!clinic) {
+      return res.status(404).json({ error: 'Clinic not found' });
+    }
+
+    console.log('✅ Clinic updated:', clinic.title);
+    res.json(clinic);
+  } catch (error) {
+    console.error('Error updating clinic:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Delete clinic
+app.delete('/api/clinics/:id', async (req, res) => {
+  try {
+    if (!req.params.id || req.params.id === 'undefined') {
+      return res.status(400).json({ error: 'Invalid clinic ID' });
+    }
+
+    if (!req.params.id.match(/^[0-9a-fA-F]{24}$/)) {
+      return res.status(400).json({ error: 'Invalid clinic ID format' });
+    }
+
+    const clinic = await Clinic.findByIdAndDelete(req.params.id);
+
+    if (!clinic) {
+      return res.status(404).json({ error: 'Clinic not found' });
+    }
+
+    console.log('✅ Clinic deleted:', clinic.title);
+    res.json({ success: true, message: 'Clinic deleted successfully' });
+  } catch (error) {
+    console.error('Error deleting clinic:', error);
     res.status(500).json({ error: error.message });
   }
 });
