@@ -6,9 +6,18 @@ import { fileURLToPath } from 'url';
 import dotenv from 'dotenv';
 import multer from 'multer';
 import nodemailer from 'nodemailer';
+import fs from 'fs';
 import { journeyStorage, newsStorage, profileStorage } from './cloudinaryConfig.js';
 
-dotenv.config();
+// Load .env.local if it exists (for local development), otherwise load .env (production)
+const envLocalPath = path.resolve(process.cwd(), '.env.local');
+if (fs.existsSync(envLocalPath)) {
+  console.log('📝 Loading .env.local (LOCAL DEVELOPMENT MODE)');
+  dotenv.config({ path: envLocalPath, override: true });
+} else {
+  console.log('📝 Loading .env (PRODUCTION MODE)');
+  dotenv.config();
+}
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
