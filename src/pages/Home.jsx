@@ -754,6 +754,144 @@ function Home() {
         </div>
       </section>
 
+      <section className="certification-roadmap">
+        <div className="container">
+          <div className="roadmap-header">
+            <h2>Professional Development for Pickleball Instructors & Coaches</h2>
+            <p>Progress through our comprehensive certification pathway</p>
+          </div>
+
+          <div className="roadmap-timeline">
+            <div className="roadmap-level">
+              <div className="level-badge">START</div>
+              <div className="level-card">
+                <h3>Pickleball Basic Fundamentals</h3>
+                <div className="level-details">
+                  <div className="detail-item">
+                    <i className="fas fa-calendar-day"></i>
+                    <span>1 Day Course</span>
+                  </div>
+                  <div className="detail-item">
+                    <i className="fas fa-certificate"></i>
+                    <span>Certificate of Attendance</span>
+                  </div>
+                  <div className="detail-item">
+                    <i className="fas fa-users"></i>
+                    <span>32 - 36 participants</span>
+                  </div>
+                  <div className="detail-item price">
+                    <i className="fas fa-tag"></i>
+                    <span>RM250 per pax</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div className="roadmap-arrow">
+              <i className="fas fa-arrow-right"></i>
+            </div>
+
+            <div className="roadmap-level">
+              <div className="level-badge level-1">LEVEL 1</div>
+              <div className="level-card">
+                <h3>MPA Level 1 Associate Coach</h3>
+                <div className="level-details">
+                  <div className="detail-item">
+                    <i className="fas fa-calendar-day"></i>
+                    <span>4 Days Course</span>
+                  </div>
+                  <div className="detail-item">
+                    <i className="fas fa-certificate"></i>
+                    <span>Full Certificate of Competence</span>
+                  </div>
+                  <div className="detail-item">
+                    <i className="fas fa-id-card"></i>
+                    <span>License to Practice</span>
+                  </div>
+                  <div className="detail-item">
+                    <i className="fas fa-users"></i>
+                    <span>24 - 32 participants</span>
+                  </div>
+                  <div className="detail-item price">
+                    <i className="fas fa-tag"></i>
+                    <span>RM750 per pax</span>
+                  </div>
+                  <div className="isn-badge">ISN Endorsement in progress</div>
+                </div>
+              </div>
+            </div>
+
+            <div className="roadmap-arrow">
+              <i className="fas fa-arrow-right"></i>
+            </div>
+
+            <div className="roadmap-level">
+              <div className="level-badge level-2">LEVEL 2</div>
+              <div className="level-card">
+                <h3>MPA Level 2 Professional Coach</h3>
+                <div className="level-details">
+                  <div className="detail-item">
+                    <i className="fas fa-calendar-day"></i>
+                    <span>4.5 Days Course</span>
+                  </div>
+                  <div className="detail-item">
+                    <i className="fas fa-certificate"></i>
+                    <span>Full Certificate of Competence</span>
+                  </div>
+                  <div className="detail-item">
+                    <i className="fas fa-id-card"></i>
+                    <span>License to Practice</span>
+                  </div>
+                  <div className="detail-item">
+                    <i className="fas fa-users"></i>
+                    <span>24 - 32 participants</span>
+                  </div>
+                  <div className="detail-item price">
+                    <i className="fas fa-tag"></i>
+                    <span>RM850 per pax</span>
+                  </div>
+                  <div className="isn-badge">ISN Endorsement in progress</div>
+                </div>
+              </div>
+            </div>
+
+            <div className="roadmap-arrow">
+              <i className="fas fa-arrow-right"></i>
+            </div>
+
+            <div className="roadmap-level">
+              <div className="level-badge level-3">LEVEL 3</div>
+              <div className="level-card">
+                <h3>MPA Level 3 Master Coach</h3>
+                <div className="level-details">
+                  <div className="detail-item">
+                    <i className="fas fa-calendar-day"></i>
+                    <span>5 Days Course</span>
+                  </div>
+                  <div className="detail-item">
+                    <i className="fas fa-certificate"></i>
+                    <span>Full Certificate of Competence</span>
+                  </div>
+                  <div className="detail-item">
+                    <i className="fas fa-id-card"></i>
+                    <span>License to Practice</span>
+                  </div>
+                  <div className="detail-item">
+                    <i className="fas fa-users"></i>
+                    <span>24 - 32 participants</span>
+                  </div>
+                  <div className="detail-item price">
+                    <i className="fas fa-tag"></i>
+                    <span>RM1000 per pax</span>
+                  </div>
+                  <div className="isn-badge">ISN Endorsement in progress</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
       <section className="our-journey">
         <div className="container">
           <div className="journey-header">
