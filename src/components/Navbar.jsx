@@ -31,7 +31,6 @@ function Navbar() {
             <span className="beta-badge">Beta 1.0</span>
           </Link>
           <Link to="/tournament" className="nav-link">Tournament</Link>
-          <Link to="/affiliate" className="nav-link">Affiliate</Link>
         </div>
 
         {/* Right - Home & Admin Login */}

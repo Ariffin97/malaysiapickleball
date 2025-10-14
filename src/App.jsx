@@ -5,6 +5,7 @@ import Home from './pages/Home';
 import About from './pages/About';
 import Tournament from './pages/Tournament';
 import Affiliate from './pages/Affiliate';
+import Organization from './pages/Organization';
 import News from './pages/News';
 import Milestones from './pages/Milestones';
 import TournamentGuidelines from './pages/TournamentGuidelines';
@@ -32,6 +33,7 @@ function AppContent() {
           <Route path="/about" element={<About />} />
           <Route path="/tournament" element={<Tournament />} />
           <Route path="/affiliate" element={<Affiliate />} />
+          <Route path="/organization" element={<Organization />} />
           <Route path="/news" element={<News />} />
           <Route path="/news/:newsId" element={<News />} />
           <Route path="/milestones" element={<Milestones />} />

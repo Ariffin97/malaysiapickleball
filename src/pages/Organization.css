@@ -1,0 +1,312 @@
+.organization-page {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+  padding: 100px 2rem 4rem;
+}
+
+.org-container {
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.org-header {
+  text-align: center;
+  margin-bottom: 3rem;
+}
+
+.org-header h1 {
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: #1f2937;
+  margin-bottom: 1rem;
+}
+
+.org-badge {
+  display: inline-block;
+  padding: 0.5rem 1.5rem;
+  background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+  color: white;
+  border-radius: 25px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+}
+
+/* Organization Chart Layout */
+.org-chart {
+  display: flex;
+  flex-direction: column;
+  gap: 3rem;
+}
+
+/* Top Level - President with Advisors */
+.top-level {
+  display: grid;
+  grid-template-columns: 1fr 2fr 1fr;
+  gap: 2rem;
+  align-items: start;
+}
+
+.advisors-left,
+.advisors-right {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.president-section {
+  display: flex;
+  justify-content: center;
+}
+
+/* Single Position - Deputy and VP */
+.single-position {
+  display: flex;
+  justify-content: center;
+  padding: 0 20%;
+}
+
+.single-position .org-card {
+  width: 100%;
+  max-width: 500px;
+}
+
+/* Dual Position - Treasurer and Secretary */
+.dual-position {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 2rem;
+  padding: 0 15%;
+}
+
+/* Executive Level - Deputy, VP, Treasurer, Secretary */
+.executive-level {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1.5rem;
+  padding: 0 2rem;
+}
+
+/* Department Level - Development, Tournament, Disciplinary */
+.department-level {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 1.5rem;
+  padding: 0 4rem;
+}
+
+/* Sub-Committee Level */
+.subcommittee-level {
+  padding: 0 6rem;
+}
+
+.subcommittee-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1.5rem;
+}
+
+/* Card Styles */
+.org-card {
+  background: white;
+  border-radius: 16px;
+  padding: 2rem;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  transition: all 0.3s ease;
+  border: 2px solid transparent;
+  position: relative;
+  overflow: hidden;
+}
+
+.org-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, #3b82f6, #8b5cf6);
+  transform: scaleX(0);
+  transition: transform 0.3s ease;
+}
+
+.org-card:hover::before {
+  transform: scaleX(1);
+}
+
+.org-card:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.15);
+  border-color: #3b82f6;
+}
+
+.org-card.president {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  padding: 2.5rem;
+  box-shadow: 0 8px 32px rgba(102, 126, 234, 0.4);
+}
+
+.org-card.president::before {
+  display: none;
+}
+
+.org-card.president:hover {
+  transform: translateY(-8px) scale(1.02);
+  box-shadow: 0 16px 48px rgba(102, 126, 234, 0.5);
+}
+
+.org-card.advisor {
+  background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+  color: white;
+}
+
+.org-card.advisor::before {
+  display: none;
+}
+
+.org-card.executive {
+  border-left: 4px solid #3b82f6;
+}
+
+.org-card.department {
+  border-left: 4px solid #10b981;
+}
+
+.org-card.subcommittee {
+  border-left: 4px solid #f59e0b;
+  padding: 1.5rem;
+}
+
+.card-role {
+  font-size: 0.85rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 0.5rem;
+  opacity: 0.9;
+}
+
+.org-card.president .card-role,
+.org-card.advisor .card-role {
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.card-name {
+  font-size: 1.25rem;
+  font-weight: 700;
+  line-height: 1.4;
+  color: #1f2937;
+}
+
+.org-card.president .card-name,
+.org-card.advisor .card-name {
+  color: white;
+  font-size: 1.4rem;
+}
+
+/* Connecting Lines */
+.level-connector {
+  display: flex;
+  justify-content: center;
+  margin: -1rem 0;
+  position: relative;
+}
+
+.connector-line {
+  width: 2px;
+  height: 2rem;
+  background: linear-gradient(180deg, #3b82f6, transparent);
+}
+
+/* Section Titles */
+.section-title {
+  text-align: center;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #6b7280;
+  margin-bottom: 1.5rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+/* Mobile Styles */
+@media (max-width: 1024px) {
+  .organization-page {
+    padding: 80px 1rem 3rem;
+  }
+
+  .org-header h1 {
+    font-size: 2rem;
+  }
+
+  .top-level {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
+
+  .advisors-left,
+  .advisors-right {
+    order: 2;
+  }
+
+  .president-section {
+    order: 1;
+  }
+
+  .single-position {
+    padding: 0 2rem;
+  }
+
+  .dual-position {
+    grid-template-columns: 1fr 1fr;
+    padding: 0 2rem;
+  }
+
+  .executive-level {
+    grid-template-columns: 1fr 1fr;
+    padding: 0 1rem;
+  }
+
+  .department-level {
+    grid-template-columns: 1fr;
+    padding: 0 1rem;
+  }
+
+  .subcommittee-level {
+    padding: 0 1rem;
+  }
+
+  .subcommittee-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .connector-line {
+    display: none;
+  }
+}
+
+@media (max-width: 640px) {
+  .single-position {
+    padding: 0 1rem;
+  }
+
+  .dual-position,
+  .executive-level,
+  .subcommittee-grid {
+    grid-template-columns: 1fr;
+    padding: 0 1rem;
+  }
+
+  .org-card {
+    padding: 1.5rem;
+  }
+
+  .card-name {
+    font-size: 1.1rem;
+  }
+
+  .org-card.president .card-name {
+    font-size: 1.2rem;
+  }
+}
