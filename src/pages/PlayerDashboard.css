@@ -146,6 +146,15 @@
   text-align: center;
 }
 
+.nav-badge.badge-info {
+  background: #dbeafe;
+  color: #1e40af;
+  font-size: 0.625rem;
+  padding: 0.25rem 0.5rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
 .sidebar-footer {
   padding: 1rem 0;
   border-top: 1px solid #e5e7eb;

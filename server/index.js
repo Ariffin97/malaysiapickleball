@@ -356,6 +356,74 @@ const messageSchema = new mongoose.Schema({
 
 const Message = mongoose.model('Message', messageSchema);
 
+// PickleZone Post Schema
+const postSchema = new mongoose.Schema({
+  author: {
+    playerId: {
+      type: String,
+      required: true,
+      index: true
+    },
+    fullName: {
+      type: String,
+      required: true
+    },
+    username: String,
+    profilePicture: String
+  },
+  postType: {
+    type: String,
+    enum: ['text', 'image', 'link'],
+    required: true
+  },
+  content: {
+    type: String,
+    required: true
+  },
+  imageUrl: String, // For single image posts (legacy)
+  imageUrls: [String], // For multiple image posts
+  linkData: {
+    url: String,
+    title: String,
+    description: String,
+    image: String,
+    isVideo: Boolean,
+    embedUrl: String,
+    videoType: String
+  },
+  likes: [{
+    type: String // playerId
+  }],
+  comments: [{
+    playerId: {
+      type: String,
+      required: true
+    },
+    fullName: {
+      type: String,
+      required: true
+    },
+    username: String,
+    profilePicture: String,
+    comment: {
+      type: String,
+      required: true
+    },
+    createdAt: {
+      type: Date,
+      default: Date.now
+    }
+  }]
+}, {
+  timestamps: true
+});
+
+// Indexes for performance
+postSchema.index({ createdAt: -1 });
+postSchema.index({ 'author.playerId': 1 });
+
+const Post = mongoose.model('Post', postSchema);
+
 // Course Schema
 const courseSchema = new mongoose.Schema({
   title: {
@@ -507,6 +575,9 @@ const uploadJourneyImage = multer({ storage: journeyStorage });
 
 // Multer configuration for news images
 const uploadNewsImage = multer({ storage: newsStorage });
+
+// Multer configuration for post images (use profile storage for now)
+const uploadPostImage = multer({ storage: profileStorage });
 
 // Portal API Configuration
 const PORTAL_API_URL = process.env.PORTAL_API_URL || 'https://portalmpa.com/api';
@@ -2028,6 +2099,402 @@ app.delete('/api/clinics/:id', async (req, res) => {
     res.json({ success: true, message: 'Clinic deleted successfully' });
   } catch (error) {
     console.error('Error deleting clinic:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// ============================================
+// PICKLEZONE POSTS ENDPOINTS
+// ============================================
+
+// Fetch link preview metadata
+app.post('/api/link-preview', async (req, res) => {
+  try {
+    const { url } = req.body;
+
+    if (!url) {
+      return res.status(400).json({ error: 'URL is required' });
+    }
+
+    // Validate URL format
+    let validUrl;
+    try {
+      validUrl = new URL(url);
+    } catch (e) {
+      return res.status(400).json({ error: 'Invalid URL format' });
+    }
+
+    console.log('🔗 Fetching link preview for:', url);
+
+    // Fetch the webpage
+    const response = await fetch(url, {
+      headers: {
+        'User-Agent': 'Mozilla/5.0 (compatible; LinkPreviewBot/1.0)'
+      },
+      timeout: 10000
+    });
+
+    if (!response.ok) {
+      return res.status(400).json({ error: 'Failed to fetch URL' });
+    }
+
+    const html = await response.text();
+
+    // Extract Open Graph tags and meta tags
+    const getMetaContent = (html, property) => {
+      const patterns = [
+        new RegExp(`<meta[^>]*property=["']${property}["'][^>]*content=["']([^"']+)["']`, 'i'),
+        new RegExp(`<meta[^>]*content=["']([^"']+)["'][^>]*property=["']${property}["']`, 'i'),
+        new RegExp(`<meta[^>]*name=["']${property}["'][^>]*content=["']([^"']+)["']`, 'i'),
+        new RegExp(`<meta[^>]*content=["']([^"']+)["'][^>]*name=["']${property}["']`, 'i')
+      ];
+
+      for (const pattern of patterns) {
+        const match = html.match(pattern);
+        if (match) return match[1];
+      }
+      return null;
+    };
+
+    // Get title
+    let title = getMetaContent(html, 'og:title') ||
+                getMetaContent(html, 'twitter:title');
+    if (!title) {
+      const titleMatch = html.match(/<title[^>]*>([^<]+)<\/title>/i);
+      title = titleMatch ? titleMatch[1] : validUrl.hostname;
+    }
+
+    // Get description
+    const description = getMetaContent(html, 'og:description') ||
+                       getMetaContent(html, 'twitter:description') ||
+                       getMetaContent(html, 'description') ||
+                       '';
+
+    // Get image
+    let image = getMetaContent(html, 'og:image') ||
+               getMetaContent(html, 'twitter:image') ||
+               '';
+
+    // Make image URL absolute if it's relative
+    if (image && !image.startsWith('http')) {
+      image = new URL(image, validUrl.origin).href;
+    }
+
+    const preview = {
+      url: url,
+      title: title.substring(0, 200),
+      description: description.substring(0, 300),
+      image: image,
+      domain: validUrl.hostname
+    };
+
+    console.log('✅ Link preview fetched:', preview.title);
+    res.json(preview);
+
+  } catch (error) {
+    console.error('Error fetching link preview:', error);
+    res.status(500).json({ error: 'Failed to fetch link preview' });
+  }
+});
+
+// Get all posts (with pagination)
+app.get('/api/posts', async (req, res) => {
+  try {
+    const { limit = 20, skip = 0 } = req.query;
+
+    const posts = await Post.find()
+      .sort({ createdAt: -1 })
+      .limit(parseInt(limit))
+      .skip(parseInt(skip))
+      .lean();
+
+    res.json(posts);
+  } catch (error) {
+    console.error('Error fetching posts:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Create a new post
+app.post('/api/posts', uploadPostImage.array('image', 5), async (req, res) => {
+  try {
+    const { playerId, fullName, username, profilePicture, postType, content, linkUrl, linkTitle, linkDescription, linkImage, isVideo, embedUrl, videoType } = req.body;
+
+    if (!playerId || !fullName || !postType) {
+      return res.status(400).json({ error: 'PlayerId, fullName, and postType are required' });
+    }
+
+    const postData = {
+      author: {
+        playerId,
+        fullName,
+        username: username || null,
+        profilePicture: profilePicture || null
+      },
+      postType,
+      content: content || '',
+      likes: [],
+      comments: []
+    };
+
+    // Add images if uploaded (multiple images)
+    if (req.files && req.files.length > 0) {
+      postData.imageUrls = req.files.map(file => file.path);
+      // Also set first image as imageUrl for backward compatibility
+      postData.imageUrl = req.files[0].path;
+    }
+
+    // Add link data if provided
+    if (postType === 'link' && linkUrl) {
+      postData.linkData = {
+        url: linkUrl,
+        title: linkTitle || '',
+        description: linkDescription || '',
+        image: linkImage || ''
+      };
+
+      // Add video data if it's a video link
+      if (isVideo === 'true' || isVideo === true) {
+        postData.linkData.isVideo = true;
+        postData.linkData.embedUrl = embedUrl || '';
+        postData.linkData.videoType = videoType || '';
+      }
+    }
+
+    const post = await Post.create(postData);
+
+    console.log('✅ Post created by:', fullName);
+    res.status(201).json(post);
+  } catch (error) {
+    console.error('Error creating post:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Get single post by ID
+app.get('/api/posts/:id', async (req, res) => {
+  try {
+    if (!req.params.id.match(/^[0-9a-fA-F]{24}$/)) {
+      return res.status(400).json({ error: 'Invalid post ID format' });
+    }
+
+    const post = await Post.findById(req.params.id).lean();
+
+    if (!post) {
+      return res.status(404).json({ error: 'Post not found' });
+    }
+
+    res.json(post);
+  } catch (error) {
+    console.error('Error fetching post:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Like/Unlike a post
+app.post('/api/posts/:id/like', async (req, res) => {
+  try {
+    const { playerId } = req.body;
+
+    if (!playerId) {
+      return res.status(400).json({ error: 'PlayerId is required' });
+    }
+
+    if (!req.params.id.match(/^[0-9a-fA-F]{24}$/)) {
+      return res.status(400).json({ error: 'Invalid post ID format' });
+    }
+
+    const post = await Post.findById(req.params.id);
+
+    if (!post) {
+      return res.status(404).json({ error: 'Post not found' });
+    }
+
+    // Check if already liked
+    const likeIndex = post.likes.indexOf(playerId);
+
+    if (likeIndex > -1) {
+      // Unlike
+      post.likes.splice(likeIndex, 1);
+    } else {
+      // Like
+      post.likes.push(playerId);
+    }
+
+    await post.save();
+
+    res.json(post);
+  } catch (error) {
+    console.error('Error toggling like:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Add comment to a post
+app.post('/api/posts/:id/comment', async (req, res) => {
+  try {
+    const { playerId, fullName, username, profilePicture, comment } = req.body;
+
+    if (!playerId || !fullName || !comment) {
+      return res.status(400).json({ error: 'PlayerId, fullName, and comment are required' });
+    }
+
+    if (!req.params.id.match(/^[0-9a-fA-F]{24}$/)) {
+      return res.status(400).json({ error: 'Invalid post ID format' });
+    }
+
+    const post = await Post.findById(req.params.id);
+
+    if (!post) {
+      return res.status(404).json({ error: 'Post not found' });
+    }
+
+    post.comments.push({
+      playerId,
+      fullName,
+      username: username || null,
+      profilePicture: profilePicture || null,
+      comment,
+      createdAt: new Date()
+    });
+
+    await post.save();
+
+    console.log('✅ Comment added by:', fullName);
+    res.json(post);
+  } catch (error) {
+    console.error('Error adding comment:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Report a post
+app.post('/api/posts/:id/report', async (req, res) => {
+  try {
+    const { reportedBy, reporterName, reason, details } = req.body;
+
+    if (!reportedBy || !reporterName || !reason) {
+      return res.status(400).json({ error: 'Reporter information and reason are required' });
+    }
+
+    if (!req.params.id.match(/^[0-9a-fA-F]{24}$/)) {
+      return res.status(400).json({ error: 'Invalid post ID format' });
+    }
+
+    const post = await Post.findById(req.params.id);
+
+    if (!post) {
+      return res.status(404).json({ error: 'Post not found' });
+    }
+
+    // Log the report with detailed information
+    console.log(`⚠️ POST REPORTED`);
+    console.log(`Reporter: ${reporterName} (${reportedBy})`);
+    console.log(`Post ID: ${post._id}`);
+    console.log(`Post Author: ${post.author.fullName} (${post.author.playerId})`);
+    console.log(`Reason: ${reason}`);
+    if (details) {
+      console.log(`Details: ${details}`);
+    }
+    console.log(`Post Content Preview: ${post.content.substring(0, 100)}...`);
+    console.log(`Reported At: ${new Date().toISOString()}`);
+    console.log('---');
+
+    // TODO: Store report in database
+    // await Report.create({
+    //   postId: post._id,
+    //   postAuthor: post.author,
+    //   reportedBy,
+    //   reporterName,
+    //   reason,
+    //   details,
+    //   createdAt: new Date()
+    // });
+
+    res.json({ success: true, message: 'Post reported successfully' });
+  } catch (error) {
+    console.error('Error reporting post:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Edit/Update a post
+app.put('/api/posts/:id', async (req, res) => {
+  try {
+    const { content, playerId } = req.body;
+
+    if (!content || !playerId) {
+      return res.status(400).json({ error: 'Content and playerId are required' });
+    }
+
+    if (!req.params.id.match(/^[0-9a-fA-F]{24}$/)) {
+      return res.status(400).json({ error: 'Invalid post ID format' });
+    }
+
+    const post = await Post.findById(req.params.id);
+
+    if (!post) {
+      return res.status(404).json({ error: 'Post not found' });
+    }
+
+    // Verify that the user is the author of the post
+    if (post.author.playerId !== playerId) {
+      return res.status(403).json({ error: 'You can only edit your own posts' });
+    }
+
+    // Update the content
+    post.content = content;
+    await post.save();
+
+    console.log('✅ Post edited by:', post.author.fullName);
+    res.json(post);
+  } catch (error) {
+    console.error('Error updating post:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Delete a post
+app.delete('/api/posts/:id', async (req, res) => {
+  try {
+    const { playerId } = req.body;
+
+    if (!playerId) {
+      return res.status(400).json({ error: 'PlayerId is required' });
+    }
+
+    if (!req.params.id.match(/^[0-9a-fA-F]{24}$/)) {
+      return res.status(400).json({ error: 'Invalid post ID format' });
+    }
+
+    const post = await Post.findById(req.params.id);
+
+    if (!post) {
+      return res.status(404).json({ error: 'Post not found' });
+    }
+
+    // Verify that the user is the author of the post
+    if (post.author.playerId !== playerId) {
+      return res.status(403).json({ error: 'You can only delete your own posts' });
+    }
+
+    // Delete images from Cloudinary if they exist
+    if (post.imageUrl) {
+      await deleteCloudinaryImage(post.imageUrl);
+    }
+    if (post.imageUrls && post.imageUrls.length > 0) {
+      for (const imageUrl of post.imageUrls) {
+        await deleteCloudinaryImage(imageUrl);
+      }
+    }
+
+    // Delete the post
+    await Post.findByIdAndDelete(req.params.id);
+
+    console.log('✅ Post deleted by:', post.author.fullName);
+    res.json({ success: true, message: 'Post deleted successfully' });
+  } catch (error) {
+    console.error('Error deleting post:', error);
     res.status(500).json({ error: error.message });
   }
 });

@@ -15,6 +15,11 @@ main {
   margin-top: 70px; /* Offset for fixed navbar */
 }
 
+main:has(.picklezone) {
+  margin-top: 0 !important;
+  padding: 0 !important;
+}
+
 .admin-login-page {
   margin-top: -70px !important;
 }
@@ -29,6 +34,16 @@ main {
 
 .admin-dashboard main {
   margin-top: 0 !important;
+}
+
+.picklezone {
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+body:has(.picklezone) {
+  margin: 0 !important;
+  padding: 0 !important;
 }
 
 body {

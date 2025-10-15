@@ -38,6 +38,7 @@ function PlayerLogin() {
         localStorage.setItem('playerLoggedIn', 'true');
         localStorage.setItem('playerId', data.player.id);
         localStorage.setItem('playerName', data.player.fullName);
+        localStorage.setItem('playerUsername', data.player.username);
         navigate('/player/dashboard');
       } else {
         setError(data.error || 'Invalid username or password');

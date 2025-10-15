@@ -16,7 +16,7 @@
   gap: 0.625rem;
   padding: 1rem 1.5rem;
   background: transparent;
-  color: #64748b;
+  color: #000000;
   border: 2px solid #e2e8f0;
   border-radius: 12px;
   text-decoration: none;
@@ -135,13 +135,13 @@
 .login-header h1 {
   font-size: 2.25rem;
   font-weight: 800;
-  color: #ffffff !important;
+  color: #000000 !important;
   margin-bottom: 0.75rem;
   letter-spacing: -0.025em;
 }
 
 .login-header p {
-  color: #ffffff !important;
+  color: #000000 !important;
   font-size: 0.9375rem;
   font-weight: 500;
   letter-spacing: 0.01em;
@@ -192,7 +192,7 @@
 
 .form-group label {
   font-weight: 600;
-  color: #374151;
+  color: #000000;
   font-size: 0.8125rem;
   display: flex;
   align-items: center;
@@ -212,7 +212,7 @@
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   outline: none;
   background: #f8fafc;
-  color: #1e293b;
+  color: #000000;
   font-weight: 500;
 }
 
@@ -274,7 +274,7 @@
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  color: #374151;
+  color: #000000;
   cursor: pointer;
 }
 
@@ -361,7 +361,7 @@
 }
 
 .login-footer p {
-  color: #ffffff !important;
+  color: #000000 !important;
   font-size: 0.875rem;
   display: flex;
   align-items: center;

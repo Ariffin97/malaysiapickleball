@@ -437,6 +437,35 @@ function Home() {
         </div>
       </section>
 
+      <section className="picklezone-section">
+        <div className="container">
+          <div className="picklezone-card">
+            <div className="picklezone-actions">
+              <Link to="/picklezone/login" className="btn-picklezone-login">
+                <i className="fas fa-sign-in-alt"></i>
+                Enter PickleZone
+              </Link>
+              <p className="picklezone-note">Join our exclusive social community for players</p>
+            </div>
+            <div className="picklezone-content">
+              <div className="picklezone-text">
+                <h2>PickleZone - Social Hub for Pickleball Players</h2>
+                <p>Connect with fellow players in Malaysia's first dedicated pickleball social media platform. Register as an MPA player to unlock access to this exclusive community.</p>
+                <ul className="picklezone-benefits-list">
+                  <li><i className="fas fa-check-circle"></i> Share your pickleball moments</li>
+                  <li><i className="fas fa-check-circle"></i> Connect with players nationwide</li>
+                  <li><i className="fas fa-check-circle"></i> Join community discussions</li>
+                  <li><i className="fas fa-check-circle"></i> Stay updated with latest news</li>
+                </ul>
+              </div>
+              <div className="picklezone-icon">
+                <img src="/picklezonelogo.png" alt="PickleZone Logo" />
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* Registration Modal */}
       {showRegisterModal && (
         <div className="register-modal-overlay" onClick={closeRegisterModal}>

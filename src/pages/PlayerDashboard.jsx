@@ -252,6 +252,12 @@ function PlayerDashboard() {
       icon: 'fa-dumbbell',
       label: 'Training Programs',
     },
+    {
+      id: 'picklezone',
+      label: 'PickleZone',
+      badge: 'Coming Up',
+      badgeType: 'info',
+    },
   ];
 
   const renderContent = () => {
@@ -551,11 +557,21 @@ function PlayerDashboard() {
             <button
               key={item.id}
               className={`nav-item ${activeMenu === item.id ? 'active' : ''}`}
-              onClick={() => setActiveMenu(item.id)}
+              onClick={() => {
+                if (item.id === 'picklezone') {
+                  navigate('/picklezone');
+                } else {
+                  setActiveMenu(item.id);
+                }
+              }}
             >
-              <i className={`fas ${item.icon}`}></i>
+              {item.icon && <i className={`fas ${item.icon}`}></i>}
               {sidebarOpen && <span>{item.label}</span>}
-              {item.badge && <span className="nav-badge">{item.badge}</span>}
+              {item.badge && (
+                <span className={`nav-badge ${item.badgeType ? `badge-${item.badgeType}` : ''}`}>
+                  {item.badge}
+                </span>
+              )}
             </button>
           ))}
         </nav>

@@ -199,6 +199,7 @@ function Tournament() {
   const tournamentData = tournaments.map((t, index) => ({
     ...t,
     index,
+    color: getColorFromType(t.type),
     schedule: calculateSchedule(t)
   }));
 
@@ -344,7 +345,7 @@ function Tournament() {
 
                     {/* Quarter Headers */}
                     {months.map((month, idx) => (
-                      <div key={`quarter-${idx}`} className="grid-quarter-header">
+                      <div key={`quarter-header-${month}-${idx}`} className="grid-quarter-header">
                         <span>W1</span>
                         <span>W2</span>
                         <span>W3</span>
@@ -404,7 +405,7 @@ function Tournament() {
 
                               return (
                                 <div
-                                  key={quarter}
+                                  key={`${tournament.id}-${monthIdx}-${quarter}`}
                                   className={cellClass + (hasEvent ? ' tournament-clickable' : '')}
                                   onClick={hasEvent ? () => openModal(tournament.index) : undefined}
                                   title={hasEvent ? tournament.name : ''}
