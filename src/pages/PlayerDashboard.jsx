@@ -2,6 +2,27 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './PlayerDashboard.css';
 
+// Function to calculate skill level from DUPR rating
+function calculateSkillLevel(duprRating) {
+  if (!duprRating || duprRating <= 0) {
+    return 'Beginner';
+  }
+
+  if (duprRating <= 2.499) {
+    return 'Novice';
+  } else if (duprRating <= 2.999) {
+    return 'Intermediate';
+  } else if (duprRating <= 3.499) {
+    return 'Intermediate+';
+  } else if (duprRating <= 3.999) {
+    return 'Advanced';
+  } else if (duprRating <= 4.499) {
+    return 'Advanced+';
+  } else {
+    return 'Elite';
+  }
+}
+
 function PlayerDashboard() {
   const [activeMenu, setActiveMenu] = useState('profile');
   const [sidebarOpen, setSidebarOpen] = useState(true);
@@ -66,6 +87,30 @@ function PlayerDashboard() {
     }
   };
 
+  const handleMessageClick = async (message) => {
+    setSelectedMessage(message);
+
+    // Mark message as read if it's unread
+    if (!message.read) {
+      try {
+        const playerId = localStorage.getItem('playerId');
+        const PORTAL_API_URL = import.meta.env.VITE_PORTAL_API_URL || 'http://localhost:5001/api';
+
+        await fetch(`${PORTAL_API_URL}/players/${playerId}/messages/${message._id}/read`, {
+          method: 'PATCH',
+        });
+
+        // Update local state
+        setMessages(messages.map(msg =>
+          msg._id === message._id ? { ...msg, read: true } : msg
+        ));
+        setUnreadCount(prev => Math.max(0, prev - 1));
+      } catch (error) {
+        console.error('Error marking message as read:', error);
+      }
+    }
+  };
+
   const handleLogout = () => {
     localStorage.removeItem('playerLoggedIn');
     localStorage.removeItem('playerToken');
@@ -83,9 +128,39 @@ function PlayerDashboard() {
       addressLine1: playerData.addressLine1,
       addressLine2: playerData.addressLine2 || '',
       city: playerData.city,
-      state: playerData.state
+      state: playerData.state,
+      duprRating: playerData.duprRating || '',
+      duprId: playerData.duprId || ''
     });
+    setSelectedProfilePicture(null);
+    setProfilePicturePreview(playerData.profilePicture || null);
     setShowEditModal(true);
+  };
+
+  const handleProfilePictureChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      // Validate file type
+      if (!file.type.startsWith('image/')) {
+        alert('Please select a valid image file');
+        return;
+      }
+
+      // Validate file size (max 5MB)
+      if (file.size > 5 * 1024 * 1024) {
+        alert('File size must be less than 5MB');
+        return;
+      }
+
+      setSelectedProfilePicture(file);
+
+      // Create preview
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setProfilePicturePreview(reader.result);
+      };
+      reader.readAsDataURL(file);
+    }
   };
 
   const handleUpdateProfile = async (e) => {
@@ -95,6 +170,26 @@ function PlayerDashboard() {
       const token = localStorage.getItem('playerToken');
       const PORTAL_API_URL = import.meta.env.VITE_PORTAL_API_URL || 'http://localhost:5001/api';
 
+      // If profile picture is selected, upload it first
+      if (selectedProfilePicture) {
+        const formData = new FormData();
+        formData.append('profilePicture', selectedProfilePicture);
+
+        const uploadResponse = await fetch(`${PORTAL_API_URL}/players/${playerId}/profile-picture`, {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${token}`,
+          },
+          body: formData
+        });
+
+        if (!uploadResponse.ok) {
+          alert('Error uploading profile picture');
+          return;
+        }
+      }
+
+      // Update other profile fields
       const response = await fetch(`${PORTAL_API_URL}/players/${playerId}`, {
         method: 'PATCH',
         headers: {
@@ -108,7 +203,11 @@ function PlayerDashboard() {
         const updatedData = await response.json();
         setPlayerData(updatedData);
         setShowEditModal(false);
+        setSelectedProfilePicture(null);
+        setProfilePicturePreview(null);
         alert('Profile updated successfully!');
+        // Reload to show new profile picture
+        window.location.reload();
       } else {
         alert('Error updating profile');
       }
@@ -120,8 +219,11 @@ function PlayerDashboard() {
 
   const [messages, setMessages] = useState([]);
   const [unreadCount, setUnreadCount] = useState(0);
+  const [selectedMessage, setSelectedMessage] = useState(null);
   const [showEditModal, setShowEditModal] = useState(false);
   const [editFormData, setEditFormData] = useState({});
+  const [selectedProfilePicture, setSelectedProfilePicture] = useState(null);
+  const [profilePicturePreview, setProfilePicturePreview] = useState(null);
 
   const menuItems = [
     {
@@ -207,7 +309,11 @@ function PlayerDashboard() {
                     </div>
                     <div className="stat-item">
                       <span className="stat-label">Skill Level</span>
-                      <span className="stat-value">{playerData.skillLevel || 'Beginner'}</span>
+                      <span className="stat-value">{calculateSkillLevel(playerData.duprRating)}</span>
+                    </div>
+                    <div className="stat-item">
+                      <span className="stat-label">DUPR Rating</span>
+                      <span className="stat-value">{playerData.duprRating || 'Not set'}</span>
                     </div>
                     <div className="stat-item">
                       <span className="stat-label">Status</span>
@@ -247,6 +353,12 @@ function PlayerDashboard() {
                         <span className="info-label">I/C Number</span>
                         <span className="info-value">{playerData.icNumber}</span>
                       </div>
+                      {playerData.duprId && (
+                        <div className="info-item">
+                          <span className="info-label">DUPR ID</span>
+                          <span className="info-value">{playerData.duprId}</span>
+                        </div>
+                      )}
                     </div>
                   </div>
 
@@ -283,45 +395,83 @@ function PlayerDashboard() {
             <div className="content-header">
               <div>
                 <h1>Inbox</h1>
-                <p className="subtitle">Messages from administrators</p>
               </div>
             </div>
 
-            <div className="messages-container">
+            <div className="inbox-split-container">
               {messages.length === 0 ? (
                 <div className="empty-messages">
                   <i className="fas fa-inbox"></i>
                   <p>No messages yet</p>
                 </div>
               ) : (
-                <div className="messages-list">
-                  {messages.map((message) => (
-                    <div key={message._id} className={`message-card ${message.read ? 'read' : 'unread'}`}>
-                      <div className="message-header">
-                        <div className="message-from">
-                          <i className="fas fa-user-shield"></i>
-                          <span>Administrator</span>
+                <>
+                  {/* Messages List - Left Side */}
+                  <div className="inbox-messages-list">
+                    {messages.map((message) => (
+                      <div
+                        key={message._id}
+                        className={`inbox-message-item ${selectedMessage?._id === message._id ? 'selected' : ''} ${message.read ? 'read' : 'unread'}`}
+                        onClick={() => handleMessageClick(message)}
+                      >
+                        <div className="inbox-message-item-header">
+                          <div className="inbox-message-from">
+                            <i className="fas fa-user-shield"></i>
+                            <span>Administrator</span>
+                          </div>
+                          {!message.read && <span className="inbox-unread-dot"></span>}
                         </div>
-                        <div className="message-date">
+                        <div className="inbox-message-subject">
+                          {message.subject}
+                        </div>
+                        <div className="inbox-message-preview">
+                          {message.message.length > 60 ? message.message.substring(0, 60) + '...' : message.message}
+                        </div>
+                        <div className="inbox-message-date">
                           {new Date(message.createdAt).toLocaleDateString('en-US', {
                             month: 'short',
                             day: 'numeric',
-                            year: 'numeric',
-                            hour: '2-digit',
-                            minute: '2-digit'
+                            year: 'numeric'
                           })}
                         </div>
                       </div>
-                      <div className="message-subject">
-                        {!message.read && <span className="unread-badge"></span>}
-                        {message.subject}
+                    ))}
+                  </div>
+
+                  {/* Message Content - Right Side */}
+                  <div className="inbox-message-content">
+                    {selectedMessage ? (
+                      <>
+                        <div className="inbox-content-header">
+                          <h2>{selectedMessage.subject}</h2>
+                          <div className="inbox-content-meta">
+                            <div className="inbox-content-from">
+                              <i className="fas fa-user-shield"></i>
+                              <span>Administrator</span>
+                            </div>
+                            <div className="inbox-content-date">
+                              {new Date(selectedMessage.createdAt).toLocaleDateString('en-US', {
+                                month: 'long',
+                                day: 'numeric',
+                                year: 'numeric',
+                                hour: '2-digit',
+                                minute: '2-digit'
+                              })}
+                            </div>
+                          </div>
+                        </div>
+                        <div className="inbox-content-body">
+                          {selectedMessage.message}
+                        </div>
+                      </>
+                    ) : (
+                      <div className="inbox-no-selection">
+                        <i className="fas fa-envelope-open"></i>
+                        <p>Select a message to read</p>
                       </div>
-                      <div className="message-body">
-                        {message.message}
-                      </div>
-                    </div>
-                  ))}
-                </div>
+                    )}
+                  </div>
+                </>
               )}
             </div>
           </div>
@@ -438,6 +588,34 @@ function PlayerDashboard() {
 
             <div className="modal-body">
               <form onSubmit={handleUpdateProfile}>
+                {/* Profile Picture Upload */}
+                <div className="profile-picture-upload-section">
+                  <label>Profile Picture</label>
+                  <div className="profile-picture-upload">
+                    <div className="profile-picture-preview">
+                      {profilePicturePreview ? (
+                        <img src={profilePicturePreview} alt="Profile preview" />
+                      ) : (
+                        <i className="fas fa-user"></i>
+                      )}
+                    </div>
+                    <div className="profile-picture-actions">
+                      <input
+                        type="file"
+                        id="profile-picture-input"
+                        accept="image/*"
+                        onChange={handleProfilePictureChange}
+                        style={{ display: 'none' }}
+                      />
+                      <label htmlFor="profile-picture-input" className="btn-upload-picture">
+                        <i className="fas fa-camera"></i>
+                        {profilePicturePreview ? 'Change Picture' : 'Upload Picture'}
+                      </label>
+                      <p className="upload-hint">Max size: 5MB. Supported formats: JPG, PNG, GIF</p>
+                    </div>
+                  </div>
+                </div>
+
                 <div className="form-grid">
                   <div className="form-group">
                     <label>Full Name *</label>
@@ -480,6 +658,34 @@ function PlayerDashboard() {
                       <option value="Male">Male</option>
                       <option value="Female">Female</option>
                     </select>
+                  </div>
+
+                  <div className="form-group">
+                    <label>DUPR ID</label>
+                    <input
+                      type="text"
+                      placeholder="Enter your DUPR ID"
+                      value={editFormData.duprId || ''}
+                      onChange={(e) => setEditFormData({ ...editFormData, duprId: e.target.value })}
+                    />
+                  </div>
+
+                  <div className="form-group">
+                    <label>DUPR Rating</label>
+                    <input
+                      type="number"
+                      step="0.001"
+                      min="0"
+                      max="8"
+                      placeholder="Enter your DUPR rating"
+                      value={editFormData.duprRating || ''}
+                      onChange={(e) => setEditFormData({ ...editFormData, duprRating: e.target.value })}
+                    />
+                    <small style={{ color: '#6b7280', fontSize: '0.75rem', marginTop: '0.25rem', display: 'block' }}>
+                      {editFormData.duprRating && editFormData.duprRating > 0
+                        ? `Skill Level: ${calculateSkillLevel(parseFloat(editFormData.duprRating))}`
+                        : 'Your skill level will be calculated automatically'}
+                    </small>
                   </div>
 
                   <div className="form-group full-width">

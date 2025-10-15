@@ -50,20 +50,51 @@
 /* Filters Section */
 .filters-section {
   display: flex;
-  gap: 1rem;
+  gap: 0.75rem;
   margin-bottom: 1.5rem;
-  flex-wrap: wrap;
   background: white;
-  padding: 1.25rem;
-  border-radius: 16px;
+  padding: 1rem;
+  border-radius: 12px;
   border: 1px solid #e5e7eb;
   box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  align-items: center;
 }
 
 .search-box {
   flex: 1;
-  min-width: 300px;
+  min-width: 250px;
   position: relative;
+}
+
+.filters-container {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.filter-select {
+  padding: 0.5rem 0.875rem;
+  border: 1px solid #e5e7eb;
+  background: white;
+  color: #6b7280;
+  border-radius: 8px;
+  font-weight: 500;
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  min-width: 130px;
+}
+
+.filter-select:hover {
+  border-color: #d1d5db;
+  color: #374151;
+}
+
+.filter-select:focus {
+  outline: none;
+  border-color: #1f2937;
+  color: #111827;
+  box-shadow: 0 0 0 3px rgba(31, 41, 55, 0.05);
 }
 
 .search-box i {
@@ -77,50 +108,28 @@
 
 .search-box input {
   width: 100%;
-  padding: 0.75rem 1rem 0.75rem 2.75rem;
+  padding: 0.625rem 1rem 0.625rem 2.75rem;
   border: 1px solid #e5e7eb;
-  border-radius: 10px;
-  font-size: 0.9375rem;
+  border-radius: 8px;
+  font-size: 0.875rem;
   transition: all 0.2s ease;
-  background: #f9fafb;
+  background: white;
+  color: #374151;
+}
+
+.search-box input::placeholder {
+  color: #9ca3af;
+}
+
+.search-box input:hover {
+  border-color: #d1d5db;
 }
 
 .search-box input:focus {
   outline: none;
   border-color: #1f2937;
-  background: white;
+  color: #111827;
   box-shadow: 0 0 0 3px rgba(31, 41, 55, 0.05);
-}
-
-.filter-buttons {
-  display: flex;
-  gap: 0.5rem;
-  flex-wrap: wrap;
-}
-
-.filter-btn {
-  padding: 0.625rem 1rem;
-  border: 1px solid #e5e7eb;
-  background: white;
-  color: #6b7280;
-  border-radius: 10px;
-  font-weight: 600;
-  font-size: 0.875rem;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  white-space: nowrap;
-}
-
-.filter-btn:hover {
-  border-color: #1f2937;
-  color: #1f2937;
-  background: #f9fafb;
-}
-
-.filter-btn.active {
-  background: #1f2937;
-  color: white;
-  border-color: #1f2937;
 }
 
 /* Content Body */
@@ -128,8 +137,10 @@
   background: white;
   border-radius: 16px;
   border: 1px solid #e5e7eb;
-  overflow: hidden;
+  overflow: visible;
   box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  position: relative;
+  z-index: 1;
 }
 
 /* Loading & Empty States */
@@ -162,7 +173,7 @@
 
 /* Table */
 .players-table-container {
-  overflow-x: auto;
+  overflow: visible;
 }
 
 .players-table {
@@ -192,8 +203,14 @@
   font-size: 0.9375rem;
 }
 
+.players-table td:last-child {
+  overflow: visible !important;
+  position: relative;
+}
+
 .players-table tbody tr {
   transition: background 0.15s ease;
+  position: relative;
 }
 
 .players-table tbody tr:hover {
@@ -250,6 +267,12 @@
 .action-dropdown {
   position: relative;
   display: inline-block;
+  z-index: 10;
+}
+
+.players-table tbody tr:has(.action-dropdown) {
+  z-index: 10;
+  position: relative;
 }
 
 .dropdown-trigger {
@@ -275,26 +298,28 @@
 
 .dropdown-menu {
   position: absolute;
-  right: 0;
-  top: 100%;
-  margin-top: 0.25rem;
+  left: 100%;
+  top: 0;
+  margin-left: 0.5rem;
   background: white;
   border: 1px solid #e5e7eb;
   border-radius: 8px;
   box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-  z-index: 10;
+  z-index: 9999;
   min-width: 160px;
-  animation: slideDown 0.15s ease;
+  animation: dropdownSlideRight 0.15s ease;
+  max-height: 300px;
+  overflow-y: auto;
 }
 
-@keyframes slideDown {
+@keyframes dropdownSlideRight {
   from {
     opacity: 0;
-    transform: translateY(-10px);
+    transform: translateX(-10px);
   }
   to {
     opacity: 1;
-    transform: translateY(0);
+    transform: translateX(0);
   }
 }
 
@@ -770,17 +795,30 @@
 }
 
 /* Responsive */
-@media (max-width: 768px) {
+@media (max-width: 1024px) {
   .filters-section {
-    flex-direction: column;
+    flex-wrap: wrap;
   }
 
   .search-box {
+    flex: 1 1 100%;
     min-width: 100%;
   }
 
-  .filter-buttons {
+  .filters-container {
+    flex: 1 1 100%;
     justify-content: flex-start;
+  }
+}
+
+@media (max-width: 768px) {
+  .filters-container {
+    flex-wrap: wrap;
+  }
+
+  .filter-select {
+    flex: 1 1 calc(50% - 0.25rem);
+    min-width: 120px;
   }
 
   .players-table {

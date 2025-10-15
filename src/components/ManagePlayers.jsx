@@ -6,6 +6,9 @@ function ManagePlayers() {
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [filterStatus, setFilterStatus] = useState('all');
+  const [filterState, setFilterState] = useState('all');
+  const [filterGender, setFilterGender] = useState('all');
+  const [filterAge, setFilterAge] = useState('all');
   const [selectedPlayer, setSelectedPlayer] = useState(null);
   const [showDetailsModal, setShowDetailsModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
@@ -31,6 +34,37 @@ function ManagePlayers() {
     return () => document.removeEventListener('click', handleClickOutside);
   }, [openDropdown]);
 
+  // Helper function to extract date of birth from Malaysian IC number
+  const extractDOBFromIC = (icNumber) => {
+    if (!icNumber || icNumber === 'N/A') return null;
+
+    // Malaysian IC format: YYMMDD-PB-###G
+    const icParts = icNumber.split('-');
+    if (icParts.length < 1) return null;
+
+    const dateStr = icParts[0];
+    if (dateStr.length !== 6) return null;
+
+    try {
+      const year = dateStr.substring(0, 2);
+      const month = dateStr.substring(2, 4);
+      const day = dateStr.substring(4, 6);
+
+      // Determine century (assume year < 30 is 2000s, otherwise 1900s)
+      const fullYear = parseInt(year) < 30 ? `20${year}` : `19${year}`;
+
+      // Create date object
+      const dob = new Date(`${fullYear}-${month}-${day}`);
+
+      // Validate the date
+      if (isNaN(dob.getTime())) return null;
+
+      return dob.toISOString();
+    } catch (error) {
+      return null;
+    }
+  };
+
   const fetchPlayers = async () => {
     try {
       const PORTAL_API_URL = import.meta.env.VITE_PORTAL_API_URL || '/api';
@@ -54,7 +88,7 @@ function ManagePlayers() {
         skillLevel: 'N/A',
         username: player.username || 'N/A',
         profilePicture: player.profilePicture,
-        dateOfBirth: null,
+        dateOfBirth: player.dateOfBirth || extractDOBFromIC(player.icNumber),
         addressLine1: player.addressLine1 || 'N/A',
         addressLine2: player.addressLine2 || '',
         street: player.addressLine1 || 'N/A',
@@ -255,11 +289,41 @@ function ManagePlayers() {
       player.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
       player.icNumber.includes(searchTerm);
 
-    const matchesFilter =
+    const matchesStatus =
       filterStatus === 'all' || player.membershipStatus === filterStatus;
 
-    return matchesSearch && matchesFilter;
+    const matchesState =
+      filterState === 'all' || player.state === filterState;
+
+    const matchesGender =
+      filterGender === 'all' || player.gender === filterGender;
+
+    const matchesAge = () => {
+      if (filterAge === 'all') return true;
+      const age = player.age;
+      if (!age) return false;
+
+      switch (filterAge) {
+        case 'under-18':
+          return age < 18;
+        case '18-30':
+          return age >= 18 && age <= 30;
+        case '31-45':
+          return age >= 31 && age <= 45;
+        case '46-60':
+          return age >= 46 && age <= 60;
+        case 'over-60':
+          return age > 60;
+        default:
+          return true;
+      }
+    };
+
+    return matchesSearch && matchesStatus && matchesState && matchesGender && matchesAge();
   });
+
+  // Get unique states from players
+  const uniqueStates = ['all', ...new Set(players.map(p => p.state).filter(s => s && s !== 'N/A'))];
 
   const formatDate = (dateString) => {
     if (!dateString) return 'N/A';
@@ -296,31 +360,52 @@ function ManagePlayers() {
           />
         </div>
 
-        <div className="filter-buttons">
-          <button
-            className={`filter-btn ${filterStatus === 'all' ? 'active' : ''}`}
-            onClick={() => setFilterStatus('all')}
+        <div className="filters-container">
+          <select
+            className="filter-select"
+            value={filterStatus}
+            onChange={(e) => setFilterStatus(e.target.value)}
           >
-            All
-          </button>
-          <button
-            className={`filter-btn ${filterStatus === 'active' ? 'active' : ''}`}
-            onClick={() => setFilterStatus('active')}
+            <option value="all">All Status</option>
+            <option value="active">Active</option>
+            <option value="inactive">Inactive</option>
+            <option value="suspended">Suspended</option>
+          </select>
+
+          <select
+            className="filter-select"
+            value={filterState}
+            onChange={(e) => setFilterState(e.target.value)}
           >
-            Active
-          </button>
-          <button
-            className={`filter-btn ${filterStatus === 'inactive' ? 'active' : ''}`}
-            onClick={() => setFilterStatus('inactive')}
+            {uniqueStates.map(state => (
+              <option key={state} value={state}>
+                {state === 'all' ? 'All States' : state}
+              </option>
+            ))}
+          </select>
+
+          <select
+            className="filter-select"
+            value={filterGender}
+            onChange={(e) => setFilterGender(e.target.value)}
           >
-            Inactive
-          </button>
-          <button
-            className={`filter-btn ${filterStatus === 'suspended' ? 'active' : ''}`}
-            onClick={() => setFilterStatus('suspended')}
+            <option value="all">All Genders</option>
+            <option value="Male">Male</option>
+            <option value="Female">Female</option>
+          </select>
+
+          <select
+            className="filter-select"
+            value={filterAge}
+            onChange={(e) => setFilterAge(e.target.value)}
           >
-            Suspended
-          </button>
+            <option value="all">All Ages</option>
+            <option value="under-18">Under 18</option>
+            <option value="18-30">18-30</option>
+            <option value="31-45">31-45</option>
+            <option value="46-60">46-60</option>
+            <option value="over-60">Over 60</option>
+          </select>
         </div>
       </div>
 
@@ -344,7 +429,7 @@ function ManagePlayers() {
                   <th>Full Name</th>
                   <th>IC Number</th>
                   <th>Email</th>
-                  <th>Phone</th>
+                  <th>Age</th>
                   <th>Gender</th>
                   <th>Status</th>
                   <th>Actions</th>
@@ -361,7 +446,7 @@ function ManagePlayers() {
                     </td>
                     <td>{player.icNumber}</td>
                     <td>{player.email}</td>
-                    <td>{player.phone}</td>
+                    <td>{player.age || 'N/A'}</td>
                     <td>{player.gender}</td>
                     <td>
                       <span className={`status-badge status-${player.membershipStatus}`}>

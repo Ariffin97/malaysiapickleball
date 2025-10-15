@@ -4,6 +4,27 @@ import journeyService from '../services/journeyService';
 import tournamentService from '../services/tournamentService';
 import './Home.css';
 
+// Function to calculate skill level from DUPR rating
+function calculateSkillLevel(duprRating) {
+  if (!duprRating || duprRating <= 0) {
+    return 'Beginner';
+  }
+
+  if (duprRating <= 2.499) {
+    return 'Novice';
+  } else if (duprRating <= 2.999) {
+    return 'Intermediate';
+  } else if (duprRating <= 3.499) {
+    return 'Intermediate+';
+  } else if (duprRating <= 3.999) {
+    return 'Advanced';
+  } else if (duprRating <= 4.499) {
+    return 'Advanced+';
+  } else {
+    return 'Elite';
+  }
+}
+
 function Home() {
   const [milestones, setMilestones] = useState([]);
   const [upcomingTournaments, setUpcomingTournaments] = useState([]);
@@ -28,7 +49,9 @@ function Home() {
     username: '',
     password: '',
     confirmPassword: '',
-    termsAccepted: false
+    termsAccepted: false,
+    duprId: '',
+    duprRating: ''
   });
 
   useEffect(() => {
@@ -237,6 +260,14 @@ function Home() {
       formData.append('password', registerFormData.password);
       formData.append('termsAccepted', registerFormData.termsAccepted);
 
+      // Add DUPR fields if provided
+      if (registerFormData.duprId) {
+        formData.append('duprId', registerFormData.duprId);
+      }
+      if (registerFormData.duprRating) {
+        formData.append('duprRating', registerFormData.duprRating);
+      }
+
       // Add profile picture if uploaded
       if (registerFormData.profilePicture) {
         formData.append('profilePicture', registerFormData.profilePicture);
@@ -277,7 +308,9 @@ function Home() {
         username: '',
         password: '',
         confirmPassword: '',
-        termsAccepted: false
+        termsAccepted: false,
+        duprId: '',
+        duprRating: ''
       });
       setShowRegisterModal(false);
     } catch (error) {
@@ -485,6 +518,41 @@ function Home() {
                         readOnly
                         placeholder="Auto-calculated"
                       />
+                    </div>
+                  </div>
+                </div>
+
+                {/* DUPR Information Section */}
+                <div className="form-section">
+                  <h3>DUPR Information (Optional)</h3>
+
+                  <div className="form-row">
+                    <div className="form-group">
+                      <label>DUPR ID</label>
+                      <input
+                        type="text"
+                        placeholder="Enter your DUPR ID"
+                        value={registerFormData.duprId}
+                        onChange={(e) => handleFormChange('duprId', e.target.value)}
+                      />
+                    </div>
+
+                    <div className="form-group">
+                      <label>DUPR Rating</label>
+                      <input
+                        type="number"
+                        step="0.001"
+                        min="0"
+                        max="8"
+                        placeholder="Enter your DUPR rating"
+                        value={registerFormData.duprRating}
+                        onChange={(e) => handleFormChange('duprRating', e.target.value)}
+                      />
+                      <small style={{ color: '#6b7280', fontSize: '0.75rem', marginTop: '0.25rem', display: 'block' }}>
+                        {registerFormData.duprRating && registerFormData.duprRating > 0
+                          ? `Skill Level: ${calculateSkillLevel(parseFloat(registerFormData.duprRating))}`
+                          : 'Your skill level will be calculated automatically'}
+                      </small>
                     </div>
                   </div>
                 </div>

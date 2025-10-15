@@ -7,7 +7,7 @@ import dotenv from 'dotenv';
 import multer from 'multer';
 import nodemailer from 'nodemailer';
 import fs from 'fs';
-import { journeyStorage, newsStorage, profileStorage } from './cloudinaryConfig.js';
+import cloudinary, { journeyStorage, newsStorage, profileStorage } from './cloudinaryConfig.js';
 
 // Load .env.local if it exists (for local development), otherwise load .env (production)
 const envLocalPath = path.resolve(process.cwd(), '.env.local');
@@ -316,6 +316,14 @@ const playerSchema = new mongoose.Schema({
     type: String,
     enum: ['active', 'inactive', 'suspended'],
     default: 'active'
+  },
+  duprRating: {
+    type: Number,
+    default: null
+  },
+  duprId: {
+    type: String,
+    default: null
   }
 }, {
   timestamps: true
@@ -468,6 +476,27 @@ async function generateMpaId() {
   }
 
   return playerId;
+}
+
+// Function to calculate skill level from DUPR rating
+function calculateSkillLevel(duprRating) {
+  if (!duprRating || duprRating <= 0) {
+    return 'Beginner';
+  }
+
+  if (duprRating <= 2.499) {
+    return 'Novice';
+  } else if (duprRating <= 2.999) {
+    return 'Intermediate';
+  } else if (duprRating <= 3.499) {
+    return 'Intermediate+';
+  } else if (duprRating <= 3.999) {
+    return 'Advanced';
+  } else if (duprRating <= 4.499) {
+    return 'Advanced+';
+  } else {
+    return 'Elite';
+  }
 }
 
 // Multer configuration for player profile pictures
@@ -1538,6 +1567,60 @@ app.get('/api/players/:id/messages', async (req, res) => {
   }
 });
 
+// Mark message as read
+app.patch('/api/players/:id/messages/:messageId/read', async (req, res) => {
+  try {
+    // Try to find player by playerId first, then by _id
+    let player = await Player.findOne({ playerId: req.params.id });
+
+    // If not found by playerId and the id looks like a MongoDB ObjectId, try by _id
+    if (!player && req.params.id.match(/^[0-9a-fA-F]{24}$/)) {
+      player = await Player.findById(req.params.id);
+    }
+
+    if (!player) {
+      return res.status(404).json({ error: 'Player not found' });
+    }
+
+    // Update message read status
+    const message = await Message.findByIdAndUpdate(
+      req.params.messageId,
+      { read: true },
+      { new: true }
+    );
+
+    if (!message) {
+      return res.status(404).json({ error: 'Message not found' });
+    }
+
+    res.json(message);
+  } catch (error) {
+    console.error('Error marking message as read:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Helper function to delete image from Cloudinary
+async function deleteCloudinaryImage(imageUrl) {
+  if (!imageUrl) return;
+
+  try {
+    // Extract public_id from Cloudinary URL
+    // URL format: https://res.cloudinary.com/{cloud_name}/image/upload/v{version}/{folder}/{public_id}.{extension}
+    const regex = /\/([^\/]+\/[^\/]+)\.[a-z]+$/;
+    const match = imageUrl.match(regex);
+
+    if (match && match[1]) {
+      const publicId = match[1];
+      await cloudinary.uploader.destroy(publicId);
+      console.log('🗑️ Deleted old image from Cloudinary:', publicId);
+    }
+  } catch (error) {
+    console.error('Error deleting image from Cloudinary:', error);
+    // Don't throw error - allow the update to continue even if deletion fails
+  }
+}
+
 // Reset player password
 app.post('/api/players/:id/reset-password', async (req, res) => {
   try {
@@ -1564,6 +1647,45 @@ app.post('/api/players/:id/reset-password', async (req, res) => {
     res.json({ newPassword });
   } catch (error) {
     console.error('Error resetting password:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Upload/Update player profile picture
+app.post('/api/players/:id/profile-picture', uploadPlayerImage.single('profilePicture'), async (req, res) => {
+  try {
+    if (!req.file) {
+      return res.status(400).json({ error: 'No image file provided' });
+    }
+
+    // Try to find by playerId first, then by _id
+    let player = await Player.findOne({ playerId: req.params.id });
+
+    // If not found by playerId and the id looks like a MongoDB ObjectId, try by _id
+    if (!player && req.params.id.match(/^[0-9a-fA-F]{24}$/)) {
+      player = await Player.findById(req.params.id);
+    }
+
+    if (!player) {
+      return res.status(404).json({ error: 'Player not found' });
+    }
+
+    // Delete old profile picture from Cloudinary if it exists
+    if (player.profilePicture) {
+      await deleteCloudinaryImage(player.profilePicture);
+    }
+
+    // Update with new profile picture
+    player.profilePicture = req.file.path;
+    await player.save();
+
+    console.log('✅ Profile picture updated for:', player.fullName);
+
+    // Return player data without password
+    const { password: _, ...playerWithoutPassword } = player.toObject();
+    res.json(playerWithoutPassword);
+  } catch (error) {
+    console.error('Error uploading profile picture:', error);
     res.status(500).json({ error: error.message });
   }
 });

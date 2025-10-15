@@ -454,17 +454,25 @@
 }
 
 /* Messages / Inbox */
-.messages-container {
+.dashboard-content:has(.inbox-split-container) .content-header {
+  margin-bottom: 0;
+}
+
+.inbox-split-container {
   background: white;
   border-radius: 16px;
-  padding: 2rem;
   border: 1px solid #e5e7eb;
+  display: flex;
+  height: calc(100vh - 250px);
+  min-height: 600px;
+  overflow: hidden;
 }
 
 .empty-messages {
   text-align: center;
   padding: 4rem 2rem;
   color: #9ca3af;
+  width: 100%;
 }
 
 .empty-messages i {
@@ -477,37 +485,122 @@
   margin: 0;
 }
 
-.messages-list {
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
+/* Left Side - Messages List */
+.inbox-messages-list {
+  width: 350px;
+  border-right: 1px solid #e5e7eb;
+  overflow-y: auto;
+  flex-shrink: 0;
 }
 
-.message-card {
-  background: #f9fafb;
-  border: 1px solid #e5e7eb;
-  border-radius: 12px;
-  padding: 1.5rem;
+.inbox-message-item {
+  padding: 1rem 1.25rem;
+  border-bottom: 1px solid #f3f4f6;
+  cursor: pointer;
   transition: all 0.2s ease;
+  position: relative;
 }
 
-.message-card.unread {
+.inbox-message-item:hover {
+  background: #f9fafb;
+}
+
+.inbox-message-item.selected {
+  background: #ecfdf5;
+  border-left: 3px solid #10b981;
+}
+
+.inbox-message-item.unread {
   background: #eff6ff;
-  border-color: #3b82f6;
 }
 
-.message-card:hover {
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+.inbox-message-item.unread:hover {
+  background: #dbeafe;
 }
 
-.message-header {
+.inbox-message-item-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 0.75rem;
+  margin-bottom: 0.5rem;
 }
 
-.message-from {
+.inbox-message-from {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+  color: #6b7280;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.inbox-message-from i {
+  color: #10b981;
+  font-size: 0.875rem;
+}
+
+.inbox-unread-dot {
+  width: 8px;
+  height: 8px;
+  background: #3b82f6;
+  border-radius: 50%;
+  display: inline-block;
+}
+
+.inbox-message-subject {
+  font-size: 0.9375rem;
+  font-weight: 700;
+  color: #111827;
+  margin-bottom: 0.375rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.inbox-message-preview {
+  color: #6b7280;
+  font-size: 0.8125rem;
+  line-height: 1.4;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  margin-bottom: 0.5rem;
+}
+
+.inbox-message-date {
+  color: #9ca3af;
+  font-size: 0.75rem;
+}
+
+/* Right Side - Message Content */
+.inbox-message-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+}
+
+.inbox-content-header {
+  padding: 2rem 2rem 1.5rem 2rem;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.inbox-content-header h2 {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #111827;
+  margin: 0 0 1rem 0;
+  line-height: 1.4;
+}
+
+.inbox-content-meta {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  flex-wrap: wrap;
+}
+
+.inbox-content-from {
   display: flex;
   align-items: center;
   gap: 0.5rem;
@@ -516,38 +609,44 @@
   font-weight: 600;
 }
 
-.message-from i {
+.inbox-content-from i {
   color: #10b981;
+  font-size: 1rem;
 }
 
-.message-date {
+.inbox-content-date {
   color: #9ca3af;
-  font-size: 0.8125rem;
+  font-size: 0.875rem;
 }
 
-.message-subject {
-  font-size: 1.125rem;
-  font-weight: 700;
-  color: #111827;
-  margin-bottom: 0.75rem;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-}
-
-.unread-badge {
-  width: 8px;
-  height: 8px;
-  background: #3b82f6;
-  border-radius: 50%;
-  display: inline-block;
-}
-
-.message-body {
-  color: #6b7280;
+.inbox-content-body {
+  padding: 2rem;
+  color: #374151;
   font-size: 0.9375rem;
-  line-height: 1.6;
+  line-height: 1.7;
   white-space: pre-wrap;
+  flex: 1;
+}
+
+.inbox-no-selection {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  color: #9ca3af;
+  padding: 2rem;
+}
+
+.inbox-no-selection i {
+  font-size: 3rem;
+  margin-bottom: 1rem;
+  opacity: 0.5;
+}
+
+.inbox-no-selection p {
+  font-size: 1rem;
+  margin: 0;
 }
 
 /* Modal Styles */
@@ -625,6 +724,91 @@
 
 .modal-body {
   padding: 2rem;
+}
+
+/* Profile Picture Upload Section */
+.profile-picture-upload-section {
+  margin-bottom: 2rem;
+  padding-bottom: 2rem;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.profile-picture-upload-section > label {
+  display: block;
+  color: #374151;
+  font-weight: 600;
+  font-size: 0.875rem;
+  margin-bottom: 1rem;
+}
+
+.profile-picture-upload {
+  display: flex;
+  align-items: center;
+  gap: 2rem;
+}
+
+.profile-picture-preview {
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  flex-shrink: 0;
+  border: 3px solid #e5e7eb;
+}
+
+.profile-picture-preview img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.profile-picture-preview i {
+  font-size: 3rem;
+  color: white;
+}
+
+.profile-picture-actions {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.btn-upload-picture {
+  background: #10b981;
+  color: white;
+  border: none;
+  padding: 0.75rem 1.5rem;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 0.875rem;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  transition: all 0.2s ease;
+  width: fit-content;
+}
+
+.btn-upload-picture:hover {
+  background: #059669;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 6px -1px rgba(16, 185, 129, 0.3);
+}
+
+.btn-upload-picture i {
+  font-size: 1rem;
+}
+
+.upload-hint {
+  color: #9ca3af;
+  font-size: 0.8125rem;
+  margin: 0;
+  line-height: 1.5;
 }
 
 .form-grid {
@@ -760,6 +944,24 @@
   .content-header h1 {
     font-size: 1.5rem;
   }
+
+  /* Inbox responsive */
+  .inbox-split-container {
+    flex-direction: column;
+    height: auto;
+    min-height: 500px;
+  }
+
+  .inbox-messages-list {
+    width: 100%;
+    max-height: 300px;
+    border-right: none;
+    border-bottom: 1px solid #e5e7eb;
+  }
+
+  .inbox-message-content {
+    min-height: 400px;
+  }
 }
 
 @media (max-width: 480px) {
@@ -785,5 +987,29 @@
   .info-value {
     text-align: left;
     max-width: 100%;
+  }
+
+  .profile-picture-upload {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+  }
+
+  .profile-picture-preview {
+    width: 100px;
+    height: 100px;
+  }
+
+  .profile-picture-preview i {
+    font-size: 2.5rem;
+  }
+
+  .btn-upload-picture {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .form-grid {
+    grid-template-columns: 1fr;
   }
 }
