@@ -6,6 +6,7 @@ import ManagePlayers from '../components/ManagePlayers';
 import ManageNews from '../components/ManageNews';
 import ManageCourses from '../components/ManageCourses';
 import ManageClinics from '../components/ManageClinics';
+import ManageMessages from '../components/ManageMessages';
 import './AdminDashboard.css';
 
 function AdminDashboard() {
@@ -37,6 +38,11 @@ function AdminDashboard() {
       id: 'manage-players',
       icon: 'fa-users',
       label: 'Manage Players',
+    },
+    {
+      id: 'manage-messages',
+      icon: 'fa-envelope',
+      label: 'Messages',
     },
     {
       id: 'manage-courses',
@@ -83,6 +89,13 @@ function AdminDashboard() {
         return (
           <div className="dashboard-content">
             <ManagePlayers />
+          </div>
+        );
+
+      case 'manage-messages':
+        return (
+          <div className="dashboard-content">
+            <ManageMessages />
           </div>
         );
 
