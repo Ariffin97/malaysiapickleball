@@ -57,19 +57,18 @@ function PickleZoneLogin() {
 
   return (
     <div className="picklezone-login-page">
-      <div className="login-container">
+      <div className="login-card">
         <div className="login-header">
-          <img src="/picklezonelogo.png" alt="PickleZone Logo" className="login-logo" width="50" height="50" />
+          <img src="/picklezonelogo.png" alt="PickleZone Logo" className="login-logo" style={{ width: '120px', height: '120px' }} />
           <p className="powered-by-text">Powered by Fenix Digital</p>
           <h1>Welcome to PickleZone</h1>
-          <p>Sign in with your MPA player account</p>
+          <p className="tagline">Sign in with your MPA player account</p>
         </div>
 
         <form onSubmit={handleSubmit} className="login-form">
           {error && (
             <div className="error-message">
-              <i className="fas fa-exclamation-circle"></i>
-              <span>{error}</span>
+              {error}
             </div>
           )}
 
@@ -102,6 +101,7 @@ function PickleZoneLogin() {
                 type="button"
                 className="toggle-password"
                 onClick={() => setShowPassword(!showPassword)}
+                aria-label={showPassword ? 'Hide password' : 'Show password'}
               >
                 <i className={`fas fa-eye${showPassword ? '-slash' : ''}`}></i>
               </button>
@@ -109,26 +109,15 @@ function PickleZoneLogin() {
           </div>
 
           <button type="submit" className="login-button" disabled={loading}>
-            {loading ? (
-              <>
-                <i className="fas fa-spinner fa-spin"></i>
-                Signing in...
-              </>
-            ) : (
-              <>
-                Enter PickleZone
-              </>
-            )}
+            {loading ? 'Signing in...' : 'Enter PickleZone'}
           </button>
 
           <div className="register-link">
-            <p>Don't have an MPA account?</p>
-            <a href="/#register" className="register-button">
-              Register as Player
-            </a>
+            <span>Don't have an account? </span>
+            <a href="/#register">Register Here</a>
           </div>
 
-          <a href="/" className="home-button-inline">
+          <a href="/" className="back-link">
             Back to Home
           </a>
         </form>

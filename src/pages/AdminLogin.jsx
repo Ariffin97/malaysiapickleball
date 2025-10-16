@@ -35,26 +35,21 @@ function AdminLogin() {
 
   return (
     <div className="admin-login-page">
-      <div className="login-container">
-        <div className="login-header">
-          <img src="/mpa.png" alt="MPA Logo" className="login-logo" />
-          <h1>Admin Portal</h1>
-          <p>Malaysia Pickleball Association</p>
+      <div className="login-card">
+        <div className="login-header" style={{ paddingBottom: '0.5rem' }}>
+          <img src="/mpa.png" alt="MPA Logo" className="login-logo" style={{ width: '180px', height: '180px' }} />
+          <h1 style={{ marginBottom: '1rem !important' }}>Admin Portal</h1>
         </div>
 
-        <form onSubmit={handleSubmit} className="login-form">
+        <form onSubmit={handleSubmit} className="login-form" style={{ marginTop: '0.5rem' }}>
           {error && (
             <div className="error-message">
-              <i className="fas fa-exclamation-circle"></i>
-              <span>{error}</span>
+              {error}
             </div>
           )}
 
           <div className="form-group">
-            <label htmlFor="username">
-              <i className="fas fa-user"></i>
-              Username
-            </label>
+            <label htmlFor="username">Username</label>
             <input
               type="text"
               id="username"
@@ -67,10 +62,7 @@ function AdminLogin() {
           </div>
 
           <div className="form-group">
-            <label htmlFor="password">
-              <i className="fas fa-lock"></i>
-              Password
-            </label>
+            <label htmlFor="password">Password</label>
             <div className="password-input-wrapper">
               <input
                 type={showPassword ? 'text' : 'password'}
@@ -85,47 +77,22 @@ function AdminLogin() {
                 type="button"
                 className="toggle-password"
                 onClick={() => setShowPassword(!showPassword)}
+                aria-label={showPassword ? 'Hide password' : 'Show password'}
               >
                 <i className={`fas fa-eye${showPassword ? '-slash' : ''}`}></i>
               </button>
             </div>
           </div>
 
-          <div className="form-options">
-            <label className="remember-me">
-              <input type="checkbox" />
-              <span>Remember me</span>
-            </label>
-          </div>
-
           <button type="submit" className="login-button" disabled={loading}>
-            {loading ? (
-              <>
-                <i className="fas fa-spinner fa-spin"></i>
-                Signing in...
-              </>
-            ) : (
-              <>
-                <i className="fas fa-sign-in-alt"></i>
-                Sign In
-              </>
-            )}
+            {loading ? 'Signing in...' : 'Sign In'}
           </button>
 
-          <a href="/" className="home-button-inline">
-            <span>Back to Home</span>
+          <a href="/" className="back-link">
+            Back to Home
           </a>
         </form>
-
-        <div className="login-footer">
-          <p>
-            <i className="fas fa-shield-alt"></i>
-            Secure Admin Access
-          </p>
-          <p style={{ fontSize: '0.8125rem', color: 'white', marginTop: '0.5rem', opacity: 1 }}>
-            © 2024 Malaysia Pickleball Association. All rights reserved.
-          </p>
-        </div>
+        <p className="admin-note">This login page can only be accessed by admin and technical team only.</p>
       </div>
     </div>
   );

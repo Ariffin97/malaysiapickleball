@@ -89,18 +89,16 @@ function PlayerLogin() {
 
   return (
     <div className="player-login-page">
-      <div className="login-container">
-        <div className="login-header">
-          <img src="/mpa.png" alt="MPA Logo" className="login-logo" />
-          <h1>Player Login</h1>
-          <p>Malaysia Pickleball Association</p>
+      <div className="login-card">
+        <div className="login-header" style={{ paddingBottom: '0', borderBottom: 'none' }}>
+          <img src="/mpa.png" alt="MPA Logo" className="login-logo" style={{ width: '140px', height: '140px' }} />
+          <h1 style={{ marginBottom: '0', paddingBottom: '0', borderBottom: 'none' }}>Player Portal</h1>
         </div>
 
-        <form onSubmit={handleSubmit} className="login-form">
+        <form onSubmit={handleSubmit} className="login-form" style={{ marginTop: '2rem' }}>
           {error && (
             <div className="error-message">
-              <i className="fas fa-exclamation-circle"></i>
-              <span>{error}</span>
+              {error}
             </div>
           )}
 
@@ -133,6 +131,7 @@ function PlayerLogin() {
                 type="button"
                 className="toggle-password"
                 onClick={() => setShowPassword(!showPassword)}
+                aria-label={showPassword ? 'Hide password' : 'Show password'}
               >
                 <i className={`fas fa-eye${showPassword ? '-slash' : ''}`}></i>
               </button>
@@ -146,26 +145,15 @@ function PlayerLogin() {
           </div>
 
           <button type="submit" className="login-button" disabled={loading}>
-            {loading ? (
-              <>
-                <i className="fas fa-spinner fa-spin"></i>
-                Signing in...
-              </>
-            ) : (
-              <>
-                Sign In
-              </>
-            )}
+            {loading ? 'Signing in...' : 'Sign In'}
           </button>
 
           <div className="register-link">
-            <p>Don't have an account?</p>
-            <a href="/#register" className="register-button">
-              Register as Player
-            </a>
+            <span>Don't have an account? </span>
+            <a href="/#register">Register Here</a>
           </div>
 
-          <a href="/" className="home-button-inline">
+          <a href="/" className="back-link">
             Back to Home
           </a>
         </form>

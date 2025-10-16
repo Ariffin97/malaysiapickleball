@@ -7,6 +7,7 @@ import ManageNews from '../components/ManageNews';
 import ManageCourses from '../components/ManageCourses';
 import ManageClinics from '../components/ManageClinics';
 import ManageMessages from '../components/ManageMessages';
+import ManagePickleZoneReports from '../components/ManagePickleZoneReports';
 import './AdminDashboard.css';
 
 function AdminDashboard() {
@@ -27,6 +28,8 @@ function AdminDashboard() {
     localStorage.removeItem('adminToken');
     navigate('/admin');
   };
+
+  const [pickleZoneExpanded, setPickleZoneExpanded] = useState(false);
 
   const menuItems = [
     {
@@ -68,6 +71,24 @@ function AdminDashboard() {
       id: 'manage-venue',
       icon: 'fa-map-marker-alt',
       label: 'Manage Venue',
+    },
+    {
+      id: 'picklezone',
+      icon: 'fa-table-tennis',
+      label: 'PickleZone',
+      isSection: true,
+      subItems: [
+        {
+          id: 'picklezone-report',
+          icon: 'fa-chart-bar',
+          label: 'Report',
+        },
+        {
+          id: 'picklezone-enquiry',
+          icon: 'fa-question-circle',
+          label: 'Enquiry',
+        },
+      ],
     },
     {
       id: 'settings',
@@ -143,6 +164,25 @@ function AdminDashboard() {
           </div>
         );
 
+      case 'picklezone-report':
+        return (
+          <div className="dashboard-content">
+            <ManagePickleZoneReports />
+          </div>
+        );
+
+      case 'picklezone-enquiry':
+        return (
+          <div className="dashboard-content">
+            <div className="content-header">
+              <h1>PickleZone Enquiry</h1>
+            </div>
+            <div className="content-body">
+              <p className="placeholder-text">PickleZone enquiry management interface will be here</p>
+            </div>
+          </div>
+        );
+
       case 'settings':
         return (
           <div className="dashboard-content">
@@ -199,14 +239,44 @@ function AdminDashboard() {
 
         <nav className="sidebar-nav">
           {menuItems.map((item) => (
-            <button
-              key={item.id}
-              className={`nav-item ${activeMenu === item.id ? 'active' : ''}`}
-              onClick={() => setActiveMenu(item.id)}
-            >
-              <i className={`fas ${item.icon}`}></i>
-              {sidebarOpen && <span>{item.label}</span>}
-            </button>
+            <div key={item.id}>
+              {item.isSection ? (
+                <>
+                  <button
+                    className={`nav-item section-item ${pickleZoneExpanded ? 'expanded' : ''}`}
+                    onClick={() => setPickleZoneExpanded(!pickleZoneExpanded)}
+                  >
+                    <i className={`fas ${item.icon}`}></i>
+                    {sidebarOpen && <span>{item.label}</span>}
+                    {sidebarOpen && (
+                      <i className={`fas fa-chevron-${pickleZoneExpanded ? 'down' : 'right'} chevron-icon`}></i>
+                    )}
+                  </button>
+                  {pickleZoneExpanded && sidebarOpen && (
+                    <div className="sub-menu">
+                      {item.subItems.map((subItem) => (
+                        <button
+                          key={subItem.id}
+                          className={`nav-item sub-item ${activeMenu === subItem.id ? 'active' : ''}`}
+                          onClick={() => setActiveMenu(subItem.id)}
+                        >
+                          <i className={`fas ${subItem.icon}`}></i>
+                          <span>{subItem.label}</span>
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </>
+              ) : (
+                <button
+                  className={`nav-item ${activeMenu === item.id ? 'active' : ''}`}
+                  onClick={() => setActiveMenu(item.id)}
+                >
+                  <i className={`fas ${item.icon}`}></i>
+                  {sidebarOpen && <span>{item.label}</span>}
+                </button>
+              )}
+            </div>
           ))}
         </nav>
 
