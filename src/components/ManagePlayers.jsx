@@ -18,6 +18,9 @@ function ManagePlayers() {
   const [credentials, setCredentials] = useState(null);
   const [messageData, setMessageData] = useState({ subject: '', message: '', playerName: '', playerEmail: '' });
   const [openDropdown, setOpenDropdown] = useState(null);
+  const [showPrintDropdown, setShowPrintDropdown] = useState(false);
+  const [showSelectPlayersModal, setShowSelectPlayersModal] = useState(false);
+  const [selectedPlayersForPrint, setSelectedPlayersForPrint] = useState([]);
 
   useEffect(() => {
     fetchPlayers();
@@ -334,6 +337,110 @@ function ManagePlayers() {
     });
   };
 
+  const handlePrintAllPlayers = () => {
+    const printWindow = window.open('', '', 'height=600,width=800');
+    printWindow.document.write('<html><head><title>All Players List</title>');
+    printWindow.document.write('<style>');
+    printWindow.document.write('body { font-family: Arial, sans-serif; padding: 20px; }');
+    printWindow.document.write('h1 { text-align: center; color: #1f2937; }');
+    printWindow.document.write('table { width: 100%; border-collapse: collapse; margin-top: 20px; }');
+    printWindow.document.write('th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }');
+    printWindow.document.write('th { background-color: #3b82f6; color: white; }');
+    printWindow.document.write('tr:nth-child(even) { background-color: #f9fafb; }');
+    printWindow.document.write('.header { text-align: center; margin-bottom: 20px; }');
+    printWindow.document.write('.date { text-align: right; color: #6b7280; font-size: 0.875rem; }');
+    printWindow.document.write('</style></head><body>');
+    printWindow.document.write('<div class="header">');
+    printWindow.document.write('<h1>Malaysia Pickleball Association</h1>');
+    printWindow.document.write('<h2>All Players List</h2>');
+    printWindow.document.write('</div>');
+    printWindow.document.write('<div class="date">Generated on: ' + new Date().toLocaleString() + '</div>');
+    printWindow.document.write('<table>');
+    printWindow.document.write('<thead><tr><th>No.</th><th>MPA ID</th><th>Full Name</th><th>IC Number</th><th>Age</th><th>Gender</th><th>Status</th></tr></thead>');
+    printWindow.document.write('<tbody>');
+
+    filteredPlayers.forEach((player, index) => {
+      printWindow.document.write('<tr>');
+      printWindow.document.write('<td>' + (index + 1) + '</td>');
+      printWindow.document.write('<td>' + player.playerId + '</td>');
+      printWindow.document.write('<td>' + player.fullName + '</td>');
+      printWindow.document.write('<td>' + player.icNumber + '</td>');
+      printWindow.document.write('<td>' + (player.age || 'N/A') + '</td>');
+      printWindow.document.write('<td>' + player.gender + '</td>');
+      printWindow.document.write('<td>' + player.membershipStatus + '</td>');
+      printWindow.document.write('</tr>');
+    });
+
+    printWindow.document.write('</tbody></table>');
+    printWindow.document.write('</body></html>');
+    printWindow.document.close();
+    printWindow.print();
+    setShowPrintDropdown(false);
+  };
+
+  const handlePrintSelectedPlayers = () => {
+    if (selectedPlayersForPrint.length === 0) {
+      alert('Please select at least one player to print');
+      return;
+    }
+
+    const printWindow = window.open('', '', 'height=600,width=800');
+    printWindow.document.write('<html><head><title>Selected Players Details</title>');
+    printWindow.document.write('<style>');
+    printWindow.document.write('body { font-family: Arial, sans-serif; padding: 20px; }');
+    printWindow.document.write('h1 { text-align: center; color: #1f2937; }');
+    printWindow.document.write('.player-card { border: 1px solid #ddd; padding: 20px; margin-bottom: 20px; page-break-inside: avoid; }');
+    printWindow.document.write('.player-header { background-color: #3b82f6; color: white; padding: 10px; margin: -20px -20px 20px -20px; }');
+    printWindow.document.write('.info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }');
+    printWindow.document.write('.info-item { margin-bottom: 10px; }');
+    printWindow.document.write('.label { font-weight: bold; color: #374151; }');
+    printWindow.document.write('.value { color: #1f2937; }');
+    printWindow.document.write('.header { text-align: center; margin-bottom: 20px; }');
+    printWindow.document.write('.date { text-align: right; color: #6b7280; font-size: 0.875rem; margin-bottom: 20px; }');
+    printWindow.document.write('</style></head><body>');
+    printWindow.document.write('<div class="header">');
+    printWindow.document.write('<h1>Malaysia Pickleball Association</h1>');
+    printWindow.document.write('<h2>Player Details</h2>');
+    printWindow.document.write('</div>');
+    printWindow.document.write('<div class="date">Generated on: ' + new Date().toLocaleString() + '</div>');
+
+    selectedPlayersForPrint.forEach(playerId => {
+      const player = players.find(p => p.id === playerId);
+      if (player) {
+        printWindow.document.write('<div class="player-card">');
+        printWindow.document.write('<div class="player-header"><h3>' + player.fullName + ' (' + player.playerId + ')</h3></div>');
+        printWindow.document.write('<div class="info-grid">');
+        printWindow.document.write('<div class="info-item"><span class="label">Username:</span> <span class="value">' + player.username + '</span></div>');
+        printWindow.document.write('<div class="info-item"><span class="label">IC Number:</span> <span class="value">' + player.icNumber + '</span></div>');
+        printWindow.document.write('<div class="info-item"><span class="label">Email:</span> <span class="value">' + player.email + '</span></div>');
+        printWindow.document.write('<div class="info-item"><span class="label">Phone:</span> <span class="value">' + player.phone + '</span></div>');
+        printWindow.document.write('<div class="info-item"><span class="label">Gender:</span> <span class="value">' + player.gender + '</span></div>');
+        printWindow.document.write('<div class="info-item"><span class="label">Age:</span> <span class="value">' + (player.age || 'N/A') + '</span></div>');
+        printWindow.document.write('<div class="info-item"><span class="label">Date of Birth:</span> <span class="value">' + formatDate(player.dateOfBirth) + '</span></div>');
+        printWindow.document.write('<div class="info-item"><span class="label">Address:</span> <span class="value">' + player.addressLine1 + (player.addressLine2 ? ', ' + player.addressLine2 : '') + '</span></div>');
+        printWindow.document.write('<div class="info-item"><span class="label">City:</span> <span class="value">' + player.city + '</span></div>');
+        printWindow.document.write('<div class="info-item"><span class="label">State:</span> <span class="value">' + player.state + '</span></div>');
+        printWindow.document.write('<div class="info-item"><span class="label">Status:</span> <span class="value">' + player.membershipStatus + '</span></div>');
+        printWindow.document.write('<div class="info-item"><span class="label">Registration Date:</span> <span class="value">' + formatDate(player.registrationDate) + '</span></div>');
+        printWindow.document.write('</div></div>');
+      }
+    });
+
+    printWindow.document.write('</body></html>');
+    printWindow.document.close();
+    printWindow.print();
+    setShowSelectPlayersModal(false);
+    setSelectedPlayersForPrint([]);
+  };
+
+  const togglePlayerSelection = (playerId) => {
+    setSelectedPlayersForPrint(prev =>
+      prev.includes(playerId)
+        ? prev.filter(id => id !== playerId)
+        : [...prev, playerId]
+    );
+  };
+
   return (
     <div className="manage-players">
       <div className="content-header">
@@ -345,6 +452,36 @@ function ManagePlayers() {
           <div className="stat-badge">
             <i className="fas fa-users"></i>
             <span>{players.length} Players</span>
+          </div>
+          <div className="print-dropdown-container">
+            <button
+              className="btn-print"
+              onClick={() => setShowPrintDropdown(!showPrintDropdown)}
+            >
+              <i className="fas fa-print"></i>
+              Print
+            </button>
+            {showPrintDropdown && (
+              <div className="print-dropdown-menu">
+                <button
+                  className="print-dropdown-item"
+                  onClick={handlePrintAllPlayers}
+                >
+                  <i className="fas fa-list"></i>
+                  Print All Players List
+                </button>
+                <button
+                  className="print-dropdown-item"
+                  onClick={() => {
+                    setShowSelectPlayersModal(true);
+                    setShowPrintDropdown(false);
+                  }}
+                >
+                  <i className="fas fa-user-check"></i>
+                  Print Certain Players Detail
+                </button>
+              </div>
+            )}
           </div>
         </div>
       </div>
@@ -425,10 +562,10 @@ function ManagePlayers() {
             <table className="players-table">
               <thead>
                 <tr>
+                  <th>No.</th>
                   <th>MPA ID</th>
                   <th>Full Name</th>
                   <th>IC Number</th>
-                  <th>Email</th>
                   <th>Age</th>
                   <th>Gender</th>
                   <th>Status</th>
@@ -436,8 +573,9 @@ function ManagePlayers() {
                 </tr>
               </thead>
               <tbody>
-                {filteredPlayers.map((player) => (
+                {filteredPlayers.map((player, index) => (
                   <tr key={player.id}>
+                    <td>{index + 1}</td>
                     <td className="mpa-id-cell">
                       <span className="mpa-id">{player.playerId}</span>
                     </td>
@@ -445,7 +583,6 @@ function ManagePlayers() {
                       <span className="player-name">{player.fullName}</span>
                     </td>
                     <td>{player.icNumber}</td>
-                    <td>{player.email}</td>
                     <td>{player.age || 'N/A'}</td>
                     <td>{player.gender}</td>
                     <td>
@@ -887,6 +1024,68 @@ function ManagePlayers() {
                   </button>
                 </div>
               </form>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Select Players to Print Modal */}
+      {showSelectPlayersModal && (
+        <div className="modal-overlay" onClick={() => setShowSelectPlayersModal(false)}>
+          <div className="modal-content select-players-modal" onClick={(e) => e.stopPropagation()}>
+            <div className="modal-header">
+              <h2>Select Players to Print</h2>
+              <button className="modal-close" onClick={() => setShowSelectPlayersModal(false)}>
+                ✕
+              </button>
+            </div>
+
+            <div className="modal-body">
+              <p className="modal-description">
+                Select the players you want to print detailed information for:
+              </p>
+
+              <div className="players-selection-list">
+                {filteredPlayers.map((player) => (
+                  <div key={player.id} className="player-checkbox-item">
+                    <input
+                      type="checkbox"
+                      id={`player-${player.id}`}
+                      checked={selectedPlayersForPrint.includes(player.id)}
+                      onChange={() => togglePlayerSelection(player.id)}
+                    />
+                    <label htmlFor={`player-${player.id}`}>
+                      <span className="player-check-name">{player.fullName}</span>
+                      <span className="player-check-id">{player.playerId}</span>
+                    </label>
+                  </div>
+                ))}
+              </div>
+
+              <div className="selection-summary">
+                <span>{selectedPlayersForPrint.length} player(s) selected</span>
+              </div>
+
+              <div className="modal-footer">
+                <button
+                  type="button"
+                  className="btn-secondary"
+                  onClick={() => {
+                    setShowSelectPlayersModal(false);
+                    setSelectedPlayersForPrint([]);
+                  }}
+                >
+                  Cancel
+                </button>
+                <button
+                  type="button"
+                  className="btn-primary"
+                  onClick={handlePrintSelectedPlayers}
+                >
+                  <i className="fas fa-print"></i>
+                  Print Selected
+                </button>
+              </div>
             </div>
           </div>
         </div>
