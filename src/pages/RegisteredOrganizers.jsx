@@ -247,7 +247,7 @@ function RegisteredOrganizers() {
 
         {!loading && !error && organizers.length > 0 && (
           <>
-            <p className="organizers-description">All organizers and companies registered under MPA will be listed here.</p>
+            <p className="organizers-description">All organizers and companies registered with MPA will be listed here.</p>
 
             <div className="organizers-table-wrapper">
               <table className="organizers-table">
@@ -255,8 +255,7 @@ function RegisteredOrganizers() {
                   <tr>
                     <th>#</th>
                     <th>Organization Name</th>
-                    <th>Email</th>
-                    <th>Phone</th>
+                    <th>Organization ID</th>
                     <th>State</th>
                     <th>Status</th>
                   </tr>
@@ -273,8 +272,7 @@ function RegisteredOrganizers() {
                           {organizer.organizationName || organizer.name}
                         </button>
                       </td>
-                      <td>{organizer.email || '-'}</td>
-                      <td>{organizer.phone || '-'}</td>
+                      <td>{organizer.organizationId || '-'}</td>
                       <td>{organizer.state || '-'}</td>
                       <td>
                         {organizer.status && (
@@ -308,16 +306,6 @@ function RegisteredOrganizers() {
               <div className="detail-row-simple">
                 <span className="detail-label">Organization ID</span>
                 <span className="detail-value">{selectedOrganizer.organizationId || '-'}</span>
-              </div>
-
-              <div className="detail-row-simple">
-                <span className="detail-label">Email</span>
-                <span className="detail-value">{selectedOrganizer.email || '-'}</span>
-              </div>
-
-              <div className="detail-row-simple">
-                <span className="detail-label">Phone</span>
-                <span className="detail-value">{selectedOrganizer.phone || '-'}</span>
               </div>
 
               <div className="detail-row-simple">

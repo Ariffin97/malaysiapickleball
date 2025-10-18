@@ -304,8 +304,8 @@
     font-size: 0.85rem;
   }
 
-  .organizers-table th:nth-child(4),
-  .organizers-table td:nth-child(4) {
+  .organizers-table th:nth-child(3),
+  .organizers-table td:nth-child(3) {
     display: none;
   }
 
@@ -355,7 +355,9 @@
   }
 
   .organizers-table th:nth-child(3),
-  .organizers-table td:nth-child(3) {
+  .organizers-table td:nth-child(3),
+  .organizers-table th:nth-child(4),
+  .organizers-table td:nth-child(4) {
     display: none;
   }
 
