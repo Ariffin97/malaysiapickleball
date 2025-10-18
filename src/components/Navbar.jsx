@@ -37,6 +37,7 @@ function Navbar() {
               <span className="beta-badge">Beta 2.0</span>
             </Link>
             <Link to="/tournament" className="nav-link desktop-link">Tournament</Link>
+            <Link to="/registered-organizers" className="nav-link desktop-link">Registered Organizers</Link>
           </div>
 
           {/* Right - Home & Admin Login (Desktop) */}
@@ -68,6 +69,10 @@ function Navbar() {
             <Link to="/tournament" className="mobile-menu-link" onClick={closeMobileMenu}>
               <i className="fas fa-trophy"></i>
               Tournament
+            </Link>
+            <Link to="/registered-organizers" className="mobile-menu-link" onClick={closeMobileMenu}>
+              <i className="fas fa-users"></i>
+              Registered Organizers
             </Link>
             {location.pathname !== '/' && (
               <Link to="/" className="mobile-menu-link" onClick={closeMobileMenu}>

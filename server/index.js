@@ -7,6 +7,8 @@ import dotenv from 'dotenv';
 import multer from 'multer';
 import nodemailer from 'nodemailer';
 import fs from 'fs';
+import http from 'http';
+import { WebSocketServer } from 'ws';
 import cloudinary, { journeyStorage, newsStorage, profileStorage } from './cloudinaryConfig.js';
 
 // Load .env.local if it exists (for local development), otherwise load .env (production)
@@ -523,6 +525,13 @@ const clinicSchema = new mongoose.Schema({
 
 const Clinic = mongoose.model('Clinic', clinicSchema);
 
+// ============================================
+// ORGANIZER MODEL - REMOVED
+// ============================================
+// Note: Organizers are now fetched from MPA Portal API instead of local database
+// Portal API endpoint: GET ${PORTAL_API_URL}/organizations
+// This eliminates data duplication and ensures single source of truth
+
 // Function to generate unique MPA ID (MPA + 5 alphanumeric characters)
 async function generateMpaId() {
   const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
@@ -643,6 +652,97 @@ function mapPortalToLocal(portalTournament) {
     portalData: portalTournament
   };
 }
+
+// ============================================
+// WEBSOCKET SETUP FOR REAL-TIME UPDATES
+// ============================================
+
+// Store WebSocket clients
+const wsClients = new Set();
+
+// Store previous organizer state for change detection
+let previousOrganizers = [];
+
+// Broadcast function for organizer updates
+function broadcastOrganizerUpdate(data) {
+  const message = JSON.stringify(data);
+  wsClients.forEach((client) => {
+    if (client.readyState === 1) { // WebSocket.OPEN
+      client.send(message);
+    }
+  });
+  console.log(`📡 Broadcasted to ${wsClients.size} WebSocket clients:`, data.type);
+}
+
+// Poll Portal API for organizer changes and broadcast updates
+async function pollPortalForUpdates() {
+  try {
+    const response = await fetch(`${PORTAL_API_URL}/organizations`);
+    if (!response.ok) return;
+
+    const organizations = await response.json();
+    const currentOrganizers = organizations.map(org => ({
+      id: org._id,
+      organizationId: org.organizationId,
+      organizationName: org.organizationName,
+      status: org.status,
+      updatedAt: org.updatedAt
+    }));
+
+    // Check for changes
+    if (previousOrganizers.length > 0) {
+      // Check for new organizers
+      const newOrgs = currentOrganizers.filter(
+        curr => !previousOrganizers.find(prev => prev.id === curr.id)
+      );
+
+      // Check for updated organizers
+      const updatedOrgs = currentOrganizers.filter(curr => {
+        const prev = previousOrganizers.find(p => p.id === curr.id);
+        return prev && (
+          prev.organizationName !== curr.organizationName ||
+          prev.status !== curr.status ||
+          prev.updatedAt !== curr.updatedAt
+        );
+      });
+
+      // Check for deleted organizers
+      const deletedOrgs = previousOrganizers.filter(
+        prev => !currentOrganizers.find(curr => curr.id === prev.id)
+      );
+
+      // Broadcast changes
+      if (newOrgs.length > 0) {
+        broadcastOrganizerUpdate({
+          type: 'ORGANIZERS_REFRESH',
+          message: `${newOrgs.length} new organizer(s) added`
+        });
+      }
+
+      if (updatedOrgs.length > 0) {
+        broadcastOrganizerUpdate({
+          type: 'ORGANIZERS_REFRESH',
+          message: `${updatedOrgs.length} organizer(s) updated`
+        });
+      }
+
+      if (deletedOrgs.length > 0) {
+        broadcastOrganizerUpdate({
+          type: 'ORGANIZERS_REFRESH',
+          message: `${deletedOrgs.length} organizer(s) removed`
+        });
+      }
+    }
+
+    // Update previous state
+    previousOrganizers = currentOrganizers;
+  } catch (error) {
+    console.error('Error polling Portal for updates:', error.message);
+  }
+}
+
+// Poll every 10 seconds for changes (adjust interval as needed)
+setInterval(pollPortalForUpdates, 10000);
 
 // API Routes
 
@@ -2143,6 +2243,139 @@ app.delete('/api/clinics/:id', async (req, res) => {
 });
 
 // ============================================
+// ORGANIZER ROUTES (Fetching from MPA Portal)
+// ============================================
+
+// Helper function to transform Portal organization data to organizer format
+function transformPortalOrganization(org) {
+  // Normalize status (handle case-insensitive values)
+  const normalizeStatus = (status) => {
+    if (!status) return 'Pending';
+    const statusLower = status.toLowerCase();
+    if (statusLower === 'active') return 'Active';
+    if (statusLower === 'suspended' || statusLower === 'inactive') return 'Inactive';
+    return 'Pending';
+  };
+
+  // Build address properly without double commas
+  const buildAddress = () => {
+    const parts = [];
+
+    // Add addressLine1, removing trailing comma if exists
+    if (org.addressLine1) {
+      parts.push(org.addressLine1.replace(/,\s*$/, '').trim());
+    }
+
+    // Add addressLine2 if exists, removing trailing comma
+    if (org.addressLine2) {
+      parts.push(org.addressLine2.replace(/,\s*$/, '').trim());
+    }
+
+    // Add postcode if exists
+    if (org.postcode) {
+      parts.push(org.postcode.trim());
+    }
+
+    // Join all parts with comma and space, filter out empty strings
+    return parts.filter(part => part).join(', ');
+  };
+
+  return {
+    _id: org._id,
+    organizationId: org.organizationId,
+    organizationName: org.organizationName,
+    name: org.applicantFullName,
+    email: org.email,
+    phone: org.phoneNumber,
+    state: org.state,
+    city: org.city,
+    registrationNo: org.registrationNo,
+    type: determineOrganizerType(org.state), // Determine based on state/scope
+    status: normalizeStatus(org.status),
+    registrationDate: org.registeredAt || org.createdAt,
+    address: buildAddress(),
+    country: org.country
+  };
+}
+
+// Helper to determine organizer type (can be customized based on business logic)
+function determineOrganizerType(state) {
+  // Default to 'Local' - can be enhanced with business logic
+  return 'Local';
+}
+
+// Get all organizers (from Portal API)
+app.get('/api/organizers', async (req, res) => {
+  try {
+    const { status, type, state } = req.query;
+
+    // Fetch organizations from Portal API
+    const response = await fetch(`${PORTAL_API_URL}/organizations`);
+
+    if (!response.ok) {
+      throw new Error(`Portal API error: ${response.status}`);
+    }
+
+    let organizations = await response.json();
+
+    // Transform Portal data to organizer format
+    let organizers = organizations.map(transformPortalOrganization);
+
+    // Apply filters
+    if (status) {
+      organizers = organizers.filter(org => org.status === status);
+    }
+    if (type) {
+      organizers = organizers.filter(org => org.type === type);
+    }
+    if (state) {
+      organizers = organizers.filter(org => org.state === state);
+    }
+
+    console.log(`📋 Fetched ${organizers.length} organizers from Portal API`);
+    res.json(organizers);
+  } catch (error) {
+    console.error('Error fetching organizers from Portal:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Get organizer by ID (from Portal API) - READ ONLY
+app.get('/api/organizers/:id', async (req, res) => {
+  try {
+    if (!req.params.id || req.params.id === 'undefined') {
+      return res.status(400).json({ error: 'Invalid organizer ID' });
+    }
+
+    // Fetch all organizations from Portal (since Portal doesn't have a single org endpoint)
+    const response = await fetch(`${PORTAL_API_URL}/organizations`);
+
+    if (!response.ok) {
+      throw new Error(`Portal API error: ${response.status}`);
+    }
+
+    const organizations = await response.json();
+    const organization = organizations.find(org => org._id === req.params.id || org.organizationId === req.params.id);
+
+    if (!organization) {
+      return res.status(404).json({ error: 'Organizer not found' });
+    }
+
+    const organizer = transformPortalOrganization(organization);
+    res.json(organizer);
+  } catch (error) {
+    console.error('Error fetching organizer from Portal:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Note: All CREATE/UPDATE/DELETE operations are managed in MPA Portal
+// Changes made in the Portal are automatically reflected here via:
+// 1. Real-time WebSocket updates (broadcasts ORGANIZERS_REFRESH)
+// 2. Periodic polling (every 10 seconds)
+// This ensures Malaysia Pickleball always shows current data from Portal
+
+// ============================================
 // PICKLEZONE POSTS ENDPOINTS
 // ============================================
 
@@ -2581,8 +2814,84 @@ app.use((req, res, next) => {
   }
 });
 
-app.listen(PORT, () => {
+// ============================================
+// HTTP & WEBSOCKET SERVER SETUP
+// ============================================
+
+// Create HTTP server
+const server = http.createServer(app);
+
+// Create WebSocket server for organizer updates
+const wss = new WebSocketServer({
+  server,
+  path: '/api/organizers/ws',
+  // Add these options for better compatibility
+  perMessageDeflate: false,
+  clientTracking: true
+});
+
+console.log('🔧 WebSocket server configured on path: /api/organizers/ws');
+
+wss.on('connection', (ws, req) => {
+  const clientIp = req.socket.remoteAddress;
+  console.log(`✅ New WebSocket client connected from ${clientIp}`);
+  wsClients.add(ws);
+
+  // Send initial connection confirmation
+  try {
+    ws.send(JSON.stringify({
+      type: 'CONNECTED',
+      message: 'Connected to organizer updates',
+      timestamp: new Date().toISOString()
+    }));
+    console.log('📤 Sent connection confirmation to client');
+  } catch (error) {
+    console.error('❌ Error sending initial message:', error);
+  }
+
+  // Handle incoming messages from client
+  ws.on('message', (data) => {
+    try {
+      const message = JSON.parse(data);
+      console.log('📩 Received message from client:', message);
+    } catch (error) {
+      console.error('❌ Error parsing client message:', error);
+    }
+  });
+
+  ws.on('close', (code, reason) => {
+    console.log(`🔌 WebSocket client disconnected: ${code} - ${reason || 'No reason'}`);
+    wsClients.delete(ws);
+  });
+
+  ws.on('error', (error) => {
+    console.error('❌ WebSocket connection error:', error.message);
+    wsClients.delete(ws);
+  });
+
+  // Send ping every 30 seconds to keep connection alive
+  const pingInterval = setInterval(() => {
+    if (ws.readyState === 1) { // OPEN
+      ws.ping();
+    } else {
+      clearInterval(pingInterval);
+    }
+  }, 30000);
+
+  ws.on('pong', () => {
+    console.log('🏓 Pong received from client');
+  });
+});
+
+wss.on('error', (error) => {
+  console.error('❌ WebSocket Server error:', error);
+});
+
+// Start server
+server.listen(PORT, '0.0.0.0', () => {
   console.log(`\n🚀 Malaysia Pickleball Backend running on port ${PORT}`);
   console.log(`📊 MongoDB: ${MONGODB_URI}`);
-  console.log(`🔗 Portal API: ${PORTAL_API_URL}\n`);
+  console.log(`🔗 Portal API: ${PORTAL_API_URL}`);
+  console.log(`🔌 WebSocket Server: ws://localhost:${PORT}/api/organizers/ws`);
+  console.log(`🌐 Server listening on all interfaces (0.0.0.0)\n`);
 });

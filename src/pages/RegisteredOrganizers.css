@@ -1,0 +1,385 @@
+.registered-organizers-page {
+  min-height: 100vh;
+  background: #f5f5f5;
+  padding-top: 70px;
+}
+
+/* Container */
+.organizers-container {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 0 20px 60px;
+}
+
+/* Loading, Error, Empty States */
+.loading-state,
+.error-state,
+.empty-state {
+  text-align: center;
+  padding: 60px 20px;
+  color: #666;
+}
+
+.loading-state i,
+.error-state i,
+.empty-state i {
+  font-size: 4rem;
+  margin-bottom: 20px;
+  opacity: 0.7;
+}
+
+.loading-state p,
+.error-state p,
+.empty-state p {
+  font-size: 1.2rem;
+  margin-top: 10px;
+}
+
+.retry-button {
+  margin-top: 20px;
+  padding: 12px 24px;
+  background: white;
+  color: #667eea;
+  border: none;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.retry-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+/* Organizers Description */
+.organizers-description {
+  font-style: italic;
+  font-weight: bold;
+  color: #000;
+  font-size: 1rem;
+  margin-bottom: 20px;
+  text-align: left;
+}
+
+/* Organizers Table */
+.organizers-table-wrapper {
+  background: white;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.organizers-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.organizers-table thead {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+}
+
+.organizers-table th {
+  padding: 16px;
+  text-align: left;
+  font-weight: 600;
+  font-size: 0.95rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.organizers-table tbody tr {
+  border-bottom: 1px solid #f0f0f0;
+  transition: background 0.2s ease;
+}
+
+.organizers-table tbody tr:hover {
+  background: #f8f9ff;
+}
+
+.organizers-table tbody tr:last-child {
+  border-bottom: none;
+}
+
+.organizers-table td {
+  padding: 16px;
+  color: #555;
+  font-size: 0.95rem;
+}
+
+.organizers-table th:first-child,
+.organizers-table td.table-number {
+  text-align: center;
+  width: 60px;
+  font-weight: 600;
+  color: #667eea;
+}
+
+.organizer-name-link {
+  background: none;
+  border: none;
+  color: #667eea;
+  font-weight: 600;
+  font-size: 0.95rem;
+  cursor: pointer;
+  padding: 0;
+  text-align: left;
+  transition: color 0.2s ease;
+  text-decoration: underline;
+  text-decoration-style: dashed;
+  text-decoration-color: transparent;
+}
+
+.organizer-name-link:hover {
+  color: #764ba2;
+  text-decoration-color: #764ba2;
+}
+
+/* Modal */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 20px;
+  animation: fadeIn 0.2s ease;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.modal-content {
+  background: white;
+  border-radius: 16px;
+  max-width: 800px;
+  width: 100%;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  animation: slideUp 0.3s ease;
+  position: relative;
+}
+
+@keyframes slideUp {
+  from {
+    transform: translateY(50px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.modal-close {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  background: rgba(0, 0, 0, 0.1);
+  border: none;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: #666;
+  font-size: 1.2rem;
+  transition: all 0.2s ease;
+  z-index: 10;
+}
+
+.modal-close:hover {
+  background: rgba(0, 0, 0, 0.2);
+  color: #333;
+  transform: rotate(90deg);
+}
+
+.modal-header {
+  padding: 30px;
+  border-bottom: 1px solid #e0e0e0;
+  background: white;
+}
+
+.modal-header h2 {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #333;
+  margin: 0;
+}
+
+.modal-body {
+  padding: 0;
+}
+
+.detail-row-simple {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  padding: 20px 30px;
+  border-bottom: 1px solid #f0f0f0;
+  transition: background 0.2s ease;
+}
+
+.detail-row-simple:hover {
+  background: #fafafa;
+}
+
+.detail-row-simple:last-child {
+  border-bottom: none;
+}
+
+.detail-label {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #666;
+  min-width: 150px;
+  flex-shrink: 0;
+}
+
+.detail-value {
+  font-size: 0.95rem;
+  color: #333;
+  text-align: right;
+  word-break: break-word;
+}
+
+.status-badge {
+  padding: 4px 12px;
+  border-radius: 12px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  text-transform: capitalize;
+}
+
+.status-approved,
+.status-active {
+  background: #e8f5e9;
+  color: #2e7d32;
+}
+
+.status-pending {
+  background: #fff3e0;
+  color: #e65100;
+}
+
+.status-rejected,
+.status-inactive {
+  background: #ffebee;
+  color: #c62828;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .organizers-description {
+    font-size: 0.9rem;
+    margin-bottom: 16px;
+  }
+
+  .organizers-table-wrapper {
+    overflow-x: auto;
+  }
+
+  .organizers-table th,
+  .organizers-table td {
+    padding: 12px 10px;
+    font-size: 0.85rem;
+  }
+
+  .organizers-table th:nth-child(4),
+  .organizers-table td:nth-child(4) {
+    display: none;
+  }
+
+  .modal-content {
+    max-width: 95%;
+  }
+
+  .modal-header {
+    padding: 25px 20px;
+  }
+
+  .modal-header h2 {
+    font-size: 1.3rem;
+  }
+
+  .detail-row-simple {
+    padding: 16px 20px;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .detail-label {
+    min-width: auto;
+    font-size: 0.85rem;
+  }
+
+  .detail-value {
+    text-align: left;
+    font-size: 0.9rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .organizers-container {
+    padding: 0 15px 40px;
+  }
+
+  .organizers-description {
+    font-size: 0.85rem;
+    margin-bottom: 14px;
+  }
+
+  .organizers-table th,
+  .organizers-table td {
+    padding: 10px 8px;
+    font-size: 0.8rem;
+  }
+
+  .organizers-table th:nth-child(3),
+  .organizers-table td:nth-child(3) {
+    display: none;
+  }
+
+  .organizer-name-link {
+    font-size: 0.85rem;
+  }
+
+  .modal-header {
+    padding: 20px 15px;
+  }
+
+  .modal-header h2 {
+    font-size: 1.1rem;
+  }
+
+  .detail-row-simple {
+    padding: 14px 15px;
+  }
+
+  .detail-label {
+    font-size: 0.8rem;
+  }
+
+  .detail-value {
+    font-size: 0.85rem;
+  }
+}

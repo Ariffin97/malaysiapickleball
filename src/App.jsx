@@ -17,6 +17,7 @@ import PlayerLogin from './pages/PlayerLogin';
 import PlayerDashboard from './pages/PlayerDashboard';
 import PickleZone from './pages/PickleZone';
 import PickleZoneLogin from './pages/PickleZoneLogin';
+import RegisteredOrganizers from './pages/RegisteredOrganizers';
 import TermsAndConditions from './pages/TermsAndConditions';
 import PrivacyPolicy from './pages/PrivacyPolicy';
 import './App.css';
@@ -35,6 +36,7 @@ function AppContent() {
           <Route path="/" element={<Home />} />
           <Route path="/about" element={<About />} />
           <Route path="/tournament" element={<Tournament />} />
+          <Route path="/registered-organizers" element={<RegisteredOrganizers />} />
           <Route path="/affiliate" element={<Affiliate />} />
           <Route path="/organization" element={<Organization />} />
           <Route path="/news" element={<News />} />
