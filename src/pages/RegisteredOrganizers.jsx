@@ -336,11 +336,6 @@ function RegisteredOrganizers() {
               </div>
 
               <div className="detail-row-simple">
-                <span className="detail-label">Registration No</span>
-                <span className="detail-value">{selectedOrganizer.registrationNo || '-'}</span>
-              </div>
-
-              <div className="detail-row-simple">
                 <span className="detail-label">Registration Date</span>
                 <span className="detail-value">
                   {selectedOrganizer.registrationDate
