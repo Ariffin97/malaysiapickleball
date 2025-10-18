@@ -29,6 +29,8 @@ function PickleZone() {
     const playerId = localStorage.getItem('playerId');
     const playerUsername = localStorage.getItem('playerUsername');
     const playerName = localStorage.getItem('playerName');
+    const playerProfilePicture = localStorage.getItem('playerProfilePicture');
+    const playerGender = localStorage.getItem('playerGender');
 
     if (!isLoggedIn) {
       // Redirect to login if not authenticated
@@ -40,7 +42,9 @@ function PickleZone() {
     setPlayerData({
       playerId: playerId,
       fullName: playerName,
-      username: playerUsername
+      username: playerUsername,
+      profilePicture: playerProfilePicture || '',
+      gender: playerGender || ''
     });
 
     // Fetch posts
@@ -234,6 +238,8 @@ function PickleZone() {
       formData.append('playerId', playerData.playerId);
       formData.append('fullName', playerData.fullName);
       formData.append('username', playerData.username);
+      formData.append('profilePicture', playerData.profilePicture || '');
+      formData.append('gender', playerData.gender || '');
       formData.append('content', newPostContent || '');
 
       // Determine post type
@@ -334,6 +340,7 @@ function PickleZone() {
           playerId: playerData.playerId,
           fullName: playerData.fullName,
           username: playerData.username,
+          profilePicture: playerData.profilePicture || '',
           comment: commentText
         })
       });

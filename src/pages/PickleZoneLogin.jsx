@@ -43,6 +43,8 @@ function PickleZoneLogin() {
         localStorage.setItem('playerId', data.player.id);
         localStorage.setItem('playerName', data.player.fullName);
         localStorage.setItem('playerUsername', data.player.username);
+        localStorage.setItem('playerProfilePicture', data.player.profilePicture || '');
+        localStorage.setItem('playerGender', data.player.gender || '');
         navigate('/picklezone');
       } else {
         setError(data.error || 'Invalid username or password');

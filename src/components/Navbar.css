@@ -221,6 +221,117 @@
   z-index: 998;
 }
 
+/* Mobile Menu Button */
+.mobile-menu-button {
+  display: none;
+  background: transparent;
+  border: none;
+  color: white;
+  font-size: 1.5rem;
+  cursor: pointer;
+  padding: 0.5rem;
+  border-radius: 8px;
+  transition: background 0.2s ease;
+}
+
+.mobile-menu-button:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.navbar-modern.on-white .mobile-menu-button {
+  color: #1f2937;
+}
+
+.navbar-modern.on-white .mobile-menu-button:hover {
+  background: rgba(0, 0, 0, 0.05);
+}
+
+/* Mobile Menu Overlay */
+.mobile-menu-overlay {
+  position: fixed;
+  top: 70px;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 998;
+  backdrop-filter: blur(2px);
+  animation: fadeIn 0.2s ease;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* Mobile Menu */
+.mobile-menu {
+  position: fixed;
+  top: 70px;
+  right: 0;
+  width: 280px;
+  background: white;
+  box-shadow: -4px 0 12px rgba(0, 0, 0, 0.15);
+  z-index: 999;
+  animation: slideInRight 0.3s ease;
+  max-height: calc(100vh - 70px);
+  overflow-y: auto;
+}
+
+@keyframes slideInRight {
+  from {
+    opacity: 0;
+    transform: translateX(100%);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.mobile-menu-link {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem 1.5rem;
+  color: #374151;
+  text-decoration: none;
+  font-weight: 500;
+  font-size: 1rem;
+  border-bottom: 1px solid #f3f4f6;
+  transition: all 0.2s ease;
+}
+
+.mobile-menu-link:hover {
+  background: #f9fafb;
+  color: #3b82f6;
+}
+
+.mobile-menu-link i {
+  font-size: 1.125rem;
+  width: 20px;
+  text-align: center;
+}
+
+.mobile-menu-link:last-child {
+  border-bottom: none;
+}
+
+/* Desktop Link - Hide on Mobile */
+.desktop-link {
+  display: none;
+}
+
+@media (min-width: 768px) {
+  .desktop-link {
+    display: block;
+  }
+}
+
 /* Responsive */
 @media (max-width: 768px) {
   .nav-container {
@@ -241,6 +352,16 @@
     left: 1rem;
     width: auto;
   }
+
+  .mobile-menu-button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .nav-left {
+    gap: 1rem;
+  }
 }
 
 @media (max-width: 480px) {
@@ -250,5 +371,9 @@
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
+  }
+
+  .mobile-menu {
+    width: 100%;
   }
 }

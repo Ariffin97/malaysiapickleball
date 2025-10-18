@@ -10,9 +10,12 @@ function ManageMessages() {
   const [subject, setSubject] = useState('');
   const [message, setMessage] = useState('');
   const [searchTerm, setSearchTerm] = useState('');
+  const [messageHistory, setMessageHistory] = useState([]);
+  const [loadingHistory, setLoadingHistory] = useState(false);
 
   useEffect(() => {
     fetchPlayers();
+    fetchMessageHistory();
   }, []);
 
   const fetchPlayers = async () => {
@@ -27,6 +30,44 @@ function ManageMessages() {
       alert('Failed to load players');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const fetchMessageHistory = async () => {
+    setLoadingHistory(true);
+    try {
+      const PORTAL_API_URL = import.meta.env.VITE_PORTAL_API_URL || '/api';
+      const response = await fetch(`${PORTAL_API_URL}/messages?limit=50`);
+      const data = await response.json();
+
+      // Group messages by subject and timestamp to identify broadcasts
+      const groupedMessages = {};
+      data.forEach(msg => {
+        const key = `${msg.subject}-${new Date(msg.createdAt).toISOString()}`;
+        if (!groupedMessages[key]) {
+          groupedMessages[key] = {
+            subject: msg.subject,
+            message: msg.message,
+            createdAt: msg.createdAt,
+            recipients: []
+          };
+        }
+        groupedMessages[key].recipients.push({
+          playerName: msg.playerName,
+          playerUsername: msg.playerUsername
+        });
+      });
+
+      // Convert to array and sort by date
+      const historyArray = Object.values(groupedMessages).sort((a, b) =>
+        new Date(b.createdAt) - new Date(a.createdAt)
+      );
+
+      setMessageHistory(historyArray);
+    } catch (error) {
+      console.error('Error fetching message history:', error);
+    } finally {
+      setLoadingHistory(false);
     }
   };
 
@@ -98,6 +139,9 @@ function ManageMessages() {
       setSubject('');
       setMessage('');
       setSelectedPlayer('');
+
+      // Refresh message history
+      fetchMessageHistory();
     } catch (error) {
       console.error('Error sending message:', error);
       alert('Failed to send message. Please try again.');
@@ -116,7 +160,6 @@ function ManageMessages() {
     <div className="manage-messages">
       <div className="content-header">
         <h1>
-          <i className="fas fa-envelope"></i>
           Send Messages to Players
         </h1>
       </div>
@@ -267,18 +310,59 @@ function ManageMessages() {
             </div>
           </form>
 
-          {/* Info Box */}
-          <div className="info-box">
-            <h4>
-              <i className="fas fa-info-circle"></i>
-              Information
-            </h4>
-            <ul>
-              <li>Messages will be sent to player's inbox in their dashboard</li>
-              <li>Players will see the message when they log in</li>
-              <li>Sending to all players may take a few moments</li>
-              <li>Make sure your message is clear and professional</li>
-            </ul>
+          {/* Message History */}
+          <div className="message-history">
+            <h3>
+              <i className="fas fa-history"></i>
+              Message History
+            </h3>
+
+            {loadingHistory ? (
+              <div className="loading-state">
+                <i className="fas fa-spinner fa-spin"></i>
+                Loading message history...
+              </div>
+            ) : messageHistory.length === 0 ? (
+              <p className="no-messages">No messages sent yet</p>
+            ) : (
+              <div className="history-list">
+                {messageHistory.map((entry, index) => (
+                  <div key={index} className="history-item">
+                    <div className="history-header">
+                      <div className="history-subject">
+                        <strong>{entry.subject}</strong>
+                      </div>
+                      <div className="history-date">
+                        {new Date(entry.createdAt).toLocaleString()}
+                      </div>
+                    </div>
+
+                    <div className="history-content">
+                      <p className="history-message">
+                        {entry.message && entry.message.length > 150
+                          ? `${entry.message.substring(0, 150)}...`
+                          : (entry.message || 'No message content')}
+                      </p>
+                    </div>
+
+                    <div className="history-footer">
+                      <div className="history-recipients">
+                        <i className="fas fa-user"></i>
+                        {entry.recipients.length === 1 ? (
+                          <span>
+                            Sent to: {entry.recipients[0].playerName}
+                          </span>
+                        ) : (
+                          <span>
+                            Broadcast to {entry.recipients.length} players
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
         </div>
       </div>

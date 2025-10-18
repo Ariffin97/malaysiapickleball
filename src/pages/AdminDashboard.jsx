@@ -12,7 +12,7 @@ import './AdminDashboard.css';
 
 function AdminDashboard() {
   const [activeMenu, setActiveMenu] = useState('manage-tournament');
-  const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [sidebarOpen, setSidebarOpen] = useState(window.innerWidth > 768);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -22,6 +22,20 @@ function AdminDashboard() {
       navigate('/admin');
     }
   }, [navigate]);
+
+  useEffect(() => {
+    // Handle window resize
+    const handleResize = () => {
+      if (window.innerWidth <= 768) {
+        setSidebarOpen(false);
+      } else {
+        setSidebarOpen(true);
+      }
+    };
+
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   const handleLogout = () => {
     localStorage.removeItem('adminLoggedIn');
@@ -213,8 +227,24 @@ function AdminDashboard() {
     }
   };
 
+  const handleMenuClick = (menuId) => {
+    setActiveMenu(menuId);
+    // Close sidebar on mobile after clicking menu item
+    if (window.innerWidth <= 768) {
+      setSidebarOpen(false);
+    }
+  };
+
   return (
     <div className="admin-dashboard">
+      {/* Mobile Overlay */}
+      {sidebarOpen && window.innerWidth <= 768 && (
+        <div
+          className="sidebar-overlay"
+          onClick={() => setSidebarOpen(false)}
+        />
+      )}
+
       {/* Top Header */}
       <header className="dashboard-header">
         <button
@@ -258,7 +288,7 @@ function AdminDashboard() {
                         <button
                           key={subItem.id}
                           className={`nav-item sub-item ${activeMenu === subItem.id ? 'active' : ''}`}
-                          onClick={() => setActiveMenu(subItem.id)}
+                          onClick={() => handleMenuClick(subItem.id)}
                         >
                           <i className={`fas ${subItem.icon}`}></i>
                           <span>{subItem.label}</span>
@@ -270,7 +300,7 @@ function AdminDashboard() {
               ) : (
                 <button
                   className={`nav-item ${activeMenu === item.id ? 'active' : ''}`}
-                  onClick={() => setActiveMenu(item.id)}
+                  onClick={() => handleMenuClick(item.id)}
                 >
                   <i className={`fas ${item.icon}`}></i>
                   {sidebarOpen && <span>{item.label}</span>}

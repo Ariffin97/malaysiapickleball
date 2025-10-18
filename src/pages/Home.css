@@ -179,7 +179,7 @@
 }
 
 .container {
-  max-width: 1200px;
+  max-width: 1600px;
   margin: 0 auto;
 }
 
@@ -838,6 +838,7 @@
   transition: all 0.3s ease;
   margin-top: 1.5rem;
   align-self: center;
+  text-decoration: none;
 }
 
 .guideline-detail-button:hover {
@@ -1870,8 +1871,6 @@
 }
 
 .picklezone-content {
-  display: flex;
-  gap: 2rem;
   flex: 1;
 }
 
@@ -1992,5 +1991,450 @@
   .hero-objective p,
   .hero-mission li {
     font-size: 0.95rem;
+  }
+}
+
+/* Registration, PickleZone, and Posts Wrapper */
+.registration-picklezone-posts-wrapper {
+  padding: 3rem 2rem;
+  background: white;
+}
+
+.registration-picklezone-posts-grid {
+  max-width: 1800px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: 1fr 400px;
+  gap: 3rem;
+  align-items: start;
+}
+
+.registration-picklezone-posts-wrapper .left-column {
+  display: flex;
+  flex-direction: column;
+  gap: 3rem;
+}
+
+.registration-picklezone-posts-wrapper .right-column {
+  position: sticky;
+  top: 90px;
+}
+
+/* MPA Portal Section */
+.mpa-portal-section {
+  padding: 0 2rem;
+}
+
+.mpa-portal-card {
+  max-width: 1200px;
+  margin: 0 auto;
+  display: flex;
+  gap: 2rem;
+  align-items: center;
+}
+
+.mpa-portal-content {
+  flex: 1;
+}
+
+.mpa-portal-icon {
+  width: 150px;
+  height: 150px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.mpa-portal-icon img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.mpa-portal-text h2 {
+  font-size: 2rem;
+  color: #1f2937;
+  margin-bottom: 0.75rem;
+}
+
+.mpa-portal-text p {
+  font-size: 1.1rem;
+  color: #6b7280;
+  margin-bottom: 1.5rem;
+}
+
+.portal-benefits-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0.75rem;
+}
+
+.portal-benefits-list li {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.95rem;
+  color: #374151;
+}
+
+.portal-benefits-list i {
+  color: #10b981;
+  font-size: 1rem;
+}
+
+.mpa-portal-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  min-width: 200px;
+}
+
+.btn-visit-portal {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  padding: 1rem 2rem;
+  border-radius: 12px;
+  font-size: 1rem;
+  font-weight: 600;
+  text-decoration: none;
+  transition: all 0.3s ease;
+  border: 2px solid transparent;
+  cursor: pointer;
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  color: white;
+  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+}
+
+.btn-visit-portal:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(16, 185, 129, 0.4);
+}
+
+@media (max-width: 968px) {
+  .mpa-portal-card {
+    flex-direction: column;
+    padding: 2rem;
+    gap: 2rem;
+  }
+
+  .mpa-portal-content {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    order: -1;
+  }
+
+  .portal-benefits-list {
+    grid-template-columns: 1fr;
+  }
+
+  .mpa-portal-actions {
+    width: 100%;
+  }
+
+  .btn-visit-portal {
+    width: 100%;
+  }
+}
+
+/* PickleZone Section Inline */
+.picklezone-section-inline {
+  padding: 0 2rem;
+  margin-top: 2rem;
+}
+
+/* PickleZone Posts Section */
+.picklezone-posts-section {
+  background: #f9fafb;
+  border-radius: 16px;
+  padding: 1rem;
+  border: 1px solid #e5e7eb;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  max-height: 800px;
+  display: flex;
+  flex-direction: column;
+}
+
+.posts-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 2px solid #e5e7eb;
+}
+
+.posts-header-left {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.posts-header-logo {
+  width: 50px;
+  height: 50px;
+  object-fit: contain;
+  flex-shrink: 0;
+}
+
+.posts-header h2 {
+  font-size: 1.5rem;
+  color: #1f2937;
+  margin: 0;
+  font-weight: 700;
+}
+
+.btn-join-community {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.625rem 1.25rem;
+  background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+  color: white;
+  text-decoration: none;
+  border-radius: 8px;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 8px rgba(59, 130, 246, 0.25);
+  border: none;
+  cursor: pointer;
+}
+
+.btn-join-community:hover {
+  background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
+}
+
+.btn-join-community i {
+  font-size: 0.875rem;
+}
+
+.posts-feed {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  overflow-y: auto;
+  max-height: 650px;
+  padding-right: 0.5rem;
+}
+
+.posts-feed::-webkit-scrollbar {
+  width: 6px;
+}
+
+.posts-feed::-webkit-scrollbar-track {
+  background: #f3f4f6;
+  border-radius: 10px;
+}
+
+.posts-feed::-webkit-scrollbar-thumb {
+  background: #d1d5db;
+  border-radius: 10px;
+}
+
+.posts-feed::-webkit-scrollbar-thumb:hover {
+  background: #9ca3af;
+}
+
+.post-card {
+  background: white;
+  border-radius: 12px;
+  padding: 0.875rem;
+  border: 1px solid #e5e7eb;
+  transition: all 0.3s ease;
+}
+
+.post-card:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  transform: translateY(-2px);
+}
+
+.post-header {
+  margin-bottom: 0.75rem;
+}
+
+.post-author {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.author-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid #e5e7eb;
+}
+
+.author-avatar-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid #e5e7eb;
+  font-size: 1.125rem;
+}
+
+.author-avatar-icon.male {
+  background: #dbeafe;
+  color: #3b82f6;
+}
+
+.author-avatar-icon.female {
+  background: #fce7f3;
+  color: #ec4899;
+}
+
+.author-avatar-icon.neutral {
+  background: #f3f4f6;
+  color: #9ca3af;
+}
+
+.author-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.author-name {
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: #1f2937;
+}
+
+.post-time {
+  font-size: 0.75rem;
+  color: #6b7280;
+}
+
+.post-content {
+  margin-bottom: 0.75rem;
+}
+
+.post-content p {
+  font-size: 0.9375rem;
+  color: #374151;
+  line-height: 1.6;
+  margin: 0 0 0.5rem 0;
+  word-wrap: break-word;
+}
+
+.post-media {
+  border-radius: 8px;
+  overflow: hidden;
+  margin-top: 0.5rem;
+}
+
+.post-media img {
+  width: 100%;
+  height: auto;
+  max-height: 250px;
+  object-fit: cover;
+  display: block;
+}
+
+.post-stats {
+  display: flex;
+  gap: 1.5rem;
+  padding-top: 0.5rem;
+  border-top: 1px solid #f3f4f6;
+  font-size: 0.875rem;
+  color: #6b7280;
+}
+
+.post-stats span {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+}
+
+.post-stats i {
+  font-size: 1rem;
+}
+
+.no-posts {
+  text-align: center;
+  padding: 2rem 1rem;
+  color: #9ca3af;
+}
+
+.no-posts i {
+  font-size: 2.5rem;
+  margin-bottom: 0.75rem;
+  color: #d1d5db;
+}
+
+.no-posts p {
+  font-size: 0.9375rem;
+  line-height: 1.6;
+  margin: 0;
+}
+
+/* Responsive Design */
+@media screen and (max-width: 1200px) {
+  .registration-picklezone-posts-grid {
+    grid-template-columns: 1fr 350px;
+    gap: 2rem;
+  }
+
+  .picklezone-posts-section {
+    max-height: 700px;
+  }
+
+  .posts-feed {
+    max-height: 550px;
+  }
+}
+
+@media screen and (max-width: 968px) {
+  .registration-picklezone-posts-grid {
+    grid-template-columns: 1fr;
+    gap: 3rem;
+  }
+
+  .registration-picklezone-posts-wrapper .right-column {
+    position: static;
+  }
+
+  .picklezone-posts-section {
+    max-height: 600px;
+  }
+
+  .posts-feed {
+    max-height: 450px;
+  }
+}
+
+@media screen and (max-width: 768px) {
+  .registration-picklezone-posts-wrapper {
+    padding: 2rem 1rem;
+  }
+
+  .posts-header-logo {
+    width: 40px;
+    height: 40px;
+  }
+
+  .posts-header h2 {
+    font-size: 1.25rem;
+  }
+
+  .picklezone-posts-section {
+    padding: 0.875rem;
+  }
+
+  .post-card {
+    padding: 0.75rem;
   }
 }

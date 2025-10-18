@@ -34,6 +34,7 @@ function Home() {
   const [showNewsModal, setShowNewsModal] = useState(false);
   const [selectedNews, setSelectedNews] = useState(null);
   const [icValidation, setIcValidation] = useState({ status: '', message: '' });
+  const [picklezonePosts, setPicklezonePosts] = useState([]);
   const [registerFormData, setRegisterFormData] = useState({
     fullName: '',
     profilePicture: null,
@@ -126,6 +127,23 @@ function Home() {
     };
 
     fetchUpcomingTournaments();
+  }, []);
+
+  // Fetch PickleZone posts
+  useEffect(() => {
+    const fetchPicklezonePosts = async () => {
+      try {
+        const PORTAL_API_URL = import.meta.env.VITE_PORTAL_API_URL || '/api';
+        const response = await fetch(`${PORTAL_API_URL}/posts?limit=5`);
+        const data = await response.json();
+        setPicklezonePosts(Array.isArray(data) ? data : []);
+      } catch (error) {
+        console.error('Error fetching PickleZone posts:', error);
+        setPicklezonePosts([]);
+      }
+    };
+
+    fetchPicklezonePosts();
   }, []);
 
   // Pause/resume animation on hover
@@ -405,39 +423,214 @@ function Home() {
         </div>
       </section>
 
-      <section className="player-registration">
+      <section className="registration-picklezone-posts-wrapper">
         <div className="container">
-          <div className="registration-card">
-            <div className="registration-content">
-              <div className="registration-icon">
-                <img src="/mpa.png" alt="MPA Logo" />
+          <div className="registration-picklezone-posts-grid">
+            {/* Left Column - Player Registration and PickleZone Section */}
+            <div className="left-column">
+              <div className="player-registration">
+                <div className="registration-card">
+                  <div className="registration-content">
+                    <div className="registration-icon">
+                      <img src="/mpa.png" alt="MPA Logo" />
+                    </div>
+                    <div className="registration-text">
+                      <h2>Join the Malaysia Pickleball Community</h2>
+                      <p>Register as an official Malaysia Pickleball player and unlock exclusive benefits</p>
+                      <ul className="benefits-list">
+                        <li><i className="fas fa-check-circle"></i> Access to official tournaments</li>
+                        <li><i className="fas fa-check-circle"></i> Player ranking and statistics</li>
+                        <li><i className="fas fa-check-circle"></i> Training programs and certifications</li>
+                        <li><i className="fas fa-check-circle"></i> Networking with fellow players</li>
+                      </ul>
+                    </div>
+                  </div>
+                  <div className="registration-actions">
+                    <button onClick={openRegisterModal} className="btn-register">
+                      Register as Player
+                    </button>
+                    <Link to="/player/login" className="btn-login">
+                      Player Login
+                    </Link>
+                  </div>
+                </div>
               </div>
-              <div className="registration-text">
-                <h2>Join the Malaysia Pickleball Community</h2>
-                <p>Register as an official Malaysia Pickleball player and unlock exclusive benefits</p>
-                <ul className="benefits-list">
-                  <li><i className="fas fa-check-circle"></i> Access to official tournaments</li>
-                  <li><i className="fas fa-check-circle"></i> Player ranking and statistics</li>
-                  <li><i className="fas fa-check-circle"></i> Training programs and certifications</li>
-                  <li><i className="fas fa-check-circle"></i> Networking with fellow players</li>
-                </ul>
+
+              <div className="mpa-portal-section">
+                <div className="mpa-portal-card">
+                  <div className="mpa-portal-icon">
+                    <img src="/mpa.png" alt="MPA Portal Logo" />
+                  </div>
+                  <div className="mpa-portal-content">
+                    <div className="mpa-portal-text">
+                      <h2>MPA Portal</h2>
+                      <p>Your gateway to official tournament applications and skill assessments</p>
+                      <ul className="portal-benefits-list">
+                        <li><i className="fas fa-check-circle"></i> Apply for tournaments</li>
+                        <li><i className="fas fa-check-circle"></i> Take skill assessments</li>
+                        <li><i className="fas fa-check-circle"></i> Track your applications</li>
+                        <li><i className="fas fa-check-circle"></i> View assessment results</li>
+                      </ul>
+                    </div>
+                  </div>
+                  <div className="mpa-portal-actions">
+                    <a
+                      href="https://mpaportal.com"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="btn-visit-portal"
+                    >
+                      Visit MPA Portal
+                    </a>
+                  </div>
+                </div>
+              </div>
+
+              <div className="picklezone-section-inline">
+                <div className="picklezone-card">
+                  <div className="picklezone-icon">
+                    <img src="/picklezonelogo.png" alt="PickleZone Logo" />
+                  </div>
+                  <div className="picklezone-content">
+                    <div className="picklezone-text">
+                      <h2>PickleZone - Social Hub for Pickleball Players</h2>
+                      <p>Connect with fellow players in Malaysia's first dedicated pickleball social media platform. Register as an MPA player to unlock access to this exclusive community.</p>
+                      <ul className="picklezone-benefits-list">
+                        <li><i className="fas fa-check-circle"></i> Share your pickleball moments</li>
+                        <li><i className="fas fa-check-circle"></i> Connect with players nationwide</li>
+                        <li><i className="fas fa-check-circle"></i> Join community discussions</li>
+                        <li><i className="fas fa-check-circle"></i> Stay updated with latest news</li>
+                      </ul>
+                    </div>
+                  </div>
+                  <div className="picklezone-actions">
+                    <Link to="/picklezone/login" className="btn-picklezone-login">
+                      Enter PickleZone
+                    </Link>
+                    <p className="picklezone-note">Join our exclusive social community for players</p>
+                  </div>
+                </div>
               </div>
             </div>
-            <div className="registration-actions">
-              <button onClick={openRegisterModal} className="btn-register">
-                <i className="fas fa-user-plus"></i>
-                Register as Player
-              </button>
-              <Link to="/player/login" className="btn-login">
-                <i className="fas fa-sign-in-alt"></i>
-                Player Login
-              </Link>
+
+            {/* Right Column - PickleZone Posts */}
+            <div className="right-column">
+              <div className="picklezone-posts-section">
+                <div className="posts-header">
+                  <div className="posts-header-left">
+                    <img src="/picklezonelogo.png" alt="PickleZone" className="posts-header-logo" />
+                    <h2>Community</h2>
+                  </div>
+                  <Link to="/picklezone/login" className="btn-join-community">
+                    Join
+                  </Link>
+                </div>
+                <div className="posts-feed">
+                  {picklezonePosts.length > 0 ? (
+                    picklezonePosts.map((post) => {
+                      return (
+                        <div key={post._id} className="post-card">
+                          <div className="post-header">
+                            <div className="post-author">
+                              {post.author?.profilePicture ? (
+                                <img
+                                  src={post.author.profilePicture}
+                                  alt={post.author?.fullName || 'User'}
+                                  className="author-avatar"
+                                  onError={(e) => {
+                                    e.target.style.display = 'none';
+                                    e.target.nextSibling.style.display = 'flex';
+                                  }}
+                                />
+                              ) : (
+                                <div className={`author-avatar-icon ${post.author?.gender === 'Male' ? 'male' : post.author?.gender === 'Female' ? 'female' : 'neutral'}`}>
+                                  <i className="fas fa-user"></i>
+                                </div>
+                              )}
+                              <div className="author-info">
+                                <span className="author-name">{post.author?.username || post.author?.fullName || 'Anonymous'}</span>
+                                <span className="post-time">
+                                  {new Date(post.createdAt).toLocaleDateString('en-US', {
+                                    month: 'short',
+                                    day: 'numeric',
+                                    hour: '2-digit',
+                                    minute: '2-digit'
+                                  })}
+                                </span>
+                              </div>
+                            </div>
+                          </div>
+                          <div className="post-content">
+                            <p>{post.content}</p>
+
+                            {/* Video Embed from Link */}
+                            {post.linkData && post.linkData.isVideo && (
+                              <div className="post-video-embed" style={{ marginTop: '1rem' }}>
+                                <div style={{ position: 'relative', paddingBottom: '56.25%', height: 0, overflow: 'hidden', borderRadius: '8px' }}>
+                                  <iframe
+                                    src={post.linkData.embedUrl}
+                                    title={post.linkData.title}
+                                    frameBorder="0"
+                                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                                    allowFullScreen
+                                    style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%' }}
+                                  ></iframe>
+                                </div>
+                              </div>
+                            )}
+
+                            {/* Link Preview (non-video) */}
+                            {post.linkData && !post.linkData.isVideo && (
+                              <div className="post-link-preview" style={{ marginTop: '1rem', border: '1px solid #e5e7eb', borderRadius: '8px', overflow: 'hidden', cursor: 'pointer' }} onClick={() => window.open(post.linkData.url, '_blank')}>
+                                {post.linkData.image && (
+                                  <div style={{ width: '100%', height: '200px', overflow: 'hidden' }}>
+                                    <img src={post.linkData.image} alt={post.linkData.title} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                                  </div>
+                                )}
+                                <div style={{ padding: '1rem' }}>
+                                  <div style={{ fontSize: '0.75rem', color: '#6b7280', marginBottom: '0.5rem' }}>
+                                    <i className="fas fa-link"></i> {post.linkData.url ? new URL(post.linkData.url).hostname : ''}
+                                  </div>
+                                  <h4 style={{ margin: 0, fontSize: '1rem', fontWeight: 600, color: '#1f2937' }}>{post.linkData.title}</h4>
+                                  {post.linkData.description && (
+                                    <p style={{ margin: '0.5rem 0 0', fontSize: '0.875rem', color: '#6b7280', lineHeight: '1.5' }}>{post.linkData.description}</p>
+                                  )}
+                                </div>
+                              </div>
+                            )}
+
+                            {/* Images */}
+                            {(post.imageUrls && post.imageUrls.length > 0) || post.imageUrl ? (
+                              <div className="post-media" style={{ marginTop: '1rem' }}>
+                                <img
+                                  src={post.imageUrls ? post.imageUrls[0] : post.imageUrl}
+                                  alt="Post media"
+                                  onError={(e) => { e.target.style.display = 'none'; }}
+                                />
+                              </div>
+                            ) : null}
+                          </div>
+                          <div className="post-stats">
+                            <span><i className="fas fa-heart"></i> {post.likes?.length || 0}</span>
+                            <span><i className="fas fa-comment"></i> {post.comments?.length || 0}</span>
+                          </div>
+                        </div>
+                      );
+                    })
+                  ) : (
+                    <div className="no-posts">
+                      <i className="fas fa-comments"></i>
+                      <p>No posts yet. Join PickleZone to see community updates!</p>
+                    </div>
+                  )}
+                </div>
+              </div>
             </div>
           </div>
         </div>
       </section>
 
-      <section className="picklezone-section">
+      <section className="picklezone-section" style={{ display: 'none' }}>
         <div className="container">
           <div className="picklezone-card">
             <div className="picklezone-actions">
@@ -805,7 +998,6 @@ function Home() {
             <div className="view-all-tournaments">
               <Link to="/tournament" className="btn-view-all">
                 View All Tournaments
-                <i className="fas fa-arrow-right"></i>
               </Link>
             </div>
           )}
@@ -1034,7 +1226,6 @@ function Home() {
           <div className="view-all-milestones">
             <Link to="/milestones" className="btn-view-all">
               View All Milestones
-              <i className="fas fa-arrow-right"></i>
             </Link>
           </div>
         </div>

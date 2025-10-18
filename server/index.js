@@ -369,7 +369,8 @@ const postSchema = new mongoose.Schema({
       required: true
     },
     username: String,
-    profilePicture: String
+    profilePicture: String,
+    gender: String
   },
   postType: {
     type: String,
@@ -1671,6 +1672,44 @@ app.patch('/api/players/:id/messages/:messageId/read', async (req, res) => {
   }
 });
 
+// Get all messages (for admin message history)
+app.get('/api/messages', async (req, res) => {
+  try {
+    const { limit = 50 } = req.query;
+
+    const messages = await Message.find()
+      .sort({ createdAt: -1 })
+      .limit(parseInt(limit))
+      .lean();
+
+    // Group messages by subject and createdAt to identify broadcast messages
+    const messagesWithPlayerInfo = await Promise.all(messages.map(async (message) => {
+      try {
+        const player = await Player.findOne({ playerId: message.playerId })
+          .select('fullName username')
+          .lean();
+
+        return {
+          ...message,
+          playerName: player ? player.fullName : 'Unknown Player',
+          playerUsername: player ? player.username : null
+        };
+      } catch (error) {
+        return {
+          ...message,
+          playerName: 'Unknown Player',
+          playerUsername: null
+        };
+      }
+    }));
+
+    res.json(messagesWithPlayerInfo);
+  } catch (error) {
+    console.error('Error fetching all messages:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
 // Helper function to delete image from Cloudinary
 async function deleteCloudinaryImage(imageUrl) {
   if (!imageUrl) return;
@@ -2208,7 +2247,30 @@ app.get('/api/posts', async (req, res) => {
       .skip(parseInt(skip))
       .lean();
 
-    res.json(posts);
+    // Populate current player data for each post
+    const postsWithCurrentPlayerData = await Promise.all(posts.map(async (post) => {
+      try {
+        // Fetch current player data
+        const player = await Player.findOne({ playerId: post.author.playerId })
+          .select('profilePicture gender')
+          .lean();
+
+        if (player) {
+          // Update author with current profile picture and gender from player collection
+          post.author = {
+            ...post.author,
+            profilePicture: player.profilePicture || post.author.profilePicture,
+            gender: player.gender || post.author.gender
+          };
+        }
+      } catch (error) {
+        console.error('Error fetching player data for post:', error);
+        // Continue with original post data if player lookup fails
+      }
+      return post;
+    }));
+
+    res.json(postsWithCurrentPlayerData);
   } catch (error) {
     console.error('Error fetching posts:', error);
     res.status(500).json({ error: error.message });
