@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import './PlayerLogin.css';
 
 function PlayerLogin() {
@@ -13,6 +13,7 @@ function PlayerLogin() {
   const [forgotMessage, setForgotMessage] = useState('');
   const [forgotLoading, setForgotLoading] = useState(false);
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -33,13 +34,21 @@ function PlayerLogin() {
       const data = await response.json();
 
       if (response.ok) {
-        // Success - store token and redirect to player dashboard
+        // Success - store token and redirect
         localStorage.setItem('playerToken', data.token);
         localStorage.setItem('playerLoggedIn', 'true');
         localStorage.setItem('playerId', data.player.id);
+        localStorage.setItem('playerMpaId', data.player.playerId); // Store MPA ID (e.g., MPA001)
         localStorage.setItem('playerName', data.player.fullName);
         localStorage.setItem('playerUsername', data.player.username);
-        navigate('/player/dashboard');
+
+        // Check if there's a return URL
+        const returnUrl = searchParams.get('returnUrl');
+        if (returnUrl) {
+          navigate(returnUrl);
+        } else {
+          navigate('/player/dashboard');
+        }
       } else {
         setError(data.error || 'Invalid username or password');
       }

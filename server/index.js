@@ -358,6 +358,79 @@ const messageSchema = new mongoose.Schema({
 
 const Message = mongoose.model('Message', messageSchema);
 
+// Tournament Registration Schema
+const tournamentRegistrationSchema = new mongoose.Schema({
+  tournamentId: {
+    type: String,
+    required: true,
+    index: true
+  },
+  tournamentName: {
+    type: String,
+    required: true
+  },
+  playerId: {
+    type: String,
+    required: true,
+    index: true
+  },
+  playerMpaId: {
+    type: String,
+    required: true
+  },
+  playerName: {
+    type: String,
+    required: true
+  },
+  playerUsername: {
+    type: String,
+    required: true
+  },
+  category: {
+    type: String,
+    enum: ['mens-singles', 'womens-singles', 'mens-doubles', 'womens-doubles', 'mixed-doubles'],
+    required: true
+  },
+  skillLevel: {
+    type: String,
+    enum: ['beginner', 'intermediate', 'advanced', 'pro'],
+    required: true
+  },
+  partnerName: String,
+  partnerPhone: String,
+  tshirtSize: {
+    type: String,
+    enum: ['XS', 'S', 'M', 'L', 'XL', 'XXL'],
+    required: true
+  },
+  emergencyContact: {
+    type: String,
+    required: true
+  },
+  emergencyPhone: {
+    type: String,
+    required: true
+  },
+  medicalConditions: String,
+  agreeToTerms: {
+    type: Boolean,
+    required: true,
+    default: true
+  },
+  status: {
+    type: String,
+    enum: ['pending', 'confirmed', 'cancelled'],
+    default: 'pending'
+  }
+}, {
+  timestamps: true
+});
+
+// Compound index to prevent duplicate registrations
+tournamentRegistrationSchema.index({ tournamentId: 1, playerId: 1 }, { unique: true });
+
+const TournamentRegistration = mongoose.model('TournamentRegistration', tournamentRegistrationSchema);
+
 // PickleZone Post Schema
 const postSchema = new mongoose.Schema({
   author: {
@@ -737,11 +810,15 @@ async function pollPortalForUpdates() {
     // Update previous state
     previousOrganizers = currentOrganizers;
   } catch (error) {
-    console.error('Error polling Portal for updates:', error.message);
+    // Only log error if not a connection issue (avoid spam in local dev)
+    if (!error.message.includes('fetch failed') && !error.message.includes('ENOTFOUND')) {
+      console.error('Error polling Portal for updates:', error.message);
+    }
   }
 }
 
-// Poll every 10 seconds for changes (adjust interval as needed)
+// Only poll in production when Portal is accessible
+// In local development, this will silently fail without spamming errors
 setInterval(pollPortalForUpdates, 10000);
 
 // API Routes
@@ -941,6 +1018,269 @@ app.post('/api/webhooks/tournament-updated', async (req, res) => {
     res.json({ success: true });
   } catch (error) {
     console.error('Webhook error:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Tournament Registration Routes
+// Submit tournament registration
+app.post('/api/tournaments/register', async (req, res) => {
+  try {
+    const {
+      tournamentId,
+      playerId,
+      playerMpaId,
+      playerName,
+      playerUsername,
+      category,
+      skillLevel,
+      partnerName,
+      partnerPhone,
+      tshirtSize,
+      emergencyContact,
+      emergencyPhone,
+      medicalConditions,
+      agreeToTerms
+    } = req.body;
+
+    // Validate required fields
+    if (!tournamentId || !playerId || !category || !skillLevel || !tshirtSize || !emergencyContact || !emergencyPhone) {
+      return res.status(400).json({ error: 'Missing required fields' });
+    }
+
+    // Check if player already registered for this tournament
+    const existingRegistration = await TournamentRegistration.findOne({
+      tournamentId,
+      playerId
+    });
+
+    if (existingRegistration) {
+      return res.status(400).json({ error: 'You have already registered for this tournament' });
+    }
+
+    // Get tournament details
+    const tournament = await Tournament.findOne({
+      $or: [
+        { applicationId: tournamentId },
+        { _id: tournamentId }
+      ]
+    });
+
+    if (!tournament) {
+      return res.status(404).json({ error: 'Tournament not found' });
+    }
+
+    // Create registration
+    const registration = await TournamentRegistration.create({
+      tournamentId: tournament.applicationId || tournament._id,
+      tournamentName: tournament.name,
+      playerId,
+      playerMpaId,
+      playerName,
+      playerUsername,
+      category,
+      skillLevel,
+      partnerName: partnerName || '',
+      partnerPhone: partnerPhone || '',
+      tshirtSize,
+      emergencyContact,
+      emergencyPhone,
+      medicalConditions: medicalConditions || '',
+      agreeToTerms,
+      status: 'pending'
+    });
+
+    console.log(`✅ Tournament registration created: ${playerName} for ${tournament.name}`);
+
+    // Send confirmation email to player
+    try {
+      const player = await Player.findOne({
+        $or: [
+          { _id: playerId },
+          { playerId: playerMpaId }
+        ]
+      });
+
+      if (player && player.email) {
+        await transporter.sendMail({
+          from: process.env.EMAIL_USER,
+          to: player.email,
+          subject: `Tournament Registration Confirmation - ${tournament.name}`,
+          html: `
+            <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+              <h2 style="color: #2563eb;">Tournament Registration Confirmed</h2>
+              <p>Dear ${playerName},</p>
+              <p>Thank you for registering for <strong>${tournament.name}</strong>.</p>
+
+              <div style="background: #f3f4f6; padding: 20px; border-radius: 8px; margin: 20px 0;">
+                <h3 style="margin-top: 0;">Registration Details</h3>
+                <p><strong>Tournament:</strong> ${tournament.name}</p>
+                <p><strong>Category:</strong> ${category}</p>
+                <p><strong>Skill Level:</strong> ${skillLevel}</p>
+                ${partnerName ? `<p><strong>Partner:</strong> ${partnerName}</p>` : ''}
+                <p><strong>T-Shirt Size:</strong> ${tshirtSize}</p>
+              </div>
+
+              <div style="background: #fef3c7; padding: 15px; border-radius: 8px; margin: 20px 0;">
+                <p style="margin: 0;"><strong>⚠️ Important:</strong> Your registration is currently <strong>pending</strong>. You will receive another email once it's confirmed by the tournament organizer.</p>
+              </div>
+
+              <p>If you have any questions, please contact the tournament organizer.</p>
+
+              <p>Best regards,<br>Malaysia Pickleball Association</p>
+            </div>
+          `
+        });
+        console.log(`📧 Confirmation email sent to ${player.email}`);
+      }
+    } catch (emailError) {
+      console.error('Error sending confirmation email:', emailError);
+      // Don't fail the registration if email fails
+    }
+
+    res.json({
+      success: true,
+      registration: {
+        id: registration._id,
+        tournamentName: registration.tournamentName,
+        status: registration.status
+      }
+    });
+
+  } catch (error) {
+    console.error('Error creating tournament registration:', error);
+
+    if (error.code === 11000) {
+      return res.status(400).json({ error: 'You have already registered for this tournament' });
+    }
+
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Get registrations for a specific tournament (for admin dashboard)
+app.get('/api/tournaments/:tournamentId/registrations', async (req, res) => {
+  try {
+    const { tournamentId } = req.params;
+
+    const registrations = await TournamentRegistration.find({
+      tournamentId
+    }).sort({ createdAt: -1 });
+
+    res.json(registrations);
+  } catch (error) {
+    console.error('Error fetching tournament registrations:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Get all registrations (for admin dashboard)
+app.get('/api/tournament-registrations', async (req, res) => {
+  try {
+    const registrations = await TournamentRegistration.find()
+      .sort({ createdAt: -1 });
+
+    res.json(registrations);
+  } catch (error) {
+    console.error('Error fetching registrations:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Get registration counts for all tournaments
+app.get('/api/tournament-registrations/counts', async (req, res) => {
+  try {
+    const counts = await TournamentRegistration.aggregate([
+      {
+        $group: {
+          _id: '$tournamentId',
+          count: { $sum: 1 }
+        }
+      }
+    ]);
+
+    // Convert to object for easy lookup
+    const countsMap = {};
+    counts.forEach(item => {
+      countsMap[item._id] = item.count;
+    });
+
+    res.json(countsMap);
+  } catch (error) {
+    console.error('Error fetching registration counts:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Update registration status (for admin)
+app.patch('/api/tournament-registrations/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { status } = req.body;
+
+    if (!['pending', 'confirmed', 'cancelled'].includes(status)) {
+      return res.status(400).json({ error: 'Invalid status' });
+    }
+
+    const registration = await TournamentRegistration.findByIdAndUpdate(
+      id,
+      { status },
+      { new: true }
+    );
+
+    if (!registration) {
+      return res.status(404).json({ error: 'Registration not found' });
+    }
+
+    // Send status update email
+    try {
+      const player = await Player.findOne({
+        $or: [
+          { _id: registration.playerId },
+          { playerId: registration.playerMpaId }
+        ]
+      });
+
+      if (player && player.email) {
+        const statusMessages = {
+          confirmed: {
+            subject: 'Registration Confirmed',
+            message: 'Your tournament registration has been confirmed!',
+            color: '#10b981'
+          },
+          cancelled: {
+            subject: 'Registration Cancelled',
+            message: 'Your tournament registration has been cancelled.',
+            color: '#ef4444'
+          }
+        };
+
+        const msg = statusMessages[status];
+        if (msg) {
+          await transporter.sendMail({
+            from: process.env.EMAIL_USER,
+            to: player.email,
+            subject: `${msg.subject} - ${registration.tournamentName}`,
+            html: `
+              <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+                <h2 style="color: ${msg.color};">${msg.subject}</h2>
+                <p>Dear ${registration.playerName},</p>
+                <p>${msg.message}</p>
+                <p><strong>Tournament:</strong> ${registration.tournamentName}</p>
+                <p><strong>Category:</strong> ${registration.category}</p>
+                <p>Best regards,<br>Malaysia Pickleball Association</p>
+              </div>
+            `
+          });
+        }
+      }
+    } catch (emailError) {
+      console.error('Error sending status update email:', emailError);
+    }
+
+    res.json(registration);
+  } catch (error) {
+    console.error('Error updating registration:', error);
     res.status(500).json({ error: error.message });
   }
 });
@@ -2335,6 +2675,11 @@ app.get('/api/organizers', async (req, res) => {
     console.log(`📋 Fetched ${organizers.length} organizers from Portal API`);
     res.json(organizers);
   } catch (error) {
+    // Gracefully handle Portal unavailability (e.g., in local dev)
+    if (error.message.includes('fetch failed') || error.cause?.code === 'ENOTFOUND') {
+      console.log('⚠️  Portal not accessible - returning empty organizers list');
+      return res.json([]); // Return empty array instead of error
+    }
     console.error('Error fetching organizers from Portal:', error);
     res.status(500).json({ error: error.message });
   }
@@ -2364,6 +2709,11 @@ app.get('/api/organizers/:id', async (req, res) => {
     const organizer = transformPortalOrganization(organization);
     res.json(organizer);
   } catch (error) {
+    // Gracefully handle Portal unavailability (e.g., in local dev)
+    if (error.message.includes('fetch failed') || error.cause?.code === 'ENOTFOUND') {
+      console.log('⚠️  Portal not accessible - organizer not found');
+      return res.status(404).json({ error: 'Organizer not found (Portal unavailable)' });
+    }
     console.error('Error fetching organizer from Portal:', error);
     res.status(500).json({ error: error.message });
   }

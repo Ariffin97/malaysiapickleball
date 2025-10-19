@@ -4,6 +4,7 @@ import Footer from './components/Footer';
 import Home from './pages/Home';
 import About from './pages/About';
 import Tournament from './pages/Tournament';
+import TournamentRegistration from './pages/TournamentRegistration';
 import Affiliate from './pages/Affiliate';
 import Organization from './pages/Organization';
 import News from './pages/News';
@@ -36,6 +37,7 @@ function AppContent() {
           <Route path="/" element={<Home />} />
           <Route path="/about" element={<About />} />
           <Route path="/tournament" element={<Tournament />} />
+          <Route path="/tournament/register/:tournamentId" element={<TournamentRegistration />} />
           <Route path="/registered-organizers" element={<RegisteredOrganizers />} />
           <Route path="/affiliate" element={<Affiliate />} />
           <Route path="/organization" element={<Organization />} />

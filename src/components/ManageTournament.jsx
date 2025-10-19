@@ -11,10 +11,27 @@ function ManageTournament() {
   const [deleteConfirm, setDeleteConfirm] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [filterType, setFilterType] = useState('all');
+  const [registrations, setRegistrations] = useState([]);
+  const [loadingRegistrations, setLoadingRegistrations] = useState(false);
+  const [registrationCounts, setRegistrationCounts] = useState({});
 
   useEffect(() => {
     fetchTournaments();
   }, []);
+
+  const fetchRegistrationCounts = async () => {
+    try {
+      const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000/api';
+      const response = await fetch(`${API_URL}/tournament-registrations/counts`);
+
+      if (response.ok) {
+        const counts = await response.json();
+        setRegistrationCounts(counts);
+      }
+    } catch (err) {
+      console.error('Error fetching registration counts:', err);
+    }
+  };
 
   const fetchTournaments = async () => {
     try {
@@ -24,6 +41,9 @@ function ManageTournament() {
       // This excludes: Pending Review, Under Review, Rejected, or any other status
       const data = await tournamentService.getApprovedTournaments();
       setTournaments(data);
+
+      // Fetch registration counts
+      await fetchRegistrationCounts();
     } catch (err) {
       setError(err.message);
     } finally {
@@ -45,16 +65,68 @@ function ManageTournament() {
     }
   };
 
+  const fetchRegistrations = async (tournamentId) => {
+    try {
+      setLoadingRegistrations(true);
+      const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000/api';
+      const response = await fetch(`${API_URL}/tournaments/${tournamentId}/registrations`);
+
+      if (response.ok) {
+        const data = await response.json();
+        setRegistrations(data);
+      } else {
+        setRegistrations([]);
+      }
+    } catch (err) {
+      console.error('Error fetching registrations:', err);
+      setRegistrations([]);
+    } finally {
+      setLoadingRegistrations(false);
+    }
+  };
+
   const openModal = (tournament) => {
     setSelectedTournament(tournament);
     setShowModal(true);
+    setRegistrations([]);
     document.body.style.overflow = 'hidden';
+
+    // Fetch registrations for this tournament
+    const tournamentId = tournament.applicationId || tournament._id;
+    fetchRegistrations(tournamentId);
   };
 
   const closeModal = () => {
     setShowModal(false);
     setSelectedTournament(null);
+    setRegistrations([]);
     document.body.style.overflow = '';
+  };
+
+  const updateRegistrationStatus = async (registrationId, status) => {
+    try {
+      const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000/api';
+      const response = await fetch(`${API_URL}/tournament-registrations/${registrationId}`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ status })
+      });
+
+      if (response.ok) {
+        // Refresh registrations
+        const tournamentId = selectedTournament.applicationId || selectedTournament._id;
+        await fetchRegistrations(tournamentId);
+        // Refresh counts
+        await fetchRegistrationCounts();
+        alert(`Registration ${status} successfully!`);
+      } else {
+        throw new Error('Failed to update registration');
+      }
+    } catch (err) {
+      alert(`Error: ${err.message}`);
+    }
   };
 
   const formatDate = (dateString) => {
@@ -185,17 +257,27 @@ function ManageTournament() {
             <p>Try adjusting your search or filter criteria</p>
           </div>
         ) : (
-          filteredTournaments.map((tournament) => (
-            <div key={tournament._id || tournament.applicationId} className="tournament-card">
-              <div className="card-header">
-                <div className="card-title">
-                  <div className={`color-indicator color-${tournament.color}`}></div>
-                  <h3>{tournament.name}</h3>
+          filteredTournaments.map((tournament) => {
+            const tournamentId = tournament.applicationId || tournament._id;
+            const regCount = registrationCounts[tournamentId] || 0;
+
+            return (
+              <div key={tournament._id || tournament.applicationId} className="tournament-card">
+                {regCount > 0 && (
+                  <div className="registration-count-badge">
+                    <i className="fas fa-users"></i>
+                    <span>{regCount}</span>
+                  </div>
+                )}
+                <div className="card-header">
+                  <div className="card-title">
+                    <div className={`color-indicator color-${tournament.color}`}></div>
+                    <h3>{tournament.name}</h3>
+                  </div>
+                  <span className={`type-badge ${getTypeBadgeClass(tournament.type)}`}>
+                    {getTypeLabel(tournament.type)}
+                  </span>
                 </div>
-                <span className={`type-badge ${getTypeBadgeClass(tournament.type)}`}>
-                  {getTypeLabel(tournament.type)}
-                </span>
-              </div>
 
               <div className="card-body">
                 <div className="info-row">
@@ -240,7 +322,8 @@ function ManageTournament() {
                 </button>
               </div>
             </div>
-          ))
+            );
+          })
         )}
       </div>
 
@@ -370,6 +453,101 @@ function ManageTournament() {
                   </div>
                 </div>
               )}
+
+              {/* Tournament Registrations Section */}
+              <div className="detail-section">
+                <h4><i className="fas fa-users"></i> Tournament Registrations ({registrations.length})</h4>
+                {loadingRegistrations ? (
+                  <div className="loading-registrations">
+                    <i className="fas fa-spinner fa-spin"></i>
+                    <span>Loading registrations...</span>
+                  </div>
+                ) : registrations.length === 0 ? (
+                  <div className="no-registrations">
+                    <i className="fas fa-inbox"></i>
+                    <p>No registrations yet</p>
+                  </div>
+                ) : (
+                  <div className="registrations-table">
+                    <table>
+                      <thead>
+                        <tr>
+                          <th>Player</th>
+                          <th>MPA ID</th>
+                          <th>Category</th>
+                          <th>Skill Level</th>
+                          <th>Partner</th>
+                          <th>T-Shirt</th>
+                          <th>Status</th>
+                          <th>Actions</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {registrations.map((reg) => (
+                          <tr key={reg._id}>
+                            <td>
+                              <div className="player-info">
+                                <strong>{reg.playerName}</strong>
+                                <small>{reg.playerUsername}</small>
+                              </div>
+                            </td>
+                            <td>{reg.playerMpaId}</td>
+                            <td>{reg.category.replace('-', ' ').replace(/\b\w/g, l => l.toUpperCase())}</td>
+                            <td>{reg.skillLevel.charAt(0).toUpperCase() + reg.skillLevel.slice(1)}</td>
+                            <td>{reg.partnerName || '-'}</td>
+                            <td>{reg.tshirtSize}</td>
+                            <td>
+                              <span className={`status-badge status-${reg.status}`}>
+                                {reg.status.charAt(0).toUpperCase() + reg.status.slice(1)}
+                              </span>
+                            </td>
+                            <td>
+                              <div className="action-buttons">
+                                {reg.status === 'pending' && (
+                                  <>
+                                    <button
+                                      className="btn-confirm-small"
+                                      onClick={() => updateRegistrationStatus(reg._id, 'confirmed')}
+                                      title="Confirm"
+                                    >
+                                      <i className="fas fa-check"></i>
+                                    </button>
+                                    <button
+                                      className="btn-cancel-small"
+                                      onClick={() => updateRegistrationStatus(reg._id, 'cancelled')}
+                                      title="Cancel"
+                                    >
+                                      <i className="fas fa-times"></i>
+                                    </button>
+                                  </>
+                                )}
+                                {reg.status === 'confirmed' && (
+                                  <button
+                                    className="btn-cancel-small"
+                                    onClick={() => updateRegistrationStatus(reg._id, 'cancelled')}
+                                    title="Cancel"
+                                  >
+                                    <i className="fas fa-times"></i>
+                                  </button>
+                                )}
+                                {reg.status === 'cancelled' && (
+                                  <button
+                                    className="btn-confirm-small"
+                                    onClick={() => updateRegistrationStatus(reg._id, 'confirmed')}
+                                    title="Confirm"
+                                  >
+                                    <i className="fas fa-check"></i>
+                                  </button>
+                                )}
+                              </div>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                )}
+              </div>
 
               <div className="detail-section">
                 <h4><i className="fas fa-cog"></i> Tournament Settings</h4>

@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import './Tournament.css';
 import tournamentService from '../services/tournamentService';
 
@@ -17,14 +18,15 @@ const getColorFromType = (type) => {
 };
 
 function Tournament() {
+  const navigate = useNavigate();
   const [tournaments, setTournaments] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [selectedTournament, setSelectedTournament] = useState(null);
-  const [showModal, setShowModal] = useState(false);
   const [mobileView, setMobileView] = useState('list');
   const [currentMonth, setCurrentMonth] = useState(0);
   const [notices, setNotices] = useState([]);
+  const [selectedTournament, setSelectedTournament] = useState(null);
+  const [showModal, setShowModal] = useState(false);
 
   // Fetch tournaments from MPA Portal
   useEffect(() => {
@@ -66,16 +68,37 @@ function Tournament() {
     fetchNotices();
   }, []);
 
-  const openModal = (index) => {
-    setSelectedTournament(tournaments[index]);
+  const openModal = (tournament) => {
+    setSelectedTournament(tournament);
     setShowModal(true);
-    document.body.style.overflow = 'hidden';
   };
 
   const closeModal = () => {
     setShowModal(false);
     setSelectedTournament(null);
-    document.body.style.overflow = '';
+  };
+
+  const handleRegisterNow = () => {
+    if (!selectedTournament) return;
+
+    // Check if user is logged in
+    const isLoggedIn = localStorage.getItem('playerLoggedIn') === 'true';
+    const playerToken = localStorage.getItem('playerToken');
+
+    const tournamentId = selectedTournament._id || selectedTournament.applicationId;
+
+    // Store tournament data in localStorage for registration page
+    localStorage.setItem('selectedTournamentData', JSON.stringify(selectedTournament));
+
+    if (isLoggedIn && playerToken) {
+      // User is logged in, go directly to registration page with state
+      navigate(`/tournament/register/${tournamentId}`, {
+        state: { tournament: selectedTournament }
+      });
+    } else {
+      // User not logged in, redirect to login with return URL
+      navigate(`/player/login?returnUrl=/tournament/register/${tournamentId}`);
+    }
   };
 
   const formatDate = (dateString) => {
@@ -198,6 +221,7 @@ function Tournament() {
 
   const tournamentData = tournaments.map((t, index) => ({
     ...t,
+    id: t._id || t.applicationId || `tournament-${index}`, // Ensure unique ID
     index,
     color: getColorFromType(t.type),
     schedule: calculateSchedule(t)
@@ -358,8 +382,9 @@ function Tournament() {
                       <React.Fragment key={tournament.id}>
                         {/* Tournament Name Cell */}
                         <div
-                          className="grid-tournament-name tournament-clickable"
-                          onClick={() => openModal(tournament.index)}
+                          className="grid-tournament-name"
+                          onClick={() => openModal(tournament)}
+                          style={{ cursor: 'pointer' }}
                         >
                           <div className="tournament-name-content">
                             <i className="fas fa-trophy"></i>
@@ -406,9 +431,10 @@ function Tournament() {
                               return (
                                 <div
                                   key={`${tournament.id}-${monthIdx}-${quarter}`}
-                                  className={cellClass + (hasEvent ? ' tournament-clickable' : '')}
-                                  onClick={hasEvent ? () => openModal(tournament.index) : undefined}
+                                  className={cellClass}
                                   title={hasEvent ? tournament.name : ''}
+                                  onClick={hasEvent ? () => openModal(tournament) : undefined}
+                                  style={hasEvent ? { cursor: 'pointer' } : {}}
                                 >
                                 </div>
                               );
@@ -426,8 +452,9 @@ function Tournament() {
                     {tournamentData.map((tournament) => (
                       <div
                         key={tournament.id}
-                        className="mobile-tournament-card tournament-clickable"
-                        onClick={() => openModal(tournament.index)}
+                        className="mobile-tournament-card"
+                        onClick={() => openModal(tournament)}
+                        style={{ cursor: 'pointer' }}
                       >
                         <div className="mobile-card-content">
                           <div className="mobile-card-header">
@@ -478,8 +505,9 @@ function Tournament() {
                         .map((tournament) => (
                           <div
                             key={tournament.id}
-                            className="mobile-tournament-card tournament-clickable"
-                            onClick={() => openModal(tournament.index)}
+                            className="mobile-tournament-card"
+                            onClick={() => openModal(tournament)}
+                            style={{ cursor: 'pointer' }}
                           >
                             <div className="mobile-card-content">
                               <div className="mobile-card-header">
@@ -509,156 +537,85 @@ function Tournament() {
         </div>
       </main>
 
-      {/* Tournament Modal */}
+      {/* Simple Tournament Modal */}
       {showModal && selectedTournament && (
-        <div className="tournament-modal" onClick={closeModal}>
-          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-            <div className="modal-header">
-              <h2>Tournament Details</h2>
-              <button className="modal-close" onClick={closeModal}>
-                <i className="fas fa-times"></i>
-              </button>
+        <div className="popup-overlay" onClick={closeModal}>
+          <div className="popup-window" onClick={(e) => e.stopPropagation()}>
+            <button className="popup-close" onClick={closeModal}>×</button>
+
+            <h3 className="popup-title">{selectedTournament.name}</h3>
+
+            <div className="popup-content">
+              <div className="popup-row">
+                <span className="popup-label">Type</span>
+                <span className="popup-value">{getTypeLabel(selectedTournament.type)}</span>
+              </div>
+
+              <div className="popup-row">
+                <span className="popup-label">Start Date</span>
+                <span className="popup-value">
+                  {new Date(selectedTournament.startDate).toLocaleDateString('en-US', {
+                    month: 'long',
+                    day: 'numeric',
+                    year: 'numeric'
+                  })}
+                </span>
+              </div>
+
+              <div className="popup-row">
+                <span className="popup-label">End Date</span>
+                <span className="popup-value">
+                  {new Date(selectedTournament.endDate).toLocaleDateString('en-US', {
+                    month: 'long',
+                    day: 'numeric',
+                    year: 'numeric'
+                  })}
+                </span>
+              </div>
+
+              {selectedTournament.venue && (
+                <div className="popup-row">
+                  <span className="popup-label">Venue</span>
+                  <span className="popup-value">{selectedTournament.venue}</span>
+                </div>
+              )}
+
+              {selectedTournament.city && (
+                <div className="popup-row">
+                  <span className="popup-label">City</span>
+                  <span className="popup-value">{selectedTournament.city}</span>
+                </div>
+              )}
+
+              {selectedTournament.organizer && (
+                <div className="popup-row">
+                  <span className="popup-label">Organizer</span>
+                  <span className="popup-value">{selectedTournament.organizer}</span>
+                </div>
+              )}
+
+              {selectedTournament.personInCharge && (
+                <div className="popup-row">
+                  <span className="popup-label">Contact Person</span>
+                  <span className="popup-value">{selectedTournament.personInCharge}</span>
+                </div>
+              )}
+
+              {selectedTournament.phoneNumber && (
+                <div className="popup-row">
+                  <span className="popup-label">Phone</span>
+                  <span className="popup-value">
+                    <a href={`tel:${selectedTournament.phoneNumber}`}>{selectedTournament.phoneNumber}</a>
+                  </span>
+                </div>
+              )}
             </div>
 
-            <div className="modal-body">
-              <div className="modal-section header-section">
-                <div className="header-content">
-                  <div>
-                    <h3>{selectedTournament.name}</h3>
-                    <p className="tournament-type-label">{getTypeLabel(selectedTournament.type)} Tournament</p>
-                  </div>
-                  <i className="fas fa-trophy"></i>
-                </div>
-              </div>
-
-              <div className="modal-section details-section">
-                <div className="details-grid">
-                  <div className="detail-column">
-                    <div className="detail-row">
-                      <i className="fas fa-calendar-alt icon-blue"></i>
-                      <div>
-                        <div className="detail-title">Start Date</div>
-                        <div className="detail-value">{formatDate(selectedTournament.startDate)}</div>
-                      </div>
-                    </div>
-                    <div className="detail-row">
-                      <i className="fas fa-calendar-check icon-green"></i>
-                      <div>
-                        <div className="detail-title">End Date</div>
-                        <div className="detail-value">{formatDate(selectedTournament.endDate)}</div>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="detail-column">
-                    <div className="detail-row">
-                      <i className="fas fa-tag icon-purple"></i>
-                      <div>
-                        <div className="detail-title">Tournament Type</div>
-                        <div className="detail-value">{getTypeLabel(selectedTournament.type)}</div>
-                      </div>
-                    </div>
-                    <div className="detail-row">
-                      <i className="fas fa-clock icon-orange"></i>
-                      <div>
-                        <div className="detail-title">Duration</div>
-                        <div className="detail-value">
-                          {getDuration(selectedTournament.startDate, selectedTournament.endDate)} days
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              {(selectedTournament.venue || selectedTournament.city) && (
-                <div className="modal-section location-section">
-                  <h4>
-                    <i className="fas fa-map-marker-alt"></i>
-                    Location Details
-                  </h4>
-                  <div className="details-grid">
-                    {selectedTournament.venue && (
-                      <div className="detail-row">
-                        <i className="fas fa-building icon-green"></i>
-                        <div>
-                          <div className="detail-title">Venue</div>
-                          <div className="detail-value">{selectedTournament.venue}</div>
-                        </div>
-                      </div>
-                    )}
-                    {selectedTournament.city && (
-                      <div className="detail-row">
-                        <i className="fas fa-city icon-blue"></i>
-                        <div>
-                          <div className="detail-title">City</div>
-                          <div className="detail-value">{selectedTournament.city}</div>
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                </div>
-              )}
-
-              {(selectedTournament.organizer || selectedTournament.personInCharge || selectedTournament.phoneNumber) && (
-                <div className="modal-section contact-section">
-                  <h4>
-                    <i className="fas fa-users"></i>
-                    Contact Information
-                  </h4>
-                  <div className="details-grid">
-                    {selectedTournament.organizer && (
-                      <div className="detail-row">
-                        <i className="fas fa-handshake icon-purple"></i>
-                        <div>
-                          <div className="detail-title">Organizer</div>
-                          <div className="detail-value">{selectedTournament.organizer}</div>
-                        </div>
-                      </div>
-                    )}
-                    {selectedTournament.personInCharge && (
-                      <div className="detail-row">
-                        <i className="fas fa-user-tie icon-indigo"></i>
-                        <div>
-                          <div className="detail-title">Person In Charge</div>
-                          <div className="detail-value">{selectedTournament.personInCharge}</div>
-                        </div>
-                      </div>
-                    )}
-                    {selectedTournament.phoneNumber && (
-                      <div className="detail-row full-width">
-                        <i className="fas fa-phone icon-orange"></i>
-                        <div>
-                          <div className="detail-title">Phone Number</div>
-                          <div className="detail-value">
-                            <a href={`tel:${selectedTournament.phoneNumber}`}>{selectedTournament.phoneNumber}</a>
-                          </div>
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                </div>
-              )}
-
-              <div className="modal-section action-section">
-                <button className="action-btn btn-register">
-                  <i className="fas fa-user-plus"></i>
-                  Register Now
-                </button>
-                <button className="action-btn btn-download-info">
-                  <i className="fas fa-download"></i>
-                  Download Info
-                </button>
-                {selectedTournament.phoneNumber && (
-                  <button
-                    className="action-btn btn-call"
-                    onClick={() => window.open(`tel:${selectedTournament.phoneNumber}`)}
-                  >
-                    <i className="fas fa-phone"></i>
-                    Call
-                  </button>
-                )}
-              </div>
+            <div className="popup-actions">
+              <button className="popup-btn popup-btn-primary" onClick={handleRegisterNow}>
+                Register Now
+              </button>
+              <button className="popup-btn popup-btn-secondary">Download Info</button>
             </div>
           </div>
         </div>
