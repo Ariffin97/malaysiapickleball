@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import ManageTournament from '../components/ManageTournament';
 import ManageJourney from '../components/ManageJourney';
 import ManagePlayers from '../components/ManagePlayers';
+import UnregisteredPlayers from '../components/UnregisteredPlayers';
 import ManageNews from '../components/ManageNews';
 import ManageCourses from '../components/ManageCourses';
 import ManageClinics from '../components/ManageClinics';
@@ -44,6 +45,7 @@ function AdminDashboard() {
   };
 
   const [pickleZoneExpanded, setPickleZoneExpanded] = useState(false);
+  const [playersExpanded, setPlayersExpanded] = useState(false);
 
   const menuItems = [
     {
@@ -55,6 +57,19 @@ function AdminDashboard() {
       id: 'manage-players',
       icon: 'fa-users',
       label: 'Manage Players',
+      isSection: true,
+      subItems: [
+        {
+          id: 'registered-players',
+          icon: 'fa-user-check',
+          label: 'Registered Players',
+        },
+        {
+          id: 'unregistered-players',
+          icon: 'fa-user-clock',
+          label: 'Unregistered Players',
+        },
+      ],
     },
     {
       id: 'manage-messages',
@@ -121,9 +136,17 @@ function AdminDashboard() {
         );
 
       case 'manage-players':
+      case 'registered-players':
         return (
           <div className="dashboard-content">
             <ManagePlayers />
+          </div>
+        );
+
+      case 'unregistered-players':
+        return (
+          <div className="dashboard-content">
+            <UnregisteredPlayers />
           </div>
         );
 
@@ -273,16 +296,33 @@ function AdminDashboard() {
               {item.isSection ? (
                 <>
                   <button
-                    className={`nav-item section-item ${pickleZoneExpanded ? 'expanded' : ''}`}
-                    onClick={() => setPickleZoneExpanded(!pickleZoneExpanded)}
+                    className={`nav-item section-item ${
+                      (item.id === 'picklezone' && pickleZoneExpanded) ||
+                      (item.id === 'manage-players' && playersExpanded)
+                        ? 'expanded'
+                        : ''
+                    }`}
+                    onClick={() => {
+                      if (item.id === 'picklezone') {
+                        setPickleZoneExpanded(!pickleZoneExpanded);
+                      } else if (item.id === 'manage-players') {
+                        setPlayersExpanded(!playersExpanded);
+                      }
+                    }}
                   >
                     <i className={`fas ${item.icon}`}></i>
                     {sidebarOpen && <span>{item.label}</span>}
                     {sidebarOpen && (
-                      <i className={`fas fa-chevron-${pickleZoneExpanded ? 'down' : 'right'} chevron-icon`}></i>
+                      <i className={`fas fa-chevron-${
+                        (item.id === 'picklezone' && pickleZoneExpanded) ||
+                        (item.id === 'manage-players' && playersExpanded)
+                          ? 'down'
+                          : 'right'
+                      } chevron-icon`}></i>
                     )}
                   </button>
-                  {pickleZoneExpanded && sidebarOpen && (
+                  {((item.id === 'picklezone' && pickleZoneExpanded) ||
+                    (item.id === 'manage-players' && playersExpanded)) && sidebarOpen && (
                     <div className="sub-menu">
                       {item.subItems.map((subItem) => (
                         <button

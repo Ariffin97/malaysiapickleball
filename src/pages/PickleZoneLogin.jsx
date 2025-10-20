@@ -116,7 +116,7 @@ function PickleZoneLogin() {
 
           <div className="register-link">
             <span>Don't have an account? </span>
-            <a href="/#register">Register Here</a>
+            <a href="/player-registration/new">Register Here</a>
           </div>
 
           <a href="/" className="back-link">

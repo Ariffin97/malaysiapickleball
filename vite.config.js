@@ -10,5 +10,12 @@ export default defineConfig({
     headers: {
       'Cache-Control': 'no-store', // Prevent browser caching during development
     },
+    proxy: {
+      '/api': {
+        target: 'http://localhost:3000',
+        changeOrigin: true,
+        secure: false,
+      },
+    },
   },
 })

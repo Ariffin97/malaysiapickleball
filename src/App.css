@@ -28,6 +28,10 @@ main:has(.picklezone) {
   margin-top: -70px !important;
 }
 
+.registration-page {
+  margin-top: -70px !important;
+}
+
 .admin-dashboard {
   margin-top: 0 !important;
 }
