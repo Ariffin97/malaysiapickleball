@@ -171,7 +171,8 @@ function PlayerRegistration() {
       const checkResult = await checkResponse.json();
 
       if (checkResult.exists) {
-        alert('This I/C number is already registered. A player with this I/C number already exists in our system. If you believe this is an error, please contact support.');
+        const debugInfo = checkResult.debug ? ` (MPA ID: ${checkResult.debug.mpaId}, Name: ${checkResult.debug.fullName})` : '';
+        alert(`This I/C number (${registerFormData.icNumber}) is already registered${debugInfo}. A player with this I/C number already exists in our system. If you believe this is an error, please contact support.`);
 
         // Update sync status to already_registered (only if we have a token)
         if (token && token !== 'new') {
@@ -263,6 +264,11 @@ function PlayerRegistration() {
         try {
           const error = await response.json();
           errorMessage = error.error || error.message || 'Registration failed';
+          // Add debug info if available
+          if (error.details) {
+            console.log('Error details:', error.details);
+            errorMessage += ` (Existing player: MPA ID ${error.details.mpaId}, ${error.details.fullName})`;
+          }
         } catch {
           errorMessage = `Registration service unavailable (${response.status})`;
         }

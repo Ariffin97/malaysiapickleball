@@ -165,6 +165,20 @@ function PlayerLogin() {
           <a href="/" className="back-link">
             Back to Home
           </a>
+
+          <div className="technical-helpline">
+            <p className="helpline-title">Technical Support</p>
+            <div className="helpline-contacts">
+              <a href="tel:+601116197471" className="helpline-contact">
+                <span className="contact-name">Ariffin</span>
+                <span className="contact-phone">+6011-16197471</span>
+              </a>
+              <a href="tel:+60178941403" className="helpline-contact">
+                <span className="contact-name">Zac</span>
+                <span className="contact-phone">+6017-8941403</span>
+              </a>
+            </div>
+          </div>
         </form>
       </div>
 

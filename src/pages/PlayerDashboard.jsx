@@ -602,8 +602,8 @@ function PlayerDashboard() {
               </button>
             </div>
 
-            <div className="modal-body">
-              <form onSubmit={handleUpdateProfile}>
+            <form onSubmit={handleUpdateProfile}>
+              <div className="modal-body">
                 {/* Profile Picture Upload */}
                 <div className="profile-picture-upload-section">
                   <label>Profile Picture</label>
@@ -697,7 +697,7 @@ function PlayerDashboard() {
                       value={editFormData.duprRating || ''}
                       onChange={(e) => setEditFormData({ ...editFormData, duprRating: e.target.value })}
                     />
-                    <small style={{ color: '#6b7280', fontSize: '0.75rem', marginTop: '0.25rem', display: 'block' }}>
+                    <small>
                       {editFormData.duprRating && editFormData.duprRating > 0
                         ? `Skill Level: ${calculateSkillLevel(parseFloat(editFormData.duprRating))}`
                         : 'Your skill level will be calculated automatically'}
@@ -743,17 +743,17 @@ function PlayerDashboard() {
                     />
                   </div>
                 </div>
+              </div>
 
-                <div className="modal-footer">
-                  <button type="button" className="btn-secondary" onClick={() => setShowEditModal(false)}>
-                    Cancel
-                  </button>
-                  <button type="submit" className="btn-primary">
-                    Save Changes
-                  </button>
-                </div>
-              </form>
-            </div>
+              <div className="modal-footer">
+                <button type="button" className="btn-secondary" onClick={() => setShowEditModal(false)}>
+                  Cancel
+                </button>
+                <button type="submit" className="btn-primary">
+                  Save Changes
+                </button>
+              </div>
+            </form>
           </div>
         </div>
       )}

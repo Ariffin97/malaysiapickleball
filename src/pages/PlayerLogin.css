@@ -455,3 +455,74 @@
     width: 100%;
   }
 }
+
+/* Technical Helpline - Simple Design */
+.technical-helpline {
+  margin-top: 1.5rem;
+  padding: 1rem;
+  background: #f9fafb;
+  border-radius: 8px;
+  border: 1px solid #e5e7eb;
+  text-align: center;
+}
+
+.technical-helpline .helpline-title {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #6b7280;
+  margin: 0 0 0.75rem 0;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.technical-helpline .helpline-contacts {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.technical-helpline .helpline-contact {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  padding: 0.625rem 1rem;
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 6px;
+  text-decoration: none;
+  transition: all 0.2s ease;
+  min-width: 140px;
+}
+
+.technical-helpline .helpline-contact:hover {
+  border-color: #10b981;
+  box-shadow: 0 2px 8px rgba(16, 185, 129, 0.15);
+}
+
+.technical-helpline .contact-name {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #1f2937;
+}
+
+.technical-helpline .contact-phone {
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: #10b981;
+}
+
+@media (max-width: 480px) {
+  .technical-helpline {
+    padding: 0.875rem;
+  }
+
+  .technical-helpline .helpline-contacts {
+    flex-direction: column;
+    gap: 0.625rem;
+  }
+
+  .technical-helpline .helpline-contact {
+    min-width: unset;
+  }
+}

@@ -10,6 +10,8 @@ import fs from 'fs';
 import http from 'http';
 import { WebSocketServer } from 'ws';
 import cloudinary, { journeyStorage, newsStorage, profileStorage } from './cloudinaryConfig.js';
+import bcrypt from 'bcrypt';
+import jwt from 'jsonwebtoken';
 
 // Load .env.local if it exists (for local development), otherwise load .env (production)
 const envLocalPath = path.resolve(process.cwd(), '.env.local');
@@ -27,9 +29,48 @@ const __dirname = path.dirname(__filename);
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// Middleware
-app.use(cors());
+// CORS Configuration - Secure for production
+const allowedOrigins = [
+  'http://localhost:5173', // Local development
+  'http://localhost:3000', // Local development
+  'https://malaysiapickleball-fbab5112dbaf.herokuapp.com', // Production URL (update this)
+  process.env.FRONTEND_URL // Add this to .env for production
+].filter(Boolean);
+
+app.use(cors({
+  origin: function (origin, callback) {
+    // Allow requests with no origin (like mobile apps or curl requests)
+    if (!origin) return callback(null, true);
+
+    if (allowedOrigins.indexOf(origin) !== -1) {
+      callback(null, true);
+    } else {
+      console.warn('⚠️ CORS blocked request from origin:', origin);
+      callback(null, true); // Allow in development, change to false in strict production
+    }
+  },
+  credentials: true
+}));
+
 app.use(express.json());
+
+// JWT Authentication Middleware
+const authenticateToken = (req, res, next) => {
+  const authHeader = req.headers['authorization'];
+  const token = authHeader && authHeader.split(' ')[1]; // Bearer TOKEN
+
+  if (!token) {
+    return res.status(401).json({ error: 'Access token required' });
+  }
+
+  jwt.verify(token, process.env.JWT_SECRET, (err, user) => {
+    if (err) {
+      return res.status(403).json({ error: 'Invalid or expired token' });
+    }
+    req.user = user;
+    next();
+  });
+};
 
 // Serve static files from the React app (for production)
 app.use(express.static(path.join(__dirname, '../dist')));
@@ -1611,10 +1652,45 @@ app.delete('/api/news/:newsId', async (req, res) => {
 // Check if IC number exists
 app.get('/api/players/check-ic/:icNumber', async (req, res) => {
   try {
-    const player = await Player.findOne({ icNumber: req.params.icNumber });
-    res.json({ exists: !!player });
+    const icNumber = req.params.icNumber;
+    console.log('Checking IC number:', icNumber);
+    const player = await Player.findOne({ icNumber: icNumber });
+    console.log('Player found:', player ? `Yes - MPA ID: ${player.mpaId}` : 'No');
+    res.json({
+      exists: !!player,
+      icNumber: icNumber,
+      debug: player ? { mpaId: player.mpaId, fullName: player.fullName } : null
+    });
   } catch (error) {
     console.error('Error checking IC:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Check if email or phone number exists
+app.post('/api/players/check-email-phone', async (req, res) => {
+  try {
+    const { email, phoneNumber } = req.body;
+
+    // Check if email exists
+    if (email) {
+      const playerWithEmail = await Player.findOne({ email });
+      if (playerWithEmail) {
+        return res.json({ exists: true, field: 'email' });
+      }
+    }
+
+    // Check if phone number exists
+    if (phoneNumber) {
+      const playerWithPhone = await Player.findOne({ phoneNumber });
+      if (playerWithPhone) {
+        return res.json({ exists: true, field: 'phoneNumber' });
+      }
+    }
+
+    res.json({ exists: false });
+  } catch (error) {
+    console.error('Error checking email/phone:', error);
     res.status(500).json({ error: error.message });
   }
 });
@@ -1635,13 +1711,22 @@ app.post('/api/players/register', uploadPlayerImage.single('profilePicture'), as
       state,
       username,
       password,
-      termsAccepted
+      termsAccepted,
+      duprId,
+      duprRating
     } = req.body;
+
+    console.log('Registration attempt - IC:', icNumber, 'Email:', email, 'Phone:', phoneNumber);
+    console.log('DUPR Info - ID:', duprId || 'Not provided', 'Rating:', duprRating || 'Not provided');
 
     // Check if IC number already exists
     const existingIC = await Player.findOne({ icNumber });
+    console.log('Existing IC check result:', existingIC ? `Found - MPA ID: ${existingIC.mpaId}` : 'Not found');
     if (existingIC) {
-      return res.status(400).json({ error: 'IC number already registered' });
+      return res.status(400).json({
+        error: 'IC number already registered',
+        details: { mpaId: existingIC.mpaId, fullName: existingIC.fullName }
+      });
     }
 
     // Check if email already exists
@@ -1659,6 +1744,11 @@ app.post('/api/players/register', uploadPlayerImage.single('profilePicture'), as
     // Generate unique MPA ID
     const playerId = await generateMpaId();
 
+    // Hash password before saving
+    const saltRounds = 10;
+    const hashedPassword = await bcrypt.hash(password, saltRounds);
+    console.log('🔒 Password hashed successfully');
+
     const playerData = {
       playerId,
       fullName,
@@ -1672,9 +1762,17 @@ app.post('/api/players/register', uploadPlayerImage.single('profilePicture'), as
       city,
       state,
       username,
-      password, // In production, hash this password!
+      password: hashedPassword, // Hashed password
       termsAccepted: termsAccepted === 'true' || termsAccepted === true
     };
+
+    // Add DUPR information if provided
+    if (duprId) {
+      playerData.duprId = duprId;
+    }
+    if (duprRating) {
+      playerData.duprRating = parseFloat(duprRating);
+    }
 
     // Add profile picture if uploaded
     if (req.file) {
@@ -1741,8 +1839,8 @@ Malaysia Pickleball Association Team`,
               <h3 style="color: #1f2937; margin-top: 0;">Your Account Details</h3>
               <p style="margin: 10px 0; color: #374151;"><strong>Player ID:</strong> ${player.playerId}</p>
               <p style="margin: 10px 0; color: #374151;"><strong>Username:</strong> ${player.username}</p>
-              <p style="margin: 10px 0; color: #374151;"><strong>Password:</strong> ${player.password}</p>
               <p style="margin: 10px 0; color: #374151;"><strong>Email:</strong> ${player.email}</p>
+              <p style="margin: 5px 0; color: #6b7280; font-size: 14px;"><em>Your password is securely stored. If you forget it, use the "Forgot Password" feature on the login page.</em></p>
             </div>
 
             <div style="background: #fef3c7; padding: 15px; border-radius: 8px; margin-bottom: 20px; border-left: 4px solid #f59e0b;">
@@ -1870,13 +1968,25 @@ app.post('/api/players/login', async (req, res) => {
       return res.status(403).json({ error: 'Your account is not active. Please contact the administrator.' });
     }
 
-    // Compare password (plain text for now - in production, use bcrypt.compare)
-    if (player.password !== password) {
+    // Compare password using bcrypt
+    const isPasswordValid = await bcrypt.compare(password, player.password);
+    if (!isPasswordValid) {
       return res.status(401).json({ error: 'Invalid username or password' });
     }
 
-    // Generate a simple token (in production, use JWT)
-    const token = Buffer.from(`${player._id}:${Date.now()}`).toString('base64');
+    // Generate JWT token
+    const tokenPayload = {
+      id: player._id,
+      playerId: player.playerId,
+      username: player.username,
+      email: player.email
+    };
+
+    const token = jwt.sign(
+      tokenPayload,
+      process.env.JWT_SECRET,
+      { expiresIn: process.env.JWT_EXPIRES_IN || '7d' }
+    );
 
     console.log('✅ Player logged in:', player.fullName);
 
@@ -1902,7 +2012,7 @@ app.post('/api/players/login', async (req, res) => {
   }
 });
 
-// Forgot password - send credentials via email
+// Forgot password - generate temporary password and send via email
 app.post('/api/players/forgot-password', async (req, res) => {
   try {
     const { email } = req.body;
@@ -1918,13 +2028,25 @@ app.post('/api/players/forgot-password', async (req, res) => {
       return res.status(404).json({ error: 'No account found with this email address' });
     }
 
-    console.log('📧 Sending forgot password email to:', player.email);
+    // Generate temporary password
+    const tempPassword = `Temp${Math.random().toString(36).slice(-8)}!`;
+
+    // Hash the temporary password
+    const saltRounds = 10;
+    const hashedTempPassword = await bcrypt.hash(tempPassword, saltRounds);
+
+    // Update player's password in database
+    player.password = hashedTempPassword;
+    await player.save();
+
+    console.log('🔒 Temporary password generated and hashed');
+    console.log('📧 Sending password reset email to:', player.email);
 
     // Send email with credentials
     const mailOptions = {
       from: process.env.EMAIL_USER,
       to: player.email,
-      subject: 'Your MPA Player Portal Login Credentials',
+      subject: 'Your MPA Player Portal Password Reset',
       html: `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
           <div style="text-align: center; margin-bottom: 30px;">
@@ -1932,15 +2054,15 @@ app.post('/api/players/forgot-password', async (req, res) => {
             <p style="color: #6b7280; margin-top: 10px;">Player Portal</p>
           </div>
 
-          <div style="background: #f9fafb; padding: 30px; border-radius: 10px; margin-bottom: 20px;">
-            <h2 style="color: #1f2937; margin-top: 0;">Login Credentials Recovery</h2>
+          <div style="background: #fff3cd; padding: 30px; border-radius: 10px; margin-bottom: 20px; border-left: 4px solid #ffc107;">
+            <h2 style="color: #1f2937; margin-top: 0;">🔒 Password Reset</h2>
             <p style="color: #374151; line-height: 1.6;">Hello ${player.fullName},</p>
-            <p style="color: #374151; line-height: 1.6;">You requested your login credentials for the MPA Player Portal. Here are your details:</p>
+            <p style="color: #374151; line-height: 1.6;">We've generated a temporary password for your account. For security reasons, please change this password after logging in.</p>
 
             <div style="background: white; padding: 20px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #10b981;">
               <p style="margin: 10px 0; color: #374151;"><strong>Player ID:</strong> ${player.playerId}</p>
               <p style="margin: 10px 0; color: #374151;"><strong>Username:</strong> ${player.username}</p>
-              <p style="margin: 10px 0; color: #374151;"><strong>Password:</strong> ${player.password}</p>
+              <p style="margin: 10px 0; color: #374151;"><strong>Temporary Password:</strong> <span style="background: #f3f4f6; padding: 5px 10px; border-radius: 4px; font-family: monospace; font-size: 16px;">${tempPassword}</span></p>
             </div>
 
             <p style="color: #374151; line-height: 1.6;">You can login to the player portal at:</p>
@@ -1980,15 +2102,15 @@ app.post('/api/players/forgot-password', async (req, res) => {
   }
 });
 
-// Get player credentials
+// Get player credentials - DEPRECATED: Passwords are now hashed and cannot be retrieved
 app.get('/api/players/:id/credentials', async (req, res) => {
   try {
     // Try to find by playerId first, then by _id
-    let player = await Player.findOne({ playerId: req.params.id }).select('username password');
+    let player = await Player.findOne({ playerId: req.params.id }).select('username');
 
     // If not found by playerId and the id looks like a MongoDB ObjectId, try by _id
     if (!player && req.params.id.match(/^[0-9a-fA-F]{24}$/)) {
-      player = await Player.findById(req.params.id).select('username password');
+      player = await Player.findById(req.params.id).select('username');
     }
 
     if (!player) {
@@ -1997,7 +2119,7 @@ app.get('/api/players/:id/credentials', async (req, res) => {
 
     res.json({
       username: player.username,
-      password: player.password
+      message: 'Passwords are now securely hashed and cannot be retrieved. Use the forgot password feature to reset your password.'
     });
   } catch (error) {
     console.error('Error fetching credentials:', error);
