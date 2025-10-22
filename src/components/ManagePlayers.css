@@ -1148,6 +1148,7 @@
 .player-profile-section {
   display: flex;
   align-items: center;
+  justify-content: space-between;
   gap: 2rem;
   padding: 2rem;
   background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
@@ -1157,19 +1158,65 @@
 }
 
 .player-avatar {
-  width: 120px;
-  height: 120px;
-  border-radius: 50%;
+  width: 160px !important;
+  height: 160px !important;
+  border-radius: 8px !important;
   overflow: hidden;
   border: 4px solid white;
   box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15);
   flex-shrink: 0;
+  position: relative;
+  transition: all 0.3s ease;
+}
+
+.player-avatar.clickable {
+  cursor: pointer;
+}
+
+.player-avatar.clickable:hover {
+  transform: scale(1.05);
+  box-shadow: 0 15px 30px rgba(0, 0, 0, 0.25);
 }
 
 .player-avatar img {
-  width: 100%;
-  height: 100%;
+  width: 100% !important;
+  height: 100% !important;
   object-fit: cover;
+  display: block;
+  border-radius: 0 !important;
+}
+
+.image-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.7);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.3s ease;
+  color: white;
+  gap: 0.5rem;
+  pointer-events: none;
+}
+
+.player-avatar.clickable:hover .image-overlay {
+  opacity: 1;
+  visibility: visible;
+}
+
+.image-overlay i {
+  font-size: 2rem;
+}
+
+.image-overlay span {
+  font-size: 0.875rem;
+  font-weight: 600;
 }
 
 .avatar-placeholder {
@@ -1179,11 +1226,17 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  border-radius: 8px;
 }
 
 .avatar-placeholder i {
   font-size: 3rem;
   color: #9ca3af;
+}
+
+.player-profile-info {
+  flex: 1;
+  text-align: left;
 }
 
 .player-profile-info h3 {
@@ -1401,13 +1454,21 @@
   }
 
   .player-profile-section {
-    flex-direction: column;
+    flex-direction: column-reverse;
     text-align: center;
     padding: 1.5rem;
   }
 
+  .player-profile-info {
+    text-align: center;
+  }
+
   .player-profile-info h3 {
     font-size: 1.5rem;
+  }
+
+  .player-id {
+    justify-content: center;
   }
 
   .player-info-grid {
@@ -1432,5 +1493,97 @@
 
   .info-value {
     text-align: left;
+  }
+}
+
+/* Image Viewer Modal */
+.image-viewer-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.9);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10000;
+  animation: fadeIn 0.3s ease-out;
+  padding: 2rem;
+}
+
+.image-viewer-modal {
+  position: relative;
+  max-width: 90vw;
+  max-height: 90vh;
+  animation: zoomIn 0.3s ease-out;
+}
+
+@keyframes zoomIn {
+  from {
+    opacity: 0;
+    transform: scale(0.8);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.image-viewer-close {
+  position: absolute;
+  top: -50px;
+  right: 0;
+  background: rgba(255, 255, 255, 0.2);
+  border: 2px solid white;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  color: white;
+  font-size: 1.25rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+  backdrop-filter: blur(10px);
+}
+
+.image-viewer-close:hover {
+  background: rgba(255, 255, 255, 0.3);
+  transform: scale(1.1);
+}
+
+.image-viewer-content {
+  background: white;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 25px 50px rgba(0, 0, 0, 0.5);
+}
+
+.image-viewer-content img {
+  display: block;
+  max-width: 90vw;
+  max-height: 85vh;
+  width: auto;
+  height: auto;
+  object-fit: contain;
+}
+
+@media (max-width: 768px) {
+  .image-viewer-overlay {
+    padding: 1rem;
+  }
+
+  .image-viewer-close {
+    top: -40px;
+    width: 40px;
+    height: 40px;
+    font-size: 1.125rem;
+  }
+
+  .image-viewer-content img {
+    max-width: 95vw;
+    max-height: 80vh;
   }
 }

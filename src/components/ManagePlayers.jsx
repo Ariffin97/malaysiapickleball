@@ -21,6 +21,8 @@ function ManagePlayers() {
   const [showPrintDropdown, setShowPrintDropdown] = useState(false);
   const [showSelectPlayersModal, setShowSelectPlayersModal] = useState(false);
   const [selectedPlayersForPrint, setSelectedPlayersForPrint] = useState([]);
+  const [showImageViewer, setShowImageViewer] = useState(false);
+  const [viewerImage, setViewerImage] = useState('');
 
   useEffect(() => {
     fetchPlayers();
@@ -693,15 +695,6 @@ function ManagePlayers() {
             <div className="player-detail-body">
               {/* Profile Section */}
               <div className="player-profile-section">
-                <div className="player-avatar">
-                  {selectedPlayer.profilePicture ? (
-                    <img src={selectedPlayer.profilePicture} alt={selectedPlayer.fullName} />
-                  ) : (
-                    <div className="avatar-placeholder">
-                      <i className="fas fa-user"></i>
-                    </div>
-                  )}
-                </div>
                 <div className="player-profile-info">
                   <h3>{selectedPlayer.fullName}</h3>
                   <p className="player-id">
@@ -711,6 +704,29 @@ function ManagePlayers() {
                   <span className={`player-status-badge status-${selectedPlayer.membershipStatus}`}>
                     {selectedPlayer.membershipStatus === 'active' ? 'Active Member' : selectedPlayer.membershipStatus}
                   </span>
+                </div>
+                <div
+                  className={`player-avatar ${selectedPlayer.profilePicture ? 'clickable' : ''}`}
+                  onClick={() => {
+                    if (selectedPlayer.profilePicture) {
+                      setViewerImage(selectedPlayer.profilePicture);
+                      setShowImageViewer(true);
+                    }
+                  }}
+                >
+                  {selectedPlayer.profilePicture ? (
+                    <>
+                      <img src={selectedPlayer.profilePicture} alt={selectedPlayer.fullName} />
+                      <div className="image-overlay">
+                        <i className="fas fa-search-plus"></i>
+                        <span>Click to enlarge</span>
+                      </div>
+                    </>
+                  ) : (
+                    <div className="avatar-placeholder">
+                      <i className="fas fa-user"></i>
+                    </div>
+                  )}
                 </div>
               </div>
 
@@ -1188,6 +1204,20 @@ function ManagePlayers() {
                   Print Selected
                 </button>
               </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Image Viewer Modal */}
+      {showImageViewer && (
+        <div className="image-viewer-overlay" onClick={() => setShowImageViewer(false)}>
+          <div className="image-viewer-modal" onClick={(e) => e.stopPropagation()}>
+            <button className="image-viewer-close" onClick={() => setShowImageViewer(false)}>
+              <i className="fas fa-times"></i>
+            </button>
+            <div className="image-viewer-content">
+              <img src={viewerImage} alt="Player Profile" />
             </div>
           </div>
         </div>
