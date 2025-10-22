@@ -31,6 +31,15 @@ function Footer() {
                 <h3>Malaysia Pickleball</h3>
                 <p>Connecting Malaysia's pickleball community through tournaments and coaching excellence.</p>
               </div>
+              <div className="mobile-footer-links">
+                <button onClick={() => openModal('privacy')}>Privacy</button>
+                <span>•</span>
+                <button onClick={() => openModal('terms')}>Terms</button>
+                <span>•</span>
+                <button onClick={() => openModal('cookies')}>Cookies</button>
+                <span>•</span>
+                <a href="/admin" className="admin-link">Admin</a>
+              </div>
               <div className="mobile-fenix">
                 <span>Built with</span>
                 <i className="fas fa-heart"></i>
@@ -142,6 +151,8 @@ function Footer() {
                   <button onClick={() => openModal('terms')}>Terms</button>
                   <span>•</span>
                   <button onClick={() => openModal('cookies')}>Cookies</button>
+                  <span>•</span>
+                  <a href="/admin" className="admin-link">Admin</a>
                 </div>
               </div>
               <div className="fenix-credit">

@@ -399,6 +399,115 @@ const messageSchema = new mongoose.Schema({
 
 const Message = mongoose.model('Message', messageSchema);
 
+// Player-to-Player Message Schema
+const playerMessageSchema = new mongoose.Schema({
+  senderId: {
+    type: String,
+    required: true,
+    index: true
+  },
+  senderName: {
+    type: String,
+    required: true
+  },
+  recipientId: {
+    type: String,
+    required: true,
+    index: true
+  },
+  recipientName: {
+    type: String,
+    required: true
+  },
+  subject: {
+    type: String,
+    required: true
+  },
+  message: {
+    type: String,
+    required: true
+  },
+  read: {
+    type: Boolean,
+    default: false
+  }
+}, {
+  timestamps: true
+});
+
+const PlayerMessage = mongoose.model('PlayerMessage', playerMessageSchema);
+
+// Friend Request Schema
+const friendRequestSchema = new mongoose.Schema({
+  requesterId: {
+    type: String,
+    required: true,
+    index: true
+  },
+  requesterName: {
+    type: String,
+    required: true
+  },
+  requesterUsername: {
+    type: String,
+    required: true
+  },
+  recipientId: {
+    type: String,
+    required: true,
+    index: true
+  },
+  recipientName: {
+    type: String,
+    required: true
+  },
+  recipientUsername: {
+    type: String,
+    required: true
+  },
+  status: {
+    type: String,
+    enum: ['pending', 'accepted', 'rejected'],
+    default: 'pending'
+  }
+}, {
+  timestamps: true
+});
+
+const FriendRequest = mongoose.model('FriendRequest', friendRequestSchema);
+
+// Friend Schema
+const friendSchema = new mongoose.Schema({
+  playerId: {
+    type: String,
+    required: true,
+    index: true
+  },
+  friendId: {
+    type: String,
+    required: true,
+    index: true
+  },
+  friendName: {
+    type: String,
+    required: true
+  },
+  friendUsername: {
+    type: String,
+    required: true
+  },
+  friendProfilePicture: {
+    type: String
+  }
+}, {
+  timestamps: true
+});
+
+// Compound index to prevent duplicate friendships
+friendSchema.index({ playerId: 1, friendId: 1 }, { unique: true });
+
+const Friend = mongoose.model('Friend', friendSchema);
+
 // Tournament Registration Schema
 const tournamentRegistrationSchema = new mongoose.Schema({
   tournamentId: {
@@ -1816,9 +1925,41 @@ Malaysia Pickleball Association Team`,
     // Send welcome email
     try {
       const mailOptions = {
-        from: process.env.EMAIL_USER,
+        from: `"Malaysia Pickleball Association" <${process.env.EMAIL_USER}>`,
         to: player.email,
+        replyTo: 'tournament@malaysiapickleballassociation.org',
         subject: 'Welcome to Malaysia Pickleball Association - Registration Successful!',
+        text: `Welcome to Malaysia Pickleball Association!
+
+Dear ${player.fullName},
+
+Congratulations! Your registration with the Malaysia Pickleball Association has been successfully completed. We are thrilled to have you join our growing community of pickleball enthusiasts!
+
+Your Account Details:
+- Player ID: ${player.playerId}
+- Username: ${player.username}
+- Email: ${player.email}
+
+Your password is securely stored. If you forget it, use the "Forgot Password" feature on the login page.
+
+Login to Your Account: https://malaysiapickleballassociation.org/player/login
+
+As a registered member, you now have access to:
+- Upcoming tournaments and events
+- Training programs and coaching resources
+- Player dashboard and profile management
+- Community news and updates
+- Direct communication with MPA administrators
+
+Need Help?
+Email: tournament@malaysiapickleballassociation.org
+Website: https://malaysiapickleballassociation.org
+
+Thank you for being part of our pickleball family!
+
+Malaysia Pickleball Association Team
+© ${new Date().getFullYear()} Malaysia Pickleball Association. All rights reserved.
+Technical Partner: Fenix Digital`,
         html: `
           <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
             <div style="text-align: center; margin-bottom: 30px;">
@@ -1952,6 +2093,8 @@ app.post('/api/players/login', async (req, res) => {
   try {
     const { username, password } = req.body;
 
+    console.log('🔐 Login attempt - Username:', username);
+
     if (!username || !password) {
       return res.status(400).json({ error: 'Username and password are required' });
     }
@@ -1960,17 +2103,25 @@ app.post('/api/players/login', async (req, res) => {
     const player = await Player.findOne({ username });
 
     if (!player) {
+      console.log('❌ User not found:', username);
       return res.status(401).json({ error: 'Invalid username or password' });
     }
 
+    console.log('✅ User found:', player.fullName, '- Status:', player.status);
+
     // Check if player is active
     if (player.status !== 'active') {
+      console.log('⚠️ Account not active:', player.status);
       return res.status(403).json({ error: 'Your account is not active. Please contact the administrator.' });
     }
 
     // Compare password using bcrypt
+    console.log('🔒 Comparing password...');
     const isPasswordValid = await bcrypt.compare(password, player.password);
+    console.log('🔑 Password valid:', isPasswordValid);
+
     if (!isPasswordValid) {
+      console.log('❌ Password mismatch for user:', username);
       return res.status(401).json({ error: 'Invalid username or password' });
     }
 
@@ -2102,6 +2253,111 @@ app.post('/api/players/forgot-password', async (req, res) => {
   }
 });
 
+// Change player password
+app.post('/api/players/:id/change-password', async (req, res) => {
+  try {
+    const { currentPassword, newPassword } = req.body;
+
+    if (!currentPassword || !newPassword) {
+      return res.status(400).json({ error: 'Current password and new password are required' });
+    }
+
+    // Validate new password length
+    if (newPassword.length < 6) {
+      return res.status(400).json({ error: 'New password must be at least 6 characters long' });
+    }
+
+    // Try to find player by playerId first, then by _id
+    let player = await Player.findOne({ playerId: req.params.id });
+
+    // If not found by playerId and the id looks like a MongoDB ObjectId, try by _id
+    if (!player && req.params.id.match(/^[0-9a-fA-F]{24}$/)) {
+      player = await Player.findById(req.params.id);
+    }
+
+    if (!player) {
+      return res.status(404).json({ error: 'Player not found' });
+    }
+
+    // Verify current password
+    const isPasswordValid = await bcrypt.compare(currentPassword, player.password);
+    if (!isPasswordValid) {
+      return res.status(401).json({ error: 'Current password is incorrect' });
+    }
+
+    // Hash new password
+    const saltRounds = 10;
+    const hashedPassword = await bcrypt.hash(newPassword, saltRounds);
+
+    // Update password
+    player.password = hashedPassword;
+    await player.save();
+
+    console.log('🔒 Password changed successfully for:', player.username);
+
+    // Send confirmation email
+    try {
+      const mailOptions = {
+        from: process.env.EMAIL_USER,
+        to: player.email,
+        subject: 'Password Changed Successfully - MPA Player Portal',
+        html: `
+          <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
+            <div style="text-align: center; margin-bottom: 30px;">
+              <h1 style="color: #10b981; margin: 0;">Malaysia Pickleball Association</h1>
+              <p style="color: #6b7280; margin-top: 10px;">Player Portal</p>
+            </div>
+
+            <div style="background: #f0fdf4; padding: 30px; border-radius: 10px; margin-bottom: 20px; border-left: 4px solid #10b981;">
+              <h2 style="color: #1f2937; margin-top: 0;">✅ Password Changed Successfully</h2>
+              <p style="color: #374151; line-height: 1.6;">Hello ${player.fullName},</p>
+              <p style="color: #374151; line-height: 1.6;">This email confirms that your password has been successfully changed on ${new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric', hour: '2-digit', minute: '2-digit' })}.</p>
+
+              <div style="background: white; padding: 20px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #10b981;">
+                <p style="margin: 10px 0; color: #374151;"><strong>Account:</strong> ${player.username}</p>
+                <p style="margin: 10px 0; color: #374151;"><strong>Player ID:</strong> ${player.playerId}</p>
+                <p style="margin: 10px 0; color: #374151;"><strong>Changed on:</strong> ${new Date().toLocaleString('en-US', { dateStyle: 'full', timeStyle: 'short' })}</p>
+              </div>
+
+              <p style="color: #374151; line-height: 1.6;">You can now use your new password to login to the player portal.</p>
+              <p style="margin: 15px 0;">
+                <a href="https://malaysiapickleballassociation.org/player/login"
+                   style="display: inline-block; padding: 12px 24px; background: #10b981; color: white; text-decoration: none; border-radius: 6px; font-weight: bold;">
+                  Login to Player Portal
+                </a>
+              </p>
+            </div>
+
+            <div style="background: #fef3c7; padding: 15px; border-radius: 8px; margin-bottom: 20px; border-left: 4px solid #f59e0b;">
+              <p style="color: #92400e; margin: 0; font-size: 14px;">
+                <strong>⚠️ Security Notice:</strong> If you did not make this change, please contact us immediately at tournament@malaysiapickleballassociation.org or call our technical support.
+              </p>
+            </div>
+
+            <div style="text-align: center; padding-top: 20px; border-top: 1px solid #e5e7eb; color: #6b7280; font-size: 14px;">
+              <p>© ${new Date().getFullYear()} Malaysia Pickleball Association. All rights reserved.</p>
+              <p style="margin-top: 10px;">
+                <a href="https://malaysiapickleballassociation.org" style="color: #10b981; text-decoration: none;">Visit our website</a>
+              </p>
+            </div>
+          </div>
+        `
+      };
+
+      await transporter.sendMail(mailOptions);
+      console.log('📧 Password change confirmation email sent to:', player.email);
+    } catch (emailError) {
+      console.error('❌ Failed to send confirmation email:', emailError);
+      // Don't fail the request if email fails - password was still changed
+    }
+
+    res.json({ message: 'Password changed successfully' });
+  } catch (error) {
+    console.error('❌ Change password error:', error);
+    res.status(500).json({ error: 'Failed to change password. Please try again later.' });
+  }
+});
+
 // Get player credentials - DEPRECATED: Passwords are now hashed and cannot be retrieved
 app.get('/api/players/:id/credentials', async (req, res) => {
   try {
@@ -2230,6 +2486,348 @@ app.patch('/api/players/:id/messages/:messageId/read', async (req, res) => {
     res.json(message);
   } catch (error) {
     console.error('Error marking message as read:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// ============= PLAYER-TO-PLAYER MESSAGING =============
+
+// Get all players (for sending messages)
+app.get('/api/players-list', async (req, res) => {
+  try {
+    const players = await Player.find()
+      .select('playerId fullName username profilePicture')
+      .sort({ fullName: 1 })
+      .lean();
+
+    res.json(players);
+  } catch (error) {
+    console.error('Error fetching players list:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Send a player-to-player message
+app.post('/api/player-messages', async (req, res) => {
+  try {
+    const { senderId, senderName, recipientId, recipientName, subject, message } = req.body;
+
+    if (!senderId || !senderName || !recipientId || !recipientName || !subject || !message) {
+      return res.status(400).json({ error: 'All fields are required' });
+    }
+
+    // Verify sender exists
+    const sender = await Player.findOne({ playerId: senderId });
+    if (!sender) {
+      return res.status(404).json({ error: 'Sender not found' });
+    }
+
+    // Verify recipient exists
+    const recipient = await Player.findOne({ playerId: recipientId });
+    if (!recipient) {
+      return res.status(404).json({ error: 'Recipient not found' });
+    }
+
+    // Create new player message
+    const playerMessage = new PlayerMessage({
+      senderId,
+      senderName,
+      recipientId,
+      recipientName,
+      subject,
+      message,
+      read: false
+    });
+
+    await playerMessage.save();
+
+    console.log(`✉️ Message sent from ${senderName} to ${recipientName}`);
+    res.status(201).json(playerMessage);
+  } catch (error) {
+    console.error('Error sending player message:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Get player messages inbox (received messages)
+app.get('/api/players/:id/player-messages', async (req, res) => {
+  try {
+    // Try to find player by playerId first, then by _id
+    let player = await Player.findOne({ playerId: req.params.id });
+
+    // If not found by playerId and the id looks like a MongoDB ObjectId, try by _id
+    if (!player && req.params.id.match(/^[0-9a-fA-F]{24}$/)) {
+      player = await Player.findById(req.params.id);
+    }
+
+    if (!player) {
+      return res.status(404).json({ error: 'Player not found' });
+    }
+
+    // Get all messages where this player is the recipient
+    const playerMessages = await PlayerMessage.find({ recipientId: player.playerId })
+      .sort({ createdAt: -1 })
+      .lean();
+
+    // Count unread messages
+    const unreadCount = playerMessages.filter(msg => !msg.read).length;
+
+    res.json({ messages: playerMessages, unreadCount });
+  } catch (error) {
+    console.error('Error fetching player messages:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Mark player message as read
+app.patch('/api/player-messages/:messageId/read', async (req, res) => {
+  try {
+    const message = await PlayerMessage.findByIdAndUpdate(
+      req.params.messageId,
+      { read: true },
+      { new: true }
+    );
+
+    if (!message) {
+      return res.status(404).json({ error: 'Message not found' });
+    }
+
+    res.json(message);
+  } catch (error) {
+    console.error('Error marking player message as read:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// ============= FRIEND MANAGEMENT =============
+
+// Search players by name or username
+app.get('/api/players/search', async (req, res) => {
+  try {
+    const { query } = req.query;
+
+    if (!query || query.length < 2) {
+      return res.json([]);
+    }
+
+    const players = await Player.find({
+      $or: [
+        { fullName: { $regex: query, $options: 'i' } },
+        { username: { $regex: query, $options: 'i' } }
+      ]
+    })
+    .select('playerId fullName username profilePicture')
+    .limit(20)
+    .lean();
+
+    res.json(players);
+  } catch (error) {
+    console.error('Error searching players:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Send friend request
+app.post('/api/friend-requests', async (req, res) => {
+  try {
+    const { requesterId, requesterName, requesterUsername, recipientId, recipientName, recipientUsername } = req.body;
+
+    if (!requesterId || !recipientId) {
+      return res.status(400).json({ error: 'Requester and recipient are required' });
+    }
+
+    // Can't send friend request to yourself
+    if (requesterId === recipientId) {
+      return res.status(400).json({ error: 'Cannot send friend request to yourself' });
+    }
+
+    // Check if already friends
+    const existingFriend = await Friend.findOne({
+      playerId: requesterId,
+      friendId: recipientId
+    });
+
+    if (existingFriend) {
+      return res.status(400).json({ error: 'Already friends' });
+    }
+
+    // Check if request already exists
+    const existingRequest = await FriendRequest.findOne({
+      requesterId,
+      recipientId,
+      status: 'pending'
+    });
+
+    if (existingRequest) {
+      return res.status(400).json({ error: 'Friend request already sent' });
+    }
+
+    // Create new friend request
+    const friendRequest = new FriendRequest({
+      requesterId,
+      requesterName,
+      requesterUsername,
+      recipientId,
+      recipientName,
+      recipientUsername,
+      status: 'pending'
+    });
+
+    await friendRequest.save();
+
+    console.log(`👥 Friend request sent from ${requesterName} to ${recipientName}`);
+    res.status(201).json(friendRequest);
+  } catch (error) {
+    console.error('Error sending friend request:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Get friend requests (received)
+app.get('/api/players/:id/friend-requests', async (req, res) => {
+  try {
+    let player = await Player.findOne({ playerId: req.params.id });
+
+    if (!player && req.params.id.match(/^[0-9a-fA-F]{24}$/)) {
+      player = await Player.findById(req.params.id);
+    }
+
+    if (!player) {
+      return res.status(404).json({ error: 'Player not found' });
+    }
+
+    const friendRequests = await FriendRequest.find({
+      recipientId: player.playerId,
+      status: 'pending'
+    })
+    .sort({ createdAt: -1 })
+    .lean();
+
+    res.json(friendRequests);
+  } catch (error) {
+    console.error('Error fetching friend requests:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Accept/Reject friend request
+app.patch('/api/friend-requests/:requestId', async (req, res) => {
+  try {
+    const { status } = req.body; // 'accepted' or 'rejected'
+
+    if (!['accepted', 'rejected'].includes(status)) {
+      return res.status(400).json({ error: 'Invalid status' });
+    }
+
+    const friendRequest = await FriendRequest.findById(req.params.requestId);
+
+    if (!friendRequest) {
+      return res.status(404).json({ error: 'Friend request not found' });
+    }
+
+    if (friendRequest.status !== 'pending') {
+      return res.status(400).json({ error: 'Friend request already processed' });
+    }
+
+    friendRequest.status = status;
+    await friendRequest.save();
+
+    // If accepted, create friendship (both directions)
+    if (status === 'accepted') {
+      const requester = await Player.findOne({ playerId: friendRequest.requesterId });
+      const recipient = await Player.findOne({ playerId: friendRequest.recipientId });
+
+      // Create friendship for requester
+      await Friend.create({
+        playerId: friendRequest.requesterId,
+        friendId: friendRequest.recipientId,
+        friendName: friendRequest.recipientName,
+        friendUsername: friendRequest.recipientUsername,
+        friendProfilePicture: recipient.profilePicture || null
+      });
+
+      // Create friendship for recipient
+      await Friend.create({
+        playerId: friendRequest.recipientId,
+        friendId: friendRequest.requesterId,
+        friendName: friendRequest.requesterName,
+        friendUsername: friendRequest.requesterUsername,
+        friendProfilePicture: requester.profilePicture || null
+      });
+
+      console.log(`✅ ${friendRequest.requesterName} and ${friendRequest.recipientName} are now friends`);
+    }
+
+    res.json(friendRequest);
+  } catch (error) {
+    console.error('Error processing friend request:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Get friends list
+app.get('/api/players/:id/friends', async (req, res) => {
+  try {
+    let player = await Player.findOne({ playerId: req.params.id });
+
+    if (!player && req.params.id.match(/^[0-9a-fA-F]{24}$/)) {
+      player = await Player.findById(req.params.id);
+    }
+
+    if (!player) {
+      return res.status(404).json({ error: 'Player not found' });
+    }
+
+    const friends = await Friend.find({ playerId: player.playerId })
+      .sort({ createdAt: -1 })
+      .lean();
+
+    res.json(friends);
+  } catch (error) {
+    console.error('Error fetching friends:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Remove friend
+app.delete('/api/players/:id/friends/:friendId', async (req, res) => {
+  try {
+    let player = await Player.findOne({ playerId: req.params.id });
+
+    if (!player && req.params.id.match(/^[0-9a-fA-F]{24}$/)) {
+      player = await Player.findById(req.params.id);
+    }
+
+    if (!player) {
+      return res.status(404).json({ error: 'Player not found' });
+    }
+
+    // Remove friendship both ways
+    await Friend.deleteOne({ playerId: player.playerId, friendId: req.params.friendId });
+    await Friend.deleteOne({ playerId: req.params.friendId, friendId: player.playerId });
+
+    console.log(`❌ Friendship removed between ${player.playerId} and ${req.params.friendId}`);
+    res.json({ success: true, message: 'Friend removed successfully' });
+  } catch (error) {
+    console.error('Error removing friend:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Get player by QR code (playerId)
+app.get('/api/players/qr/:playerId', async (req, res) => {
+  try {
+    const player = await Player.findOne({ playerId: req.params.playerId })
+      .select('playerId fullName username profilePicture')
+      .lean();
+
+    if (!player) {
+      return res.status(404).json({ error: 'Player not found' });
+    }
+
+    res.json(player);
+  } catch (error) {
+    console.error('Error fetching player by QR:', error);
     res.status(500).json({ error: error.message });
   }
 });

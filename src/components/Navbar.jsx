@@ -40,14 +40,13 @@ function Navbar() {
             <Link to="/registered-organizers" className="nav-link desktop-link">Registered Organizers</Link>
           </div>
 
-          {/* Right - Home & Admin Login (Desktop) */}
+          {/* Right - Home (Desktop) */}
           <div className="nav-links">
             {location.pathname !== '/' && (
               <Link to="/" className="nav-link">
                 <span>Home</span>
               </Link>
             )}
-            <Link to="/admin" className="nav-link">Admin Login</Link>
           </div>
 
           {/* Mobile Menu Button */}
@@ -80,10 +79,6 @@ function Navbar() {
                 Home
               </Link>
             )}
-            <Link to="/admin" className="mobile-menu-link" onClick={closeMobileMenu}>
-              <i className="fas fa-user-shield"></i>
-              Admin Login
-            </Link>
           </div>
         </>
       )}

@@ -17,6 +17,7 @@ import AdminDashboard from './pages/AdminDashboard';
 import PlayerLogin from './pages/PlayerLogin';
 import PlayerDashboard from './pages/PlayerDashboard';
 import PlayerRegistration from './pages/PlayerRegistration';
+import AddFriendQR from './pages/AddFriendQR';
 import PickleZone from './pages/PickleZone';
 import PickleZoneLogin from './pages/PickleZoneLogin';
 import RegisteredOrganizers from './pages/RegisteredOrganizers';
@@ -29,7 +30,8 @@ function AppContent() {
   const hideNavFooter = location.pathname === '/admin' || location.pathname.startsWith('/admin/') ||
                         location.pathname === '/player/login' || location.pathname === '/player/dashboard' ||
                         location.pathname === '/picklezone/login' || location.pathname === '/picklezone' ||
-                        location.pathname.startsWith('/player-registration');
+                        location.pathname.startsWith('/player-registration') ||
+                        location.pathname.startsWith('/add-friend/');
 
   return (
     <div className="App">
@@ -54,6 +56,7 @@ function AppContent() {
           <Route path="/player/login" element={<PlayerLogin />} />
           <Route path="/player/dashboard" element={<PlayerDashboard />} />
           <Route path="/player-registration/:token" element={<PlayerRegistration />} />
+          <Route path="/add-friend/:playerId" element={<AddFriendQR />} />
           <Route path="/picklezone/login" element={<PickleZoneLogin />} />
           <Route path="/picklezone" element={<PickleZone />} />
           <Route path="/terms-and-conditions" element={<TermsAndConditions />} />

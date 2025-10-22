@@ -6,6 +6,7 @@ function PlayerRegistration() {
   const { token } = useParams();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
+  const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState('');
   const [icValidation, setIcValidation] = useState({ status: '', message: '' });
 
@@ -163,6 +164,8 @@ function PlayerRegistration() {
       return;
     }
 
+    setSubmitting(true);
+
     try {
       const PORTAL_API_URL = import.meta.env.VITE_PORTAL_API_URL || 'http://localhost:5001/api';
 
@@ -172,7 +175,6 @@ function PlayerRegistration() {
 
       if (checkResult.exists) {
         const debugInfo = checkResult.debug ? ` (MPA ID: ${checkResult.debug.mpaId}, Name: ${checkResult.debug.fullName})` : '';
-        alert(`This I/C number (${registerFormData.icNumber}) is already registered${debugInfo}. A player with this I/C number already exists in our system. If you believe this is an error, please contact support.`);
 
         // Update sync status to already_registered (only if we have a token)
         if (token && token !== 'new') {
@@ -187,6 +189,8 @@ function PlayerRegistration() {
           });
         }
 
+        setSubmitting(false);
+        alert(`This I/C number (${registerFormData.icNumber}) is already registered${debugInfo}. A player with this I/C number already exists in our system. If you believe this is an error, please contact support.`);
         return;
       }
 
@@ -205,8 +209,6 @@ function PlayerRegistration() {
       const emailCheckResult = await emailCheckResponse.json();
 
       if (emailCheckResult.exists) {
-        alert(`${emailCheckResult.field === 'email' ? 'Email' : 'Phone number'} is already registered. Please use a different ${emailCheckResult.field}.`);
-
         // Update sync status to already_registered (only if we have a token)
         if (token && token !== 'new') {
           await fetch(`${PORTAL_API_URL}/unregistered-player/${token}/sync`, {
@@ -220,6 +222,8 @@ function PlayerRegistration() {
           });
         }
 
+        setSubmitting(false);
+        alert(`${emailCheckResult.field === 'email' ? 'Email' : 'Phone number'} is already registered. Please use a different ${emailCheckResult.field}.`);
         return;
       }
 
@@ -278,7 +282,7 @@ function PlayerRegistration() {
       const result = await response.json();
 
       // Registration successful - sync status will be updated by the backend
-      alert('Registration successful! Welcome to Malaysia Pickleball Association!');
+      alert(`Registration successful! Welcome to Malaysia Pickleball Association!\n\nA confirmation email with your login credentials has been sent to ${registerFormData.email}.\n\nPlease check your inbox (and spam folder) for further instructions.`);
 
       // Redirect to player login
       navigate('/player/login');
@@ -286,6 +290,8 @@ function PlayerRegistration() {
     } catch (error) {
       console.error('Registration error:', error);
       alert(`Registration failed: ${error.message}`);
+    } finally {
+      setSubmitting(false);
     }
   };
 
@@ -616,9 +622,16 @@ function PlayerRegistration() {
             <button
               type="submit"
               className="btn-submit"
-              disabled={icValidation.status === 'error'}
+              disabled={icValidation.status === 'error' || submitting}
             >
-              Complete Registration
+              {submitting ? (
+                <>
+                  <i className="fas fa-spinner fa-spin"></i>
+                  Processing Registration...
+                </>
+              ) : (
+                'Complete Registration'
+              )}
             </button>
           </div>
 

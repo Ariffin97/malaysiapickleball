@@ -19,8 +19,8 @@
 
 .mobile-footer-content {
   display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
+  flex-direction: column;
+  gap: 1rem;
 }
 
 .mobile-brand {
@@ -37,7 +37,42 @@
   font-size: 0.75rem;
   color: #d1d5db;
   line-height: 1.5;
-  padding-right: 1rem;
+}
+
+.mobile-footer-links {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.7rem;
+  flex-wrap: wrap;
+}
+
+.mobile-footer-links button {
+  background: none;
+  border: none;
+  color: #9ca3af;
+  cursor: pointer;
+  padding: 0;
+  text-decoration: underline;
+  transition: color 0.3s ease;
+}
+
+.mobile-footer-links button:hover {
+  color: white;
+}
+
+.mobile-footer-links .admin-link {
+  color: #9ca3af;
+  text-decoration: underline;
+  transition: color 0.3s ease;
+}
+
+.mobile-footer-links .admin-link:hover {
+  color: white;
+}
+
+.mobile-footer-links span {
+  color: #4b5563;
 }
 
 .mobile-fenix {
@@ -379,6 +414,16 @@
 
 .footer-links span {
   color: #4b5563;
+}
+
+.footer-links .admin-link {
+  color: #9ca3af;
+  text-decoration: underline;
+  transition: color 0.3s ease;
+}
+
+.footer-links .admin-link:hover {
+  color: white;
 }
 
 .fenix-credit {

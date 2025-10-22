@@ -95,7 +95,9 @@ function ManagePlayers() {
         addressLine1: player.addressLine1 || 'N/A',
         addressLine2: player.addressLine2 || '',
         street: player.addressLine1 || 'N/A',
-        age: player.age
+        age: player.age,
+        duprRating: player.duprRating || null,
+        duprId: player.duprId || null
       }));
 
       setPlayers(transformedPlayers);
@@ -672,102 +674,202 @@ function ManagePlayers() {
         )}
       </div>
 
-      {/* Player Details Modal */}
+      {/* Player Details Modal - New Clean Design */}
       {showDetailsModal && selectedPlayer && (
-        <div className="modal-overlay" onClick={closeDetailsModal}>
-          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-            <div className="modal-header">
-              <h2>Player Details</h2>
-              <button className="modal-close" onClick={closeDetailsModal}>
-                ✕
+        <div className="player-detail-overlay" onClick={closeDetailsModal}>
+          <div className="player-detail-modal" onClick={(e) => e.stopPropagation()}>
+            {/* Modal Header */}
+            <div className="player-detail-header">
+              <div className="player-detail-title">
+                <i className="fas fa-user-circle"></i>
+                <h2>Player Information</h2>
+              </div>
+              <button className="player-detail-close" onClick={closeDetailsModal}>
+                <i className="fas fa-times"></i>
               </button>
             </div>
 
-            <div className="modal-body">
-              <div className="player-details-header">
-                {selectedPlayer.profilePicture ? (
-                  <img src={selectedPlayer.profilePicture} alt={selectedPlayer.fullName} className="player-photo" />
-                ) : (
-                  <div className="player-photo-placeholder">
-                    <i className="fas fa-user"></i>
-                  </div>
-                )}
-                <div className="player-basic-info">
+            {/* Modal Body */}
+            <div className="player-detail-body">
+              {/* Profile Section */}
+              <div className="player-profile-section">
+                <div className="player-avatar">
+                  {selectedPlayer.profilePicture ? (
+                    <img src={selectedPlayer.profilePicture} alt={selectedPlayer.fullName} />
+                  ) : (
+                    <div className="avatar-placeholder">
+                      <i className="fas fa-user"></i>
+                    </div>
+                  )}
+                </div>
+                <div className="player-profile-info">
                   <h3>{selectedPlayer.fullName}</h3>
-                  <p className="player-mpa-id">MPA ID: <strong>{selectedPlayer.playerId}</strong></p>
-                  <span className={`status-badge status-${selectedPlayer.membershipStatus}`}>
-                    {selectedPlayer.membershipStatus}
+                  <p className="player-id">
+                    <i className="fas fa-id-card"></i>
+                    {selectedPlayer.playerId}
+                  </p>
+                  <span className={`player-status-badge status-${selectedPlayer.membershipStatus}`}>
+                    {selectedPlayer.membershipStatus === 'active' ? 'Active Member' : selectedPlayer.membershipStatus}
                   </span>
                 </div>
               </div>
 
-              <div className="player-details-grid">
-                <div className="detail-section">
-                  <h4>Personal Information</h4>
-                  <div className="detail-item">
-                    <span className="label">Username:</span>
-                    <span className="value">{selectedPlayer.username}</span>
+              {/* Information Grid */}
+              <div className="player-info-grid">
+                {/* Account Information */}
+                <div className="info-card">
+                  <div className="info-card-header">
+                    <i className="fas fa-user-cog"></i>
+                    <h4>Account Information</h4>
                   </div>
-                  <div className="detail-item">
-                    <span className="label">I/C Number:</span>
-                    <span className="value">{selectedPlayer.icNumber}</span>
-                  </div>
-                  <div className="detail-item">
-                    <span className="label">Email:</span>
-                    <span className="value">{selectedPlayer.email}</span>
-                  </div>
-                  <div className="detail-item">
-                    <span className="label">Phone:</span>
-                    <span className="value">{selectedPlayer.phone}</span>
-                  </div>
-                  <div className="detail-item">
-                    <span className="label">Gender:</span>
-                    <span className="value">{selectedPlayer.gender}</span>
-                  </div>
-                  <div className="detail-item">
-                    <span className="label">Date of Birth:</span>
-                    <span className="value">{formatDate(selectedPlayer.dateOfBirth)}</span>
-                  </div>
-                </div>
-
-                <div className="detail-section">
-                  <h4>Address Information</h4>
-                  <div className="detail-item">
-                    <span className="label">Address Line 1:</span>
-                    <span className="value">{selectedPlayer.addressLine1}</span>
-                  </div>
-                  {selectedPlayer.addressLine2 && (
-                    <div className="detail-item">
-                      <span className="label">Address Line 2:</span>
-                      <span className="value">{selectedPlayer.addressLine2}</span>
+                  <div className="info-card-content">
+                    <div className="info-row">
+                      <span className="info-label">Username</span>
+                      <span className="info-value">{selectedPlayer.username || 'N/A'}</span>
                     </div>
-                  )}
-                  <div className="detail-item">
-                    <span className="label">City:</span>
-                    <span className="value">{selectedPlayer.city}</span>
-                  </div>
-                  <div className="detail-item">
-                    <span className="label">State:</span>
-                    <span className="value">{selectedPlayer.state}</span>
+                    <div className="info-row">
+                      <span className="info-label">Registration Date</span>
+                      <span className="info-value">{formatDate(selectedPlayer.registrationDate)}</span>
+                    </div>
                   </div>
                 </div>
 
-                <div className="detail-section">
-                  <h4>Membership Information</h4>
-                  <div className="detail-item">
-                    <span className="label">Membership Type:</span>
-                    <span className="value">{selectedPlayer.membershipType}</span>
+                {/* Personal Information */}
+                <div className="info-card">
+                  <div className="info-card-header">
+                    <i className="fas fa-user"></i>
+                    <h4>Personal Information</h4>
                   </div>
-                  <div className="detail-item">
-                    <span className="label">Skill Level:</span>
-                    <span className="value">{selectedPlayer.skillLevel}</span>
+                  <div className="info-card-content">
+                    <div className="info-row">
+                      <span className="info-label">Full Name</span>
+                      <span className="info-value">{selectedPlayer.fullName}</span>
+                    </div>
+                    <div className="info-row">
+                      <span className="info-label">I/C Number</span>
+                      <span className="info-value">{selectedPlayer.icNumber || 'N/A'}</span>
+                    </div>
+                    <div className="info-row">
+                      <span className="info-label">Date of Birth</span>
+                      <span className="info-value">{selectedPlayer.dateOfBirth ? formatDate(selectedPlayer.dateOfBirth) : 'N/A'}</span>
+                    </div>
+                    <div className="info-row">
+                      <span className="info-label">Age</span>
+                      <span className="info-value">{selectedPlayer.age || 'N/A'}</span>
+                    </div>
+                    <div className="info-row">
+                      <span className="info-label">Gender</span>
+                      <span className="info-value">{selectedPlayer.gender}</span>
+                    </div>
                   </div>
-                  <div className="detail-item">
-                    <span className="label">Registration Date:</span>
-                    <span className="value">{formatDate(selectedPlayer.registrationDate)}</span>
+                </div>
+
+                {/* Contact Information */}
+                <div className="info-card">
+                  <div className="info-card-header">
+                    <i className="fas fa-address-book"></i>
+                    <h4>Contact Information</h4>
+                  </div>
+                  <div className="info-card-content">
+                    <div className="info-row">
+                      <span className="info-label">Email</span>
+                      <span className="info-value">
+                        <a href={`mailto:${selectedPlayer.email}`}>{selectedPlayer.email}</a>
+                      </span>
+                    </div>
+                    <div className="info-row">
+                      <span className="info-label">Phone</span>
+                      <span className="info-value">
+                        <a href={`tel:${selectedPlayer.phone}`}>{selectedPlayer.phone}</a>
+                      </span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Address Information */}
+                <div className="info-card">
+                  <div className="info-card-header">
+                    <i className="fas fa-map-marker-alt"></i>
+                    <h4>Address</h4>
+                  </div>
+                  <div className="info-card-content">
+                    <div className="info-row">
+                      <span className="info-label">Address Line 1</span>
+                      <span className="info-value">{selectedPlayer.addressLine1 || 'N/A'}</span>
+                    </div>
+                    {selectedPlayer.addressLine2 && selectedPlayer.addressLine2 !== '' && (
+                      <div className="info-row">
+                        <span className="info-label">Address Line 2</span>
+                        <span className="info-value">{selectedPlayer.addressLine2}</span>
+                      </div>
+                    )}
+                    <div className="info-row">
+                      <span className="info-label">City</span>
+                      <span className="info-value">{selectedPlayer.city || 'N/A'}</span>
+                    </div>
+                    <div className="info-row">
+                      <span className="info-label">State</span>
+                      <span className="info-value">{selectedPlayer.state || 'N/A'}</span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Membership Information */}
+                <div className="info-card">
+                  <div className="info-card-header">
+                    <i className="fas fa-medal"></i>
+                    <h4>Membership</h4>
+                  </div>
+                  <div className="info-card-content">
+                    <div className="info-row">
+                      <span className="info-label">Status</span>
+                      <span className="info-value">
+                        <span className={`inline-status status-${selectedPlayer.membershipStatus}`}>
+                          {selectedPlayer.membershipStatus}
+                        </span>
+                      </span>
+                    </div>
+                    <div className="info-row">
+                      <span className="info-label">Membership Type</span>
+                      <span className="info-value">{selectedPlayer.membershipType || 'Standard'}</span>
+                    </div>
+                    <div className="info-row">
+                      <span className="info-label">Member Since</span>
+                      <span className="info-value">{formatDate(selectedPlayer.registrationDate)}</span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Skill Information */}
+                <div className="info-card">
+                  <div className="info-card-header">
+                    <i className="fas fa-star"></i>
+                    <h4>Skill Level</h4>
+                  </div>
+                  <div className="info-card-content">
+                    <div className="info-row">
+                      <span className="info-label">DUPR Rating</span>
+                      <span className="info-value">{selectedPlayer.duprRating || 'N/A'}</span>
+                    </div>
+                    <div className="info-row">
+                      <span className="info-label">DUPR ID</span>
+                      <span className="info-value">{selectedPlayer.duprId || 'N/A'}</span>
+                    </div>
+                    <div className="info-row">
+                      <span className="info-label">Skill Level</span>
+                      <span className="info-value">{selectedPlayer.skillLevel || 'N/A'}</span>
+                    </div>
                   </div>
                 </div>
               </div>
+            </div>
+
+            {/* Modal Footer */}
+            <div className="player-detail-footer">
+              <button className="btn-close-detail" onClick={closeDetailsModal}>
+                <i className="fas fa-check"></i>
+                Close
+              </button>
             </div>
           </div>
         </div>
