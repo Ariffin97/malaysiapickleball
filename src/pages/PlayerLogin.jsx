@@ -10,6 +10,7 @@ function PlayerLogin() {
   const [loading, setLoading] = useState(false);
   const [showForgotPassword, setShowForgotPassword] = useState(false);
   const [forgotEmail, setForgotEmail] = useState('');
+  const [forgotStatus, setForgotStatus] = useState(''); // 'success' or 'error'
   const [forgotMessage, setForgotMessage] = useState('');
   const [forgotLoading, setForgotLoading] = useState(false);
   const [showNotice, setShowNotice] = useState(true);
@@ -63,6 +64,7 @@ function PlayerLogin() {
 
   const handleForgotPassword = async (e) => {
     e.preventDefault();
+    setForgotStatus('');
     setForgotMessage('');
     setForgotLoading(true);
 
@@ -80,21 +82,33 @@ function PlayerLogin() {
       const data = await response.json();
 
       if (response.ok) {
-        setForgotMessage('success');
+        setForgotStatus('success');
+        setForgotMessage('Check your email! We\'ve sent your login credentials.');
         setTimeout(() => {
           setShowForgotPassword(false);
           setForgotEmail('');
+          setForgotStatus('');
           setForgotMessage('');
-        }, 3000);
+        }, 4000);
       } else {
-        setForgotMessage(data.error || 'Email not found');
+        setForgotStatus('error');
+        setForgotMessage(data.error || 'Email not found. Please check and try again.');
       }
     } catch (error) {
       console.error('Forgot password error:', error);
-      setForgotMessage('Unable to process request. Please try again later.');
+      setForgotStatus('error');
+      setForgotMessage('Connection error. Please try again later.');
     } finally {
       setForgotLoading(false);
     }
+  };
+
+  const closeForgotPassword = () => {
+    setShowForgotPassword(false);
+    setForgotEmail('');
+    setForgotStatus('');
+    setForgotMessage('');
+    setForgotLoading(false);
   };
 
   return (
@@ -192,61 +206,70 @@ function PlayerLogin() {
         </div>
       </div>
 
-      {/* Forgot Password Modal */}
+      {/* Forgot Password Modal - Modern Design */}
       {showForgotPassword && (
-        <div className="modal-overlay" onClick={() => setShowForgotPassword(false)}>
-          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-            <div className="modal-header">
-              <h2>Forgot Password</h2>
-              <button className="modal-close" onClick={() => setShowForgotPassword(false)}>
-                ✕
-              </button>
+        <div className="forgot-overlay" onClick={closeForgotPassword}>
+          <div className="forgot-modal" onClick={(e) => e.stopPropagation()}>
+            {/* Close Button */}
+            <button className="forgot-close" onClick={closeForgotPassword}>
+              <i className="fas fa-times"></i>
+            </button>
+
+            {/* Icon */}
+            <div className="forgot-icon">
+              <i className="fas fa-key"></i>
             </div>
 
-            <div className="modal-body">
-              <p className="modal-description">
-                Enter your registered email address and we'll send you your username and password.
-              </p>
+            {/* Title */}
+            <h2 className="forgot-title">Forgot Password?</h2>
+            <p className="forgot-subtitle">Enter your email to receive your credentials</p>
 
-              <form onSubmit={handleForgotPassword}>
-                <div className="form-group">
-                  <label htmlFor="forgot-email">Email Address</label>
-                  <input
-                    type="email"
-                    id="forgot-email"
-                    value={forgotEmail}
-                    onChange={(e) => setForgotEmail(e.target.value)}
-                    placeholder="Enter your email"
-                    required
-                  />
+            {/* Form */}
+            <form onSubmit={handleForgotPassword} className="forgot-form">
+              <div className="forgot-input-group">
+                <i className="fas fa-envelope"></i>
+                <input
+                  type="email"
+                  value={forgotEmail}
+                  onChange={(e) => setForgotEmail(e.target.value)}
+                  placeholder="your.email@example.com"
+                  required
+                  disabled={forgotLoading || forgotStatus === 'success'}
+                />
+              </div>
+
+              {/* Status Message */}
+              {forgotMessage && (
+                <div className={`forgot-message ${forgotStatus}`}>
+                  <i className={`fas fa-${forgotStatus === 'success' ? 'check-circle' : 'exclamation-circle'}`}></i>
+                  <span>{forgotMessage}</span>
                 </div>
+              )}
 
-                {forgotMessage && (
-                  <div className={`message ${forgotMessage === 'success' ? 'success' : 'error'}`}>
-                    {forgotMessage === 'success'
-                      ? 'Email sent! Check your inbox for your credentials.'
-                      : forgotMessage}
-                  </div>
+              {/* Submit Button */}
+              <button
+                type="submit"
+                className="forgot-submit"
+                disabled={forgotLoading || forgotStatus === 'success'}
+              >
+                {forgotLoading ? (
+                  <>
+                    <i className="fas fa-spinner fa-spin"></i>
+                    Sending...
+                  </>
+                ) : forgotStatus === 'success' ? (
+                  <>
+                    <i className="fas fa-check"></i>
+                    Sent Successfully
+                  </>
+                ) : (
+                  <>
+                    <i className="fas fa-paper-plane"></i>
+                    Send Credentials
+                  </>
                 )}
-
-                <div className="modal-actions">
-                  <button
-                    type="button"
-                    className="btn-secondary"
-                    onClick={() => setShowForgotPassword(false)}
-                  >
-                    Cancel
-                  </button>
-                  <button
-                    type="submit"
-                    className="btn-primary"
-                    disabled={forgotLoading}
-                  >
-                    {forgotLoading ? 'Sending...' : 'Send Credentials'}
-                  </button>
-                </div>
-              </form>
-            </div>
+              </button>
+            </form>
           </div>
         </div>
       )}
