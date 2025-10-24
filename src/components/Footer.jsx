@@ -14,6 +14,50 @@ function Footer() {
                 <h3>Malaysia Pickleball</h3>
                 <p>Connecting Malaysia's pickleball community through tournaments and coaching excellence.</p>
               </div>
+
+              {/* Mobile Contact Sections */}
+              <div className="mobile-contacts">
+                <div className="mobile-contact-section">
+                  <h4>Technical Contact</h4>
+                  <div className="mobile-contact-item">
+                    <i className="fas fa-envelope"></i>
+                    <span>ariffin@fenixdigital.my</span>
+                  </div>
+                  <div className="mobile-contact-item">
+                    <i className="fas fa-phone"></i>
+                    <span>+6011-16197471</span>
+                  </div>
+                  <div className="mobile-contact-item">
+                    <i className="fas fa-envelope"></i>
+                    <span>zac@fenixdigital.my</span>
+                  </div>
+                  <div className="mobile-contact-item">
+                    <i className="fas fa-phone"></i>
+                    <span>+6017-8941403</span>
+                  </div>
+                </div>
+
+                <div className="mobile-contact-section">
+                  <h4>MPA Contact</h4>
+                  <div className="mobile-contact-item">
+                    <i className="fas fa-user"></i>
+                    <span>Puan Delima Ibrahim</span>
+                  </div>
+                  <div className="mobile-contact-item">
+                    <i className="fas fa-phone"></i>
+                    <span>+6012-8830407</span>
+                  </div>
+                  <div className="mobile-contact-item">
+                    <i className="fas fa-envelope"></i>
+                    <span>president@malaysiapickleballassociation.org</span>
+                  </div>
+                  <div className="mobile-contact-item">
+                    <i className="fas fa-envelope"></i>
+                    <span>tournament@malaysiapickleballassociation.org</span>
+                  </div>
+                </div>
+              </div>
+
               <div className="mobile-footer-links">
                 <Link to="/privacy-policy">Privacy</Link>
                 <span>•</span>

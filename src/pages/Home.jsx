@@ -195,8 +195,8 @@ function Home() {
           <div className="stats-grid">
             <div className="stat-card">
               <div className="stat-number">400,000+</div>
-              <div className="stat-title">Active Players</div>
-              <div className="stat-subtitle">Registered members</div>
+              <div className="stat-title">Players</div>
+              <div className="stat-subtitle">In Malaysia</div>
             </div>
             <div className="stat-card">
               <div className="stat-number">27+</div>
