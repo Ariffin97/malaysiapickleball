@@ -47,32 +47,34 @@
   flex-wrap: wrap;
 }
 
+.mobile-footer-links a,
 .mobile-footer-links button {
   background: none;
   border: none;
-  color: #9ca3af;
+  color: white;
   cursor: pointer;
   padding: 0;
-  text-decoration: underline;
+  text-decoration: none;
   transition: color 0.3s ease;
 }
 
+.mobile-footer-links a:hover,
 .mobile-footer-links button:hover {
-  color: white;
+  color: #d1d5db;
 }
 
 .mobile-footer-links .admin-link {
-  color: #9ca3af;
-  text-decoration: underline;
+  color: white;
+  text-decoration: none;
   transition: color 0.3s ease;
 }
 
 .mobile-footer-links .admin-link:hover {
-  color: white;
+  color: #d1d5db;
 }
 
 .mobile-footer-links span {
-  color: #4b5563;
+  color: white;
 }
 
 .mobile-fenix {
@@ -387,7 +389,7 @@
 
 .footer-copyright p {
   font-size: 0.75rem;
-  color: #9ca3af;
+  color: white;
   margin: 0;
 }
 
@@ -398,32 +400,34 @@
   font-size: 0.75rem;
 }
 
+.footer-links a,
 .footer-links button {
   background: none;
   border: none;
-  color: #9ca3af;
+  color: white;
   cursor: pointer;
   padding: 0;
-  text-decoration: underline;
+  text-decoration: none;
   transition: color 0.3s ease;
 }
 
+.footer-links a:hover,
 .footer-links button:hover {
-  color: white;
+  color: #d1d5db;
 }
 
 .footer-links span {
-  color: #4b5563;
+  color: white;
 }
 
 .footer-links .admin-link {
-  color: #9ca3af;
-  text-decoration: underline;
+  color: white;
+  text-decoration: none;
   transition: color 0.3s ease;
 }
 
 .footer-links .admin-link:hover {
-  color: white;
+  color: #d1d5db;
 }
 
 .fenix-credit {
@@ -437,163 +441,6 @@
 .fenix-credit i {
   color: #ef4444;
   animation: pulse 1.5s ease-in-out infinite;
-}
-
-/* Modal Styles */
-.modal {
-  position: fixed;
-  z-index: 10000;
-  left: 0;
-  top: 0;
-  width: 100%;
-  height: 100%;
-  background-color: rgba(0, 0, 0, 0.5);
-  backdrop-filter: blur(4px);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  animation: fadeIn 0.3s ease;
-}
-
-.modal-content {
-  background: white;
-  padding: 0;
-  border-radius: 16px;
-  width: 90%;
-  max-width: 800px;
-  max-height: 80vh;
-  overflow: hidden;
-  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
-  animation: slideUp 0.3s ease;
-}
-
-.modal-header {
-  background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%);
-  color: white;
-  padding: 1.5rem;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.modal-header h2 {
-  font-size: 1.5rem;
-  font-weight: bold;
-  margin: 0;
-}
-
-.close-button {
-  background: none;
-  border: none;
-  color: white;
-  font-size: 1.5rem;
-  cursor: pointer;
-  padding: 0;
-  width: 32px;
-  height: 32px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 50%;
-  transition: background-color 0.2s;
-}
-
-.close-button:hover {
-  background-color: rgba(255, 255, 255, 0.2);
-}
-
-.modal-body {
-  padding: 1.5rem;
-  max-height: 60vh;
-  overflow-y: auto;
-  color: #1f2937;
-}
-
-.modal-date {
-  font-size: 0.875rem;
-  color: #6b7280;
-  margin-bottom: 1.5rem;
-}
-
-.modal-sections {
-  display: flex;
-  flex-direction: column;
-  gap: 1.5rem;
-}
-
-.modal-sections section h3 {
-  font-size: 1.25rem;
-  font-weight: 600;
-  color: #1f2937;
-  margin-bottom: 0.75rem;
-}
-
-.modal-sections section p {
-  color: #374151;
-  line-height: 1.6;
-  margin-bottom: 1rem;
-}
-
-.modal-sections section ul {
-  list-style: disc;
-  list-style-position: inside;
-  color: #374151;
-  display: flex;
-  flex-direction: column;
-  gap: 0.25rem;
-}
-
-.modal-sections section ul li {
-  line-height: 1.5;
-}
-
-.cookie-types {
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-}
-
-.cookie-types div h4 {
-  font-weight: 600;
-  margin-bottom: 0.5rem;
-}
-
-.cookie-types div:nth-child(1) h4 {
-  color: #1e40af;
-}
-
-.cookie-types div:nth-child(2) h4 {
-  color: #16a34a;
-}
-
-.cookie-types div:nth-child(3) h4 {
-  color: #ca8a04;
-}
-
-.cookie-types div p {
-  font-size: 0.875rem;
-  color: #374151;
-  margin: 0;
-}
-
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
-}
-
-@keyframes slideUp {
-  from {
-    opacity: 0;
-    transform: translateY(30px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
 }
 
 @keyframes pulse {

@@ -291,6 +291,52 @@ newsSchema.index({ status: 1, publishDate: -1 });
 
 const News = mongoose.model('News', newsSchema);
 
+// Unregistered Player Schema - matches Portal schema
+const unregisteredPlayerSchema = new mongoose.Schema({
+  name: {
+    type: String,
+    required: true
+  },
+  email: {
+    type: String,
+    required: true
+  },
+  phone: String,
+  icNumber: String,
+  skillLevel: String,
+  age: Number,
+  gender: String,
+  city: String,
+  state: String,
+  addressLine1: String,
+  addressLine2: String,
+  dateOfBirth: Date,
+  softwareProvider: String,
+  softwareName: String,
+  registrationToken: {
+    type: String,
+    unique: true
+  },
+  emailSent: {
+    type: Boolean,
+    default: false
+  },
+  registered: {
+    type: Boolean,
+    default: false
+  },
+  mpaId: String,
+  syncStatus: {
+    type: String,
+    enum: ['pending', 'sync', 'already_registered'],
+    default: 'pending'
+  }
+}, {
+  timestamps: true
+});
+
+const UnregisteredPlayer = mongoose.model('UnregisteredPlayer', unregisteredPlayerSchema);
+
 // Player Schema
 const playerSchema = new mongoose.Schema({
   playerId: {
@@ -1750,6 +1796,166 @@ app.delete('/api/news/:newsId', async (req, res) => {
     res.json({ success: true, message: 'News deleted successfully' });
   } catch (error) {
     console.error('Error deleting news:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// ============================================
+// UNREGISTERED PLAYER ENDPOINTS
+// ============================================
+
+// Get all unregistered players - Fetches from Portal API
+app.get('/api/unregistered-players', async (req, res) => {
+  try {
+    console.log('📋 Fetching unregistered players from Portal API...');
+
+    const response = await fetch(`${PORTAL_API_URL}/admin/unregistered-players`);
+
+    if (!response.ok) {
+      throw new Error(`Portal API error: ${response.status}`);
+    }
+
+    const data = await response.json();
+    const players = data.players || data; // Handle different response formats
+
+    console.log(`✅ Fetched ${players.length} unregistered players from Portal`);
+    res.json(players);
+  } catch (error) {
+    console.error('Error fetching unregistered players from Portal:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Send registration email to unregistered player
+// NOTE: Uses direct database access since Portal doesn't have email endpoint
+// Both apps share same database, so changes are visible to Portal immediately
+app.post('/api/unregistered-players/:id/approve', async (req, res) => {
+  try {
+    const player = await UnregisteredPlayer.findById(req.params.id);
+
+    if (!player) {
+      return res.status(404).json({ error: 'Player not found' });
+    }
+
+    // Generate registration token if not exists
+    if (!player.registrationToken) {
+      const crypto = await import('crypto');
+      player.registrationToken = crypto.randomBytes(32).toString('hex');
+      await player.save();
+    }
+
+    // Get MPA React URL from environment
+    const MPA_REACT_URL = process.env.MPA_REACT_URL || 'http://localhost:5173';
+    const registrationLink = `${MPA_REACT_URL}/player-registration/${player.registrationToken}`;
+
+    // Send registration email
+    const mailOptions = {
+      from: process.env.EMAIL_USER,
+      to: player.email,
+      subject: 'Complete Your Malaysia Pickleball Association Registration',
+      html: `
+        <h2>Welcome to Malaysia Pickleball Association!</h2>
+        <p>Dear ${player.name},</p>
+        <p>You have been invited to complete your registration with the Malaysia Pickleball Association.</p>
+        <p>Please click the link below to complete your registration:</p>
+        <p><a href="${registrationLink}" style="background-color: #4CAF50; color: white; padding: 14px 20px; text-align: center; text-decoration: none; display: inline-block; border-radius: 4px;">Complete Registration</a></p>
+        <p>Or copy and paste this link into your browser:</p>
+        <p>${registrationLink}</p>
+        <p>This registration link is unique to you and should not be shared.</p>
+        <p>Best regards,<br>Malaysia Pickleball Association</p>
+      `
+    };
+
+    await transporter.sendMail(mailOptions);
+
+    // Update emailSent status
+    player.emailSent = true;
+    await player.save();
+
+    res.json({
+      success: true,
+      message: 'Registration email sent successfully',
+      registrationLink
+    });
+  } catch (error) {
+    console.error('Error sending registration email:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Delete unregistered player - Calls Portal API
+app.delete('/api/unregistered-players/:id', async (req, res) => {
+  try {
+    console.log(`🗑️ Deleting unregistered player ${req.params.id} via Portal API...`);
+
+    const response = await fetch(`${PORTAL_API_URL}/admin/unregistered-players/${req.params.id}`, {
+      method: 'DELETE'
+    });
+
+    if (!response.ok) {
+      throw new Error(`Portal API error: ${response.status}`);
+    }
+
+    const data = await response.json();
+    console.log('✅ Player deleted successfully from Portal');
+
+    res.json(data);
+  } catch (error) {
+    console.error('Error deleting unregistered player from Portal:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Get unregistered player by token (for registration form pre-fill) - Calls Portal API
+app.get('/api/unregistered-player/:token', async (req, res) => {
+  try {
+    console.log(`🔍 Fetching player with token from Portal API...`);
+
+    const response = await fetch(`${PORTAL_API_URL}/unregistered-player/${req.params.token}`);
+
+    if (!response.ok) {
+      if (response.status === 404) {
+        return res.status(404).json({ error: 'Invalid or expired registration token' });
+      }
+      throw new Error(`Portal API error: ${response.status}`);
+    }
+
+    const data = await response.json();
+    console.log('✅ Player data fetched from Portal');
+
+    res.json(data);
+  } catch (error) {
+    console.error('Error fetching unregistered player from Portal:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Update sync status of unregistered player - Calls Portal API
+app.patch('/api/unregistered-player/:token/sync', async (req, res) => {
+  try {
+    console.log(`🔄 Updating sync status via Portal API...`);
+
+    const response = await fetch(`${PORTAL_API_URL}/unregistered-player/${req.params.token}/sync`, {
+      method: 'PATCH',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(req.body)
+    });
+
+    if (!response.ok) {
+      if (response.status === 404) {
+        return res.status(404).json({ error: 'Invalid registration token' });
+      }
+      throw new Error(`Portal API error: ${response.status}`);
+    }
+
+    const data = await response.json();
+    console.log('✅ Sync status updated in Portal');
+
+    res.json(data);
+  } catch (error) {
+    console.error('Error updating sync status in Portal:', error);
     res.status(500).json({ error: error.message });
   }
 });
