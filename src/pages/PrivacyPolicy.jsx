@@ -52,142 +52,122 @@ function PrivacyPolicy() {
           <section className="privacy-section intro-section">
             <h2>1. Introduction</h2>
             <p>
-              Fenix Digital ("we", "our", or "us") values your privacy and is committed to protecting your personal data.
-              This Privacy Policy explains how we collect, use, and safeguard information through our digital platforms
+              Fenix Digital ("we", "our", or "us") respects your privacy and is committed to protecting your personal data.
+              This Privacy Policy explains how we collect, use, and safeguard your information through our digital platforms
               operated for the Malaysia Pickleball Association (MPA).
             </p>
             <p>
-              By using our website or services, you acknowledge that you have read and understood this policy.
+              By using this website or its services, you acknowledge that you have read, understood, and agreed to the terms
+              of this Privacy Policy.
             </p>
           </section>
 
-          {/* Who We Are */}
+          {/* Platform Ownership */}
           <section className="privacy-section">
-            <h2>2. Who We Are</h2>
+            <h2>2. Platform Ownership and Technical Partnership</h2>
             <p>
-              Fenix Digital is a technology and e-commerce company that develops and manages digital systems for
-              organizations and communities.
+              This website and its associated digital systems are developed, owned, and operated by{' '}
+              <strong>Fenix Digital (Company Registration No: MRI/BNR/241/2024)</strong>, the Official Technical Partner
+              appointed by the Malaysia Pickleball Association (MPA) Executive Committee on 30 June 2025.
             </p>
-            <ul>
-              <li>We were officially appointed as the Official Technical Partner by the Malaysia Pickleball Association (MPA)
-              Executive Committee (EXCO) on 30 June 2025, following a proposal submitted on 29 June 2025.</li>
-              <li>An official appointment letter was submitted to MYNIC during the registration of MPA's domains, authorizing
-              Fenix Digital to represent MPA in all digital and domain-related matters.</li>
-            </ul>
-            <p className="highlight-text">
-              <strong>As the data controller, Fenix Digital is solely responsible for the collection, processing, and management
-              of personal data through this platform.</strong>
-            </p>
-            <ul>
-              <li>MPA does not collect or store personal data independently. MPA's access is limited to verification, validation,
-              and tournament management purposes only.</li>
-            </ul>
             <p>
-              This website is currently in beta, while Fenix Digital's PDPA registration with the Jabatan Perlindungan Data
+              An official appointment letter was submitted to MYNIC, authorizing Fenix Digital to represent MPA in all
+              digital and domain-related matters.
+            </p>
+            <p>
+              Fenix Digital manages all hosting, data processing, and system infrastructure, while MPA oversees the sport's
+              organizational and administrative aspects.
+            </p>
+            <p>
+              This website is currently in beta, and Fenix Digital's PDPA registration with the Jabatan Perlindungan Data
               Peribadi (JPDP) is under review.
             </p>
           </section>
 
-          {/* What Personal Data We Collect */}
+          {/* Data Controller */}
           <section className="privacy-section">
-            <h2>3. What Personal Data We Collect</h2>
+            <h2>3. Data Controller and Data Access</h2>
             <p>
-              We may collect the following categories of personal data when you register or use the platform:
+              <strong>Data Controller:</strong> Fenix Digital is solely responsible for collecting, processing, and managing
+              all personal data on this platform.
             </p>
-            <ul>
-              <li><strong>Identification:</strong> Full name, IC number, date of birth, age, gender</li>
-              <li><strong>Contact:</strong> Email address, phone number, residential address</li>
-              <li><strong>Account:</strong> Username, password (encrypted), player ID</li>
-              <li><strong>Profile:</strong> Profile photo, skill level, membership details</li>
-              <li><strong>Tournament Data:</strong> Registrations, match results, statistics, rankings</li>
-              <li><strong>Technical Information:</strong> IP address, device type, browser, and usage analytics</li>
-            </ul>
             <p>
-              We also use cookies and similar technologies to enhance user experience and remember preferences.
+              <strong>MPA's Role:</strong> MPA does not collect or store personal data independently. MPA has read-only access
+              to limited data strictly for verification, validation, and tournament management.
             </p>
           </section>
 
-          {/* How We Use Your Information */}
+          {/* Personal Data Collected */}
           <section className="privacy-section">
-            <h2>4. How We Use Your Information</h2>
-            <p>Fenix Digital processes personal data to:</p>
+            <h2>4. Personal Data Collected</h2>
+            <p>We may collect:</p>
             <ul>
-              <li>Create and manage user accounts</li>
-              <li>Operate tournament and registration systems</li>
-              <li>Verify memberships and eligibility</li>
-              <li>Support official MPA activities (via limited administrative access)</li>
-              <li>Ensure platform security and fraud prevention</li>
-              <li>Improve system performance and develop new features</li>
-              <li>Comply with applicable Malaysian laws</li>
+              <li>Identification details (name, IC number, date of birth, gender)</li>
+              <li>Contact information (email, phone, address)</li>
+              <li>Account details (username, encrypted password, player ID)</li>
+              <li>Tournament and ranking information</li>
+              <li>Device and browser data for analytics and security</li>
+            </ul>
+            <p>
+              Cookies are used to improve user experience and remember preferences.
+            </p>
+          </section>
+
+          {/* How We Use Data */}
+          <section className="privacy-section">
+            <h2>5. How We Use Your Data</h2>
+            <p>We process data to:</p>
+            <ul>
+              <li>Register and manage user accounts</li>
+              <li>Operate tournaments and membership systems</li>
+              <li>Support MPA's verification and operational tasks</li>
+              <li>Maintain security and prevent misuse</li>
+              <li>Improve services through analytics</li>
+              <li>Comply with Malaysian laws</li>
             </ul>
             <p className="highlight-text">
-              <strong>We do not sell or share your data for marketing or commercial purposes.</strong>
+              <strong>We do not sell or lease your data.</strong>
             </p>
           </section>
 
-          {/* Relationship Between Fenix Digital and MPA */}
+          {/* Data Security */}
           <section className="privacy-section">
-            <h2>5. Relationship Between Fenix Digital and MPA</h2>
+            <h2>6. Data Security and Storage</h2>
             <p>
-              Fenix Digital serves as the technical and data custodian for the MPA platform.
+              All data is stored on secure servers managed by Fenix Digital.
             </p>
-            <p>MPA has read-only access to specific information for:</p>
+            <p>Security measures include:</p>
             <ul>
-              <li>Verification of player or club identities</li>
-              <li>Validation of tournament participation</li>
-              <li>Operational communication and reporting</li>
-            </ul>
-            <p>
-              All access by MPA is conducted through administrative interfaces controlled by Fenix Digital.
-            </p>
-            <p className="highlight-text">
-              <strong>MPA cannot export, copy, or store personal data outside the system.</strong>
-            </p>
-          </section>
-
-          {/* Data Storage and Security */}
-          <section className="privacy-section">
-            <h2>6. Data Storage and Security</h2>
-            <p>
-              Your information is stored securely on servers managed by Fenix Digital.
-            </p>
-            <p>We implement industry-standard measures including:</p>
-            <ul>
-              <li>SSL/TLS encryption for all data transmission</li>
-              <li>Role-based access controls for staff and administrators</li>
+              <li>SSL/TLS encryption</li>
+              <li>Role-based access controls</li>
               <li>Regular security audits and backups</li>
-              <li>24/7 system monitoring for suspicious activities</li>
+              <li>24/7 monitoring for unauthorized access</li>
+              <li>PDPA-aligned access limitation and retention policies</li>
             </ul>
-            <p>
-              Data may be stored locally or on secure cloud infrastructure that complies with international data
-              protection standards.
-            </p>
           </section>
 
           {/* Data Retention */}
           <section className="privacy-section">
             <h2>7. Data Retention</h2>
             <p>
-              Personal data is retained only as long as necessary to fulfill its original purpose or as required by law.
+              Data is retained only as long as necessary for operational or legal purposes.
             </p>
             <p>
-              When no longer needed, data is securely deleted or anonymized.
+              When no longer required, it is securely deleted or anonymized.
             </p>
           </section>
 
-          {/* Your Rights */}
+          {/* User Rights */}
           <section className="privacy-section">
-            <h2>8. Your Rights</h2>
+            <h2>8. User Rights</h2>
             <p>You have the right to:</p>
             <ul>
-              <li>Access your personal data</li>
-              <li>Request corrections or updates</li>
-              <li>Request data deletion (subject to legal or operational requirements)</li>
-              <li>Request a copy of your data in a portable format</li>
-              <li>Manage your communication and cookie preferences</li>
+              <li>Access and correct your personal information</li>
+              <li>Request deletion or portability of your data</li>
+              <li>Manage cookie and communication preferences</li>
             </ul>
             <p>
-              To exercise these rights, contact Fenix Digital (details below).
+              Requests should be submitted directly to Fenix Digital (see contact below).
             </p>
           </section>
 
@@ -195,13 +175,7 @@ function PrivacyPolicy() {
           <section className="privacy-section">
             <h2>9. Children's Privacy</h2>
             <p>
-              This platform is not intended for users under 13 years old.
-            </p>
-            <p>
-              For users aged 13–17, parental or guardian consent is required.
-            </p>
-            <p>
-              If personal data from a child is collected without consent, we will promptly delete it.
+              Users under 13 require parental consent. Data collected without consent will be deleted promptly.
             </p>
           </section>
 
@@ -212,24 +186,19 @@ function PrivacyPolicy() {
             <ul>
               <li>Personal Data Protection Act 2010 (PDPA)</li>
               <li>Communications and Multimedia Act 1998</li>
-              <li>Other relevant Malaysian laws and JPDP guidelines</li>
             </ul>
-            <p>
-              All processing is done according to principles of lawfulness, fairness, and transparency.
-            </p>
+            <p>and other applicable Malaysian regulations.</p>
           </section>
 
-          {/* Data Breach Notification */}
+          {/* Data Breach */}
           <section className="privacy-section">
             <h2>11. Data Breach Notification</h2>
-            <p>
-              If a data breach occurs that may affect your personal data, Fenix Digital will:
-            </p>
+            <p>If a data breach occurs, Fenix Digital will:</p>
             <ul>
-              <li>Investigate immediately</li>
+              <li>Investigate and contain it immediately</li>
               <li>Notify affected users</li>
-              <li>Report to relevant authorities (JPDP, MCMC, etc.)</li>
-              <li>Implement corrective measures</li>
+              <li>Report to JPDP and relevant authorities</li>
+              <li>Implement preventive measures</li>
             </ul>
           </section>
 
@@ -241,26 +210,26 @@ function PrivacyPolicy() {
               and maintained by Fenix Digital.
             </p>
             <p>
-              WHOIS privacy is applied for cybersecurity reasons.
+              WHOIS privacy is used solely for cybersecurity.
             </p>
             <p>
-              Ownership and technical records can be verified by relevant authorities upon request.
+              Ownership and technical records can be verified by relevant authorities.
             </p>
           </section>
 
-          {/* Transparency & Independence */}
+          {/* Transparency */}
           <section className="privacy-section">
-            <h2>13. Transparency & Independence</h2>
+            <h2>13. Transparency and Commitment</h2>
             <p>
-              Fenix Digital remains independent, neutral, and cooperative with all elected MPA representatives.
+              All systems and hosting have been fully developed and funded by Fenix Digital as a voluntary contribution,
+              without financial involvement from MPA.
             </p>
             <p>
-              Our mission is to ensure continuity, security, and transparency in digital operations while helping the
-              association keep pace with the sport's digital growth in Malaysia.
+              We remain independent, neutral, and cooperative with all MPA representatives.
             </p>
             <p>
-              All systems and services have been developed and funded by Fenix Digital as a voluntary contribution,
-              without any financial involvement from MPA.
+              Our goal is to support Malaysia's pickleball community through secure, transparent, and compliant digital
+              innovation.
             </p>
           </section>
 
@@ -269,44 +238,27 @@ function PrivacyPolicy() {
             <h2>14. Contact Information</h2>
 
             <div className="contact-info-box">
-              <h4>Data Controller:</h4>
-              <p><strong>Fenix Digital</strong></p>
-              <p>Role: Data controller and technical custodian</p>
-              <p>PDPA Registration: Submitted to JPDP – Under Review</p>
-              <p><br />Email: tournament@malaysiapickleballassociation.org</p>
-              <p>Subject Line: <strong>ATTN: Fenix Digital – Data Privacy Inquiry</strong></p>
+              <h4>Data Controller – Fenix Digital</h4>
+              <p>Company Reg. No: MRI/BNR/241/2024</p>
+              <p>Email: tournament@malaysiapickleballassociation.org</p>
+              <p><br />Subject: <strong>ATTN: Fenix Digital – Data Privacy Inquiry</strong></p>
             </div>
 
             <div className="contact-info-box">
-              <h4>For MPA-related program or membership inquiries:</h4>
+              <h4>For MPA Membership or Tournament Inquiries</h4>
               <p><strong>Malaysia Pickleball Association (MPA)</strong></p>
               <p>Email: tournament@malaysiapickleballassociation.org</p>
               <p>Website: malaysiapickleballassociation.org</p>
             </div>
-          </section>
-
-          {/* Acknowledgment Section */}
-          <section className="privacy-section acknowledgment-section">
-            <h2>15. Acknowledgment</h2>
-            <p>By using this platform, you acknowledge that:</p>
-            <ul>
-              <li>Fenix Digital is the data controller responsible for managing personal data</li>
-              <li>MPA only has limited access for verification and operational purposes</li>
-              <li>The platform is currently in beta while PDPA compliance is being finalized</li>
-              <li>Fenix Digital's PDPA registration is under review by JPDP</li>
-            </ul>
-            <p>
-              We remain committed to transparency, professionalism, and data protection, and to supporting the
-              continued growth of pickleball in Malaysia through secure and compliant digital solutions.
-            </p>
           </section>
         </div>
 
         {/* Footer */}
         <div className="privacy-footer">
           <p>&copy; {currentYear} Fenix Digital</p>
+          <p>Company Reg. No: MRI/BNR/241/2024</p>
           <p>Official Technical Partner of the Malaysia Pickleball Association</p>
-          <p>Data Controller | PDPA Registration Under Review | Platform in Beta</p>
+          <p>PDPA Registration Under Review | Platform in Beta | All Rights Reserved</p>
         </div>
       </div>
     </div>
