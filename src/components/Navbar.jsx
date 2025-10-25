@@ -34,7 +34,7 @@ function Navbar() {
             <Link to="/" className="brand-container">
               <img src="/mpa.png" alt="MPA" className="logo-image" />
               <span className="brand-text">Malaysia Pickleball Association</span>
-              <span className="beta-badge">Beta 2.0</span>
+              <span className="beta-badge">Beta 3.0</span>
             </Link>
             <Link to="/tournament" className="nav-link desktop-link">Tournament</Link>
             <Link to="/registered-organizers" className="nav-link desktop-link">Registered Organizers</Link>

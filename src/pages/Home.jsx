@@ -28,6 +28,7 @@ function calculateSkillLevel(duprRating) {
 function Home() {
   const [milestones, setMilestones] = useState([]);
   const [upcomingTournaments, setUpcomingTournaments] = useState([]);
+  const [totalTournaments, setTotalTournaments] = useState(0);
   const [news, setNews] = useState([]);
   const [featuredVideo, setFeaturedVideo] = useState(null);
   const [showNewsModal, setShowNewsModal] = useState(false);
@@ -71,11 +72,14 @@ function Home() {
     fetchNewsAndVideo();
   }, []);
 
-  // Fetch upcoming tournaments
+  // Fetch upcoming tournaments and total count
   useEffect(() => {
     const fetchUpcomingTournaments = async () => {
       try {
         const data = await tournamentService.getApprovedTournaments();
+
+        // Set total tournament count for Quick Stats
+        setTotalTournaments(data.length);
 
         // Filter only upcoming tournaments (start date is in the future)
         const today = new Date();
@@ -199,9 +203,9 @@ function Home() {
               <div className="stat-subtitle">In Malaysia</div>
             </div>
             <div className="stat-card">
-              <div className="stat-number">27+</div>
+              <div className="stat-number">{totalTournaments > 0 ? totalTournaments : '...'}</div>
               <div className="stat-title">Tournaments</div>
-              <div className="stat-subtitle">Annual events</div>
+              <div className="stat-subtitle">Total events</div>
             </div>
             <div className="stat-card">
               <div className="stat-number">472+</div>

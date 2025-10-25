@@ -38,6 +38,19 @@ function AdminDashboard() {
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
+  useEffect(() => {
+    // Prevent body scroll when sidebar is open on mobile
+    if (sidebarOpen && window.innerWidth <= 768) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = 'unset';
+    }
+
+    return () => {
+      document.body.style.overflow = 'unset';
+    };
+  }, [sidebarOpen]);
+
   const handleLogout = () => {
     localStorage.removeItem('adminLoggedIn');
     localStorage.removeItem('adminToken');

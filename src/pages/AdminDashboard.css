@@ -330,9 +330,8 @@
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(0, 0, 0, 0.5);
+  background: rgba(0, 0, 0, 0.4);
   z-index: 999;
-  backdrop-filter: blur(2px);
   animation: fadeIn 0.2s ease;
 }
 
@@ -347,35 +346,201 @@
 
 /* Responsive */
 @media (max-width: 768px) {
-  .sidebar {
-    transform: translateX(-100%);
-    z-index: 1001;
+  /* Header adjustments for mobile */
+  .admin-dashboard .dashboard-header {
+    padding: 0 1rem !important;
+    height: 56px !important;
   }
 
-  .sidebar.open {
-    transform: translateX(0);
+  .admin-dashboard .header-info h2 {
+    font-size: 1rem !important;
   }
 
-  .main-content {
-    margin-left: 0;
+  .admin-dashboard .toggle-sidebar {
+    padding: 0.625rem !important;
   }
 
-  .sidebar.closed ~ .main-content {
-    margin-left: 0;
+  /* Sidebar mobile optimizations */
+  .admin-dashboard .sidebar {
+    transform: translateX(-100%) !important;
+    z-index: 1001 !important;
+    width: 280px !important;
   }
 
-  .sidebar.open ~ .main-content {
-    margin-left: 0;
+  .admin-dashboard .sidebar.open {
+    transform: translateX(0) !important;
+    box-shadow: 4px 0 16px rgba(0, 0, 0, 0.2) !important;
   }
 
-  .content-area {
-    padding: 1rem;
+  .admin-dashboard .sidebar-header {
+    padding: 1.25rem 1rem !important;
   }
 
-  .content-header {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 1rem;
+  .admin-dashboard .sidebar-logo {
+    width: 32px !important;
+    height: 32px !important;
+  }
+
+  .admin-dashboard .sidebar-title {
+    font-size: 1.05rem !important;
+  }
+
+  /* Navigation items - better touch targets */
+  .admin-dashboard .nav-item {
+    padding: 1rem 1.25rem !important;
+    font-size: 0.9375rem !important;
+  }
+
+  .admin-dashboard .nav-item i {
+    font-size: 1.125rem !important;
+    width: 20px !important;
+  }
+
+  .admin-dashboard .nav-item.sub-item {
+    padding: 0.875rem 1.25rem 0.875rem 2.5rem !important;
+  }
+
+  .admin-dashboard .sub-menu {
+    margin-left: 0 !important;
+    border-left-width: 2px !important;
+  }
+
+  /* Main content adjustments */
+  .admin-dashboard .main-content {
+    margin-left: 0 !important;
+    margin-top: 56px !important;
+  }
+
+  .admin-dashboard .sidebar.closed ~ .main-content {
+    margin-left: 0 !important;
+  }
+
+  .admin-dashboard .sidebar.open ~ .main-content {
+    margin-left: 0 !important;
+  }
+
+  /* Content area - improved spacing */
+  .admin-dashboard .content-area {
+    padding: 1rem !important;
+    background: #f3f4f6 !important;
+    overflow: visible !important;
+  }
+
+  .admin-dashboard .main-content {
+    overflow: visible !important;
+  }
+
+  .admin-dashboard .dashboard-content {
+    overflow: visible !important;
+  }
+
+  /* Content header - mobile layout */
+  .admin-dashboard .content-header {
+    flex-direction: column !important;
+    align-items: stretch !important;
+    gap: 1rem !important;
+    margin-bottom: 1.25rem !important;
+  }
+
+  .admin-dashboard .content-header h1 {
+    font-size: 1.5rem !important;
+    line-height: 1.3 !important;
+  }
+
+  /* Button improvements for mobile */
+  .admin-dashboard .btn-primary {
+    width: 100% !important;
+    justify-content: center !important;
+    padding: 0.875rem 1.25rem !important;
+    font-size: 1rem !important;
+    min-height: 48px !important;
+  }
+
+  /* Content body improvements */
+  .admin-dashboard .content-body {
+    padding: 1rem !important;
+    border-radius: 10px !important;
+  }
+
+  .admin-dashboard .placeholder-text {
+    padding: 1.5rem !important;
+    font-size: 0.9375rem !important;
+    line-height: 1.6 !important;
+  }
+
+  /* Settings form mobile improvements */
+  .admin-dashboard .settings-section h2 {
+    font-size: 1.25rem !important;
+  }
+
+  .admin-dashboard .settings-form {
+    max-width: 100% !important;
+  }
+
+  .admin-dashboard .form-group input {
+    padding: 0.875rem 1rem !important;
+    font-size: 1rem !important;
+    min-height: 48px !important;
+  }
+
+  .admin-dashboard .form-group label {
+    font-size: 0.9375rem !important;
+    margin-bottom: 0.625rem !important;
+  }
+
+  /* Dashboard content spacing */
+  .admin-dashboard .dashboard-content {
+    max-width: 100% !important;
+  }
+}
+
+/* Extra small screens */
+@media (max-width: 480px) {
+  .admin-dashboard .dashboard-header {
+    padding: 0 0.75rem !important;
+    height: 52px !important;
+  }
+
+  .admin-dashboard .header-info h2 {
+    font-size: 0.9375rem !important;
+  }
+
+  .admin-dashboard .toggle-sidebar {
+    font-size: 1.125rem !important;
+    padding: 0.5rem !important;
+  }
+
+  .admin-dashboard .sidebar {
+    width: 260px !important;
+  }
+
+  .admin-dashboard .main-content {
+    margin-top: 52px !important;
+  }
+
+  .admin-dashboard .content-area {
+    padding: 0.875rem !important;
+  }
+
+  .admin-dashboard .content-header h1 {
+    font-size: 1.375rem !important;
+  }
+
+  .admin-dashboard .btn-primary {
+    padding: 0.75rem 1rem !important;
+    font-size: 0.9375rem !important;
+  }
+
+  .admin-dashboard .content-body {
+    padding: 0.875rem !important;
+  }
+
+  .admin-dashboard .nav-item {
+    padding: 0.875rem 1rem !important;
+  }
+
+  .admin-dashboard .sidebar-header {
+    padding: 1rem !important;
   }
 }
 

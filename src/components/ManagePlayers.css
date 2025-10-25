@@ -270,8 +270,17 @@
   z-index: 10;
 }
 
+/* When dropdown is open, elevate the entire container */
+.players-table tbody tr:has(.dropdown-menu) {
+  z-index: 1000000;
+  position: relative;
+}
+
+.players-table tbody tr:has(.dropdown-menu) .action-dropdown {
+  z-index: 1000001;
+}
+
 .players-table tbody tr:has(.action-dropdown) {
-  z-index: 10;
   position: relative;
 }
 
@@ -298,24 +307,27 @@
 
 .dropdown-menu {
   position: absolute;
-  left: 100%;
+  right: 100%;
+  left: auto;
   top: 0;
-  margin-left: 0.5rem;
+  margin-right: 0.5rem;
+  margin-left: 0;
   background: white;
   border: 1px solid #e5e7eb;
   border-radius: 8px;
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-  z-index: 9999;
-  min-width: 160px;
-  animation: dropdownSlideRight 0.15s ease;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+  z-index: 999999;
+  min-width: 200px;
+  animation: dropdownSlideLeft 0.15s ease;
   max-height: 300px;
   overflow-y: auto;
+  pointer-events: auto;
 }
 
-@keyframes dropdownSlideRight {
+@keyframes dropdownSlideLeft {
   from {
     opacity: 0;
-    transform: translateX(-10px);
+    transform: translateX(10px);
   }
   to {
     opacity: 1;
@@ -325,7 +337,7 @@
 
 .dropdown-item {
   width: 100%;
-  background: transparent;
+  background: white;
   border: none;
   padding: 0.625rem 1rem;
   text-align: left;
@@ -337,6 +349,9 @@
   font-size: 0.875rem;
   transition: all 0.15s ease;
   font-weight: 500;
+  pointer-events: auto;
+  position: relative;
+  z-index: 1;
 }
 
 .dropdown-item:first-child {
@@ -794,6 +809,7 @@
   margin-right: 0.5rem;
 }
 
+
 /* Responsive */
 @media (max-width: 1024px) {
   .filters-section {
@@ -812,42 +828,240 @@
 }
 
 @media (max-width: 768px) {
-  .filters-container {
-    flex-wrap: wrap;
+  /* Content header mobile layout */
+  .manage-players .content-header {
+    flex-direction: column !important;
+    align-items: stretch !important;
+    gap: 1rem !important;
   }
 
-  .filter-select {
-    flex: 1 1 calc(50% - 0.25rem);
-    min-width: 120px;
-  }
-
-  .players-table {
-    font-size: 0.875rem;
-  }
-
-  .players-table th,
-  .players-table td {
-    padding: 0.75rem 0.875rem;
-  }
-
-  .player-details-header {
-    flex-direction: column;
-    align-items: center;
-    text-align: center;
-  }
-
-  .content-header {
-    flex-direction: column;
-    align-items: flex-start;
-  }
-
-  .player-stats {
+  .manage-players .content-header > div {
     width: 100%;
   }
 
-  .stat-badge {
-    flex: 1;
-    justify-content: center;
+  .manage-players .content-header h1 {
+    font-size: 1.5rem !important;
+  }
+
+  .manage-players .subtitle {
+    font-size: 0.875rem !important;
+  }
+
+  /* Player stats - stack on mobile */
+  .manage-players .player-stats {
+    width: 100% !important;
+    flex-wrap: wrap !important;
+  }
+
+  .manage-players .stat-badge {
+    flex: 1 !important;
+    justify-content: center !important;
+    min-width: calc(50% - 0.5rem) !important;
+  }
+
+  .manage-players .btn-print {
+    width: 100% !important;
+    justify-content: center !important;
+  }
+
+  /* Filters section mobile */
+  .manage-players .filters-section {
+    flex-direction: column !important;
+    padding: 0.875rem !important;
+  }
+
+  .manage-players .search-box {
+    width: 100% !important;
+    min-width: 100% !important;
+  }
+
+  .manage-players .filters-container {
+    flex-wrap: wrap !important;
+    width: 100% !important;
+    gap: 0.5rem !important;
+  }
+
+  .manage-players .filter-select {
+    flex: 1 1 calc(50% - 0.25rem) !important;
+    min-width: 120px !important;
+    font-size: 0.8125rem !important;
+    padding: 0.625rem 0.75rem !important;
+  }
+
+  /* Table container - enable horizontal scroll but allow dropdown to overflow */
+  .manage-players .players-table-container {
+    overflow-x: auto !important;
+    overflow-y: visible !important;
+    -webkit-overflow-scrolling: touch !important;
+    margin: 0 !important;
+  }
+
+  .manage-players .content-body {
+    overflow: visible !important;
+    padding: 0 !important;
+    border-radius: 12px !important;
+  }
+
+  /* Make table more compact on mobile */
+  .manage-players .players-table {
+    font-size: 0.8125rem !important;
+    min-width: 700px !important;
+  }
+
+  .manage-players .players-table tbody {
+    position: relative !important;
+  }
+
+  .manage-players .players-table tbody tr {
+    position: relative !important;
+  }
+
+  .manage-players .players-table th,
+  .manage-players .players-table td {
+    padding: 0.75rem 0.5rem !important;
+    white-space: nowrap !important;
+  }
+
+  /* Make specific columns smaller on mobile */
+  .manage-players .players-table th:first-child,
+  .manage-players .players-table td:first-child {
+    padding-left: 0.75rem !important;
+  }
+
+  .manage-players .players-table td:last-child {
+    overflow: visible !important;
+  }
+
+  /* Smaller font for table data */
+  .manage-players .mpa-id-cell .mpa-id {
+    font-size: 0.75rem !important;
+    padding: 0.25rem 0.5rem !important;
+  }
+
+  .manage-players .player-name {
+    font-size: 0.875rem !important;
+  }
+
+  .manage-players .status-badge {
+    font-size: 0.6875rem !important;
+    padding: 0.25rem 0.5rem !important;
+  }
+
+  /* Dropdown adjustments - Mobile specific */
+  .manage-players .dropdown-trigger {
+    padding: 0.4rem 0.6rem !important;
+    font-size: 0.875rem !important;
+  }
+
+  .manage-players .action-dropdown {
+    position: relative !important;
+  }
+
+  /* Make dropdown items more touch-friendly on mobile */
+  .manage-players .dropdown-item {
+    padding: 0.875rem 1.125rem !important;
+    font-size: 0.9375rem !important;
+    background: white !important;
+    pointer-events: auto !important;
+  }
+
+  .manage-players .dropdown-item i {
+    font-size: 1rem !important;
+  }
+
+  /* Override sticky positioning for actions column on mobile */
+  .manage-players .players-table th:last-child,
+  .manage-players .players-table td:last-child {
+    padding-right: 0.75rem !important;
+    position: sticky !important;
+    right: 0 !important;
+    background: white !important;
+    box-shadow: -2px 0 4px rgba(0, 0, 0, 0.05) !important;
+    overflow: visible !important;
+  }
+
+  .manage-players .players-table thead th:last-child {
+    background: #f9fafb !important;
+  }
+
+  .manage-players .players-table tbody tr:hover td:last-child {
+    background: #f9fafb !important;
+  }
+
+  /* Modal adjustments */
+  .manage-players .modal-overlay {
+    padding: 1rem !important;
+  }
+
+  .manage-players .modal-content {
+    max-width: 100% !important;
+    max-height: 95vh !important;
+  }
+
+  .manage-players .modal-header {
+    padding: 1.25rem 1rem !important;
+  }
+
+  .manage-players .modal-header h2 {
+    font-size: 1.25rem !important;
+  }
+
+  .manage-players .modal-body {
+    padding: 1rem !important;
+  }
+
+  .manage-players .form-grid {
+    grid-template-columns: 1fr !important;
+    gap: 1rem !important;
+  }
+
+  .manage-players .modal-footer {
+    flex-direction: column-reverse !important;
+    gap: 0.75rem !important;
+  }
+
+  .manage-players .modal-footer .btn-primary,
+  .manage-players .modal-footer .btn-secondary {
+    width: 100% !important;
+    justify-content: center !important;
+  }
+
+  /* Player details header */
+  .manage-players .player-details-header {
+    flex-direction: column !important;
+    align-items: center !important;
+    text-align: center !important;
+  }
+
+  /* Scroll indicator for table */
+  .manage-players .players-table-container::after {
+    content: '← Swipe to see more →';
+    display: block;
+    text-align: center;
+    padding: 0.75rem;
+    color: #9ca3af;
+    font-size: 0.75rem;
+    background: #f9fafb;
+    border-top: 1px solid #e5e7eb;
+  }
+}
+
+/* Extra small devices */
+@media (max-width: 480px) {
+  .manage-players .content-header h1 {
+    font-size: 1.375rem !important;
+  }
+
+  .manage-players .players-table {
+    min-width: 650px !important;
+  }
+
+  .manage-players .stat-badge {
+    min-width: 100% !important;
+  }
+
+  .manage-players .filter-select {
+    flex: 1 1 100% !important;
   }
 }
 
