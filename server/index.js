@@ -413,6 +413,22 @@ const playerSchema = new mongoose.Schema({
   duprId: {
     type: String,
     default: null
+  },
+  parentGuardianName: {
+    type: String,
+    default: null
+  },
+  parentGuardianIcNumber: {
+    type: String,
+    default: null
+  },
+  parentGuardianContact: {
+    type: String,
+    default: null
+  },
+  parentalConsent: {
+    type: Boolean,
+    default: false
   }
 }, {
   timestamps: true
@@ -2028,11 +2044,16 @@ app.post('/api/players/register', uploadPlayerImage.single('profilePicture'), as
       password,
       termsAccepted,
       duprId,
-      duprRating
+      duprRating,
+      parentGuardianName,
+      parentGuardianIcNumber,
+      parentGuardianContact,
+      parentalConsent
     } = req.body;
 
     console.log('Registration attempt - IC:', icNumber, 'Email:', email, 'Phone:', phoneNumber);
     console.log('DUPR Info - ID:', duprId || 'Not provided', 'Rating:', duprRating || 'Not provided');
+    console.log('Parental Consent - Name:', parentGuardianName || 'Not provided', 'IC:', parentGuardianIcNumber || 'Not provided', 'Contact:', parentGuardianContact || 'Not provided', 'Consent:', parentalConsent || 'Not provided');
 
     // Check if IC number already exists
     const existingIC = await Player.findOne({ icNumber });
@@ -2087,6 +2108,20 @@ app.post('/api/players/register', uploadPlayerImage.single('profilePicture'), as
     }
     if (duprRating) {
       playerData.duprRating = parseFloat(duprRating);
+    }
+
+    // Add parental consent information if provided (for players aged 8-17)
+    if (parentGuardianName) {
+      playerData.parentGuardianName = parentGuardianName;
+    }
+    if (parentGuardianIcNumber) {
+      playerData.parentGuardianIcNumber = parentGuardianIcNumber;
+    }
+    if (parentGuardianContact) {
+      playerData.parentGuardianContact = parentGuardianContact;
+    }
+    if (parentalConsent) {
+      playerData.parentalConsent = parentalConsent === 'true' || parentalConsent === true;
     }
 
     // Add profile picture if uploaded
@@ -2252,6 +2287,7 @@ Technical Partner: Fenix Digital`,
 
     // Return player data without password
     const { password: _, ...playerWithoutPassword } = player.toObject();
+    console.log('📤 Sending registration response for player:', playerWithoutPassword.playerId);
     res.status(201).json(playerWithoutPassword);
   } catch (error) {
     console.error('Error registering player:', error);
@@ -3232,6 +3268,104 @@ app.delete('/api/players/:id', async (req, res) => {
   }
 });
 
+// Submit parental consent (for players aged 8-17)
+app.post('/api/players/:id/parental-consent', async (req, res) => {
+  try {
+    const { parentGuardianName, parentGuardianIcNumber, parentGuardianContact, parentalConsent } = req.body;
+
+    // Validate required fields
+    if (!parentGuardianName || !parentGuardianIcNumber || !parentGuardianContact || !parentalConsent) {
+      return res.status(400).json({ error: 'All parental consent fields are required' });
+    }
+
+    // Validate IC number format (12 digits)
+    const icDigitsOnly = parentGuardianIcNumber.replace(/-/g, '');
+    if (icDigitsOnly.length !== 12) {
+      return res.status(400).json({ error: 'Parent/Guardian IC number must be 12 digits' });
+    }
+
+    // Find player by playerId or _id
+    let player = await Player.findOne({ playerId: req.params.id });
+    if (!player && req.params.id.match(/^[0-9a-fA-F]{24}$/)) {
+      player = await Player.findById(req.params.id);
+    }
+
+    if (!player) {
+      return res.status(404).json({ error: 'Player not found' });
+    }
+
+    // Check if player is aged 8-17
+    if (player.age < 8 || player.age > 17) {
+      return res.status(400).json({ error: 'Parental consent is only required for players aged 8-17' });
+    }
+
+    // Update parental consent information
+    player.parentGuardianName = parentGuardianName;
+    player.parentGuardianIcNumber = parentGuardianIcNumber;
+    player.parentGuardianContact = parentGuardianContact;
+    player.parentalConsent = parentalConsent === true || parentalConsent === 'true';
+
+    // If player was suspended due to missing consent, reactivate their account
+    if (player.status === 'suspended' && player.parentalConsent) {
+      player.status = 'active';
+      console.log(`✅ Player account reactivated: ${player.fullName} (${player.playerId})`);
+    }
+
+    await player.save();
+
+    console.log(`✅ Parental consent submitted for: ${player.fullName} (${player.playerId})`);
+
+    // Return player data without password
+    const playerData = player.toObject();
+    delete playerData.password;
+
+    res.json({
+      success: true,
+      message: 'Parental consent submitted successfully',
+      player: playerData
+    });
+  } catch (error) {
+    console.error('Error submitting parental consent:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Check and suspend players aged 8-17 without parental consent
+app.post('/api/players/check-parental-consent', async (req, res) => {
+  try {
+    // Find all players aged 8-17 without parental consent
+    const playersNeedingConsent = await Player.find({
+      age: { $gte: 8, $lte: 17 },
+      $or: [
+        { parentGuardianName: null },
+        { parentGuardianName: { $exists: false } },
+        { parentalConsent: false },
+        { parentalConsent: { $exists: false } }
+      ],
+      status: { $ne: 'suspended' } // Only update if not already suspended
+    });
+
+    let suspended = 0;
+    for (const player of playersNeedingConsent) {
+      await Player.updateOne(
+        { _id: player._id },
+        { $set: { status: 'suspended' } }
+      );
+      suspended++;
+      console.log(`⚠️ Player suspended (missing parental consent): ${player.fullName} (${player.playerId})`);
+    }
+
+    res.json({
+      success: true,
+      message: `Checked and suspended ${suspended} player(s) aged 8-17 without parental consent`,
+      suspended: suspended
+    });
+  } catch (error) {
+    console.error('Error checking parental consent:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
 // Fix player status for existing players
 app.post('/api/players/fix-status', async (req, res) => {
   try {
@@ -4163,11 +4297,56 @@ wss.on('error', (error) => {
   console.error('❌ WebSocket Server error:', error);
 });
 
+// One-time Parental Consent Check Function (runs on server startup)
+async function checkAndSuspendPlayersWithoutConsent() {
+  try {
+    console.log('🔍 Running parental consent check...');
+
+    // Find all players aged 8-17 without parental consent
+    const playersNeedingConsent = await Player.find({
+      age: { $gte: 8, $lte: 17 },
+      $or: [
+        { parentGuardianName: null },
+        { parentGuardianName: { $exists: false } },
+        { parentalConsent: false },
+        { parentalConsent: { $exists: false } }
+      ],
+      status: { $ne: 'suspended' } // Only update if not already suspended
+    });
+
+    let suspended = 0;
+    for (const player of playersNeedingConsent) {
+      await Player.updateOne(
+        { _id: player._id },
+        { $set: { status: 'suspended' } }
+      );
+      suspended++;
+      console.log(`⚠️ Player suspended (missing parental consent): ${player.fullName} (${player.playerId})`);
+    }
+
+    if (suspended > 0) {
+      console.log(`✅ Parental consent check completed: ${suspended} player(s) suspended`);
+    } else {
+      console.log(`✅ Parental consent check completed: All players aged 8-17 have valid consent`);
+    }
+
+    return suspended;
+  } catch (error) {
+    console.error('❌ Error in parental consent check:', error);
+    return 0;
+  }
+}
+
 // Start server
-server.listen(PORT, '0.0.0.0', () => {
+server.listen(PORT, '0.0.0.0', async () => {
   console.log(`\n🚀 Malaysia Pickleball Backend running on port ${PORT}`);
   console.log(`📊 MongoDB: ${MONGODB_URI}`);
   console.log(`🔗 Portal API: ${PORTAL_API_URL}`);
   console.log(`🔌 WebSocket Server: ws://localhost:${PORT}/api/organizers/ws`);
   console.log(`🌐 Server listening on all interfaces (0.0.0.0)\n`);
+
+  // Run parental consent check on server startup to catch existing players
+  console.log('🔄 Running initial parental consent check on server startup...');
+  await checkAndSuspendPlayersWithoutConsent();
+  console.log('');
 });

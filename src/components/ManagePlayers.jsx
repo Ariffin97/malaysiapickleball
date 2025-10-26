@@ -99,7 +99,11 @@ function ManagePlayers() {
         street: player.addressLine1 || 'N/A',
         age: player.age,
         duprRating: player.duprRating || null,
-        duprId: player.duprId || null
+        duprId: player.duprId || null,
+        parentGuardianName: player.parentGuardianName || null,
+        parentGuardianIcNumber: player.parentGuardianIcNumber || null,
+        parentGuardianContact: player.parentGuardianContact || null,
+        parentalConsent: player.parentalConsent || false
       }));
 
       setPlayers(transformedPlayers);
@@ -829,6 +833,50 @@ function ManagePlayers() {
                     </div>
                   </div>
                 </div>
+
+                {/* Parental Consent Information - Only show if data exists */}
+                {selectedPlayer.parentGuardianName && (
+                  <div className="info-card parental-consent-card">
+                    <div className="info-card-header">
+                      <i className="fas fa-user-shield"></i>
+                      <h4>Parental/Guardian Consent</h4>
+                    </div>
+                    <div className="info-card-content">
+                      <div className="info-row">
+                        <span className="info-label">Parent/Guardian Name</span>
+                        <span className="info-value">{selectedPlayer.parentGuardianName}</span>
+                      </div>
+                      {selectedPlayer.parentGuardianIcNumber && (
+                        <div className="info-row">
+                          <span className="info-label">Parent/Guardian I/C Number</span>
+                          <span className="info-value">{selectedPlayer.parentGuardianIcNumber}</span>
+                        </div>
+                      )}
+                      {selectedPlayer.parentGuardianContact && (
+                        <div className="info-row">
+                          <span className="info-label">Parent/Guardian Contact</span>
+                          <span className="info-value">
+                            <a href={`tel:${selectedPlayer.parentGuardianContact}`}>{selectedPlayer.parentGuardianContact}</a>
+                          </span>
+                        </div>
+                      )}
+                      <div className="info-row">
+                        <span className="info-label">Consent Status</span>
+                        <span className={`info-value ${selectedPlayer.parentalConsent ? 'consent-granted' : 'consent-pending'}`}>
+                          {selectedPlayer.parentalConsent ? (
+                            <>
+                              <i className="fas fa-check-circle"></i> Granted
+                            </>
+                          ) : (
+                            <>
+                              <i className="fas fa-times-circle"></i> Pending
+                            </>
+                          )}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                )}
 
                 {/* Membership Information */}
                 <div className="info-card">

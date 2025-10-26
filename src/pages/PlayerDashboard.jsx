@@ -55,6 +55,17 @@ function PlayerDashboard() {
         if (response.ok) {
           const data = await response.json();
           setPlayerData(data);
+
+          // Check if player needs to submit parental consent
+          const needsParentalConsent =
+            data.age >= 8 &&
+            data.age <= 17 &&
+            (!data.parentGuardianName || !data.parentalConsent) &&
+            data.status === 'suspended';
+
+          if (needsParentalConsent) {
+            setShowParentalConsentModal(true);
+          }
         } else {
           // If unauthorized, redirect to login
           handleLogout();
@@ -186,6 +197,17 @@ function PlayerDashboard() {
   const [selectedProfilePicture, setSelectedProfilePicture] = useState(null);
   const [profilePicturePreview, setProfilePicturePreview] = useState(null);
 
+  // Parental Consent Modal State
+  const [showParentalConsentModal, setShowParentalConsentModal] = useState(false);
+  const [parentalConsentData, setParentalConsentData] = useState({
+    parentGuardianName: '',
+    parentGuardianIcNumber: '',
+    parentGuardianContact: '',
+    parentalConsent: false
+  });
+  const [consentLoading, setConsentLoading] = useState(false);
+  const [consentError, setConsentError] = useState('');
+
   const handlePasswordChange = async (e) => {
     e.preventDefault();
     setPasswordError('');
@@ -242,6 +264,64 @@ function PlayerDashboard() {
     }
   };
 
+  // Submit parental consent
+  const handleParentalConsentSubmit = async (e) => {
+    e.preventDefault();
+    setConsentError('');
+
+    // Validate all fields
+    if (!parentalConsentData.parentGuardianName || !parentalConsentData.parentGuardianIcNumber || !parentalConsentData.parentGuardianContact) {
+      setConsentError('All fields are required');
+      return;
+    }
+
+    // Validate IC number format
+    const icDigitsOnly = parentalConsentData.parentGuardianIcNumber.replace(/-/g, '');
+    if (icDigitsOnly.length !== 12) {
+      setConsentError('Parent/Guardian IC number must be 12 digits in format XXXXXX-XX-XXXX');
+      return;
+    }
+
+    if (!parentalConsentData.parentalConsent) {
+      setConsentError('You must confirm parental consent to continue');
+      return;
+    }
+
+    setConsentLoading(true);
+
+    try {
+      const playerId = localStorage.getItem('playerId');
+      const PORTAL_API_URL = import.meta.env.VITE_PORTAL_API_URL || 'http://localhost:5001/api';
+
+      const response = await fetch(`${PORTAL_API_URL}/players/${playerId}/parental-consent`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(parentalConsentData)
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        // Update player data with new information
+        setPlayerData(data.player);
+        // Close modal
+        setShowParentalConsentModal(false);
+        // Show success message
+        alert('Parental consent submitted successfully! Your account has been reactivated.');
+        // Reload page to reflect new status
+        window.location.reload();
+      } else {
+        setConsentError(data.error || 'Failed to submit parental consent');
+      }
+    } catch (error) {
+      console.error('Error submitting parental consent:', error);
+      setConsentError('Unable to connect to server. Please try again later.');
+    } finally {
+      setConsentLoading(false);
+    }
+  };
 
   // Send message to another player
   const handleSendMessage = async (e) => {
@@ -858,6 +938,48 @@ function PlayerDashboard() {
                       </div>
                     </div>
                   </div>
+
+                  {/* Parental Consent Information - Only show if data exists */}
+                  {playerData.parentGuardianName && (
+                    <div className="info-card parental-consent-card">
+                      <div className="info-card-header">
+                        <i className="fas fa-user-shield"></i>
+                        <h3>Parental/Guardian Consent</h3>
+                      </div>
+                      <div className="info-card-body">
+                        <div className="info-item">
+                          <span className="info-label">Parent/Guardian Name</span>
+                          <span className="info-value">{playerData.parentGuardianName}</span>
+                        </div>
+                        {playerData.parentGuardianIcNumber && (
+                          <div className="info-item">
+                            <span className="info-label">Parent/Guardian I/C Number</span>
+                            <span className="info-value">{playerData.parentGuardianIcNumber}</span>
+                          </div>
+                        )}
+                        {playerData.parentGuardianContact && (
+                          <div className="info-item">
+                            <span className="info-label">Parent/Guardian Contact</span>
+                            <span className="info-value">{playerData.parentGuardianContact}</span>
+                          </div>
+                        )}
+                        <div className="info-item">
+                          <span className="info-label">Consent Status</span>
+                          <span className={`info-value ${playerData.parentalConsent ? 'consent-granted' : 'consent-pending'}`}>
+                            {playerData.parentalConsent ? (
+                              <>
+                                <i className="fas fa-check-circle"></i> Granted
+                              </>
+                            ) : (
+                              <>
+                                <i className="fas fa-times-circle"></i> Pending
+                              </>
+                            )}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                  )}
                 </div>
               </>
             )}
@@ -1662,6 +1784,138 @@ function PlayerDashboard() {
                 </button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* Parental Consent Modal */}
+      {showParentalConsentModal && (
+        <div className="parental-consent-modal-overlay">
+          <div className="parental-consent-modal" onClick={(e) => e.stopPropagation()}>
+            <div className="parental-consent-modal-header">
+              <div className="modal-header-content">
+                <i className="fas fa-user-shield"></i>
+                <h2>Parental Consent Required</h2>
+              </div>
+            </div>
+
+            <div className="parental-consent-modal-body">
+              <div className="consent-notice">
+                <i className="fas fa-exclamation-triangle"></i>
+                <p>
+                  <strong>Your account is currently suspended.</strong> Since you are between 8-17 years old,
+                  we require parental or guardian consent to activate your account and access all features.
+                </p>
+              </div>
+
+              <form onSubmit={handleParentalConsentSubmit} className="consent-form">
+                {consentError && (
+                  <div className="consent-error-message">
+                    <i className="fas fa-exclamation-circle"></i>
+                    {consentError}
+                  </div>
+                )}
+
+                <div className="consent-form-group">
+                  <label htmlFor="parentGuardianName">Parent/Guardian Full Name *</label>
+                  <input
+                    type="text"
+                    id="parentGuardianName"
+                    value={parentalConsentData.parentGuardianName}
+                    onChange={(e) => setParentalConsentData({ ...parentalConsentData, parentGuardianName: e.target.value })}
+                    placeholder="Enter parent or guardian full name as per IC"
+                    required
+                  />
+                </div>
+
+                <div className="consent-form-group">
+                  <label htmlFor="parentGuardianIcNumber">Parent/Guardian IC Number * (XXXXXX-XX-XXXX)</label>
+                  <input
+                    type="text"
+                    id="parentGuardianIcNumber"
+                    value={parentalConsentData.parentGuardianIcNumber}
+                    onChange={(e) => {
+                      let value = e.target.value.replace(/[^0-9]/g, '');
+                      let formatted = '';
+                      const digitsOnly = value.replace(/-/g, '');
+
+                      if (digitsOnly.length > 0) {
+                        formatted = digitsOnly.substring(0, 6);
+                        if (digitsOnly.length >= 7) {
+                          formatted += '-' + digitsOnly.substring(6, 8);
+                        }
+                        if (digitsOnly.length >= 9) {
+                          formatted += '-' + digitsOnly.substring(8, 12);
+                        }
+                      }
+
+                      if (digitsOnly.length <= 12) {
+                        setParentalConsentData({ ...parentalConsentData, parentGuardianIcNumber: formatted });
+                      }
+                    }}
+                    placeholder="000000-00-0000"
+                    required
+                  />
+                </div>
+
+                <div className="consent-form-group">
+                  <label htmlFor="parentGuardianContact">Parent/Guardian Contact Number *</label>
+                  <input
+                    type="tel"
+                    id="parentGuardianContact"
+                    value={parentalConsentData.parentGuardianContact}
+                    onChange={(e) => setParentalConsentData({ ...parentalConsentData, parentGuardianContact: e.target.value })}
+                    placeholder="+60123456789"
+                    required
+                  />
+                </div>
+
+                <div className="consent-declaration">
+                  <h4>Parental Consent Declaration</h4>
+                  <div className="declaration-text">
+                    <p>I, the undersigned parent/legal guardian, hereby:</p>
+                    <ul>
+                      <li>Confirm that I am the parent or legal guardian of the player</li>
+                      <li>Give permission for my child to use this account</li>
+                      <li>Consent to my child's participation in pickleball activities</li>
+                      <li>Acknowledge that I have read and agree to the terms on behalf of my child</li>
+                    </ul>
+                  </div>
+
+                  <label className="consent-checkbox-label">
+                    <input
+                      type="checkbox"
+                      checked={parentalConsentData.parentalConsent}
+                      onChange={(e) => setParentalConsentData({ ...parentalConsentData, parentalConsent: e.target.checked })}
+                      required
+                    />
+                    <span>
+                      <strong>I confirm that I am the parent/legal guardian and I give my full consent</strong>
+                    </span>
+                  </label>
+                </div>
+
+                <div className="consent-modal-actions">
+                  <button
+                    type="submit"
+                    className="btn-submit-consent"
+                    disabled={consentLoading}
+                  >
+                    {consentLoading ? (
+                      <>
+                        <i className="fas fa-spinner fa-spin"></i>
+                        Submitting...
+                      </>
+                    ) : (
+                      <>
+                        <i className="fas fa-check-circle"></i>
+                        Submit Consent & Activate Account
+                      </>
+                    )}
+                  </button>
+                </div>
+              </form>
+            </div>
           </div>
         </div>
       )}

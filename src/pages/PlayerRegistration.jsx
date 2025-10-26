@@ -27,7 +27,11 @@ function PlayerRegistration() {
     confirmPassword: '',
     termsAccepted: false,
     duprId: '',
-    duprRating: ''
+    duprRating: '',
+    parentGuardianName: '',
+    parentGuardianIcNumber: '',
+    parentGuardianContact: '',
+    parentalConsent: false
   });
 
   const [prefilledInfo, setPrefilledInfo] = useState({
@@ -164,6 +168,33 @@ function PlayerRegistration() {
       return;
     }
 
+    // Check parental consent for players aged 8-17
+    const age = parseInt(registerFormData.age);
+    if (age >= 8 && age <= 17) {
+      if (!registerFormData.parentGuardianName || registerFormData.parentGuardianName.trim() === '') {
+        alert('Parent/Guardian name is required for players aged 8-17!');
+        return;
+      }
+      if (!registerFormData.parentGuardianIcNumber || registerFormData.parentGuardianIcNumber.trim() === '') {
+        alert('Parent/Guardian IC number is required for players aged 8-17!');
+        return;
+      }
+      // Validate IC number format (should be 12 digits formatted as XXXXXX-XX-XXXX)
+      const icDigitsOnly = registerFormData.parentGuardianIcNumber.replace(/-/g, '');
+      if (icDigitsOnly.length !== 12) {
+        alert('Parent/Guardian IC number must be 12 digits in format XXXXXX-XX-XXXX!');
+        return;
+      }
+      if (!registerFormData.parentGuardianContact || registerFormData.parentGuardianContact.trim() === '') {
+        alert('Parent/Guardian contact number is required for players aged 8-17!');
+        return;
+      }
+      if (!registerFormData.parentalConsent) {
+        alert('Parental consent is required for players aged 8-17!');
+        return;
+      }
+    }
+
     setSubmitting(true);
 
     try {
@@ -243,6 +274,14 @@ function PlayerRegistration() {
       formData.append('password', registerFormData.password);
       formData.append('termsAccepted', registerFormData.termsAccepted);
 
+      // Include parental consent for players aged 8-17
+      if (age >= 8 && age <= 17) {
+        formData.append('parentGuardianName', registerFormData.parentGuardianName);
+        formData.append('parentGuardianIcNumber', registerFormData.parentGuardianIcNumber);
+        formData.append('parentGuardianContact', registerFormData.parentGuardianContact);
+        formData.append('parentalConsent', registerFormData.parentalConsent);
+      }
+
       // Include token for sync only if it exists and is not 'new'
       if (token && token !== 'new') {
         formData.append('registrationToken', token);
@@ -279,7 +318,19 @@ function PlayerRegistration() {
         throw new Error(errorMessage);
       }
 
-      const result = await response.json();
+      // Check if response has content before parsing
+      const text = await response.text();
+      if (!text) {
+        throw new Error('Empty response from server');
+      }
+
+      let result;
+      try {
+        result = JSON.parse(text);
+      } catch (parseError) {
+        console.error('Failed to parse response:', text);
+        throw new Error('Invalid response from server');
+      }
 
       // Registration successful - sync status will be updated by the backend
       alert(`Registration successful! Welcome to Malaysia Pickleball Association!\n\nA confirmation email with your login credentials has been sent to ${registerFormData.email}.\n\nPlease check your inbox (and spam folder) for further instructions.`);
@@ -415,6 +466,109 @@ function PlayerRegistration() {
               <small className="field-hint">Upload a clear photo of yourself</small>
             </div>
           </div>
+
+          {/* Parental Consent Section - Only show for ages 8-17 */}
+          {registerFormData.age && parseInt(registerFormData.age) >= 8 && parseInt(registerFormData.age) <= 17 && (
+            <div className="form-section parental-consent-section">
+              <div className="parental-consent-header">
+                <i className="fas fa-user-shield"></i>
+                <h3>Parental/Guardian Consent Required</h3>
+                <p className="consent-description">
+                  As the player is under 18 years old, we require consent from a parent or legal guardian to complete this registration.
+                </p>
+              </div>
+
+              <div className="parental-consent-notice-banner">
+                <i className="fas fa-exclamation-circle"></i>
+                <div>
+                  <strong>Important:</strong> A parent or legal guardian must complete this section and provide consent for the minor to participate in Malaysia Pickleball Association activities.
+                </div>
+              </div>
+
+              <div className="form-group">
+                <label htmlFor="parentGuardianName">Parent/Guardian Full Name *</label>
+                <input
+                  type="text"
+                  id="parentGuardianName"
+                  value={registerFormData.parentGuardianName}
+                  onChange={(e) => handleFormChange('parentGuardianName', e.target.value)}
+                  placeholder="Enter parent or guardian full name as per IC"
+                  required
+                />
+                <small className="field-hint">Full legal name of parent or guardian</small>
+              </div>
+
+              <div className="form-group">
+                <label htmlFor="parentGuardianIcNumber">Parent/Guardian IC Number * (XXXXXX-XX-XXXX)</label>
+                <input
+                  type="text"
+                  id="parentGuardianIcNumber"
+                  value={registerFormData.parentGuardianIcNumber}
+                  onChange={(e) => {
+                    let value = e.target.value.replace(/[^0-9]/g, '');
+                    let formatted = '';
+                    const digitsOnly = value.replace(/-/g, '');
+
+                    if (digitsOnly.length > 0) {
+                      formatted = digitsOnly.substring(0, 6);
+                      if (digitsOnly.length >= 7) {
+                        formatted += '-' + digitsOnly.substring(6, 8);
+                      }
+                      if (digitsOnly.length >= 9) {
+                        formatted += '-' + digitsOnly.substring(8, 12);
+                      }
+                    }
+
+                    if (digitsOnly.length <= 12) {
+                      handleFormChange('parentGuardianIcNumber', formatted);
+                    }
+                  }}
+                  placeholder="000000-00-0000"
+                  required
+                />
+                <small className="field-hint">Parent or guardian's IC number for verification</small>
+              </div>
+
+              <div className="form-group">
+                <label htmlFor="parentGuardianContact">Parent/Guardian Contact Number *</label>
+                <input
+                  type="tel"
+                  id="parentGuardianContact"
+                  value={registerFormData.parentGuardianContact}
+                  onChange={(e) => handleFormChange('parentGuardianContact', e.target.value)}
+                  placeholder="+60123456789"
+                  required
+                />
+                <small className="field-hint">Contact number to reach parent or guardian</small>
+              </div>
+
+              <div className="parental-consent-declaration">
+                <h4>Parental Consent Declaration</h4>
+                <div className="declaration-content">
+                  <p>I, the undersigned parent/legal guardian, hereby:</p>
+                  <ul>
+                    <li>Confirm that I am the parent or legal guardian of the player named in this registration</li>
+                    <li>Give permission for my child to register with Malaysia Pickleball Association</li>
+                    <li>Consent to my child's participation in pickleball activities, training, and events</li>
+                    <li>Acknowledge that I have read and agree to the terms and conditions on behalf of my child</li>
+                    <li>Understand that I can be contacted regarding my child's participation</li>
+                  </ul>
+                </div>
+
+                <label className="parental-consent-checkbox">
+                  <input
+                    type="checkbox"
+                    checked={registerFormData.parentalConsent}
+                    onChange={(e) => handleFormChange('parentalConsent', e.target.checked)}
+                    required
+                  />
+                  <span>
+                    <strong>I confirm that I am the parent/legal guardian and I give my full consent</strong> for the minor player to register and participate in Malaysia Pickleball Association activities. I acknowledge that I have read and understood the declaration above.
+                  </span>
+                </label>
+              </div>
+            </div>
+          )}
 
           {/* Contact Information */}
           <div className="form-section">

@@ -1801,3 +1801,49 @@
     max-height: 80vh;
   }
 }
+
+/* Parental Consent Card Styles */
+.parental-consent-card {
+  background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%);
+  border: 2px solid #fbbf24 !important;
+}
+
+.parental-consent-card .info-card-header {
+  background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+  border-bottom: 2px solid #fbbf24;
+}
+
+.parental-consent-card .info-card-header i {
+  color: #d97706;
+  font-size: 1.25rem;
+}
+
+.parental-consent-card .info-card-header h4 {
+  color: #92400e;
+}
+
+.consent-granted {
+  color: #059669 !important;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-weight: 700 !important;
+}
+
+.consent-granted i {
+  color: #10b981;
+  font-size: 1rem;
+}
+
+.consent-pending {
+  color: #dc2626 !important;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-weight: 700 !important;
+}
+
+.consent-pending i {
+  color: #ef4444;
+  font-size: 1rem;
+}
