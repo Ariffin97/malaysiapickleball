@@ -34,6 +34,7 @@ function Home() {
   const [showNewsModal, setShowNewsModal] = useState(false);
   const [selectedNews, setSelectedNews] = useState(null);
   const [picklezonePosts, setPicklezonePosts] = useState([]);
+  const [totalVisitors, setTotalVisitors] = useState(0);
 
   useEffect(() => {
     const fetchMilestones = async () => {
@@ -117,6 +118,51 @@ function Home() {
     };
 
     fetchPicklezonePosts();
+  }, []);
+
+  // Track website visitors with Google Analytics and backend API
+  useEffect(() => {
+    const trackVisitor = async () => {
+      try {
+        const PORTAL_API_URL = import.meta.env.VITE_PORTAL_API_URL || '/api';
+
+        // Check if user has visited before (using session storage to count once per session)
+        const hasVisitedThisSession = sessionStorage.getItem('mpa_visited_this_session');
+
+        if (!hasVisitedThisSession) {
+          // Track with Google Analytics
+          if (window.gtag) {
+            window.gtag('event', 'page_view', {
+              page_title: 'Home',
+              page_location: window.location.href,
+              page_path: '/'
+            });
+          }
+
+          // Track new visitor (increment count in backend for display)
+          const response = await fetch(`${PORTAL_API_URL}/visitors/track`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json'
+            }
+          });
+          const data = await response.json();
+          setTotalVisitors(data.count);
+          sessionStorage.setItem('mpa_visited_this_session', 'true');
+        } else {
+          // Just fetch the current count without incrementing
+          const response = await fetch(`${PORTAL_API_URL}/visitors/count`);
+          const data = await response.json();
+          setTotalVisitors(data.count);
+        }
+      } catch (error) {
+        console.error('Error tracking visitor:', error);
+        // Fallback to 0 if API fails
+        setTotalVisitors(0);
+      }
+    };
+
+    trackVisitor();
   }, []);
 
   // Pause/resume animation on hover
@@ -216,6 +262,11 @@ function Home() {
               <div className="stat-number">500+</div>
               <div className="stat-title">Coaches</div>
               <div className="stat-subtitle">Certified trainers</div>
+            </div>
+            <div className="stat-card">
+              <div className="stat-number">{totalVisitors > 0 ? totalVisitors.toLocaleString() : '...'}</div>
+              <div className="stat-title">Website Visitors</div>
+              <div className="stat-subtitle">Total visits</div>
             </div>
           </div>
         </div>

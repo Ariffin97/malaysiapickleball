@@ -810,6 +810,23 @@ const clinicSchema = new mongoose.Schema({
 
 const Clinic = mongoose.model('Clinic', clinicSchema);
 
+// Visitor Schema - Track website visits
+const visitorSchema = new mongoose.Schema({
+  count: {
+    type: Number,
+    default: 0,
+    required: true
+  },
+  lastUpdated: {
+    type: Date,
+    default: Date.now
+  }
+}, {
+  timestamps: true
+});
+
+const Visitor = mongoose.model('Visitor', visitorSchema);
+
 // ============================================
 // ORGANIZER MODEL - REMOVED
 // ============================================
@@ -4200,6 +4217,58 @@ app.delete('/api/posts/:id', async (req, res) => {
     res.json({ success: true, message: 'Post deleted successfully' });
   } catch (error) {
     console.error('Error deleting post:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// ============================================
+// VISITOR TRACKING ENDPOINTS
+// ============================================
+
+// Get total visitor count
+app.get('/api/visitors/count', async (req, res) => {
+  try {
+    // Get or create the single visitor document
+    let visitorDoc = await Visitor.findOne();
+
+    if (!visitorDoc) {
+      // Initialize if doesn't exist
+      visitorDoc = await Visitor.create({ count: 0 });
+    }
+
+    res.json({
+      count: visitorDoc.count,
+      lastUpdated: visitorDoc.lastUpdated
+    });
+  } catch (error) {
+    console.error('Error fetching visitor count:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Track a new visitor (increment count)
+app.post('/api/visitors/track', async (req, res) => {
+  try {
+    // Find the single visitor document or create if doesn't exist
+    let visitorDoc = await Visitor.findOne();
+
+    if (!visitorDoc) {
+      // Initialize with count of 1
+      visitorDoc = await Visitor.create({ count: 1, lastUpdated: new Date() });
+    } else {
+      // Increment the count
+      visitorDoc.count += 1;
+      visitorDoc.lastUpdated = new Date();
+      await visitorDoc.save();
+    }
+
+    console.log('✅ Visitor tracked. Total count:', visitorDoc.count);
+    res.json({
+      count: visitorDoc.count,
+      lastUpdated: visitorDoc.lastUpdated
+    });
+  } catch (error) {
+    console.error('Error tracking visitor:', error);
     res.status(500).json({ error: error.message });
   }
 });
