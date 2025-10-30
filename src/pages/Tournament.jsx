@@ -235,47 +235,6 @@ function Tournament() {
     <div className="tournament-page">
       <main className="tournament-main">
         <div className="tournament-container">
-          {/* Header */}
-          <div className="tournament-header">
-            <h2>Tournament Management</h2>
-          </div>
-
-          {/* Notice Banner */}
-          {notices.length > 0 && (
-            <div className="notice-banner">
-              <div className="notice-header">
-                <i className="fas fa-bullhorn"></i>
-                <h3>Tournament Updates & Notices</h3>
-              </div>
-              <div className="notices-list">
-                {notices.map((notice, index) => (
-                  <div key={notice.newsId || index} className="notice-item">
-                    <div className="notice-item-header">
-                      <span className={`notice-priority priority-${notice.priority?.toLowerCase() || 'normal'}`}>
-                        {notice.priority || 'Normal'}
-                      </span>
-                      <span className="notice-date">
-                        {new Date(notice.publishDate).toLocaleDateString('en-US', {
-                          month: 'short',
-                          day: 'numeric',
-                          year: 'numeric'
-                        })}
-                      </span>
-                    </div>
-                    <h4>{notice.title}</h4>
-                    <p>{notice.summary || notice.content?.substring(0, 150) + '...'}</p>
-                    {notice.relatedTournament && (
-                      <div className="notice-tournament">
-                        <i className="fas fa-trophy"></i>
-                        <span>Related: {notice.relatedTournament}</span>
-                      </div>
-                    )}
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-
           {/* Loading State */}
           {loading && (
             <div className="loading-container">
@@ -304,35 +263,50 @@ function Tournament() {
             </div>
           )}
 
-          {/* Control Panel */}
+          {/* Page Title */}
+          {!loading && !error && (
+            <h1 className="page-title">Tournament Calendar 2025</h1>
+          )}
+
+          {/* Tournament Notices */}
+          {!loading && !error && notices.length > 0 && (
+            <div className="tournament-notices">
+              <div className="notices-header">
+                <i className="fas fa-bell"></i>
+                <h3>Important Updates</h3>
+              </div>
+              <div className="notices-list">
+                {notices.map((notice, index) => (
+                  <div key={notice.newsId || index} className="notice-alert">
+                    <div className="notice-meta">
+                      <span className={`notice-badge badge-${notice.priority?.toLowerCase() || 'normal'}`}>
+                        {notice.priority || 'Update'}
+                      </span>
+                      <span className="notice-date">
+                        {new Date(notice.publishDate).toLocaleDateString('en-US', {
+                          month: 'short',
+                          day: 'numeric',
+                          year: 'numeric'
+                        })}
+                      </span>
+                    </div>
+                    <h4 className="notice-title">{notice.title}</h4>
+                    <p className="notice-content">{notice.summary || notice.content?.substring(0, 200)}</p>
+                    {notice.relatedTournament && (
+                      <div className="notice-related">
+                        <i className="fas fa-trophy"></i>
+                        <span>{notice.relatedTournament}</span>
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Calendar View */}
           {!loading && !error && (
             <>
-              <div className="control-panel">
-                <div className="control-panel-content">
-                  <div className="download-buttons">
-                    <button className="btn-download">
-                      <i className="fas fa-download"></i>
-                      <span>Auto PDF</span>
-                    </button>
-                    <button className="btn-print">
-                      <i className="fas fa-print"></i>
-                      <span>Print PDF</span>
-                    </button>
-                  </div>
-                  <div className="stats-info">
-                    <div className="stat-item">
-                      <div className="stat-number">{tournaments.length}</div>
-                      <div className="stat-label">Events</div>
-                    </div>
-                    <div className="stat-item">
-                      <div className="stat-number">4</div>
-                      <div className="stat-label">Types</div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              {/* Calendar View */}
               <div className="calendar-view">
                 <div className="calendar-view-header">
                   <h2>

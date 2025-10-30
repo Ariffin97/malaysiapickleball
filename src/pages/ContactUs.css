@@ -1,0 +1,190 @@
+.contact-page {
+  width: 100%;
+  background: white;
+  min-height: 100vh;
+}
+
+.contact-page .page-header {
+  background: white;
+  color: #1f2937;
+  padding: 5rem 2rem;
+  text-align: center;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.contact-page .page-header h1 {
+  font-size: 3rem;
+  margin-bottom: 1rem;
+}
+
+.contact-page .page-header p {
+  font-size: 1.3rem;
+  color: #6b7280;
+}
+
+.contact-page .content-section {
+  padding: 4rem 2rem;
+}
+
+.contact-page .container {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.contact-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+  gap: 2rem;
+  margin-bottom: 3rem;
+}
+
+.contact-card {
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.contact-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+}
+
+.card-header {
+  background: linear-gradient(135deg, #3B82F6 0%, #60A5FA 50%, #fbbf24 100%);
+  padding: 2rem;
+  text-align: center;
+  color: white;
+}
+
+.card-header i {
+  font-size: 2.5rem;
+  margin-bottom: 1rem;
+  display: block;
+}
+
+.card-header h2 {
+  font-size: 1.5rem;
+  margin: 0;
+  font-weight: 700;
+}
+
+.card-body {
+  padding: 2rem;
+}
+
+.contact-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+  padding: 1rem;
+  margin-bottom: 0.5rem;
+  background: #f9fafb;
+  border-radius: 8px;
+  transition: background 0.2s ease;
+}
+
+.contact-item:hover {
+  background: #f3f4f6;
+}
+
+.contact-item i {
+  font-size: 1.25rem;
+  color: #3b82f6;
+  margin-top: 0.25rem;
+  min-width: 20px;
+}
+
+.contact-item div {
+  flex: 1;
+}
+
+.contact-item strong {
+  font-size: 1.1rem;
+  color: #1f2937;
+}
+
+.contact-item a {
+  color: #3b82f6;
+  text-decoration: none;
+  font-size: 1rem;
+  word-break: break-word;
+  transition: color 0.2s ease;
+}
+
+.contact-item a:hover {
+  color: #2563eb;
+  text-decoration: underline;
+}
+
+.footer-note {
+  margin-top: 3rem;
+  padding-top: 2rem;
+  border-top: 2px solid #e5e7eb;
+  text-align: center;
+}
+
+.footer-note p {
+  font-size: 0.95rem;
+  color: #6b7280;
+  margin-bottom: 0.5rem;
+}
+
+@media screen and (max-width: 768px) {
+  .contact-page .page-header h1 {
+    font-size: 2rem;
+  }
+
+  .contact-page .page-header p {
+    font-size: 1.1rem;
+  }
+
+  .contact-grid {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
+
+  .card-header {
+    padding: 1.5rem;
+  }
+
+  .card-header i {
+    font-size: 2rem;
+  }
+
+  .card-header h2 {
+    font-size: 1.25rem;
+  }
+
+  .card-body {
+    padding: 1.5rem;
+  }
+
+  .contact-item {
+    padding: 0.75rem;
+  }
+
+  .contact-item a {
+    font-size: 0.9rem;
+  }
+}
+
+@media screen and (max-width: 480px) {
+  .contact-page .content-section {
+    padding: 2rem 1rem;
+  }
+
+  .contact-grid {
+    gap: 1rem;
+  }
+
+  .contact-item {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .contact-item i {
+    margin-top: 0;
+  }
+}

@@ -53,6 +53,43 @@
   color: #374151;
 }
 
+.contact-details {
+  background: #f9fafb;
+  padding: 2rem;
+  border-radius: 8px;
+  margin-top: 2rem;
+  border-left: 4px solid #fbbf24;
+}
+
+.contact-details p {
+  font-size: 1.1rem;
+  margin-bottom: 1rem;
+  color: #374151;
+}
+
+.contact-details a {
+  color: #3b82f6;
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.contact-details a:hover {
+  text-decoration: underline;
+}
+
+.footer-note {
+  margin-top: 3rem;
+  padding-top: 2rem;
+  border-top: 2px solid #e5e7eb;
+  text-align: center;
+}
+
+.footer-note p {
+  font-size: 0.95rem;
+  color: #6b7280;
+  margin-bottom: 0.5rem;
+}
+
 @media screen and (max-width: 768px) {
   .page-header h1 {
     font-size: 2rem;

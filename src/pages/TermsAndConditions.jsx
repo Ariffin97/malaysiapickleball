@@ -1,211 +1,153 @@
 import './TermsAndConditions.css';
 
 function TermsAndConditions() {
-  const currentDate = new Date().toLocaleDateString('en-US', {
-    month: 'long',
-    day: 'numeric',
-    year: 'numeric'
-  });
-
   const currentYear = new Date().getFullYear();
 
   return (
     <div className="terms-page">
       <div className="terms-container">
         <div className="terms-header">
-          <h1>Terms and Conditions</h1>
-          <p className="last-updated">Last Updated: {currentDate}</p>
+          <h1>Terms & Conditions</h1>
+          <p className="last-updated">Last Updated: October 30, 2025</p>
         </div>
 
         <div className="terms-content">
+          {/* Section 1 */}
           <section className="terms-section">
             <h2>1. Acceptance of Terms</h2>
             <p>
-              By accessing or using this website and player portal ("the Platform"), you agree to be bound by these
-              Terms and Conditions and our Privacy Policy. If you do not agree, please discontinue use immediately.
+              By accessing or using this website or platform ("the Platform"), you agree to comply with these Terms & Conditions and the Privacy Policy. If you do not agree, please discontinue use.
             </p>
           </section>
 
+          {/* Section 2 */}
           <section className="terms-section">
-            <h2>2. About the Malaysia Pickleball Association (MPA)</h2>
+            <h2>2. Platform Ownership</h2>
             <p>
-              The Malaysia Pickleball Association (MPA) is the recognized governing body for pickleball in Malaysia.
-              It promotes, develops, and regulates the sport nationwide.
+              This Platform is developed and managed by <strong>Fenix Digital (MRI/BNR/241/2024)</strong>, appointed by the Malaysia Pickleball Association (MPA) as the official technical partner.
             </p>
-
-            <h3>2.1 Platform Ownership and Technical Partnership</h3>
-            <p>
-              This website is developed and operated by <strong>Fenix Digital (Company Registration No: MRI/BNR/241/2024)</strong>,
-              the Official Technical Partner appointed by MPA's Executive Committee.
-            </p>
-            <p>
-              Fenix Digital manages all technical and digital operations, while MPA manages the sporting and organizational aspects.
-            </p>
-            <p>
-              Full details regarding ownership and data processing are provided in the Privacy Policy.
-            </p>
-          </section>
-
-          <section className="terms-section">
-            <h2>3. User Accounts and Eligibility</h2>
-            <p>Users must register to access certain features.</p>
             <ul>
-              <li>You agree to provide accurate, up-to-date information and maintain your account securely.</li>
-              <li>Users must be 13 years or older; users aged 13–17 require parental consent.</li>
-              <li>You are responsible for all activities under your account.</li>
+              <li>Fenix Digital oversees digital infrastructure, security, and system operations.</li>
+              <li>MPA oversees tournament governance and sport administration.</li>
             </ul>
           </section>
 
+          {/* Section 3 */}
+          <section className="terms-section">
+            <h2>3. User Registration</h2>
+            <p>Users must register to access certain platform features.</p>
+            <p>You agree to:</p>
+            <ul>
+              <li>Provide accurate and current information.</li>
+              <li>Maintain the confidentiality of your account credentials.</li>
+              <li>Be responsible for all activities under your account.</li>
+              <li>Obtain parental consent if under 18 years of age.</li>
+            </ul>
+          </section>
+
+          {/* Section 4 */}
           <section className="terms-section">
             <h2>4. Acceptable Use</h2>
             <p>You agree not to:</p>
             <ul>
-              <li>Violate any law or regulation</li>
-              <li>Infringe on the rights of others</li>
-              <li>Attempt unauthorized access to systems or data</li>
-              <li>Upload or transmit harmful code or spam</li>
-              <li>Use bots or scraping tools without permission</li>
+              <li>Violate any laws or third-party rights.</li>
+              <li>Attempt unauthorized access to systems or data.</li>
+              <li>Upload harmful code or spam.</li>
+              <li>Engage in activities that could disrupt the platform or harm others.</li>
             </ul>
           </section>
 
+          {/* Section 5 */}
           <section className="terms-section">
-            <h2>5. Tournament Participation</h2>
-            <p>When registering for tournaments, you agree to:</p>
+            <h2>5. Tournament and Membership Use</h2>
+            <p>When registering for tournaments or membership programs, you agree to:</p>
             <ul>
-              <li>Provide accurate player details</li>
-              <li>Follow MPA's tournament rules</li>
-              <li>Pay applicable fees</li>
-              <li>Conduct yourself with integrity and sportsmanship</li>
+              <li>Provide accurate player information.</li>
+              <li>Follow MPA's official tournament rules and regulations.</li>
+              <li>Conduct yourself with fairness and respect.</li>
             </ul>
           </section>
 
+          {/* Section 6 */}
           <section className="terms-section">
-            <h2>6. Data and Privacy</h2>
+            <h2>6. Intellectual Property</h2>
             <p>
-              All personal data on the Platform is collected and managed by <strong>Fenix Digital</strong>, the appointed
-              data controller.
-            </p>
-            <p>
-              MPA only has limited read-only access for verification, validation, and tournament operations.
-            </p>
-            <p>
-              For full details, please refer to our Privacy Policy.
+              All website content, software, and code are owned or licensed by Fenix Digital.
+              The MPA name and logo are the property of MPA.
+              You may not reproduce or reuse materials without written consent.
             </p>
           </section>
 
+          {/* Section 7 */}
           <section className="terms-section">
-            <h2>7. Intellectual Property</h2>
+            <h2>7. Data and Privacy</h2>
             <p>
-              All materials, including text, graphics, software, and code, are protected by intellectual property laws.
+              All personal data is processed by Fenix Digital in accordance with our Privacy Policy.
+              MPA only has limited, read-only access for tournament validation and operations.
             </p>
+          </section>
+
+          {/* Section 8 */}
+          <section className="terms-section">
+            <h2>8. Payment Terms</h2>
             <ul>
-              <li>The MPA name and logo belong to MPA.</li>
-              <li>The software, systems, and codebase belong to Fenix Digital.</li>
-            </ul>
-            <p>
-              You may not copy or reuse content without written consent.
-            </p>
-          </section>
-
-          <section className="terms-section">
-            <h2>8. Payments and Fees</h2>
-            <ul>
-              <li>All membership and tournament fees are determined by MPA and are non-refundable unless otherwise specified.</li>
-              <li>Payments are securely processed through approved gateways.</li>
-              <li>Fenix Digital and MPA do not store full payment card details.</li>
+              <li>All payments for events, membership, or tournaments are handled securely through approved gateways.</li>
+              <li>Fees are non-refundable unless otherwise stated by MPA.</li>
+              <li>Neither MPA nor Fenix Digital stores full payment card details.</li>
             </ul>
           </section>
 
+          {/* Section 9 */}
           <section className="terms-section">
             <h2>9. Limitation of Liability</h2>
-            <p>
-              To the extent permitted by law, MPA and Fenix Digital are not liable for any indirect, incidental, or
-              consequential damages resulting from:
-            </p>
+            <p>Fenix Digital and MPA shall not be held liable for:</p>
             <ul>
-              <li>Use or inability to use the Platform</li>
-              <li>Unauthorized access or security breaches</li>
-              <li>Downtime or technical issues</li>
-              <li>Errors or data loss</li>
+              <li>Service interruptions or downtime</li>
+              <li>Unauthorized data access</li>
+              <li>Loss of data due to system error</li>
+              <li>Indirect, incidental, or consequential damages</li>
             </ul>
             <p>
-              Fenix Digital's liability is limited to the technical operation of the Platform.
-            </p>
-            <p>
-              MPA remains responsible for all sport-related programs and events.
+              Fenix Digital's liability is limited to technical operations, while MPA's liability is limited to sport-related programs.
             </p>
           </section>
 
+          {/* Section 10 */}
           <section className="terms-section">
-            <h2>10. Indemnification</h2>
+            <h2>10. Termination</h2>
             <p>
-              You agree to indemnify and hold harmless MPA, Fenix Digital, and their officers or agents from claims or
-              damages arising from your use of the Platform or violation of these Terms.
+              Fenix Digital and MPA reserve the right to suspend or terminate accounts for violations, misconduct, or security reasons.
             </p>
           </section>
 
+          {/* Section 11 */}
           <section className="terms-section">
-            <h2>11. Termination</h2>
+            <h2>11. Governing Law</h2>
             <p>
-              MPA or Fenix Digital may suspend or terminate access to your account or the Platform at any time, with or
-              without notice, for violations, misconduct, or technical reasons.
+              These Terms shall be governed by the laws of Malaysia. Any disputes shall fall under the exclusive jurisdiction of Malaysian courts.
             </p>
           </section>
 
+          {/* Section 12 - Contact */}
           <section className="terms-section">
-            <h2>12. Updates to Terms</h2>
-            <p>
-              These Terms may be amended periodically. Updates are effective upon posting. Continued use signifies
-              acceptance of revised Terms.
-            </p>
-          </section>
-
-          <section className="terms-section">
-            <h2>13. Governing Law</h2>
-            <p>
-              These Terms are governed by the laws of Malaysia, and disputes shall be resolved under the exclusive
-              jurisdiction of Malaysian courts.
-            </p>
-          </section>
-
-          <section className="terms-section">
-            <h2>14. Contact Information</h2>
+            <h2>12. Contact Information</h2>
 
             <div className="contact-info">
-              <p><strong>Malaysia Pickleball Association (MPA)</strong></p>
-              <p>Email: tournament@malaysiapickleballassociation.org</p>
-              <p>Website: malaysiapickleballassociation.org</p>
+              <p><strong>For technical or platform inquiries:</strong></p>
+              <p>📧 <a href="mailto:ariffin@fenixdigital.my">ariffin@fenixdigital.my</a></p>
             </div>
 
             <div className="contact-info">
-              <p><strong>Fenix Digital (Company Reg. No: MRI/BNR/241/2024)</strong></p>
-              <p>Official Technical Partner & Platform Operator</p>
-              <p>Email: tournament@malaysiapickleballassociation.org</p>
-              <p>Subject: <strong>ATTN: Fenix Digital – Technical Support</strong></p>
+              <p><strong>For tournament or membership issues:</strong></p>
+              <p>📧 <a href="mailto:tournament@malaysiapickleballassociation.org">tournament@malaysiapickleballassociation.org</a></p>
             </div>
-          </section>
-
-          <section className="terms-section">
-            <h2>15. Severability</h2>
-            <p>
-              If any clause of these Terms is deemed invalid, the remaining provisions shall remain in full effect.
-            </p>
-          </section>
-
-          <section className="terms-section acceptance-section">
-            <h2>16. Acknowledgment</h2>
-            <p>
-              By using this Platform, you confirm that you have read and understood these Terms and the Privacy Policy,
-              and that you agree to comply with them.
-            </p>
           </section>
         </div>
 
+        {/* Footer */}
         <div className="terms-footer">
-          <p>&copy; {currentYear} Fenix Digital</p>
-          <p>Company Reg. No: MRI/BNR/241/2024</p>
-          <p>Official Technical Partner and Platform Operator for the Malaysia Pickleball Association</p>
-          <p>All Rights Reserved | PDPA Registration Under Review</p>
+          <p>&copy; {currentYear} Fenix Digital. All Rights Reserved.</p>
+          <p>Official Technical Partner of the Malaysia Pickleball Association.</p>
         </div>
       </div>
     </div>

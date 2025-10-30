@@ -15,50 +15,11 @@ function Footer() {
                 <p>Connecting Malaysia's pickleball community through tournaments and coaching excellence.</p>
               </div>
 
-              {/* Mobile Contact Sections */}
-              <div className="mobile-contacts">
-                <div className="mobile-contact-section">
-                  <h4>Technical Contact</h4>
-                  <div className="mobile-contact-item">
-                    <i className="fas fa-envelope"></i>
-                    <span>ariffin@fenixdigital.my</span>
-                  </div>
-                  <div className="mobile-contact-item">
-                    <i className="fas fa-phone"></i>
-                    <span>+6011-16197471</span>
-                  </div>
-                  <div className="mobile-contact-item">
-                    <i className="fas fa-envelope"></i>
-                    <span>zac@fenixdigital.my</span>
-                  </div>
-                  <div className="mobile-contact-item">
-                    <i className="fas fa-phone"></i>
-                    <span>+6017-8941403</span>
-                  </div>
-                </div>
-
-                <div className="mobile-contact-section">
-                  <h4>MPA Contact</h4>
-                  <div className="mobile-contact-item">
-                    <i className="fas fa-user"></i>
-                    <span>Puan Delima Ibrahim</span>
-                  </div>
-                  <div className="mobile-contact-item">
-                    <i className="fas fa-phone"></i>
-                    <span>+6012-8830407</span>
-                  </div>
-                  <div className="mobile-contact-item">
-                    <i className="fas fa-envelope"></i>
-                    <span>president@malaysiapickleballassociation.org</span>
-                  </div>
-                  <div className="mobile-contact-item">
-                    <i className="fas fa-envelope"></i>
-                    <span>tournament@malaysiapickleballassociation.org</span>
-                  </div>
-                </div>
-              </div>
-
               <div className="mobile-footer-links">
+                <Link to="/about-us">About Us</Link>
+                <span>•</span>
+                <Link to="/contact-us">Contact</Link>
+                <span>•</span>
                 <Link to="/privacy-policy">Privacy</Link>
                 <span>•</span>
                 <Link to="/terms-and-conditions">Terms</Link>
@@ -103,65 +64,58 @@ function Footer() {
             <div className="footer-section">
               <h4>Quick Links</h4>
               <nav className="footer-nav">
-                <a href="/tournament" className="footer-link">
+                <Link to="/tournament" className="footer-link">
                   <i className="fas fa-trophy"></i>
                   <span>Tournaments</span>
-                </a>
-                <a href="/coaches" className="footer-link">
-                  <i className="fas fa-chalkboard-teacher"></i>
-                  <span>Coaches</span>
-                </a>
-                <a href="/venue" className="footer-link">
-                  <i className="fas fa-map-marker-alt"></i>
-                  <span>Venues</span>
-                </a>
-                <a href="/referee" className="footer-link">
-                  <i className="fas fa-whistle"></i>
-                  <span>Referees</span>
-                </a>
+                </Link>
+                <Link to="/about-us" className="footer-link">
+                  <i className="fas fa-info-circle"></i>
+                  <span>About Us</span>
+                </Link>
+                <Link to="/contact-us" className="footer-link">
+                  <i className="fas fa-envelope"></i>
+                  <span>Contact Us</span>
+                </Link>
+                <Link to="/registered-organizers" className="footer-link">
+                  <i className="fas fa-users"></i>
+                  <span>Organizers</span>
+                </Link>
               </nav>
             </div>
 
-            {/* Technical Contact */}
+            {/* Resources */}
             <div className="footer-section">
-              <h4>Technical Contact</h4>
-              <div className="contact-item">
-                <i className="fas fa-envelope"></i>
-                <span>ariffin@fenixdigital.my</span>
-              </div>
-              <div className="contact-item">
-                <i className="fas fa-phone"></i>
-                <span>+6011-16197471</span>
-              </div>
-              <div className="contact-item">
-                <i className="fas fa-envelope"></i>
-                <span>zac@fenixdigital.my</span>
-              </div>
-              <div className="contact-item">
-                <i className="fas fa-phone"></i>
-                <span>+6017-8941403</span>
-              </div>
+              <h4>Resources</h4>
+              <nav className="footer-nav">
+                <Link to="/tournament-guidelines" className="footer-link">
+                  <i className="fas fa-book"></i>
+                  <span>Tournament Guidelines</span>
+                </Link>
+                <Link to="/venue-guidelines" className="footer-link">
+                  <i className="fas fa-map-marked-alt"></i>
+                  <span>Venue Guidelines</span>
+                </Link>
+                <Link to="/privacy-policy" className="footer-link">
+                  <i className="fas fa-shield-alt"></i>
+                  <span>Privacy Policy</span>
+                </Link>
+                <Link to="/terms-and-conditions" className="footer-link">
+                  <i className="fas fa-file-contract"></i>
+                  <span>Terms & Conditions</span>
+                </Link>
+              </nav>
             </div>
 
-            {/* MPA Contact */}
+            {/* Contact Info */}
             <div className="footer-section">
-              <h4>MPA Contact</h4>
-              <div className="contact-item">
-                <i className="fas fa-user"></i>
-                <span>Puan Delima Ibrahim</span>
-              </div>
-              <div className="contact-item">
-                <i className="fas fa-phone"></i>
-                <span>+6012-8830407</span>
-              </div>
-              <div className="contact-item">
+              <h4>Get in Touch</h4>
+              <p className="footer-description">
+                Have questions? We'd love to hear from you.
+              </p>
+              <Link to="/contact-us" className="btn-contact">
                 <i className="fas fa-envelope"></i>
-                <span>president@malaysiapickleballassociation.org</span>
-              </div>
-              <div className="contact-item">
-                <i className="fas fa-envelope"></i>
-                <span>tournament@malaysiapickleballassociation.org</span>
-              </div>
+                <span>Contact Us</span>
+              </Link>
             </div>
           </div>
 

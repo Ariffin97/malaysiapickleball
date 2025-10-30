@@ -36,12 +36,18 @@ function Navbar() {
               <span className="brand-text">Malaysia Pickleball Association</span>
               <span className="beta-badge">Beta 3.0</span>
             </Link>
-            <Link to="/tournament" className="nav-link desktop-link">Tournament</Link>
+            <Link to="/tournament" className="nav-link desktop-link">Calendar</Link>
             <Link to="/registered-organizers" className="nav-link desktop-link">Registered Organizers</Link>
           </div>
 
           {/* Right - Home (Desktop) */}
           <div className="nav-links">
+            <Link to="/about-us" className="nav-link">
+              <span>About Us</span>
+            </Link>
+            <Link to="/contact-us" className="nav-link">
+              <span>Contact Us</span>
+            </Link>
             {location.pathname !== '/' && (
               <Link to="/" className="nav-link">
                 <span>Home</span>
@@ -67,11 +73,19 @@ function Navbar() {
           <div className="mobile-menu">
             <Link to="/tournament" className="mobile-menu-link" onClick={closeMobileMenu}>
               <i className="fas fa-trophy"></i>
-              Tournament
+              Calendar
             </Link>
             <Link to="/registered-organizers" className="mobile-menu-link" onClick={closeMobileMenu}>
               <i className="fas fa-users"></i>
               Registered Organizers
+            </Link>
+            <Link to="/about-us" className="mobile-menu-link" onClick={closeMobileMenu}>
+              <i className="fas fa-info-circle"></i>
+              About Us
+            </Link>
+            <Link to="/contact-us" className="mobile-menu-link" onClick={closeMobileMenu}>
+              <i className="fas fa-envelope"></i>
+              Contact Us
             </Link>
             {location.pathname !== '/' && (
               <Link to="/" className="mobile-menu-link" onClick={closeMobileMenu}>

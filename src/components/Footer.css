@@ -39,56 +39,6 @@
   line-height: 1.5;
 }
 
-/* Mobile Contact Sections */
-.mobile-contacts {
-  display: flex;
-  flex-direction: column;
-  gap: 1.25rem;
-  padding: 1rem 0;
-  border-top: 1px solid #374151;
-  border-bottom: 1px solid #374151;
-}
-
-.mobile-contact-section h4 {
-  font-size: 0.875rem;
-  font-weight: 600;
-  margin-bottom: 0.75rem;
-  color: #fff;
-}
-
-.mobile-contact-item {
-  display: flex;
-  align-items: flex-start;
-  gap: 0.5rem;
-  color: #d1d5db;
-  font-size: 0.75rem;
-  margin-bottom: 0.5rem;
-  line-height: 1.4;
-}
-
-.mobile-contact-item i {
-  font-size: 0.7rem;
-  width: 14px;
-  margin-top: 0.15rem;
-  flex-shrink: 0;
-}
-
-.mobile-contact-item i.fa-envelope {
-  color: #22c55e;
-}
-
-.mobile-contact-item i.fa-phone {
-  color: #3b82f6;
-}
-
-.mobile-contact-item i.fa-user {
-  color: #f59e0b;
-}
-
-.mobile-contact-item span {
-  word-break: break-word;
-}
-
 .mobile-footer-links {
   display: flex;
   align-items: center;
@@ -144,7 +94,7 @@
 /* Desktop Full Footer Content */
 .desktop-footer-grid {
   display: none;
-  grid-template-columns: 1.5fr 1fr 1fr 1.5fr;
+  grid-template-columns: 1.5fr 1fr 1fr 1fr;
   gap: 2rem;
   margin-bottom: 2rem;
 }
@@ -314,49 +264,38 @@
   color: #eab308;
 }
 
-/* Contact Info */
-.contact-info {
-  margin-bottom: 1.5rem;
-  background: none;
-  border: none;
-  box-shadow: none;
-  padding: 0;
+/* Footer Description */
+.footer-description {
+  font-size: 0.875rem;
+  color: #d1d5db;
+  line-height: 1.6;
+  margin-bottom: 1rem;
 }
 
-.contact-item {
-  display: flex;
+/* Contact Button */
+.btn-contact {
+  display: inline-flex;
   align-items: center;
   gap: 0.5rem;
-  color: #d1d5db;
-  font-size: 0.875rem;
-  margin-bottom: 0.75rem;
-  transition: color 0.3s ease;
-}
-
-.contact-item:hover {
+  padding: 0.75rem 1.25rem;
+  background: linear-gradient(135deg, #3B82F6 0%, #60A5FA 100%);
   color: white;
+  text-decoration: none;
+  border-radius: 8px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 8px rgba(59, 130, 246, 0.3);
 }
 
-.contact-item i {
-  font-size: 0.75rem;
-  width: 16px;
+.btn-contact:hover {
+  background: linear-gradient(135deg, #2563eb 0%, #3b82f6 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
 }
 
-.contact-item i.fa-envelope {
-  color: #22c55e;
-}
-
-.contact-item i.fa-phone {
-  color: #3b82f6;
-}
-
-.contact-item span {
-  word-break: break-word;
-  line-height: 1.4;
-}
-
-.contact-item i.fa-user {
-  color: #f59e0b;
+.btn-contact i {
+  font-size: 0.875rem;
 }
 
 /* Newsletter */

@@ -14,6 +14,21 @@
   padding: 0 1rem;
 }
 
+/* Page Title */
+.page-title {
+  text-align: center;
+  margin-top: 0;
+  margin-bottom: 2.5rem;
+  font-size: 3rem;
+  font-weight: 800;
+  color: #1f2937;
+  background: linear-gradient(135deg, #3B82F6 0%, #60A5FA 50%, #fbbf24 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  letter-spacing: -0.02em;
+}
+
 /* Header */
 .tournament-header {
   text-align: center;
@@ -24,6 +39,20 @@
   font-size: 1.75rem;
   font-weight: bold;
   color: #1f2937;
+}
+
+/* Responsive title */
+@media (max-width: 768px) {
+  .page-title {
+    font-size: 2.25rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .page-title {
+    font-size: 1.875rem;
+    margin-bottom: 1.5rem;
+  }
 }
 
 /* Notice Banner */
@@ -137,6 +166,115 @@
 }
 
 .notice-tournament i {
+  font-size: 0.875rem;
+}
+
+/* Tournament Notices Section */
+.tournament-notices {
+  background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+  border-radius: 12px;
+  padding: 1.5rem;
+  margin-bottom: 2rem;
+  box-shadow: 0 4px 12px rgba(251, 191, 36, 0.2);
+  border-left: 6px solid #f59e0b;
+}
+
+.notices-header {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 1.25rem;
+}
+
+.notices-header i {
+  font-size: 1.5rem;
+  color: #d97706;
+}
+
+.notices-header h3 {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #92400e;
+  margin: 0;
+}
+
+.notice-alert {
+  background: white;
+  border-radius: 8px;
+  padding: 1.25rem;
+  margin-bottom: 1rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  transition: all 0.2s ease;
+}
+
+.notice-alert:last-child {
+  margin-bottom: 0;
+}
+
+.notice-alert:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+  transform: translateY(-2px);
+}
+
+.notice-meta {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.75rem;
+}
+
+.notice-badge {
+  padding: 0.25rem 0.75rem;
+  border-radius: 12px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.badge-urgent, .badge-high {
+  background: #fee2e2;
+  color: #dc2626;
+}
+
+.badge-normal, .badge-medium, .badge-update {
+  background: #dbeafe;
+  color: #2563eb;
+}
+
+.badge-low {
+  background: #f3f4f6;
+  color: #6b7280;
+}
+
+.notice-title {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: #1f2937;
+  margin: 0 0 0.5rem 0;
+  line-height: 1.4;
+}
+
+.notice-content {
+  font-size: 0.9rem;
+  color: #4b5563;
+  margin: 0 0 0.75rem 0;
+  line-height: 1.6;
+}
+
+.notice-related {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 0.75rem;
+  background: #f0f9ff;
+  border-radius: 6px;
+  font-size: 0.875rem;
+  color: #0369a1;
+  font-weight: 500;
+}
+
+.notice-related i {
   font-size: 0.875rem;
 }
 

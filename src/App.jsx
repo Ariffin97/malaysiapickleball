@@ -23,6 +23,7 @@ import PickleZoneLogin from './pages/PickleZoneLogin';
 import RegisteredOrganizers from './pages/RegisteredOrganizers';
 import TermsAndConditions from './pages/TermsAndConditions';
 import PrivacyPolicy from './pages/PrivacyPolicy';
+import ContactUs from './pages/ContactUs';
 import './App.css';
 
 function AppContent() {
@@ -39,7 +40,8 @@ function AppContent() {
       <main>
         <Routes>
           <Route path="/" element={<Home />} />
-          <Route path="/about" element={<About />} />
+          <Route path="/about-us" element={<About />} />
+          <Route path="/contact-us" element={<ContactUs />} />
           <Route path="/tournament" element={<Tournament />} />
           <Route path="/tournament/register/:tournamentId" element={<TournamentRegistration />} />
           <Route path="/registered-organizers" element={<RegisteredOrganizers />} />

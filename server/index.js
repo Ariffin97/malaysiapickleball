@@ -275,6 +275,21 @@ const newsSchema = new mongoose.Schema({
     enum: ['draft', 'published', 'archived', 'Draft', 'Published', 'Archived'],
     default: 'published'
   },
+  category: {
+    type: String,
+    enum: ['General', 'Tournament', 'Event', 'Announcement', 'Update'],
+    default: 'General',
+    index: true
+  },
+  priority: {
+    type: String,
+    enum: ['Low', 'Normal', 'Medium', 'High', 'Urgent', 'low', 'normal', 'medium', 'high', 'urgent'],
+    default: 'Normal'
+  },
+  relatedTournament: {
+    type: String,
+    default: null
+  },
   media: [{
     type: {
       type: String,
@@ -288,6 +303,7 @@ const newsSchema = new mongoose.Schema({
 });
 
 newsSchema.index({ status: 1, publishDate: -1 });
+newsSchema.index({ category: 1, status: 1, publishDate: -1 });
 
 const News = mongoose.model('News', newsSchema);
 
@@ -1696,10 +1712,11 @@ app.delete('/api/milestones/:id', async (req, res) => {
 // Get all news (with optional filters)
 app.get('/api/news', async (req, res) => {
   try {
-    const { status, limit } = req.query;
+    const { status, category, limit } = req.query;
 
     let query = {};
     if (status) query.status = status;
+    if (category) query.category = category;
 
     const newsLimit = limit ? parseInt(limit) : 50;
 
@@ -1734,7 +1751,7 @@ app.get('/api/news/:newsId', async (req, res) => {
 // Create new news
 app.post('/api/news', uploadNewsImage.single('newsImage'), async (req, res) => {
   try {
-    const { newsId, title, summary, content, publishDate, status } = req.body;
+    const { newsId, title, summary, content, publishDate, status, category, priority, relatedTournament } = req.body;
 
     if (!newsId || !title || !content || !publishDate) {
       return res.status(400).json({ error: 'NewsId, title, content, and publishDate are required' });
@@ -1747,6 +1764,9 @@ app.post('/api/news', uploadNewsImage.single('newsImage'), async (req, res) => {
       content,
       publishDate: new Date(publishDate),
       status: status || 'Published',
+      category: category || 'General',
+      priority: priority || 'Normal',
+      relatedTournament: relatedTournament || null,
       media: []
     };
 
@@ -1771,7 +1791,7 @@ app.post('/api/news', uploadNewsImage.single('newsImage'), async (req, res) => {
 // Update news
 app.patch('/api/news/:newsId', uploadNewsImage.single('newsImage'), async (req, res) => {
   try {
-    const { title, summary, content, publishDate, status } = req.body;
+    const { title, summary, content, publishDate, status, category, priority, relatedTournament } = req.body;
 
     const updateData = {};
     if (title) updateData.title = title;
@@ -1779,6 +1799,9 @@ app.patch('/api/news/:newsId', uploadNewsImage.single('newsImage'), async (req, 
     if (content) updateData.content = content;
     if (publishDate) updateData.publishDate = new Date(publishDate);
     if (status) updateData.status = status;
+    if (category) updateData.category = category;
+    if (priority) updateData.priority = priority;
+    if (relatedTournament !== undefined) updateData.relatedTournament = relatedTournament;
 
     // Add new image if uploaded
     if (req.file) {
