@@ -18,7 +18,7 @@
 .page-title {
   text-align: center;
   margin-top: 0;
-  margin-bottom: 2.5rem;
+  margin-bottom: 1rem;
   font-size: 3rem;
   font-weight: 800;
   color: #1f2937;
@@ -27,6 +27,36 @@
   -webkit-text-fill-color: transparent;
   background-clip: text;
   letter-spacing: -0.02em;
+}
+
+/* Year Selector */
+.year-selector {
+  display: flex;
+  justify-content: center;
+  gap: 0.75rem;
+  margin-bottom: 2.5rem;
+}
+
+.year-btn {
+  padding: 0.5rem 1rem;
+  border: none;
+  border-radius: 6px;
+  background: transparent;
+  color: #6b7280;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  min-width: 60px;
+}
+
+.year-btn:hover {
+  color: #3b82f6;
+}
+
+.year-btn.active {
+  background: #3b82f6;
+  color: white;
 }
 
 /* Header */
@@ -46,12 +76,32 @@
   .page-title {
     font-size: 2.25rem;
   }
+
+  .year-selector {
+    gap: 0.5rem;
+  }
+
+  .year-btn {
+    padding: 0.625rem 1.25rem;
+    font-size: 0.9rem;
+    min-width: 70px;
+  }
 }
 
 @media (max-width: 480px) {
   .page-title {
     font-size: 1.875rem;
+    margin-bottom: 0.75rem;
+  }
+
+  .year-selector {
     margin-bottom: 1.5rem;
+  }
+
+  .year-btn {
+    padding: 0.5rem 1rem;
+    font-size: 0.875rem;
+    min-width: 60px;
   }
 }
 

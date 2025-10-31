@@ -27,6 +27,7 @@ function Tournament() {
   const [notices, setNotices] = useState([]);
   const [selectedTournament, setSelectedTournament] = useState(null);
   const [showModal, setShowModal] = useState(false);
+  const [selectedYear, setSelectedYear] = useState(2025);
 
   // Fetch tournaments from MPA Portal
   useEffect(() => {
@@ -219,13 +220,19 @@ function Tournament() {
     return schedule;
   };
 
-  const tournamentData = tournaments.map((t, index) => ({
-    ...t,
-    id: t._id || t.applicationId || `tournament-${index}`, // Ensure unique ID
-    index,
-    color: getColorFromType(t.type),
-    schedule: calculateSchedule(t)
-  }));
+  const tournamentData = tournaments
+    .filter(t => {
+      if (!t.startDate) return false;
+      const tournamentYear = new Date(t.startDate).getFullYear();
+      return tournamentYear === selectedYear;
+    })
+    .map((t, index) => ({
+      ...t,
+      id: t._id || t.applicationId || `tournament-${index}`, // Ensure unique ID
+      index,
+      color: getColorFromType(t.type),
+      schedule: calculateSchedule(t)
+    }));
 
   const getDuration = (start, end) => {
     return Math.ceil((new Date(end) - new Date(start)) / (1000 * 60 * 60 * 24)) + 1;
@@ -263,9 +270,25 @@ function Tournament() {
             </div>
           )}
 
-          {/* Page Title */}
+          {/* Page Title with Year Selector */}
           {!loading && !error && (
-            <h1 className="page-title">Tournament Calendar 2025</h1>
+            <>
+              <h1 className="page-title">Tournament Calendar {selectedYear}</h1>
+              <div className="year-selector">
+                <button
+                  className={`year-btn ${selectedYear === 2025 ? 'active' : ''}`}
+                  onClick={() => setSelectedYear(2025)}
+                >
+                  2025
+                </button>
+                <button
+                  className={`year-btn ${selectedYear === 2026 ? 'active' : ''}`}
+                  onClick={() => setSelectedYear(2026)}
+                >
+                  2026
+                </button>
+              </div>
+            </>
           )}
 
           {/* Tournament Notices */}
@@ -464,7 +487,7 @@ function Tournament() {
                       >
                         <i className="fas fa-chevron-left"></i>
                       </button>
-                      <div className="current-month-display">{months[currentMonth]} 2025</div>
+                      <div className="current-month-display">{months[currentMonth]} {selectedYear}</div>
                       <button
                         onClick={() => setCurrentMonth(currentMonth < 11 ? currentMonth + 1 : 0)}
                         className="month-nav-btn"
