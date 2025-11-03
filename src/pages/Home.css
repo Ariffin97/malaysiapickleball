@@ -2669,14 +2669,14 @@
     padding: 0.75rem;
   }
 
-  /* Popup close button - smaller on mobile */
+  /* Popup close button - smaller on mobile and positioned to avoid overlap */
   .popup-close-btn {
     width: 36px !important;
     height: 36px !important;
     font-size: 1.25rem !important;
     border: 2px solid rgba(255, 255, 255, 0.95) !important;
-    top: 0.5rem !important;
-    right: 0.5rem !important;
+    top: 0.75rem !important;
+    right: 0.75rem !important;
     box-shadow: 0 4px 12px rgba(239, 68, 68, 0.5), 0 0 0 2px rgba(239, 68, 68, 0.1) !important;
   }
 }
