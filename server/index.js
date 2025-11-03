@@ -957,6 +957,9 @@ const uploadNewsImage = multer({ storage: newsStorage });
 // Multer configuration for post images (use profile storage for now)
 const uploadPostImage = multer({ storage: profileStorage });
 
+// Multer configuration for status images (use profile storage for statuses)
+const upload = multer({ storage: profileStorage });
+
 // Portal API Configuration
 const PORTAL_API_URL = process.env.PORTAL_API_URL || 'https://portalmpa.com/api';
 
