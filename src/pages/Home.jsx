@@ -924,7 +924,7 @@ function Home() {
           <div className="modal-content" onClick={(e) => e.stopPropagation()} style={{ maxWidth: '95vw', maxHeight: '95vh', padding: 0, background: 'transparent', boxShadow: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
             <div style={{ position: 'relative', display: 'inline-block' }}>
               <button
-                className="modal-close"
+                className="modal-close popup-close-btn"
                 onClick={() => setShowImagePopup(false)}
                 style={{
                   position: 'absolute',
