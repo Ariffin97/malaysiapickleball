@@ -35,6 +35,7 @@ function Home() {
   const [selectedNews, setSelectedNews] = useState(null);
   const [picklezonePosts, setPicklezonePosts] = useState([]);
   const [totalVisitors, setTotalVisitors] = useState(0);
+  const [showImagePopup, setShowImagePopup] = useState(false);
 
   useEffect(() => {
     const fetchMilestones = async () => {
@@ -163,6 +164,16 @@ function Home() {
     };
 
     trackVisitor();
+  }, []);
+
+  // Show image popup on page load
+  useEffect(() => {
+    // Show popup after a short delay to ensure page is loaded
+    const timer = setTimeout(() => {
+      setShowImagePopup(true);
+    }, 500);
+
+    return () => clearTimeout(timer);
   }, []);
 
   // Pause/resume animation on hover
@@ -902,6 +913,61 @@ function Home() {
               <div className="news-content" style={{ lineHeight: '1.8', color: '#374151', whiteSpace: 'pre-wrap' }}>
                 {selectedNews.content}
               </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Image Popup Modal */}
+      {showImagePopup && (
+        <div className="modal-overlay" onClick={() => setShowImagePopup(false)}>
+          <div className="modal-content" onClick={(e) => e.stopPropagation()} style={{ maxWidth: '95vw', maxHeight: '95vh', padding: 0, background: 'transparent', boxShadow: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <div style={{ position: 'relative', display: 'inline-block' }}>
+              <button
+                className="modal-close"
+                onClick={() => setShowImagePopup(false)}
+                style={{
+                  position: 'absolute',
+                  top: '0.75rem',
+                  right: '0.75rem',
+                  zIndex: 10,
+                  background: 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)',
+                  color: 'white',
+                  width: '56px',
+                  height: '56px',
+                  fontSize: '1.5rem',
+                  fontWeight: 'bold',
+                  border: '3px solid rgba(255, 255, 255, 0.95)',
+                  borderRadius: '50%',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  cursor: 'pointer',
+                  boxShadow: '0 8px 24px rgba(239, 68, 68, 0.5), 0 0 0 4px rgba(239, 68, 68, 0.1)',
+                  backdropFilter: 'blur(4px)',
+                  outline: 'none'
+                }}
+              >
+                ✕
+              </button>
+              <img
+                src="/malaysiaclose.png"
+                alt="Announcement"
+                style={{
+                  maxWidth: '95vw',
+                  maxHeight: '95vh',
+                  width: 'auto',
+                  height: 'auto',
+                  display: 'block',
+                  borderRadius: '12px',
+                  objectFit: 'contain',
+                  boxShadow: '0 20px 60px rgba(0, 0, 0, 0.4)'
+                }}
+                onError={(e) => {
+                  console.error('Failed to load image');
+                  setShowImagePopup(false);
+                }}
+              />
             </div>
           </div>
         </div>

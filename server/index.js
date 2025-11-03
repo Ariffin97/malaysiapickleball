@@ -728,6 +728,56 @@ postSchema.index({ 'author.playerId': 1 });
 
 const Post = mongoose.model('Post', postSchema);
 
+// Status Schema (for temporary status updates similar to stories)
+const statusSchema = new mongoose.Schema({
+  author: {
+    playerId: {
+      type: String,
+      required: true,
+      index: true
+    },
+    fullName: {
+      type: String,
+      required: true
+    },
+    username: String,
+    profilePicture: String,
+    gender: String
+  },
+  content: {
+    type: String,
+    required: true,
+    maxlength: 500
+  },
+  imageUrl: String,
+  backgroundColor: {
+    type: String,
+    default: '#8B4789'
+  },
+  views: [{
+    playerId: String,
+    viewedAt: {
+      type: Date,
+      default: Date.now
+    }
+  }],
+  expiresAt: {
+    type: Date,
+    required: true,
+    index: true
+  },
+  createdAt: {
+    type: Date,
+    default: Date.now,
+    index: true
+  }
+});
+
+// Index for automatic deletion of expired statuses
+statusSchema.index({ expiresAt: 1 }, { expireAfterSeconds: 0 });
+
+const Status = mongoose.model('Status', statusSchema);
+
 // Course Schema
 const courseSchema = new mongoose.Schema({
   title: {
@@ -4240,6 +4290,169 @@ app.delete('/api/posts/:id', async (req, res) => {
     res.json({ success: true, message: 'Post deleted successfully' });
   } catch (error) {
     console.error('Error deleting post:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// ============================================
+// STATUS ENDPOINTS (Story-like feature)
+// ============================================
+
+// Create a new status
+app.post('/api/statuses', upload.single('image'), async (req, res) => {
+  try {
+    const { playerId, fullName, username, profilePicture, gender, content, backgroundColor } = req.body;
+
+    if (!playerId || !fullName || !content) {
+      return res.status(400).json({ error: 'PlayerId, fullName, and content are required' });
+    }
+
+    let imageUrl = null;
+    if (req.file) {
+      imageUrl = await uploadToCloudinary(req.file);
+    }
+
+    // Status expires after 24 hours
+    const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000);
+
+    const status = await Status.create({
+      author: {
+        playerId,
+        fullName,
+        username,
+        profilePicture,
+        gender
+      },
+      content,
+      imageUrl,
+      backgroundColor: backgroundColor || '#8B4789',
+      expiresAt
+    });
+
+    res.status(201).json(status);
+  } catch (error) {
+    console.error('Error creating status:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Get all active statuses (not expired)
+app.get('/api/statuses', async (req, res) => {
+  try {
+    const now = new Date();
+
+    // Find all non-expired statuses
+    const statuses = await Status.find({
+      expiresAt: { $gt: now }
+    })
+    .sort({ createdAt: -1 })
+    .lean();
+
+    // Group statuses by author
+    const statusesByAuthor = {};
+    statuses.forEach(status => {
+      const authorId = status.author.playerId;
+      if (!statusesByAuthor[authorId]) {
+        statusesByAuthor[authorId] = {
+          author: status.author,
+          statuses: [],
+          latestStatusTime: status.createdAt
+        };
+      }
+      statusesByAuthor[authorId].statuses.push(status);
+    });
+
+    // Convert to array and sort by latest status time
+    const groupedStatuses = Object.values(statusesByAuthor)
+      .sort((a, b) => b.latestStatusTime - a.latestStatusTime);
+
+    res.json(groupedStatuses);
+  } catch (error) {
+    console.error('Error fetching statuses:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Get statuses by a specific player
+app.get('/api/statuses/player/:playerId', async (req, res) => {
+  try {
+    const { playerId } = req.params;
+    const now = new Date();
+
+    const statuses = await Status.find({
+      'author.playerId': playerId,
+      expiresAt: { $gt: now }
+    })
+    .sort({ createdAt: -1 })
+    .lean();
+
+    res.json(statuses);
+  } catch (error) {
+    console.error('Error fetching player statuses:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Mark status as viewed
+app.post('/api/statuses/:id/view', async (req, res) => {
+  try {
+    const { playerId } = req.body;
+
+    if (!playerId) {
+      return res.status(400).json({ error: 'PlayerId is required' });
+    }
+
+    const status = await Status.findById(req.params.id);
+
+    if (!status) {
+      return res.status(404).json({ error: 'Status not found' });
+    }
+
+    // Check if already viewed by this player
+    const alreadyViewed = status.views.some(view => view.playerId === playerId);
+
+    if (!alreadyViewed) {
+      status.views.push({ playerId, viewedAt: new Date() });
+      await status.save();
+    }
+
+    res.json({ success: true, viewCount: status.views.length });
+  } catch (error) {
+    console.error('Error marking status as viewed:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Delete a status
+app.delete('/api/statuses/:id', async (req, res) => {
+  try {
+    const { playerId } = req.body;
+
+    if (!playerId) {
+      return res.status(400).json({ error: 'PlayerId is required' });
+    }
+
+    const status = await Status.findById(req.params.id);
+
+    if (!status) {
+      return res.status(404).json({ error: 'Status not found' });
+    }
+
+    // Verify that the user is the author
+    if (status.author.playerId !== playerId) {
+      return res.status(403).json({ error: 'You can only delete your own status' });
+    }
+
+    // Delete image from Cloudinary if it exists
+    if (status.imageUrl) {
+      await deleteCloudinaryImage(status.imageUrl);
+    }
+
+    await Status.findByIdAndDelete(req.params.id);
+
+    res.json({ success: true, message: 'Status deleted successfully' });
+  } catch (error) {
+    console.error('Error deleting status:', error);
     res.status(500).json({ error: error.message });
   }
 });
