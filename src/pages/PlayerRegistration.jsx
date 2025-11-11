@@ -168,15 +168,15 @@ function PlayerRegistration() {
       return;
     }
 
-    // Check parental consent for players aged 8-17
+    // Check parental consent for players under 18
     const age = parseInt(registerFormData.age);
-    if (age >= 8 && age <= 17) {
+    if (age < 18) {
       if (!registerFormData.parentGuardianName || registerFormData.parentGuardianName.trim() === '') {
-        alert('Parent/Guardian name is required for players aged 8-17!');
+        alert('Parent/Guardian name is required for players under 18!');
         return;
       }
       if (!registerFormData.parentGuardianIcNumber || registerFormData.parentGuardianIcNumber.trim() === '') {
-        alert('Parent/Guardian IC number is required for players aged 8-17!');
+        alert('Parent/Guardian IC number is required for players under 18!');
         return;
       }
       // Validate IC number format (should be 12 digits formatted as XXXXXX-XX-XXXX)
@@ -186,11 +186,11 @@ function PlayerRegistration() {
         return;
       }
       if (!registerFormData.parentGuardianContact || registerFormData.parentGuardianContact.trim() === '') {
-        alert('Parent/Guardian contact number is required for players aged 8-17!');
+        alert('Parent/Guardian contact number is required for players under 18!');
         return;
       }
       if (!registerFormData.parentalConsent) {
-        alert('Parental consent is required for players aged 8-17!');
+        alert('Parental consent is required for players under 18!');
         return;
       }
     }
@@ -274,8 +274,8 @@ function PlayerRegistration() {
       formData.append('password', registerFormData.password);
       formData.append('termsAccepted', registerFormData.termsAccepted);
 
-      // Include parental consent for players aged 8-17
-      if (age >= 8 && age <= 17) {
+      // Include parental consent for players under 18
+      if (age < 18) {
         formData.append('parentGuardianName', registerFormData.parentGuardianName);
         formData.append('parentGuardianIcNumber', registerFormData.parentGuardianIcNumber);
         formData.append('parentGuardianContact', registerFormData.parentGuardianContact);
@@ -467,8 +467,8 @@ function PlayerRegistration() {
             </div>
           </div>
 
-          {/* Parental Consent Section - Only show for ages 8-17 */}
-          {registerFormData.age && parseInt(registerFormData.age) >= 8 && parseInt(registerFormData.age) <= 17 && (
+          {/* Parental Consent Section - Only show for ages under 18 */}
+          {registerFormData.age && parseInt(registerFormData.age) < 18 && (
             <div className="form-section parental-consent-section">
               <div className="parental-consent-header">
                 <i className="fas fa-user-shield"></i>

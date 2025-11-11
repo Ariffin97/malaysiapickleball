@@ -2203,7 +2203,7 @@ app.post('/api/players/register', uploadPlayerImage.single('profilePicture'), as
       playerData.duprRating = parseFloat(duprRating);
     }
 
-    // Add parental consent information if provided (for players aged 8-17)
+    // Add parental consent information if provided (for players under 18)
     if (parentGuardianName) {
       playerData.parentGuardianName = parentGuardianName;
     }
@@ -3361,7 +3361,7 @@ app.delete('/api/players/:id', async (req, res) => {
   }
 });
 
-// Submit parental consent (for players aged 8-17)
+// Submit parental consent (for players under 18)
 app.post('/api/players/:id/parental-consent', async (req, res) => {
   try {
     const { parentGuardianName, parentGuardianIcNumber, parentGuardianContact, parentalConsent } = req.body;
@@ -3387,9 +3387,9 @@ app.post('/api/players/:id/parental-consent', async (req, res) => {
       return res.status(404).json({ error: 'Player not found' });
     }
 
-    // Check if player is aged 8-17
-    if (player.age < 8 || player.age > 17) {
-      return res.status(400).json({ error: 'Parental consent is only required for players aged 8-17' });
+    // Check if player is under 18
+    if (player.age >= 18) {
+      return res.status(400).json({ error: 'Parental consent is only required for players under 18' });
     }
 
     // Update parental consent information
@@ -3423,12 +3423,12 @@ app.post('/api/players/:id/parental-consent', async (req, res) => {
   }
 });
 
-// Check and suspend players aged 8-17 without parental consent
+// Check and suspend players under 18 without parental consent
 app.post('/api/players/check-parental-consent', async (req, res) => {
   try {
-    // Find all players aged 8-17 without parental consent
+    // Find all players under 18 without parental consent
     const playersNeedingConsent = await Player.find({
-      age: { $gte: 8, $lte: 17 },
+      age: { $lt: 18 },
       $or: [
         { parentGuardianName: null },
         { parentGuardianName: { $exists: false } },
@@ -3450,7 +3450,7 @@ app.post('/api/players/check-parental-consent', async (req, res) => {
 
     res.json({
       success: true,
-      message: `Checked and suspended ${suspended} player(s) aged 8-17 without parental consent`,
+      message: `Checked and suspended ${suspended} player(s) under 18 without parental consent`,
       suspended: suspended
     });
   } catch (error) {
@@ -4610,9 +4610,9 @@ async function checkAndSuspendPlayersWithoutConsent() {
   try {
     console.log('🔍 Running parental consent check...');
 
-    // Find all players aged 8-17 without parental consent
+    // Find all players under 18 without parental consent
     const playersNeedingConsent = await Player.find({
-      age: { $gte: 8, $lte: 17 },
+      age: { $lt: 18 },
       $or: [
         { parentGuardianName: null },
         { parentGuardianName: { $exists: false } },
@@ -4635,7 +4635,7 @@ async function checkAndSuspendPlayersWithoutConsent() {
     if (suspended > 0) {
       console.log(`✅ Parental consent check completed: ${suspended} player(s) suspended`);
     } else {
-      console.log(`✅ Parental consent check completed: All players aged 8-17 have valid consent`);
+      console.log(`✅ Parental consent check completed: All players under 18 have valid consent`);
     }
 
     return suspended;

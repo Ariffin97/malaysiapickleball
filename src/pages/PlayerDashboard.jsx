@@ -58,8 +58,7 @@ function PlayerDashboard() {
 
           // Check if player needs to submit parental consent
           const needsParentalConsent =
-            data.age >= 8 &&
-            data.age <= 17 &&
+            data.age < 18 &&
             (!data.parentGuardianName || !data.parentalConsent) &&
             data.status === 'suspended';
 
@@ -1803,7 +1802,7 @@ function PlayerDashboard() {
               <div className="consent-notice">
                 <i className="fas fa-exclamation-triangle"></i>
                 <p>
-                  <strong>Your account is currently suspended.</strong> Since you are between 8-17 years old,
+                  <strong>Your account is currently suspended.</strong> Since you are under 18 years old,
                   we require parental or guardian consent to activate your account and access all features.
                 </p>
               </div>
