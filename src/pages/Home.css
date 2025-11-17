@@ -787,6 +787,389 @@
   box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
 }
 
+/* Gatorade Championship Carousel Section */
+.gatorade-championship-section {
+  padding: 3rem 2rem;
+  background: white;
+}
+
+.gatorade-championship-section .container {
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.gatorade-championship-section h3 {
+  font-size: 2.5rem;
+  color: #1f2937;
+  text-align: center;
+  margin-bottom: 2rem;
+  font-weight: 600;
+}
+
+.carousel-note {
+  text-align: center;
+  color: #6b7280;
+  font-size: 0.9rem;
+  margin-top: 1.5rem;
+  font-style: italic;
+}
+
+/* Carousel Container */
+.carousel-container {
+  width: 100%;
+  overflow: hidden;
+  position: relative;
+}
+
+.carousel-container::before,
+.carousel-container::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 100px;
+  z-index: 2;
+  pointer-events: none;
+}
+
+.carousel-container::before {
+  left: 0;
+  background: linear-gradient(to right, white, transparent);
+}
+
+.carousel-container::after {
+  right: 0;
+  background: linear-gradient(to left, white, transparent);
+}
+
+.carousel-track {
+  display: flex;
+  gap: 2rem;
+  animation: scroll 40s linear infinite;
+  width: max-content;
+}
+
+.carousel-track:hover {
+  animation-play-state: paused;
+}
+
+@keyframes scroll {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-33.333%);
+  }
+}
+
+.carousel-image-card {
+  flex: 0 0 auto;
+  position: relative;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.carousel-image-card:hover {
+  z-index: 1;
+}
+
+.carousel-image-card:hover .image-overlay {
+  opacity: 1;
+}
+
+.carousel-image-card img {
+  width: auto !important;
+  height: 300px !important;
+  display: block;
+  object-fit: contain;
+  border-radius: 12px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+  transition: all 0.3s ease;
+}
+
+.carousel-image-card:hover img {
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.25);
+}
+
+.image-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.7);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  border-radius: 12px;
+}
+
+.image-overlay i {
+  font-size: 3rem;
+  color: white;
+}
+
+.image-overlay span {
+  color: white;
+  font-size: 1.1rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.image-title {
+  display: none;
+}
+
+.image-placeholder {
+  width: 100%;
+  min-height: 300px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: #f3f4f6;
+  color: #9ca3af;
+}
+
+.image-placeholder i {
+  font-size: 3rem;
+  margin-bottom: 1rem;
+}
+
+.image-placeholder p {
+  font-size: 1rem;
+}
+
+/* Professional Lightbox Gallery */
+.lightbox-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.95);
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  animation: fadeIn 0.3s ease;
+  backdrop-filter: blur(10px);
+}
+
+.lightbox-container {
+  width: 100%;
+  max-width: 1400px;
+  height: 95vh;
+  display: flex;
+  flex-direction: column;
+  animation: slideUp 0.4s ease;
+}
+
+/* Lightbox Header */
+.lightbox-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1.5rem 2rem;
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(20px);
+  border-radius: 12px 12px 0 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.lightbox-title h3 {
+  color: white;
+  font-size: 1.5rem;
+  font-weight: 600;
+  margin: 0 0 0.25rem 0;
+}
+
+.lightbox-counter {
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 0.95rem;
+  margin: 0;
+}
+
+.lightbox-close {
+  background: rgba(255, 255, 255, 0.1);
+  color: white;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-size: 1.25rem;
+}
+
+.lightbox-close:hover {
+  background: rgba(239, 68, 68, 0.9);
+  border-color: rgba(239, 68, 68, 1);
+  transform: rotate(90deg);
+}
+
+/* Lightbox Content */
+.lightbox-content {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  background: rgba(0, 0, 0, 0.3);
+  padding: 2rem;
+}
+
+.lightbox-image-wrapper {
+  max-width: 100%;
+  max-height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.lightbox-image {
+  max-width: 100%;
+  max-height: 70vh;
+  width: auto;
+  height: auto;
+  object-fit: contain;
+  border-radius: 8px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+  animation: imageZoom 0.4s ease;
+}
+
+/* Navigation Buttons */
+.lightbox-nav {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  color: white;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-size: 1.5rem;
+  z-index: 10;
+}
+
+.lightbox-nav:hover {
+  background: rgba(59, 130, 246, 0.9);
+  border-color: rgba(59, 130, 246, 1);
+  transform: translateY(-50%) scale(1.1);
+}
+
+.lightbox-prev {
+  left: 2rem;
+}
+
+.lightbox-next {
+  right: 2rem;
+}
+
+/* Thumbnail Strip */
+.lightbox-thumbnails {
+  display: flex;
+  gap: 1rem;
+  padding: 1.5rem 2rem;
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(20px);
+  border-radius: 0 0 12px 12px;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  overflow-x: auto;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.3) transparent;
+}
+
+.lightbox-thumbnails::-webkit-scrollbar {
+  height: 6px;
+}
+
+.lightbox-thumbnails::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.lightbox-thumbnails::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.3);
+  border-radius: 3px;
+}
+
+.thumbnail {
+  flex: 0 0 100px;
+  height: 80px;
+  border-radius: 8px;
+  overflow: hidden;
+  cursor: pointer;
+  border: 3px solid transparent;
+  transition: all 0.3s ease;
+  opacity: 0.5;
+}
+
+.thumbnail:hover {
+  opacity: 1;
+  transform: scale(1.05);
+}
+
+.thumbnail.active {
+  border-color: #3b82f6;
+  opacity: 1;
+  box-shadow: 0 0 20px rgba(59, 130, 246, 0.5);
+}
+
+.thumbnail img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+/* Animations */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideUp {
+  from {
+    transform: translateY(30px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+@keyframes imageZoom {
+  from {
+    transform: scale(0.95);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
 /* Upcoming Tournaments Section */
 .upcoming-tournaments {
   padding: 3rem 2rem;
@@ -2812,5 +3195,170 @@
     top: 0.75rem !important;
     right: 0.75rem !important;
     box-shadow: 0 4px 12px rgba(239, 68, 68, 0.5), 0 0 0 2px rgba(239, 68, 68, 0.1) !important;
+  }
+
+  /* Gatorade Carousel Mobile Styles */
+  .gatorade-championship-section h3 {
+    font-size: 1.5rem;
+  }
+
+  .carousel-container::before,
+  .carousel-container::after {
+    width: 50px;
+  }
+
+  .carousel-track {
+    gap: 1.5rem;
+    animation: scroll 35s linear infinite;
+  }
+
+  .carousel-image-card img {
+    height: 250px !important;
+  }
+
+  .image-overlay i {
+    font-size: 1.5rem;
+  }
+
+  .image-overlay span {
+    font-size: 0.85rem;
+  }
+
+  /* Lightbox Mobile */
+  .lightbox-overlay {
+    padding: 0.5rem;
+  }
+
+  .lightbox-container {
+    height: 98vh;
+  }
+
+  .lightbox-header {
+    padding: 1rem 1.25rem;
+  }
+
+  .lightbox-title h3 {
+    font-size: 1.1rem;
+  }
+
+  .lightbox-counter {
+    font-size: 0.85rem;
+  }
+
+  .lightbox-close {
+    width: 40px;
+    height: 40px;
+    font-size: 1rem;
+  }
+
+  .lightbox-content {
+    padding: 1rem;
+  }
+
+  .lightbox-image {
+    max-height: 60vh;
+  }
+
+  .lightbox-nav {
+    width: 44px;
+    height: 44px;
+    font-size: 1.2rem;
+  }
+
+  .lightbox-prev {
+    left: 0.5rem;
+  }
+
+  .lightbox-next {
+    right: 0.5rem;
+  }
+
+  .lightbox-thumbnails {
+    padding: 1rem;
+    gap: 0.75rem;
+  }
+
+  .thumbnail {
+    flex: 0 0 70px;
+    height: 60px;
+  }
+}
+
+@media screen and (max-width: 480px) {
+  .gatorade-championship-section h3 {
+    font-size: 1.5rem;
+  }
+
+  .carousel-container::before,
+  .carousel-container::after {
+    width: 30px;
+  }
+
+  .carousel-track {
+    gap: 1rem;
+    animation: scroll 30s linear infinite;
+  }
+
+  .carousel-image-card img {
+    height: 200px !important;
+  }
+
+  .image-overlay i {
+    font-size: 1.25rem;
+  }
+
+  .image-overlay span {
+    font-size: 0.75rem;
+  }
+
+  /* Lightbox Extra Small Mobile */
+  .lightbox-header {
+    padding: 0.875rem 1rem;
+  }
+
+  .lightbox-title h3 {
+    font-size: 1rem;
+  }
+
+  .lightbox-counter {
+    font-size: 0.8rem;
+  }
+
+  .lightbox-close {
+    width: 36px;
+    height: 36px;
+  }
+
+  .lightbox-content {
+    padding: 0.5rem;
+  }
+
+  .lightbox-image {
+    max-height: 55vh;
+  }
+
+  .lightbox-nav {
+    width: 40px;
+    height: 40px;
+    font-size: 1.1rem;
+  }
+
+  .lightbox-prev {
+    left: 0.25rem;
+  }
+
+  .lightbox-next {
+    right: 0.25rem;
+  }
+
+  .lightbox-thumbnails {
+    padding: 0.875rem;
+    gap: 0.5rem;
+  }
+
+  .thumbnail {
+    flex: 0 0 60px;
+    height: 50px;
+    border-width: 2px;
   }
 }
