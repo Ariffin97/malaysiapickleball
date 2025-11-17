@@ -24,6 +24,7 @@ import RegisteredOrganizers from './pages/RegisteredOrganizers';
 import TermsAndConditions from './pages/TermsAndConditions';
 import PrivacyPolicy from './pages/PrivacyPolicy';
 import ContactUs from './pages/ContactUs';
+import GatoradeChampionship from './pages/GatoradeChampionship';
 import './App.css';
 
 function AppContent() {
@@ -61,6 +62,7 @@ function AppContent() {
           <Route path="/add-friend/:playerId" element={<AddFriendQR />} />
           <Route path="/picklezone/login" element={<PickleZoneLogin />} />
           <Route path="/picklezone" element={<PickleZone />} />
+          <Route path="/gatorade-championship" element={<GatoradeChampionship />} />
           <Route path="/terms-and-conditions" element={<TermsAndConditions />} />
           <Route path="/privacy-policy" element={<PrivacyPolicy />} />
         </Routes>

@@ -247,6 +247,11 @@ function Home() {
               </div>
             </div>
           </div>
+
+          <div className="hero-championship">
+            <h2 className="hero-championship-title">Gatorade Malaysia Closed 2025 Pickleball Championship</h2>
+            <Link to="/gatorade-championship" className="hero-btn-info">visit more info</Link>
+          </div>
         </div>
       </section>
 

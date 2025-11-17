@@ -31,6 +31,49 @@
   z-index: 1;
 }
 
+.hero-championship {
+  margin-top: 3rem;
+  padding-top: 2rem;
+  border-top: 2px solid rgba(255, 255, 255, 0.3);
+}
+
+.hero-championship-title {
+  font-size: 2rem;
+  font-weight: bold;
+  color: white;
+  margin-bottom: 1.5rem;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+  line-height: 1.4;
+}
+
+.hero-btn-info {
+  display: inline-block;
+  background: white;
+  color: #1d4ed8;
+  padding: 1rem 2.5rem;
+  font-size: 1.1rem;
+  font-weight: 600;
+  border: none;
+  border-radius: 50px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  text-decoration: none;
+}
+
+.hero-btn-info:hover {
+  background: #fbbf24;
+  color: #1f2937;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+  text-decoration: none;
+}
+
+.hero-btn-info:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
 .hero-logo {
   width: 150px;
   height: 150px;
@@ -172,6 +215,65 @@
   box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
 }
 
+/* Championship Banner Section */
+.championship-banner {
+  background: url('/background.png') center/cover no-repeat;
+  padding: 2rem 2rem 4rem;
+  text-align: center;
+  position: relative;
+  margin-top: -1px;
+}
+
+.championship-banner::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.4);
+  z-index: 0;
+}
+
+.championship-banner .container {
+  position: relative;
+  z-index: 1;
+}
+
+.championship-title {
+  font-size: 2rem;
+  font-weight: bold;
+  color: white;
+  margin-bottom: 1.5rem;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+  line-height: 1.4;
+}
+
+.btn-visit-info {
+  background: white;
+  color: #1d4ed8;
+  padding: 1rem 2.5rem;
+  font-size: 1.1rem;
+  font-weight: 600;
+  border: none;
+  border-radius: 50px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.btn-visit-info:hover {
+  background: #fbbf24;
+  color: #1f2937;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25);
+}
+
+.btn-visit-info:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
 .quick-stats {
   padding: 3rem 2rem;
   background-color: white;
@@ -228,6 +330,23 @@
   font-size: 0.85rem;
   font-weight: 400;
   color: #6b7280;
+}
+
+/* Mobile responsive for championship banner */
+@media screen and (max-width: 768px) {
+  .championship-banner {
+    padding: 2rem 1.5rem;
+  }
+
+  .championship-title {
+    font-size: 1.5rem;
+    margin-bottom: 1.25rem;
+  }
+
+  .btn-visit-info {
+    padding: 0.875rem 2rem;
+    font-size: 1rem;
+  }
 }
 
 /* Mobile responsive for quick stats - swipeable */
@@ -2131,6 +2250,21 @@
   .hero-objective,
   .hero-mission {
     margin-bottom: 1.5rem;
+  }
+
+  .hero-championship {
+    margin-top: 2rem;
+    padding-top: 1.5rem;
+  }
+
+  .hero-championship-title {
+    font-size: 1.4rem;
+    margin-bottom: 1.25rem;
+  }
+
+  .hero-btn-info {
+    padding: 0.875rem 2rem;
+    font-size: 1rem;
   }
 
   .hero-vision h3,
