@@ -1,0 +1,394 @@
+.national-rankings-page {
+  width: 100%;
+  background: white;
+  min-height: 100vh;
+}
+
+.page-header {
+  background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%);
+  color: white;
+  padding: 5rem 2rem;
+  text-align: center;
+}
+
+.page-header h1 {
+  font-size: 3rem;
+  margin-bottom: 1rem;
+  font-weight: 700;
+}
+
+.page-header p {
+  font-size: 1.3rem;
+  opacity: 0.9;
+}
+
+.content-section {
+  padding: 3rem 2rem;
+}
+
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+/* Brief Description */
+.brief-description {
+  text-align: center;
+  margin-bottom: 2rem;
+  padding: 1.5rem 2rem;
+  background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+  border-radius: 12px;
+  border-left: 4px solid #3b82f6;
+}
+
+.brief-description p {
+  font-size: 1.1rem;
+  color: #1e40af;
+  margin-bottom: 1rem;
+  line-height: 1.6;
+}
+
+.learn-more-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: #3b82f6;
+  text-decoration: none;
+  font-weight: 500;
+  font-size: 1rem;
+  transition: all 0.3s ease;
+}
+
+.learn-more-link:hover {
+  color: #2563eb;
+  gap: 0.75rem;
+}
+
+.learn-more-link i {
+  font-size: 0.875rem;
+  transition: transform 0.3s ease;
+}
+
+.learn-more-link:hover i {
+  transform: translateX(3px);
+}
+
+/* Filters Container */
+.filters-container {
+  background: white;
+  padding: 2rem;
+  border-radius: 12px;
+  margin-bottom: 2rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1.5rem;
+}
+
+.filter-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.filter-label {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #374151;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+/* Gender Filter Buttons */
+.filter-buttons {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.filter-btn {
+  flex: 1;
+  padding: 0.625rem 1rem;
+  border: 2px solid #e5e7eb;
+  background: white;
+  color: #374151;
+  border-radius: 6px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.filter-btn:hover {
+  border-color: #3b82f6;
+  color: #3b82f6;
+}
+
+.filter-btn.active {
+  background: #3b82f6;
+  color: white;
+  border-color: #3b82f6;
+}
+
+/* Select Filters */
+.filter-select {
+  padding: 0.625rem 1rem;
+  border: 2px solid #e5e7eb;
+  border-radius: 6px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #374151;
+  background: white;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23374151' d='M6 9L1 4h10z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 0.75rem center;
+  padding-right: 2.5rem;
+}
+
+.filter-select:hover {
+  border-color: #3b82f6;
+}
+
+.filter-select:focus {
+  outline: none;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+/* Loading, Error, Empty States */
+.loading-state,
+.error-state,
+.empty-state {
+  text-align: center;
+  padding: 4rem 2rem;
+}
+
+.loading-state i,
+.error-state i,
+.empty-state i {
+  font-size: 3rem;
+  margin-bottom: 1rem;
+  color: #9ca3af;
+}
+
+.loading-state i {
+  color: #3b82f6;
+}
+
+.error-state i {
+  color: #ef4444;
+}
+
+.loading-state p,
+.error-state p,
+.empty-state p {
+  font-size: 1.2rem;
+  color: #6b7280;
+}
+
+.retry-button {
+  margin-top: 1rem;
+  padding: 0.75rem 1.5rem;
+  background: #3b82f6;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background 0.3s ease;
+}
+
+.retry-button:hover {
+  background: #2563eb;
+}
+
+/* Rankings Table */
+.rankings-table-wrapper {
+  background: white;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  margin-bottom: 3rem;
+}
+
+.rankings-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.rankings-table thead {
+  background: #f9fafb;
+  border-bottom: 2px solid #e5e7eb;
+}
+
+.rankings-table th {
+  padding: 1rem;
+  text-align: left;
+  font-weight: 600;
+  color: #374151;
+  font-size: 0.875rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.rankings-table tbody tr {
+  border-bottom: 1px solid #f3f4f6;
+  transition: background 0.2s ease;
+}
+
+.rankings-table tbody tr:hover {
+  background: #f9fafb;
+}
+
+.rankings-table td {
+  padding: 1rem;
+  color: #4b5563;
+  font-size: 0.95rem;
+}
+
+/* Rank Cell */
+.rank-cell {
+  font-weight: 600;
+  font-size: 1.1rem;
+}
+
+.rank-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: #e5e7eb;
+  color: #374151;
+  font-weight: 700;
+}
+
+.rank-badge.top-1 {
+  background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+  color: white;
+  box-shadow: 0 2px 8px rgba(251, 191, 36, 0.4);
+}
+
+.rank-badge.top-2 {
+  background: linear-gradient(135deg, #d1d5db 0%, #9ca3af 100%);
+  color: white;
+  box-shadow: 0 2px 8px rgba(156, 163, 175, 0.4);
+}
+
+.rank-badge.top-3 {
+  background: linear-gradient(135deg, #fb923c 0%, #ea580c 100%);
+  color: white;
+  box-shadow: 0 2px 8px rgba(251, 146, 60, 0.4);
+}
+
+/* Player Name */
+.player-name {
+  font-weight: 500;
+  color: #1f2937;
+}
+
+/* Gender Badge */
+.gender-badge {
+  display: inline-block;
+  padding: 0.25rem 0.75rem;
+  border-radius: 12px;
+  font-size: 0.875rem;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.gender-badge.male {
+  background: #dbeafe;
+  color: #1e40af;
+}
+
+.gender-badge.female {
+  background: #fce7f3;
+  color: #be185d;
+}
+
+/* Points and Rating Cells */
+.points-cell,
+.rating-cell {
+  font-weight: 600;
+  color: #3b82f6;
+}
+
+/* Responsive Design */
+@media screen and (max-width: 768px) {
+  .page-header h1 {
+    font-size: 2rem;
+  }
+
+  .page-header p {
+    font-size: 1.1rem;
+  }
+
+  .content-section {
+    padding: 2rem 1rem;
+  }
+
+  .brief-description {
+    padding: 1rem 1.5rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .brief-description p {
+    font-size: 1rem;
+  }
+
+  .learn-more-link {
+    font-size: 0.95rem;
+  }
+
+  .filters-container {
+    grid-template-columns: 1fr;
+    padding: 1.5rem;
+    gap: 1.25rem;
+  }
+
+  .filter-buttons {
+    gap: 0.5rem;
+  }
+
+  .filter-btn {
+    padding: 0.75rem 0.75rem;
+    font-size: 0.875rem;
+  }
+
+  .rankings-table-wrapper {
+    overflow-x: auto;
+  }
+
+  .rankings-table {
+    font-size: 0.875rem;
+  }
+
+  .rankings-table th,
+  .rankings-table td {
+    padding: 0.75rem 0.5rem;
+  }
+
+  .rank-badge {
+    min-width: 32px;
+    height: 32px;
+    font-size: 0.875rem;
+  }
+
+  /* Hide less important columns on mobile */
+  .rankings-table th:nth-child(6),
+  .rankings-table td:nth-child(6) {
+    display: none;
+  }
+}
+
+@media screen and (max-width: 480px) {
+  /* Hide Rating column on very small screens */
+  .rankings-table th:nth-child(5),
+  .rankings-table td:nth-child(5) {
+    display: none;
+  }
+}

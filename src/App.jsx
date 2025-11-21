@@ -21,6 +21,8 @@ import AddFriendQR from './pages/AddFriendQR';
 import PickleZone from './pages/PickleZone';
 import PickleZoneLogin from './pages/PickleZoneLogin';
 import RegisteredOrganizers from './pages/RegisteredOrganizers';
+import NationalRankings from './pages/NationalRankings';
+import RankingSystem from './pages/RankingSystem';
 import TermsAndConditions from './pages/TermsAndConditions';
 import PrivacyPolicy from './pages/PrivacyPolicy';
 import ContactUs from './pages/ContactUs';
@@ -45,6 +47,8 @@ function AppContent() {
           <Route path="/tournament" element={<Tournament />} />
           <Route path="/tournament/register/:tournamentId" element={<TournamentRegistration />} />
           <Route path="/registered-organizers" element={<RegisteredOrganizers />} />
+          <Route path="/national-rankings" element={<NationalRankings />} />
+          <Route path="/ranking-system" element={<RankingSystem />} />
           <Route path="/affiliate" element={<Affiliate />} />
           <Route path="/organization" element={<Organization />} />
           <Route path="/news" element={<News />} />

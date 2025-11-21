@@ -38,6 +38,7 @@ function Navbar() {
             </Link>
             <Link to="/tournament" className="nav-link desktop-link">Calendar</Link>
             <Link to="/registered-organizers" className="nav-link desktop-link">Registered Organizers</Link>
+            <Link to="/national-rankings" className="nav-link desktop-link">National Rankings</Link>
           </div>
 
           {/* Right - Home (Desktop) */}
@@ -78,6 +79,10 @@ function Navbar() {
             <Link to="/registered-organizers" className="mobile-menu-link" onClick={closeMobileMenu}>
               <i className="fas fa-users"></i>
               Registered Organizers
+            </Link>
+            <Link to="/national-rankings" className="mobile-menu-link" onClick={closeMobileMenu}>
+              <i className="fas fa-medal"></i>
+              National Rankings
             </Link>
             <Link to="/about-us" className="mobile-menu-link" onClick={closeMobileMenu}>
               <i className="fas fa-info-circle"></i>

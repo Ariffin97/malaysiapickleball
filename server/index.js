@@ -2388,6 +2388,51 @@ Technical Partner: Fenix Digital`,
   }
 });
 
+// Get player rankings (National Rankings)
+app.get('/api/players/rankings', async (req, res) => {
+  try {
+    const { gender, eventType, ageGroup, skillLevel, state, limit } = req.query;
+
+    // Build query filter
+    let query = {
+      currentRankingPoints: { $gt: 0 },
+      membershipStatus: 'active'
+    };
+
+    // Add gender filter if provided
+    if (gender && gender !== 'all') {
+      query.gender = gender;
+    }
+
+    // Add state filter if provided
+    if (state && state !== 'all') {
+      query.state = state;
+    }
+
+    // TODO: Add eventType filtering
+    // EventType filtering requires aggregating from Result table where eventType matches
+    // (singles: MS/WS, doubles: MD/WD, mixed: XD), then calculating best 8 per player
+    // For now, this parameter is accepted but not yet implemented
+
+    // TODO: Add ageGroup and skillLevel filtering once these fields are in the Player schema
+    // For now, these will be ignored until the backend MPRS data is available
+
+    // Set default limit
+    const resultsLimit = limit ? parseInt(limit) : 100;
+
+    // Fetch ranked players
+    const players = await Player.find(query)
+      .select('name fullName gender currentRankingPoints rankPosition duprRating state profilePicture age')
+      .sort({ rankPosition: 1 })
+      .limit(resultsLimit);
+
+    res.json(players);
+  } catch (error) {
+    console.error('Error fetching rankings:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
 // Get all players
 app.get('/api/players', async (req, res) => {
   try {
