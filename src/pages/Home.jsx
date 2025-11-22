@@ -369,7 +369,6 @@ function Home() {
                     <Link to="/picklezone/login" className="btn-picklezone-login">
                       Enter PickleZone
                     </Link>
-                    <p className="picklezone-note">Join our exclusive social community for players</p>
                   </div>
                 </div>
               </div>
@@ -500,7 +499,6 @@ function Home() {
                 <i className="fas fa-sign-in-alt"></i>
                 Enter PickleZone
               </Link>
-              <p className="picklezone-note">Join our exclusive social community for players</p>
             </div>
             <div className="picklezone-content">
               <div className="picklezone-text">
