@@ -122,31 +122,31 @@ function RankingSystem() {
                   </tr>
                   <tr>
                     <td><i className="fas fa-medal"></i> Finalist</td>
-                    <td>80%</td>
-                    <td>400 points</td>
+                    <td>85%</td>
+                    <td>425 points</td>
                   </tr>
                   <tr>
                     <td>Semifinalist</td>
-                    <td>60%</td>
-                    <td>300 points</td>
+                    <td>70%</td>
+                    <td>350 points</td>
                   </tr>
                   <tr>
                     <td>Quarterfinalist</td>
+                    <td>55%</td>
+                    <td>275 points</td>
+                  </tr>
+                  <tr>
+                    <td>Top 16</td>
                     <td>40%</td>
                     <td>200 points</td>
                   </tr>
                   <tr>
-                    <td>Top 8</td>
-                    <td>20%</td>
-                    <td>100 points</td>
-                  </tr>
-                  <tr>
-                    <td>Top 16</td>
-                    <td>10%</td>
-                    <td>50 points</td>
-                  </tr>
-                  <tr>
                     <td>Top 32</td>
+                    <td>25%</td>
+                    <td>125 points</td>
+                  </tr>
+                  <tr>
+                    <td>Top 64</td>
                     <td>5%</td>
                     <td>25 points</td>
                   </tr>
@@ -283,13 +283,13 @@ function RankingSystem() {
               <h3>Another Scenario:</h3>
               <ul>
                 <li>Tournament: Tier 3 (State Championship) - <strong>250 base points</strong></li>
-                <li>Placement: Semifinalist - <strong>60%</strong></li>
+                <li>Placement: Semifinalist - <strong>70%</strong></li>
                 <li>Skill: Advanced (rating 3.8) - <strong>36%</strong></li>
                 <li>Age: All-Ages - <strong>100%</strong></li>
               </ul>
               <div className="calculation">
                 <p><strong>Calculation:</strong></p>
-                <p className="calc-formula">250 × 0.6 × 0.36 × 1.0 = <span className="result">54 points</span></p>
+                <p className="calc-formula">250 × 0.7 × 0.36 × 1.0 = <span className="result">63 points</span></p>
               </div>
             </div>
           </div>
