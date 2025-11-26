@@ -50,6 +50,7 @@
 /* Filters Section */
 .filters-section {
   display: flex;
+  flex-direction: column;
   gap: 0.75rem;
   margin-bottom: 1.5rem;
   background: white;
@@ -57,12 +58,10 @@
   border-radius: 12px;
   border: 1px solid #e5e7eb;
   box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-  align-items: center;
 }
 
 .search-box {
-  flex: 1;
-  min-width: 250px;
+  width: 100%;
   position: relative;
 }
 
@@ -70,6 +69,8 @@
   display: flex;
   gap: 0.5rem;
   align-items: center;
+  flex-wrap: nowrap;
+  overflow-x: auto;
 }
 
 .filter-select {
@@ -83,6 +84,7 @@
   cursor: pointer;
   transition: all 0.2s ease;
   min-width: 130px;
+  flex-shrink: 0;
 }
 
 .filter-select:hover {
@@ -95,6 +97,26 @@
   border-color: #1f2937;
   color: #111827;
   box-shadow: 0 0 0 3px rgba(31, 41, 55, 0.05);
+}
+
+/* Scrollbar for horizontal filters */
+.filters-container::-webkit-scrollbar {
+  height: 6px;
+}
+
+.filters-container::-webkit-scrollbar-track {
+  background: #f3f4f6;
+  border-radius: 3px;
+  margin: 0 0.5rem;
+}
+
+.filters-container::-webkit-scrollbar-thumb {
+  background: #d1d5db;
+  border-radius: 3px;
+}
+
+.filters-container::-webkit-scrollbar-thumb:hover {
+  background: #9ca3af;
 }
 
 .search-box i {
@@ -812,17 +834,7 @@
 
 /* Responsive */
 @media (max-width: 1024px) {
-  .filters-section {
-    flex-wrap: wrap;
-  }
-
-  .search-box {
-    flex: 1 1 100%;
-    min-width: 100%;
-  }
-
   .filters-container {
-    flex: 1 1 100%;
     justify-content: flex-start;
   }
 }
@@ -866,23 +878,23 @@
 
   /* Filters section mobile */
   .manage-players .filters-section {
-    flex-direction: column !important;
     padding: 0.875rem !important;
   }
 
   .manage-players .search-box {
     width: 100% !important;
-    min-width: 100% !important;
   }
 
   .manage-players .filters-container {
-    flex-wrap: wrap !important;
     width: 100% !important;
     gap: 0.5rem !important;
+    flex-wrap: nowrap !important;
+    overflow-x: auto !important;
+    -webkit-overflow-scrolling: touch !important;
   }
 
   .manage-players .filter-select {
-    flex: 1 1 calc(50% - 0.25rem) !important;
+    flex-shrink: 0 !important;
     min-width: 120px !important;
     font-size: 0.8125rem !important;
     padding: 0.625rem 0.75rem !important;
@@ -1061,7 +1073,7 @@
   }
 
   .manage-players .filter-select {
-    flex: 1 1 100% !important;
+    min-width: 110px !important;
   }
 }
 

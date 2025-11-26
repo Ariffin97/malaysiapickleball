@@ -285,6 +285,38 @@ function Home() {
         </div>
       </section>
 
+      {/* Gatorade Championship CTA */}
+      <section className="gatorade-championship-cta">
+        <div className="container">
+          <div className="gatorade-cta-card">
+            <div className="gatorade-cta-logo">
+              <img src="/gatorade.png" alt="Gatorade Logo" />
+            </div>
+            <div className="gatorade-cta-content">
+              <div className="gatorade-badge">
+                <i className="fas fa-trophy"></i>
+                <span>Tournament Registration Open</span>
+              </div>
+              <h2>Gatorade Malaysia Closed Pickleball Championship 2025</h2>
+              <p>Register now for the premier pickleball championship event of the year</p>
+              <a
+                href="https://tournament.malaysiapickleball.my/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="btn-gatorade-register"
+              >
+                <i className="fas fa-ticket-alt"></i>
+                Register for Tournament
+                <i className="fas fa-arrow-right"></i>
+              </a>
+            </div>
+            <div className="gatorade-cta-graphic">
+              <i className="fas fa-table-tennis"></i>
+            </div>
+          </div>
+        </div>
+      </section>
+
       <section className="registration-picklezone-posts-wrapper">
         <div className="container">
           <div className="registration-picklezone-posts-grid">

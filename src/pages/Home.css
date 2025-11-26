@@ -333,6 +333,267 @@
   color: #6b7280;
 }
 
+/* Gatorade Championship CTA Section */
+.gatorade-championship-cta {
+  padding: 4rem 2rem;
+  background: linear-gradient(135deg, #ff6b35 0%, #f7931e 100%);
+  position: relative;
+  overflow: hidden;
+}
+
+.gatorade-championship-cta::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  right: -10%;
+  width: 500px;
+  height: 500px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 50%;
+  z-index: 0;
+}
+
+.gatorade-championship-cta::after {
+  content: '';
+  position: absolute;
+  bottom: -30%;
+  left: -5%;
+  width: 400px;
+  height: 400px;
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 50%;
+  z-index: 0;
+}
+
+.gatorade-cta-card {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 3rem;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.gatorade-cta-logo {
+  flex-shrink: 0;
+  width: 280px;
+  height: 280px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  margin-left: -2rem;
+  animation: float-logo 3s ease-in-out infinite;
+}
+
+@keyframes float-logo {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-15px);
+  }
+}
+
+.gatorade-cta-logo img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.gatorade-cta-content {
+  flex: 1;
+  color: white;
+}
+
+.gatorade-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(10px);
+  padding: 0.5rem 1.25rem;
+  border-radius: 50px;
+  font-weight: 600;
+  font-size: 0.875rem;
+  margin-bottom: 1.5rem;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  animation: pulse-glow 2s ease-in-out infinite;
+}
+
+@keyframes pulse-glow {
+  0%, 100% {
+    box-shadow: 0 0 20px rgba(255, 255, 255, 0.3);
+  }
+  50% {
+    box-shadow: 0 0 30px rgba(255, 255, 255, 0.5);
+  }
+}
+
+.gatorade-badge i {
+  font-size: 1rem;
+  animation: bounce-trophy 2s ease-in-out infinite;
+}
+
+@keyframes bounce-trophy {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-5px);
+  }
+}
+
+.gatorade-cta-content h2 {
+  font-size: 2.5rem;
+  font-weight: 800;
+  margin: 0 0 1rem 0;
+  color: white;
+  line-height: 1.2;
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+}
+
+.gatorade-cta-content p {
+  font-size: 1.125rem;
+  margin-bottom: 2rem;
+  opacity: 0.95;
+  line-height: 1.6;
+}
+
+.btn-gatorade-register {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.75rem;
+  background: white;
+  color: #ff6b35;
+  padding: 1rem 2.5rem;
+  border-radius: 50px;
+  font-weight: 700;
+  font-size: 1.125rem;
+  text-decoration: none;
+  transition: all 0.3s ease;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+  position: relative;
+  overflow: hidden;
+}
+
+.btn-gatorade-register::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+  transition: left 0.5s ease;
+}
+
+.btn-gatorade-register:hover::before {
+  left: 100%;
+}
+
+.btn-gatorade-register:hover {
+  transform: translateY(-3px) scale(1.05);
+  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.3);
+}
+
+.btn-gatorade-register i:first-child {
+  font-size: 1.25rem;
+}
+
+.btn-gatorade-register i:last-child {
+  font-size: 1rem;
+  transition: transform 0.3s ease;
+}
+
+.btn-gatorade-register:hover i:last-child {
+  transform: translateX(5px);
+}
+
+.gatorade-cta-graphic {
+  flex-shrink: 0;
+  width: 200px;
+  height: 200px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(10px);
+  border-radius: 50%;
+  border: 3px solid rgba(255, 255, 255, 0.3);
+  animation: float-graphic 3s ease-in-out infinite;
+}
+
+@keyframes float-graphic {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-20px);
+  }
+}
+
+.gatorade-cta-graphic i {
+  font-size: 5rem;
+  color: white;
+  opacity: 0.8;
+  animation: rotate-paddle 4s linear infinite;
+}
+
+@keyframes rotate-paddle {
+  0%, 100% {
+    transform: rotate(-5deg);
+  }
+  50% {
+    transform: rotate(5deg);
+  }
+}
+
+/* Mobile responsive for Gatorade CTA */
+@media screen and (max-width: 768px) {
+  .gatorade-championship-cta {
+    padding: 3rem 1.5rem;
+  }
+
+  .gatorade-cta-card {
+    flex-direction: column;
+    text-align: center;
+    gap: 2rem;
+  }
+
+  .gatorade-cta-logo {
+    width: 180px;
+    height: 180px;
+    margin-left: 0;
+    justify-content: center;
+  }
+
+  .gatorade-cta-content h2 {
+    font-size: 1.75rem;
+  }
+
+  .gatorade-cta-content p {
+    font-size: 1rem;
+  }
+
+  .btn-gatorade-register {
+    font-size: 1rem;
+    padding: 0.875rem 2rem;
+    width: 100%;
+    justify-content: center;
+  }
+
+  .gatorade-cta-graphic {
+    width: 150px;
+    height: 150px;
+  }
+
+  .gatorade-cta-graphic i {
+    font-size: 3.5rem;
+  }
+}
+
 /* Mobile responsive for championship banner */
 @media screen and (max-width: 768px) {
   .championship-banner {

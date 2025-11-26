@@ -2170,6 +2170,28 @@ app.post('/api/players/register', uploadPlayerImage.single('profilePicture'), as
       return res.status(400).json({ error: 'Username already taken' });
     }
 
+    // Validate parental consent for players under 18
+    const playerAge = parseInt(age);
+    if (playerAge < 18) {
+      if (!parentGuardianName || parentGuardianName.trim() === '') {
+        return res.status(400).json({ error: 'Parent/Guardian name is required for players under 18' });
+      }
+      if (!parentGuardianIcNumber || parentGuardianIcNumber.trim() === '') {
+        return res.status(400).json({ error: 'Parent/Guardian IC number is required for players under 18' });
+      }
+      // Validate IC number format (should be 12 digits formatted as XXXXXX-XX-XXXX)
+      const icDigitsOnly = parentGuardianIcNumber.replace(/-/g, '');
+      if (icDigitsOnly.length !== 12) {
+        return res.status(400).json({ error: 'Parent/Guardian IC number must be 12 digits in format XXXXXX-XX-XXXX' });
+      }
+      if (!parentGuardianContact || parentGuardianContact.trim() === '') {
+        return res.status(400).json({ error: 'Parent/Guardian contact number is required for players under 18' });
+      }
+      if (!parentalConsent || (parentalConsent !== 'true' && parentalConsent !== true)) {
+        return res.status(400).json({ error: 'Parental consent is required for players under 18' });
+      }
+    }
+
     // Generate unique MPA ID
     const playerId = await generateMpaId();
 
