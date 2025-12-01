@@ -36,12 +36,12 @@ function AdminLogin() {
   return (
     <div className="admin-login-page">
       <div className="login-card">
-        <div className="login-header" style={{ paddingBottom: '0.5rem' }}>
-          <img src="/mpa.png" alt="MPA Logo" className="login-logo" style={{ width: '180px', height: '180px' }} />
-          <h1 style={{ marginBottom: '1rem !important' }}>Admin Portal</h1>
+        <div className="login-header">
+          <img src="/mpa.png" alt="MPA Logo" className="login-logo" />
+          <h1>Admin Portal</h1>
         </div>
 
-        <form onSubmit={handleSubmit} className="login-form" style={{ marginTop: '0.5rem' }}>
+        <form onSubmit={handleSubmit} className="login-form">
           {error && (
             <div className="error-message">
               {error}
